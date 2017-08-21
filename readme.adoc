@@ -1,36 +1,6 @@
-= Kubernertes on AWS Workshop
+= Kubernetes on AWS Workshop
 
-This repo explains:
+This repo explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains how to deploy, scale and configure applications on this cluster.
 
-. For Ops: Setup a Kubernetes cluster on Amazon Web Services
-. For Dev: Run applications on Kubernetes cluster
-
-== Kubernetes for Ops
-
-=== Setup cluster
-
-There are multiple ways to http://kubernetes-aws.io[setup Kubernetes cluster on AWS]. This workshop will show how to setup a cluster using kops.
-
-Complete detailed steps to setup a cluster are available at https://aws.amazon.com/blogs/compute/kubernetes-clusters-aws-kops/.
-
-=== Rolling Upgrade
-
-== Kubernetes for Dev
-
-=== Pod
-
-. Create pod: `kubectl run nginx --image=nginx`
-. Check status: `kubectl get -w pods`
-. 
-
-=== Replica set
-
-=== Deployment
-
-=== Service
-
-=== Run-once
-
-=== Daemonset
-
-=== Namespaces
+. link:ops.adoc[For Ops]: Setup and manage a Kubernetes cluster on Amazon Web Services
+. link:dev.adoc[For Dev]: Run applications on Kubernetes cluster

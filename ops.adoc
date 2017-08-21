@@ -1,0 +1,29 @@
+= Kubernetes for Ops
+
+== Setup cluster
+
+There are multiple ways to http://kubernetes-aws.io[setup Kubernetes cluster on AWS]. This workshop will show how to setup a cluster using kops.
+
+Complete detailed steps to setup a cluster are available at https://aws.amazon.com/blogs/compute/kubernetes-clusters-aws-kops/.
+
+== View cluster capacity
+
+== Rolling Upgrade
+
+== Adding new master
+
+== Adding new nodes
+
+== Auto-scale cluster
+
+== Custom Resources
+
+== Custom networking
+
+Calico or Flannel or both?
+
+== Monitoring
+
+Graphana + Prometheus dashboard?
+
+== Federated clusters

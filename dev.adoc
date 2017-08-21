@@ -1,0 +1,28 @@
+= Kubernetes for Dev
+
+== Pod
+
+. Create pod: `kubectl run nginx --image=nginx`
+. Check status: `kubectl get -w pods`
+. 
+
+== Service
+
+== ReplicaSet
+
+== Deployment
+
+== Run-once
+
+== Daemonset
+
+== Namespaces
+
+. Resource Quota
+
+== StatefulSet
+
+== Secrets management
+
+== Ingress controller
+
