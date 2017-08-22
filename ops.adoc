@@ -26,4 +26,12 @@ Calico or Flannel or both?
 
 Graphana + Prometheus dashboard?
 
+== Service mesh
+
+Linkerd
+
+== Logging
+
+Fluentd
+
 == Federated clusters
