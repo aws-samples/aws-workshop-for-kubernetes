@@ -26,6 +26,14 @@ https://github.com/arun-gupta/kubernetes-aws-workshop/issues/9
 
 https://github.com/arun-gupta/kubernetes-aws-workshop/issues/10
 
+== Service mesh
+
+Linkerd
+
+== Logging
+
+Fluentd
+
 == Federated clusters
 
 https://github.com/arun-gupta/kubernetes-aws-workshop/issues/6
