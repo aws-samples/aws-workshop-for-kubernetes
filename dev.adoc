@@ -2,19 +2,27 @@
 
 == Pod
 
-. Create pod: `kubectl run nginx --image=nginx`
-. Check status: `kubectl get -w pods`
-. 
-
-== Service
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/17
 
 == ReplicaSet
 
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/13
+
+== Service
+
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/13
+
 == Deployment
+
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/13
 
 == Run-once
 
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/14
+
 == Daemonset
+
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/14
 
 == Namespaces
 
@@ -22,7 +30,13 @@
 
 == StatefulSet
 
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/12
+
 == Secrets management
 
-== Ingress controller
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/15
+
+== ALB Ingress controller
+
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/16
 

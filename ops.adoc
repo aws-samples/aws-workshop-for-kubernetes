@@ -4,26 +4,28 @@
 
 There are multiple ways to http://kubernetes-aws.io[setup Kubernetes cluster on AWS]. This workshop will show how to setup a cluster using kops.
 
-Complete detailed steps to setup a cluster are available at https://aws.amazon.com/blogs/compute/kubernetes-clusters-aws-kops/.
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/5
 
 == View cluster capacity
 
 == Rolling Upgrade
 
-== Adding new master
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/8
 
-== Adding new nodes
+== Rolling update of an application
 
-== Auto-scale cluster
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/7
+
+== Scaling the cluster
+
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/9
 
 == Custom Resources
 
-== Custom networking
+== Logging
 
-Calico or Flannel or both?
-
-== Monitoring
-
-Graphana + Prometheus dashboard?
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/10
 
 == Federated clusters
+
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/6
