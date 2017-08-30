@@ -6,8 +6,6 @@ There are multiple ways to http://kubernetes-aws.io[setup Kubernetes cluster on 
 
 https://github.com/arun-gupta/kubernetes-aws-workshop/issues/5
 
-== View cluster capacity
-
 == Rolling Upgrade
 
 https://github.com/arun-gupta/kubernetes-aws-workshop/issues/8
@@ -28,11 +26,11 @@ https://github.com/arun-gupta/kubernetes-aws-workshop/issues/10
 
 == Service mesh
 
-Linkerd
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/11
 
 == Logging
 
-Fluentd
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/10
 
 == Federated clusters
 
