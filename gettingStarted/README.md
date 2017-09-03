@@ -31,7 +31,7 @@ This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to 
 
 If you see the following output you should be good to go:
 
-![startMiniKube] (images/startMiniKube.png)
+![startMiniKube](images/startMiniKube.png)
 
 6.
 7.
