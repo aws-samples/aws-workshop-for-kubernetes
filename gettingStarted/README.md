@@ -19,6 +19,7 @@ We are going to use homebrew to simplify the installation of related software ne
     ```/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"```
 
     details are avaialble here:
+    
     https://brew.sh/
 
 2.  Install virtualbox:
