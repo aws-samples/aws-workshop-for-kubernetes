@@ -27,13 +27,13 @@ We are going to use homebrew to simplify the installation of related software ne
 
 5.  Start minikube - we are using the VirtualBox driver which is the default selection for minikube, if you would like you can use an alternate supported component (xhyve driver or VMware Fusion) using the --vm-driver=xxx flag. For this walkthrough with VirtualBox use:
 
-  * ```minikube start```
+    ```minikube start```
 
-  * This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against.
+    This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against.
 
-  * If you see the following output you should be good to go:
+    If you see the following output you should be good to go:
 
-  * ![startMiniKube](images/startMiniKube.png)
+    ![startMiniKube](images/startMiniKube.png)
 
 6.
 7.
