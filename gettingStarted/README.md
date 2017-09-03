@@ -16,22 +16,22 @@ We are going to use homebrew to simplify the installation of related software ne
 
 1. Install Homebrew and Cask:
 
-  ```/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"```
+    ```/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"```
 
     details are avaialble here:
     https://brew.sh/
 
 2.  Install virtualbox:
 
-  ```brew cask install virtualbox```
+    ```brew cask install virtualbox```
 
 3.  Install minikube:
 
-  ```brew cask install minikube```
+    ```brew cask install minikube```
 
 4.  Install kubectl:
 
-  ```brew cask install kuberenetes-cli```
+    ```brew cask install kuberenetes-cli```
 
 5.  Start minikube - we are using the VirtualBox driver which is the default selection for minikube, if you would like you can use an alternate supported component (xhyve driver or VMware Fusion) using the --vm-driver=xxx flag. For this walkthrough with VirtualBox use:
 
