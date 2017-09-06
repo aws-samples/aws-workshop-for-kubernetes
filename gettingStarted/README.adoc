@@ -58,10 +58,13 @@ https://brew.sh/
 . Here we will execute some basic kubectl cli commands to familiarize ourselves with the cli tool:
 
 .. This command will show all of the nodes available in your kubernetes cluster:
+
     kubectl get nodes
 
 .. This command shows all of the pods that are deployed into your cluster (into the default namespace), initially this will not show anything:
+
     kubectl get pods
 
 .. This command, similar to the one above will show all of the pods in the kube-system namespace:
+
     kubectl get pods --namespace kube-system
