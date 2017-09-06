@@ -1,0 +1,37 @@
+= Kubernetes Getting Started
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+== Kubernetes Basic Commands
+
+Familiarize ourselves with the kubectl cli tool and basic Kubernetes commands. We will first deploy a basic nginx pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
+
+== Basic kubectl commands:
+Now that we have a local cluster up and running we can start issuing some basic commands and deploy some simple resources.
+
+=== This command will show all of the nodes available in your kubernetes cluster:
+
+    kubectl get nodes
+
+=== This command shows all of the pods that are deployed into your cluster (into the default namespace), initially this will not show anything:
+
+    kubectl get pods
+
+=== This command, similar to the one above will show all of the pods in the kube-system namespace:
+
+    kubectl get pods --namespace kube-system
+
+=== Create your first pod:
+
+This command creates an nginx pod into your cluster:
+
+    kubectl run nginx --image=nginx
+
+Check for running pods in your cluster:
+
+    kubectl get pods
+
+You see more details by running this command, replace the podxxx with the name of a pod from the above output:
+
+    kubectl describe pod podxxx
