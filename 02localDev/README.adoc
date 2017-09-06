@@ -7,10 +7,6 @@
 
 Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
 
-== Setup Local Development Environment
-
-We are going to use homebrew to simplify the installation of related software needed to get a Kubernetes developement environment setup on the OSX operating system.
-
 === Install Homebrew and Cask:
 
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
