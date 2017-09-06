@@ -39,7 +39,7 @@ https://brew.sh/
     minikube start
 
 [%hardbreaks]
-This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
+     This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
 
 [%hardbreaks]
-image:images/startMiniKube.png[startMiniKube]
+     image:images/startMiniKube.png[startMiniKube]
