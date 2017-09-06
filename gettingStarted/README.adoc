@@ -16,9 +16,9 @@ We are going to use homebrew to simplify the installation of related software ne
 
 1. Install Homebrew and Cask:
 
-    ```/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"```
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-    details are avaialble here:
+    details are available here:
 
     https://brew.sh/
 
