@@ -2,13 +2,13 @@
 
 == As part of this initial four part series we will accomplish a few key goals:
 
-1. Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
+. Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
 
-2. Familiarize ourselves with the kubectl cli tool and basic Kubernetes commands. We will first deploy a basic nginx pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
+. Familiarize ourselves with the kubectl cli tool and basic Kubernetes commands. We will first deploy a basic nginx pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
 
-3. Deploy a 'production-ready' cluster on AWS with KOPS
+. Deploy a 'production-ready' cluster on AWS with KOPS
 
-4. Explore additional developer functionality with core Kubernetes constructs such as ReplicaSets, Services, Deployments and DaemonSets.
+. Explore additional developer functionality with core Kubernetes constructs such as ReplicaSets, Services, Deployments and DaemonSets.
 
 === Lets get started with our first goal of getting a local development environment up and running on a mac
 
@@ -42,7 +42,7 @@ This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to 
 
 If you see the following output you should be good to go:
 image:images/startMiniKube.png[startMiniKube]
-![startMiniKube](images/startMiniKube.png)
+
 
 6.
 7.
