@@ -21,7 +21,7 @@ We are going to use homebrew to simplify the installation of related software ne
 
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-details are available here:
+.. details are available here:
 
 https://brew.sh/
 
@@ -83,4 +83,4 @@ https://brew.sh/
 
     kubectl describe pod podxxx
 
-    
+    gut
