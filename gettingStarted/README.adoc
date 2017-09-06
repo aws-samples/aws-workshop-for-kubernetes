@@ -36,7 +36,9 @@ https://brew.sh/
 
     brew cask install kuberenetes-cli
 
-=== Start minikube - we are using the VirtualBox driver which is the default selection for minikube, if you would like you can use an alternate supported component (xhyve driver or VMware Fusion) using the ```--vm-driver=xxx``` flag. For this walkthrough with VirtualBox use:
+=== Start minikube
+
+We are using the VirtualBox driver which is the default selection for minikube, if you would like you can use an alternate supported component (xhyve driver or VMware Fusion) using the ```--vm-driver=xxx``` flag. For this walkthrough with VirtualBox use:
 
     minikube start
 
