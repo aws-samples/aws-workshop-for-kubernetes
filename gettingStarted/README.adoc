@@ -20,7 +20,7 @@ We are going to use homebrew to simplify the installation of related software ne
 
 details are available here:
 
-    https://brew.sh/
+https://brew.sh/
 
 2.  Install virtualbox:
 
@@ -41,7 +41,7 @@ details are available here:
 This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against.
 
 If you see the following output you should be good to go:
-image:../images/startMiniKube.png[startMiniKube]
+image:images/startMiniKube.png[startMiniKube]
 ![startMiniKube](images/startMiniKube.png)
 
 6.
