@@ -68,3 +68,19 @@ https://brew.sh/
 .. This command, similar to the one above will show all of the pods in the kube-system namespace:
 
     kubectl get pods --namespace kube-system
+
+. *Create Pod* The following commands will deploy an nginx pod and perform some basic queries into the cluster:
+
+.. This command creates the actual pod:
+
+    kubectl run nginx --image=nginx
+
+.. Check for running pods in your cluster:
+
+    kubectl get pods
+
+.. You see more details by running this command, replace the podxxx with the name of a pod from the above output:
+
+    kubectl describe pod podxxx
+
+    
