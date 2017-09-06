@@ -1,5 +1,5 @@
 = Kubernetes Getting Started
-:icons:
+:icons: images
 
 == As part of this initial four part series we will accomplish a few key goals:
 
