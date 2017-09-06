@@ -10,16 +10,19 @@ In this part we will familiarize ourselves with the kubectl cli tool and basic K
 == Basic kubectl commands:
 Now that we have a local cluster up and running we can start issuing some basic commands and deploy some simple resources.
 
-=== Display nodes
+=== Display nodes:
+
 This command will show all of the nodes available in your kubernetes cluster:
 
     kubectl get nodes
 
-=== Display pods
+=== Display pods:
+
 This command shows all of the pods that are deployed into your cluster (into the default namespace), initially this will not show anything:
     kubectl get pods
 
-=== Display pods in a particular namespace
+=== Display pods in specifc namespace:
+
 This command, similar to the one above will show all of the pods in the kube-system namespace:
 
     kubectl get pods --namespace kube-system
