@@ -1,5 +1,7 @@
 = Kubernetes Getting Started
 :icons: images
+:linkcss:
+
 
 == As part of this initial four part series we will accomplish a few key goals:
 
