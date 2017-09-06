@@ -53,4 +53,6 @@ image::statusMiniKube.png[statusMiniKube]
 
 In the first part of this series we used homebrew to install VirtualBox, MiniKube and Kubectl to deploy a local kubernetes cluster. We used some basic minikube commands to assure we had a healthy cluster which we can now use to familiarize ourselves with the Kubernetes cli.
 
-== Continue on to part 2 of this series where will begin to issue some basic commands and deploy our first kubernetes pod!
+== Next Steps:
+
+Continue on to part 2 of this series where will begin to issue some basic commands and deploy our first kubernetes pod!

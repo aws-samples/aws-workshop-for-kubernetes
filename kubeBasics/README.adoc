@@ -1,7 +1,7 @@
 = Kubernetes Getting Started
 :icons:
 :linkcss:
-
+:imagesdir: ../images
 
 == This is part 2 of 4:
 
