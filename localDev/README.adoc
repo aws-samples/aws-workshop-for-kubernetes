@@ -1,6 +1,7 @@
 = Kubernetes Getting Started - Build Local Development Environment
-:icons: images
+:icons:
 :linkcss:
+:imagesdir: ../images
 
 == This is part 1 of 4
 
@@ -38,7 +39,7 @@ We are using the VirtualBox driver which is the default selection for minikube, 
 
 This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
 
-image:images/startMiniKube.png[startMiniKube]
+image::startMiniKube.png[startMiniKube]
 
 === Check the status of minikube to get the status of your local Kubernetes cluster:
 
@@ -46,7 +47,7 @@ image:images/startMiniKube.png[startMiniKube]
 
 If your output looks like below, everything should be ready to start working with:
 
-image:images/statusMiniKube.png[statusMiniKube]
+image::statusMiniKube.png[statusMiniKube]
 
 == Conclusion
 
