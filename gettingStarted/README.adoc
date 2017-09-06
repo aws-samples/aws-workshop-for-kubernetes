@@ -50,9 +50,9 @@ image:images/startMiniKube.png[startMiniKube]
 
     minikube status
 
-=== If your output looks like below, everything should be ready to start working with:
+If your output looks like below, everything should be ready to start working with:
 
- image:images/statusMiniKube.png[statusMiniKube]
+image:images/statusMiniKube.png[statusMiniKube]
 
 === Here we will execute some basic kubectl cli commands to familiarize ourselves with the cli tool:
 
