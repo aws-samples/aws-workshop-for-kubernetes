@@ -3,7 +3,7 @@
 :linkcss:
 :imagesdir: ../images
 
-== Setup Local Development Environment (Part 1 of 4)
+== Setup Local Development Environment (part 1 of 4)
 
 Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
 

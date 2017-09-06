@@ -3,7 +3,7 @@
 :linkcss:
 :imagesdir: ../images
 
-== Kubernetes Basic Commands
+== Kubernetes Basic Commands (part 2 of 4)
 
 Familiarize ourselves with the kubectl cli tool and basic Kubernetes commands. We will first deploy a basic nginx pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
 
