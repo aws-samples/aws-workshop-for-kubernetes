@@ -3,9 +3,9 @@
 :linkcss:
 :imagesdir: ../images
 
-== This is part 1 of 4
+== Setup Local Development Environment (Part 1 of 4)
 
-. *Setup Local Development Environment* Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
+Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
 
 == Setup Local Development Environment
 
@@ -55,4 +55,6 @@ In the first part of this series we used homebrew to install VirtualBox, MiniKub
 
 == Next Steps:
 
-Continue on to part 2 of this series where will begin to issue some basic commands and deploy our first kubernetes pod!
+Continue on to part 2 of this series where we will begin to issue some basic commands and deploy our first kubernetes pod!
+
+https://github.com/omarlari/kubernetes-aws-workshop/tree/master/03kubeBasics
