@@ -11,7 +11,7 @@
 
 . *Production Ready Cluster* Deploy a 'production-ready' cluster on AWS with KOPS
 
-. *Build on Basics of Kubernetes CLI* Explore additional developer functionality with core Kubernetes constructs such as ReplicaSets, Services, Deployments and DaemonSets.
+. *Build on basics of Kubernetes CLI* Explore additional developer functionality with core Kubernetes constructs such as ReplicaSets, Services, Deployments and DaemonSets.
 
 == Lets get started with our first goal of getting a local development environment up and running on a mac
 
@@ -55,17 +55,18 @@ If your output looks like below, everything should be ready to start working wit
 
 image:images/statusMiniKube.png[statusMiniKube]
 
-=== Basic kubectl commands:
+== Basic kubectl commands:
+Now that we have a local cluster up and running we can start issuing some basic commands and deploy some simple resources.
 
-This command will show all of the nodes available in your kubernetes cluster:
+=== This command will show all of the nodes available in your kubernetes cluster:
 
     kubectl get nodes
 
-This command shows all of the pods that are deployed into your cluster (into the default namespace), initially this will not show anything:
+=== This command shows all of the pods that are deployed into your cluster (into the default namespace), initially this will not show anything:
 
     kubectl get pods
 
-This command, similar to the one above will show all of the pods in the kube-system namespace:
+=== This command, similar to the one above will show all of the pods in the kube-system namespace:
 
     kubectl get pods --namespace kube-system
 
