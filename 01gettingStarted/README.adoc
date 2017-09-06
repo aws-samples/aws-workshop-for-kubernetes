@@ -17,3 +17,5 @@
 == Lets get started!
 
 Continue on to part 1 of this series to get started getting a local development environment up and running.
+
+https://github.com/omarlari/kubernetes-aws-workshop/tree/master/02localDev
