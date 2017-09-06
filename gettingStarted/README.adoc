@@ -1,4 +1,5 @@
 = Kubernetes Getting Started
+:icons: font
 
 == As part of this initial four part series we will accomplish a few key goals:
 
@@ -39,7 +40,7 @@ https://brew.sh/
     minikube start
 
 
-.. This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
+NOTE: This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
 
 
 .. image:images/startMiniKube.png[startMiniKube]
