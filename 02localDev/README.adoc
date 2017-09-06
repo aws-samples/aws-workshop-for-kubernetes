@@ -57,4 +57,4 @@ In the first part of this series we used homebrew to install VirtualBox, MiniKub
 
 Continue on to part 2 of this series where we will begin to issue some basic commands and deploy our first kubernetes pod!
 
-https://github.com/omarlari/kubernetes-aws-workshop/tree/master/03kubeBasics
+https://github.com/omarlari/kubernetes-aws-workshop/tree/master/03kubeBasics[part2]

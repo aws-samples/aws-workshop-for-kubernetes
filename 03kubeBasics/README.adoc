@@ -41,3 +41,7 @@ You see more details by running this command, replace the podxxx with the name o
 In this second part of our series we explored some of the basic Kubernetes CLI commands, deployed our first pod and queried the Kubernetes API to gain additional insight into the resources we deployed.
 
 == Next steps
+
+Continue on to part 3 of this series in which we will use a tool named KOPS to deploy a production ready cluster into AWS.
+
+https://github.com/omarlari/kubernetes-aws-workshop/tree/master/04prodCluster[part3]
