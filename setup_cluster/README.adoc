@@ -1,30 +1,38 @@
-= Setup Cluster with Route53 Private Hosted Zone
+= Hacks to Setup Cluster with Route53 Private Hosted Zone
 :icons:
 :linkcss:
 :imagesdir: ../images
 
-=== Install kops and kubectl on your PC
+=== Introduction
+    # Kubernetes documentation expects to own domain if you would like to use DNS based communication. Once you are done setting up cluster, if you try to validate the cluster or intend to do any management related tasks, it will fail because of DNS issues
+    # Follow these steps if you don't own domain name but still want to use DNS based communication using Route53 private hosted zone.
+    # Alternative is to use http://blog.arungupta.me/gossip-kubernetes-aws-kops/[gossip-based protocol] but its in experiment support
+    # Approach described here is to use the master node for managing cluster configurations
+    # make sure your Route53 records reflect correct IP addresses and your zone is associated with correct VPCs
+    # make sure your VPC has both DNS resolution and DNS hostnames set to "yes"
+
+    # Install kops and kubectl on your PC if you haven't already
     $ brew install kops
     $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
     $ chmod +x ./kubectl
     $ sudo mv ./kubectl /usr/local/bin/kubectl
 
-=== create bucket to store k8s config info
+    # create bucket to store k8s config info
     $ aws s3api create-bucket --bucket dalbhanj-kubernetes-aws-io
     # enable versioning and export
     $ aws s3api put-bucket-versioning --bucket dalbhanj-kubernetes-aws-io --versioning-configuration Status=Enabled
     $ export KOPS_STATE_STORE=s3://dalbhanj-kubernetes-aws-io
 
-=== create private hosted zone on R53
+    # create private hosted zone on R53
     $ ID=$(uuidgen) && aws route53 create-hosted-zone --name kubernetes-aws.io --vpc VPCRegion=us-west-2,VPCId=vpc-9dc7cdff --caller-reference $ID
 
-== create k8s cluster by re-using existing VPC
+=== create k8s cluster by re-using existing VPC
     $ kops create cluster --dns private --name mycluster.kubernetes-aws.io --zones us-west-2a,us-west-2b --state s3://dalbhanj-kubernetes-aws-io --vpc vpc-9dc7cdff --network-cidr 10.1.0.0/16 --ssh-public-key $mypubkey
     # view new cluster
     $ kops get cluster
     # After creating a basic cluster spec, you can edit subnet ID to ensure VPC config is correct
     $ kops edit cluster mycluster.kubernetes-aws.io
-    # kops doc suggests to remove cidr ip block (bcoz it will be queried when you save config) and to add subnet ID subnets:
+    # kops doc suggests to remove cidr ip block (bcoz it will be queried when you save config) and to add subnet IDs:
     - cidr: 172.20.32.0/19 # You can delete the CIDR here; it will be queried
       name: us-west-2a
       type: Public
@@ -38,16 +46,19 @@
     # review changes and confirm
     $ kops update cluster mycluster.kubernetes-aws.io
     $ kops update cluster mycluster.kubernetes-aws.io --yes
-    # validate cluster failed due to DNS issues
+    # Go to hacks on master node to run rest of administrative commands from the master node
 
-=== Small Hack
-    # if you don't own domain name but still want to use DNS based communication using Route53 private hosted zone rather than gossip protocol (not sure how mature gossip protocol is for advanced topics such as federation etc)
-    # login to master node and run kops and other commands from there
-    # make sure your Route53 records reflect correct IP addresses and your zone is associated with correct VPCs
-    # make sure your VPC has both DNS resolution and DNS hostnames set to "yes"
-    ##
-    ## install kops on master node
-    ##
+=== create k8s cluster using new VPC
+    $ kops create cluster --dns private --name my2ndcluster.kubernetes-aws.io --zones us-west-2a,us-west-2b --state s3://dalbhanj-kubernetes-aws-io --ssh-public-key $mypubkey
+    # update cluster to add another AZ us-west-2c
+    $ kops edit cluster my2ndcluster.kubernetes-aws.io
+      - cidr: 172.20.96.0/19
+        name: us-west-2c
+        type: Public
+        zone: us-west-2c
+
+=== Hacks on master node
+    # install kops on master node
     $ ssh -i $mykey admin@api.mycluster.kubernetes-aws.io
     $ wget https://github.com/kubernetes/kops/releases/download/1.6.1/kops-linux-amd64
     $ chmod +x kops-linux-amd64
@@ -61,19 +72,4 @@
     ## validate cluster
     $ kops validate cluster mycluster.kubernetes-aws.io
     $ kubectl get nodes
-    ## copy kube configuration (~/.kube/config) to master node if you still encounter error (CAUTION: Need to investigate what the implications will be on the cluster if you do this)
-
-== create standalone cluster using gossip protocol (dns-free)
-    $ kops create cluster my3rdcluster.k8s.local --zones us-west-2a,us-west-2b --state s3://dalbhanj-kubernetes-aws-io --yes
-    $ kops validate cluster
-    $ kubectl get nodes
-
-== create k8s cluster with a new VPC
-    $ kops create cluster --dns private --name my2ndcluster.kubernetes-aws.io --zones us-west-2a,us-west-2b --state s3://dalbhanj-kubernetes-aws-io --ssh-public-key $mypubkey
-    # update cluster to add another AZ us-west-2c
-    $ kops edit cluster my2ndcluster.kubernetes-aws.io
-      - cidr: 172.20.96.0/19
-        name: us-west-2c
-        type: Public
-        zone: us-west-2c
-    ## Go to small hack portion to run rest of administrative commands from the master node
+    ## copy kube configuration (~/.kube/config) to master node if you still encounter error (CAUTION: we are not sure what the implications will be on the cluster if you do this)
