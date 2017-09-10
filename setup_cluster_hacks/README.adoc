@@ -1,0 +1,76 @@
+= Hacks to Setup Cluster with Route53 Private Hosted Zone
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+  # Kubernetes documentation expects to own domain if you would like to use DNS based communication. Once
+you are done setting up cluster, if you try to validate the cluster or intend to do any management
+related tasks, it will fail because of DNS issues
+  # Follow these steps if you don't own domain name but still want to use DNS based communication using
+Route53 private hosted zone.
+  # Alternative approach is to use http://blog.arungupta.me/gossip-kubernetes-aws-kops/
+[gossip-based protocol] but its in experimental support
+  # Approach described here is to use the master node for managing cluster configurations
+  # make sure your Route53 records reflect correct IP addresses and your zone is associated with correct
+VPCs
+  # make sure your VPC has both DNS resolution and DNS hostnames set to "yes"
+
+. Install kops and kubectl on your PC if you haven't already
+
+    $ brew install kops
+    $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo\
+    gleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
+    $ chmod +x ./kubectl
+    $ sudo mv ./kubectl /usr/local/bin/kubectl
+
+. Create VPC
+
+    $ VPCID=`aws ec2 create-vpc --cidr-block 10.1.0.0/16 --region us-east-1 --query 'Vpc.VpcId' --output text`
+    # modify dns hostname resolution for the VPC
+    $ aws ec2 modify-vpc-attribute --vpc-id $VPCID --enable-dns-hostnames "{\"Value\":true}"
+    # create internet gateway and attach it to VPC
+    $ IGW=`aws ec2 create-internet-gateway --region us-east-1 --query 'InternetGateway.InternetGatewayId' --output text`
+    $ aws ec2 attach-internet-gateway --internet $IGW --vpc $VPCID --region us-east-1
+
+. Create bucket to store k8s config info
+
+    $ aws s3api create-bucket --bucket dalbhanj-kubernetes-aws-io
+    # enable versioning and export
+    $ aws s3api put-bucket-versioning --bucket dalbhanj-kubernetes-aws-io --versioning-configuration\
+    Status=Enabled
+    $ export KOPS_STATE_STORE=s3://dalbhanj-kubernetes-aws-io
+
+. Create private hosted zone on R53
+
+    $ ID=$(uuidgen) && aws route53 create-hosted-zone --name kubernetes-aws.io --vpc VPCRegion=\
+    us-west-2,VPCId=$VPCID --caller-reference $ID
+
+. Create k8s cluster by using VPC we just created
+
+    $ kops create cluster --dns private --name mycluster.kubernetes-aws.io --zones us-west-2a,\
+    us-west-2b --state s3://dalbhanj-kubernetes-aws-io --vpc $VPCID --network-cidr 10.1.0.0/16\
+     --ssh-public-key $mypubkey
+    # view new cluster
+    $ kops get cluster
+    # review changes and confirm
+    $ kops update cluster mycluster.kubernetes-aws.io
+    $ kops update cluster mycluster.kubernetes-aws.io --yes
+    # Go to master node to run rest of administrative commands
+
+. Hack on master node
+
+    # install kops on master node
+    $ ssh -i $mykey admin@api.mycluster.kubernetes-aws.io
+    $ wget https://github.com/kubernetes/kops/releases/download/1.6.1/kops-linux-amd64
+    $ chmod +x kops-linux-amd64
+    $ sudo mv kops-linux-amd64 /usr/local/bin/kops
+    $ export KOPS_STATE_STORE=s3://dalbhanj-kubernetes-aws-io
+    $ export NAME=mycluster.kubernetes-aws.io
+    #
+    # copy kube configuration (~/.kube/config) to master node
+    $ mv ~/.kube/config config.bak
+    $ scp -i $mykey ~/.kube/config admin@api.mycluster.kubernetes-aws.io:/home/admin/.kube/
+    ## validate cluster
+    $ kops validate cluster mycluster.kubernetes-aws.io
+    $ kubectl get nodes

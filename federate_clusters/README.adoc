@@ -1,0 +1,36 @@
+:toc:
+
+= Setup kubernetes cluster federation on AWS
+
+There are many use cases for configuring k8s cluster federation. Most important is high availability
+across AWS regions (also same regions) but this approach can also be applied to on-prem. In this exercise,
+we setup two clusters `earth` and `mars` in two different AWS regions `us-east-1` and `us-west-2`. Then,
+we configure federation between both clusters called `interstellar`. Lastly, we deploy Service to
+federated cluster
+
+== Create Earth cluster in US East (N. Virginia) region
+
+. Create VPC
+
+    $ EAST_VPCID=`aws ec2 create-vpc --cidr-block 10.20.0.0/16 --region us-east-1 --query 'Vpc.VpcId' --output text`
+    # modify dns hostname resolution for the VPC
+    $ aws ec2 modify-vpc-attribute --vpc-id $EAST_VPCID --enable-dns-hostnames "{\"Value\":true}"
+    # create internet gateway and attach it to VPC
+    $ EAST_IGW=`aws ec2 create-internet-gateway --region us-east-1 --query 'InternetGateway.InternetGatewayId' --output text`
+    $ aws ec2 attach-internet-gateway --internet $EAST_IGW --vpc $EAST_VPCID --region us-east-1
+
+. Create Route53 Private Hosted Zone
+
+    $ ID=$(uuidgen) && aws route53 create-hosted-zone --name earth.k8s-aws.internal \
+    --vpc VPCRegion=us-east-1,VPCId=$EAST_VPCID --caller-reference $ID \
+    | jq .DelegationSet.NameServers
+
+. Create k8s cluster
+
+    $ kops create cluster --dns private --name earth.k8s-aws.internal \
+    --zones us-east-1a,us-east-1b --state s3://dalbhanj-kubernetes-aws-io \
+    --vpc $EAST_VPCID --network-cidr 10.20.0.0/16 --ssh-public-key $mypubkey
+    # edit cluster info if needed (for ex, subnet size)
+    $ kops edit cluster earth.k8s-aws.internal
+    $
+. 
