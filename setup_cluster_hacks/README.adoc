@@ -68,9 +68,10 @@ VPCs
     $ export KOPS_STATE_STORE=s3://dalbhanj-kubernetes-aws-io
     $ export NAME=mycluster.kubernetes-aws.io
     #
-    # copy kube configuration (~/.kube/config) to master node
+    # make a backup of kube configuration (~/.kube/config) and copy the version from your PC to master node
     $ mv ~/.kube/config config.bak
+    $ exit
     $ scp -i $mykey ~/.kube/config admin@api.mycluster.kubernetes-aws.io:/home/admin/.kube/
-    ## validate cluster
+    ## login to master node and validate cluster
     $ kops validate cluster mycluster.kubernetes-aws.io
     $ kubectl get nodes

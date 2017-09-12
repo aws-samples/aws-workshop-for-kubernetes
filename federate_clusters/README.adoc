@@ -32,5 +32,7 @@ federated cluster
     --vpc $EAST_VPCID --network-cidr 10.20.0.0/16 --ssh-public-key $mypubkey
     # edit cluster info if needed (for ex, subnet size)
     $ kops edit cluster earth.k8s-aws.internal
-    $
+    # update cluster and commit
+    $ kops update cluster earth.k8s-aws.internal --yes
+
 . 
