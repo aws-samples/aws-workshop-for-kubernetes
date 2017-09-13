@@ -1,0 +1,102 @@
+= Kubernetes Getting Started
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+== Kubernetes Basic Commands (part 2 of 4)
+
+In this part we will familiarize ourselves with the kubectl cli tool and basic Kubernetes commands. We will first deploy a basic nginx pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
+
+== Basic kubectl commands:
+Now that we have a local cluster up and running we can start issuing some basic commands and deploy some simple resources.
+
+=== Display nodes:
+
+This command will show all of the nodes available in your kubernetes cluster:
+
+    kubectl get nodes
+
+=== Display pods:
+
+This command shows all of the pods that are deployed into your cluster (into the default namespace), initially this will not show anything:
+    kubectl get pods
+
+=== Display pods in specifc namespace:
+
+This command, similar to the one above will show all of the pods in the kube-system namespace:
+
+    kubectl get pods --namespace kube-system
+
+=== Create your first pod:
+
+This command creates an nginx pod into your cluster:
+
+    kubectl run nginx --image=nginx
+
+Check for running pods in your cluster:
+
+    kubectl get pods
+
+You see see additional details by running this command, replace the podxxx with the name of a pod from the above output:
+
+    kubectl describe pod podxxx
+
+=== Shell to a Running Pod:
+
+This command will open a tty to a shell in your pod:
+
+    kubectl get pods
+    kubectl exec -it nameOutputFromAbove -- /bin/bash
+
+=== Expose pod
+
+This command will expose the nginx pod to a node port, we will talk about service in more detail in following posts but this will allow us see the nginx home page:
+
+kubectl expose pod pod-xxx --type=NodePort --name=demo
+
+Where pod-xxx is the pod name of your nginx pod
+
+=== View Service Webpage
+
+This minukube command will display the service for you in a web page:
+
+    minkube service demo
+
+As you will notice it opened a browser with an IP address and the port that the service was exposed on, this is a nice feature of minukube. But what if you wanted to find this information yourself?
+
+You can view the IP address of a node in your cluser with these steps, first find all of the nodes in your cluster:
+
+    kubectl get nodes
+
+Once you have the nodes (in minikubes case there will be only one), we can describe all of the attribute of that node with:
+
+    kubectl describe node node-xxx
+
+Where node-xxx is the output from the previous command. This shows alot of information we are not interested in. Instead just grep for the external IP address:
+
+    kubectl describe node node-xxx | grep InternalIP
+
+Great, now we have the ip address for the node. Now we need to get the port that the service is exposed on. We can retrieve that with:
+
+    kubectl describe service demo
+
+Under the section 'NodePort' you will see which port on the node the service is deployed. So now you have both the IP address and the port and you can either curl that or open it up in a browser
+
+=== Kube Dashboard
+
+The last item we will take a look as is the kube dashboard which displays some basic information about your cluster:
+
+    minukube dashboard
+
+Browse around and become familiar with some the of kubernetes terminology which we will dig into deeper in the following tutorials
+
+
+== Conclusion
+
+In this second part of our series we explored some of the basic Kubernetes CLI commands, deployed our first pod and queried the Kubernetes API to gain additional insight into the resources we deployed.
+
+== Next steps
+
+Continue on to part 3 of this series in which we will use a popular open-source too, KOPS, to deploy a production ready cluster into AWS.
+
+./setupKopsCluster.adoc[Deploy a Production Ready Cluster]
