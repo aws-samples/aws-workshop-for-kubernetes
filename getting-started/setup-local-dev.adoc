@@ -35,7 +35,7 @@ We are using the VirtualBox driver which is the default selection for minikube, 
 
 This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
 
-image::startMiniKube.png[startMiniKube]
+image::start-minikube.png[startMiniKube]
 
 === Check the status of minikube to get the status of your local Kubernetes cluster:
 
@@ -43,7 +43,7 @@ image::startMiniKube.png[startMiniKube]
 
 If your output looks like below, everything should be ready to start working with:
 
-image::statusMiniKube.png[statusMiniKube]
+image::status-minikube.png[statusMiniKube]
 
 == Conclusion
 
@@ -53,4 +53,4 @@ In the first part of this series we used homebrew to install VirtualBox, MiniKub
 
 Continue on to part 2 of this series where we will begin to issue some basic commands and deploy our first kubernetes pod!
 
-https://github.com/omarlari/kubernetes-aws-workshop/tree/master/03kubeBasics[part2]
+https://github.com/omarlari/kubernetes-aws-workshop/tree/master/kube-basics[part2]
