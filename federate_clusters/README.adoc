@@ -95,7 +95,9 @@ federated cluster
 
 == Setup Federation
 
-    # login to earth master node
+. Install latest k8s client library
+
+    # Login to earth master node
     # download latest k8s client library and copy the binaries
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/kubernetes-client-linux-amd64.tar.gz
     tar -xzvf kubernetes-client-linux-amd64.tar.gz
@@ -114,7 +116,9 @@ federated cluster
     kubectl config use-context earth
     # Create RBAC role binding
     kubectl create clusterrolebinding admin-to-cluster-admin-binding --clusterrole=cluster-admin --user=admin
-    # Deploy the federation control plane in host cluster
+
+. Deploy the federation control plane in host cluster
+
     kubefed init interstellar --host-cluster-context=earth --dns-provider=aws-route53 --dns-zone-name=earth-mars-k8s.internal
     Creating a namespace federation-system for federation system components... done
     Creating federation control plane service..... done
@@ -125,16 +129,44 @@ federated cluster
     Federation API server is running at: a3c168c58981911e7b3e90af787d6efe-674228795.us-east-1.elb.amazonaws.com
     # you can check newly created context
     kubectl config get-contexts
-    # chance the context to federation
+    # change the context to federation
     kubectl config use-context interstellar
     # create default namespace if you don't see it (possible bug)
     kubectl get namespace --context=interstellar
     kubectl create namespace default --context=interstellar
-    # Join Earth and Mars cluster to the federation
+
+. Join Earth and Mars cluster to the federation
+
     kubefed join earth --host-cluster-context=earth --cluster-context=earth
     kubefed join mars --host-cluster-context=earth --cluster-context=mars
     # check status of cluster
+    # it took several hours for both clusters to show as Ready
     kubectl --context=interstellar get clusters
     NAME      STATUS    AGE
-    earth     Ready     47m
-    mars      Unknown   46m
+    earth     Ready     13h
+    mars      Ready     13h
+
+. Deploy application
+
+    # deploy an application using replica sets
+    kubectl run nginx --image=nginx --replicas=2
+    kubectl get deployments -o wide
+    # didn't get successful deployments
+    # works for independent clusters but not on federation
+
+. Deploy Service
+
+    # expose the application using ALB
+    kubectl expose deployment nginx --type=LoadBalancer --port=80
+    kubectl get services -o wide
+    kubectl get events
+    kubectl delete services nginx
+    kubectl delete deployment nginx
+
+== Cleanup
+
+    # Remove clusters from federation and delete clusters
+    kubefed unjoin earth --cluster-context=earth
+    kubefed unjoin mars --cluster-context=earth
+    kops delete cluster earth-k8s.internal --yes
+    kops delete cluster mars-k8s.internal --yes
