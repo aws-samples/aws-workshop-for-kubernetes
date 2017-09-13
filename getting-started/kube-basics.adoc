@@ -98,5 +98,3 @@ In this second part of our series we explored some of the basic Kubernetes CLI c
 == Next steps
 
 Continue on to part 3 of this series in which we will use a popular open-source too, KOPS, to deploy a production ready cluster into AWS.
-
-./setupKopsCluster.adoc[Deploy a Production Ready Cluster]
