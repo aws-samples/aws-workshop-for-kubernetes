@@ -18,60 +18,60 @@ VPCs
 
 . Install kops and kubectl on your PC if you haven't already
 
-    $ brew install kops
-    $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo\
+    brew install kops
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo\
     gleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
-    $ chmod +x ./kubectl
-    $ sudo mv ./kubectl /usr/local/bin/kubectl
+    chmod +x ./kubectl
+    sudo mv ./kubectl /usr/local/bin/kubectl
 
 . Create VPC
 
-    $ VPCID=`aws ec2 create-vpc --cidr-block 10.1.0.0/16 --region us-east-1 --query 'Vpc.VpcId' --output text`
+    VPCID=`aws ec2 create-vpc --cidr-block 10.1.0.0/16 --region us-east-1 --query 'Vpc.VpcId' --output text`
     # modify dns hostname resolution for the VPC
-    $ aws ec2 modify-vpc-attribute --vpc-id $VPCID --enable-dns-hostnames "{\"Value\":true}"
+    aws ec2 modify-vpc-attribute --vpc-id $VPCID --enable-dns-hostnames "{\"Value\":true}"
     # create internet gateway and attach it to VPC
-    $ IGW=`aws ec2 create-internet-gateway --region us-east-1 --query 'InternetGateway.InternetGatewayId' --output text`
-    $ aws ec2 attach-internet-gateway --internet $IGW --vpc $VPCID --region us-east-1
+    IGW=`aws ec2 create-internet-gateway --region us-east-1 --query 'InternetGateway.InternetGatewayId' --output text`
+    aws ec2 attach-internet-gateway --internet $IGW --vpc $VPCID --region us-east-1
 
 . Create bucket to store k8s config info
 
-    $ aws s3api create-bucket --bucket dalbhanj-kubernetes-aws-io
+    aws s3api create-bucket --bucket dalbhanj-kubernetes-aws-io
     # enable versioning and export
-    $ aws s3api put-bucket-versioning --bucket dalbhanj-kubernetes-aws-io --versioning-configuration\
+    aws s3api put-bucket-versioning --bucket dalbhanj-kubernetes-aws-io --versioning-configuration\
     Status=Enabled
-    $ export KOPS_STATE_STORE=s3://dalbhanj-kubernetes-aws-io
+    export KOPS_STATE_STORE=s3://dalbhanj-kubernetes-aws-io
 
 . Create private hosted zone on R53
 
-    $ ID=$(uuidgen) && aws route53 create-hosted-zone --name kubernetes-aws.io --vpc VPCRegion=\
+    ID=$(uuidgen) && aws route53 create-hosted-zone --name kubernetes-aws.io --vpc VPCRegion=\
     us-west-2,VPCId=$VPCID --caller-reference $ID
 
 . Create k8s cluster by using VPC we just created
 
-    $ kops create cluster --dns private --name mycluster.kubernetes-aws.io --zones us-west-2a,\
+    kops create cluster --dns private --name mycluster.kubernetes-aws.io --zones us-west-2a,\
     us-west-2b --state s3://dalbhanj-kubernetes-aws-io --vpc $VPCID --network-cidr 10.1.0.0/16\
      --ssh-public-key $mypubkey
     # view new cluster
-    $ kops get cluster
+    kops get cluster
     # review changes and confirm
-    $ kops update cluster mycluster.kubernetes-aws.io
-    $ kops update cluster mycluster.kubernetes-aws.io --yes
+    kops update cluster mycluster.kubernetes-aws.io
+    kops update cluster mycluster.kubernetes-aws.io --yes
     # Go to master node to run rest of administrative commands
 
 . Hack on master node
 
     # install kops on master node
-    $ ssh -i $mykey admin@api.mycluster.kubernetes-aws.io
-    $ wget https://github.com/kubernetes/kops/releases/download/1.6.1/kops-linux-amd64
-    $ chmod +x kops-linux-amd64
-    $ sudo mv kops-linux-amd64 /usr/local/bin/kops
-    $ export KOPS_STATE_STORE=s3://dalbhanj-kubernetes-aws-io
-    $ export NAME=mycluster.kubernetes-aws.io
+    ssh -i $mykey admin@api.mycluster.kubernetes-aws.io
+    wget https://github.com/kubernetes/kops/releases/download/1.6.1/kops-linux-amd64
+    chmod +x kops-linux-amd64
+    sudo mv kops-linux-amd64 /usr/local/bin/kops
+    export KOPS_STATE_STORE=s3://dalbhanj-kubernetes-aws-io
+    export NAME=mycluster.kubernetes-aws.io
     #
     # make a backup of kube configuration (~/.kube/config) and copy the version from your PC to master node
-    $ mv ~/.kube/config config.bak
-    $ exit
-    $ scp -i $mykey ~/.kube/config admin@api.mycluster.kubernetes-aws.io:/home/admin/.kube/
+    mv ~/.kube/config config.bak
+    exit
+    scp -i $mykey ~/.kube/config admin@api.mycluster.kubernetes-aws.io:/home/admin/.kube/
     ## login to master node and validate cluster
-    $ kops validate cluster mycluster.kubernetes-aws.io
-    $ kubectl get nodes
+    kops validate cluster mycluster.kubernetes-aws.io
+    kubectl get nodes
