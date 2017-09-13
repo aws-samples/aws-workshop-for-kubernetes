@@ -93,7 +93,7 @@ federated cluster
     ## You need to make sure both master nodes can run 'validate' successfully and have 'context' defined on both clusters before
     ## moving forward
 
-. Setup Federation
+== Setup Federation
 
     # login to earth master node
     # download latest k8s client library and copy the binaries
@@ -138,4 +138,3 @@ federated cluster
     NAME      STATUS    AGE
     earth     Ready     47m
     mars      Unknown   46m
-    
