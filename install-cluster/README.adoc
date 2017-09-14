@@ -50,7 +50,7 @@ This tutorial will walk you through how to install kubernetes cluster using kops
 . Create kubernetes cluster
 
     kops create cluster --name cluster01.kubernetes-aws.io --state s3://kubernetes-aws-config
-    # review cluster info and make changes if necessary
+    # review cluster info and make changes if necessary (for ex, subnet sizing)
     kops get cluster
     kops edit cluster cluster01.kubernetes-aws.io
     # update and commit

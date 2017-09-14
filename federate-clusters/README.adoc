@@ -158,7 +158,7 @@ federated cluster
 
 . Deploy Service
 
-    # expose the application using ALB
+    # expose the application using ELB
     kubectl expose deployment nginx --type=LoadBalancer --port=80
     kubectl get services -o wide
     kubectl get events
