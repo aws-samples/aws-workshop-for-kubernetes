@@ -16,6 +16,6 @@ Upgrading Kubernetes cluster on AWS is easy with kops. In this exercise we will 
   # edit cluster configuration if necessary
   kops edit cluster mycluster.k8s-aws.internal
   # update configuration and apply changes
-  kops update cluster mycluster.k8s-aws.internal
+  kops update cluster mycluster.k8s-aws.internal --yes
 
 .

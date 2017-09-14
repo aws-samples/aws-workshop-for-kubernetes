@@ -14,7 +14,8 @@ This tutorial will walk you through how to install kubernetes cluster using kops
 . IAM user permission
 
     Make sure the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
-    is installed. User permissions being used must have this IAM capabilities
+    is installed. User permissions being used must have these
+    http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies] attached
     AmazonEC2FullAccess
     AmazonRoute53FullAccess
     AmazonS3FullAccess

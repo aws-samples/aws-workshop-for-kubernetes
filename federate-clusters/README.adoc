@@ -151,6 +151,8 @@ federated cluster
     # deploy an application using replica sets
     kubectl run nginx --image=nginx --replicas=2
     kubectl get deployments -o wide
+    NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE       CONTAINER(S)   IMAGE(S)   SELECTOR
+    nginx     2         0         0            0           14s       nginx          nginx      run=nginx
     # didn't get successful deployments
     # works for independent clusters but not on federation
 
