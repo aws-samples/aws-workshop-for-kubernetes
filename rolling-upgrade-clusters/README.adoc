@@ -1,0 +1,32 @@
+:toc:
+
+= Upgrading Kubernetes cluster on AWS
+
+Upgrading Kubernetes cluster on AWS is easy with kops. In this exercise we will setup k8s cluster with
+1.6.10 version and perform rolling upgrade to 1.7.5 which at the time were major versions
+
+. Create Cluster
+
+  # review steps to create prereqs (S3 bucket, Route53 hosted zone) from [link to install cluster
+  [install-cluster]] documentation
+  # create cluster using following command
+  kops create cluster --dns private --name mycluster.k8s-aws.internal --zones us-east-1a,\
+  us-east-1b --state s3://dalbhanj-kubernetes-aws-io --vpc $VPCID --network-cidr 10.1.0.0/16\
+  --ssh-public-key $mypubkey --kubernetes-version=1.6.10
+  # edit cluster configuration if necessary
+  kops edit cluster mycluster.k8s-aws.internal
+  # update configuration and apply changes
+  kops update cluster mycluster.k8s-aws.internal --yes
+
+. Upgrade Cluster
+
+
+
+
+
+
+
+
+
+
+This doc is related to https://github.com/arun-gupta/kubernetes-aws-workshop/issues/8
