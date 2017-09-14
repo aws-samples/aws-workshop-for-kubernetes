@@ -10,10 +10,6 @@ https://github.com/arun-gupta/kubernetes-aws-workshop/issues/5
 
 https://github.com/arun-gupta/kubernetes-aws-workshop/issues/8
 
-== Rolling update of an application
-
-https://github.com/arun-gupta/kubernetes-aws-workshop/issues/7
-
 == Scaling the cluster
 
 https://github.com/arun-gupta/kubernetes-aws-workshop/issues/9
