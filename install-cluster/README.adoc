@@ -84,3 +84,5 @@ This tutorial will walk you through how to install kubernetes cluster using kops
     aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID --region us-east-1
     aws ec2 delete-internet-gateway --internet-gateway-id $IGW
     aws ec2 delete-vpc --vpc-id $VPCID
+
+This doc is related to https://github.com/arun-gupta/kubernetes-aws-workshop/issues/5

@@ -172,3 +172,5 @@ federated cluster
     kubefed unjoin mars --cluster-context=earth
     kops delete cluster earth-k8s.internal --yes
     kops delete cluster mars-k8s.internal --yes
+
+This doc is related to https://github.com/arun-gupta/kubernetes-aws-workshop/issues/6
