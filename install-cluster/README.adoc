@@ -73,3 +73,13 @@ This tutorial will walk you through how to install kubernetes cluster using kops
      # create internet gateway and attach it to VPC
      IGW=`aws ec2 create-internet-gateway --region us-east-1 --query 'InternetGateway.InternetGatewayId' --output text`
      aws ec2 attach-internet-gateway --internet $IGW --vpc $VPCID --region us-east-1
+
+. Terminate cluster
+
+    kops delete cluster cluster01.kubernetes-aws.io --state s3://kubernetes-aws-config --yes
+    # Find Route53 hosted zone ID from the console or via CLI and delete hosted zone
+    aws route53 delete-hosted-zone --id Z1234567890ABC
+    # Delete VPC if you created earlier
+    aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID --region us-east-1
+    aws ec2 delete-internet-gateway --internet-gateway-id $IGW
+    aws ec2 delete-vpc --vpc-id $VPCID
