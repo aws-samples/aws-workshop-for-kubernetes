@@ -25,28 +25,34 @@ The folowing will be an example Deployment with an nginx base image. Let's begin
 	          hostPort: 443          
 
 Run the following command to create Deployment:
+
 	kubectl create -f https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/templates/deployment.yaml --record
 
 The *--record* flag will track changes made through each revision.
 
 To monitor deployment rollout status:
+
 	kubectl rollout status deployment/nginx-deployment
 
 To obtain state of the deployment:
+
 	kubectl get deployments
 
 == Updating a Deployment
 You can update the Deployment by making edits to the spec template. In this example, let's change to the latest nginx image.
 
 First, type the following to open up the text editor:
+
 	kubectl edit deployment/nginx-deployment
 
 Next, change the image from *nginx:1.12.1* to *nginx:latest*.
 
 This should perform a rolling update of the deployment. To track the deployment details such as revision, image version, and ports - type in the following:
+
 	kubectl describe deployments
 
 The output should look similar the following:
+
 	$ kubectl describe deployments
 	Name:                   nginx-deployment
 	Namespace:              default
@@ -86,14 +92,18 @@ The output should look similar the following:
 
 == Rolling back a Deployment
 To rollback to a previous version, first check the revision history:
+
 	kubectl rollout history deployment/nginx-deployment
 
 If you only want to rollback to the previous revision, enter the following command:
+
 	kubectl rollout undo deployment/nginx-deployment
 
 If rolling back to a specific revision then enter:
+
 	kubectl rollout undo deployment/nginx-deployment --to-revision-1
 
 == Delete a deployment
 Run the following command to delete deployment:
+
 	kubectl delete -f https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/templates/deployment.yaml

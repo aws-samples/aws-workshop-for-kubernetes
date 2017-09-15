@@ -5,16 +5,16 @@ Kubernetes contains a number of abstractions that map to API objects. These Kube
 
 == Deployments
 A desired state can be described in a Deployment object. The Deployment controller changes the actaul state to the desired state. 
-https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/deployments.adoc
+https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/deployment-concepts/deployments.adoc
 
 == Replica Sets
 A RepllicaSet specifies a number of pod repliacas that can be run at any given time. The Deployment manages the ReplicaSets and provides updates to those pods. ReplicaSets can be used in lieu of Deployments if you require custom orchestration or do not need updates.
-https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/replicasets.adoc
+https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/deployment-concepts/replicasets.adoc
 
 == Daemon Sets
 DeamonSets allow the cluster of nodes to run a specified pod. As nodes are added, pods are added. As nodes are removed, pods are removed through garbage collection.  
-https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/daemonsets.adoc
+https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/deployment-concepts/daemonsets.adoc
 
 == Services
 A Kubernetes service defines a logical set of pods and enables them to be access through micro-services. 
-https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/services.adoc
+https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/deployment-concepts/services.adoc
