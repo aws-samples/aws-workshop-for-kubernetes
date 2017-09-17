@@ -41,7 +41,7 @@ The folowing will be an example DaemonSet that runs a logstash image. Let's begi
 
 Run the following command to create the ReplicaSet and pods:
 
-	kubectl create -f https://github.com/CloudyMind/kubernetes-aws-workshop/blob/master/templates/daemonset.yaml --record
+	kubectl create -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/daemonset.yaml --record
 
 The *--record* flag will track changes made through each revision.
 
