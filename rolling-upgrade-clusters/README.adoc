@@ -3,7 +3,7 @@
 = Upgrading Kubernetes cluster on AWS
 
 Upgrading Kubernetes cluster on AWS is easy with kops. In this exercise we will setup k8s cluster with
-1.6.10 version and perform rolling upgrade to 1.7.5 which at the time were major versions
+1.6.10 version and perform automatic rolling upgrade to 1.7.2 which at the time was major version
 
 == Create Cluster
 
@@ -27,7 +27,7 @@ downtime during cluster upgrades
   # update configuration and apply changes
   kops update cluster mycluster.k8s-aws.internal --yes
 
-=== Upgrade Cluster
+== Upgrade Cluster
 
 If you want to go to known stable version, you can do so by editing cluster properties and
 performing manual update.
