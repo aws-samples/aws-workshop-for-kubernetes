@@ -101,7 +101,7 @@ If you only want to rollback to the previous revision, enter the following comma
 
 If rolling back to a specific revision then enter:
 
-	kubectl rollout undo deployment/nginx-deployment --to-revision-1
+	kubectl rollout undo deployment/nginx-deployment --to-revision=1
 
 == Delete a deployment
 Run the following command to delete deployment:
