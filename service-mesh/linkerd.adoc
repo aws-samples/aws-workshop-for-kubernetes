@@ -1,4 +1,5 @@
 :toc:
+:linkcss:
 :imagesdir: ../images
 
 = Using linkerd with kubernetes
