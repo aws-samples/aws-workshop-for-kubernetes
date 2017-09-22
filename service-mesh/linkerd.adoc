@@ -78,6 +78,8 @@ You can open linkerd-viz ELB to view the dashboard
   LINKERD_VIZ_ELB=$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].*}")
   echo $LINKERD_VIZ_ELB
 
+images::linkerd-viz.png[linkerd image]
+
 That's it! You can look into linkerd configuration files in https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[linkerd examples]
 to learn more.
 
