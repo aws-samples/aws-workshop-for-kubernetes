@@ -1,4 +1,5 @@
 :toc:
+:imagesdir: ../images
 
 = Using linkerd with kubernetes
 
@@ -42,7 +43,7 @@ You can go to linkerd's admin page (i.e ELB:9990) to verify installation
   LINKERD_ELB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
   echo $LINKERD_ELB
 
-image::linkerd.png[linkerd image]
+images::linkerd.png[linkerd image]
 
 == Install sample microservices apps
 
