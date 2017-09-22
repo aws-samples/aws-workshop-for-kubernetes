@@ -43,8 +43,6 @@ You can go to linkerd's admin page (i.e ELB:9990) to verify installation
   LINKERD_ELB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
   echo $LINKERD_ELB
 
-image::linkerd.png[linkerd image]
-
 == Install sample microservices apps
 
 The https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[Github repo for
@@ -59,9 +57,12 @@ namespace.
   replicationcontroller "world-v1" created
   service "world-v1" created
 
-Generate some traffic by running this command
+Generate some traffic by running this command and linkerd will show the number of requests being
+served, connections and bunch of rich data
 
   http_proxy=$LINKERD_ELB:4140 curl -s http://hello
+
+image::linkerd.png[linkerd image]
 
 == Install linkerd-viz
 
