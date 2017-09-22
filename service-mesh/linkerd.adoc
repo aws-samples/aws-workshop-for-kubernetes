@@ -1,0 +1,86 @@
+:toc:
+
+= Using linkerd with kubernetes
+
+https://linkerd.io/[linkerd] adds visibility, control, and reliability to your application with
+a wide array of powerful techniques: circuit-breaking, latency-aware load balancing, eventually
+consistent (“advisory”) service discovery, deadline propagation, and tracing and instrumentation.
+
+In this exercise, we will focus on visibility for your services running on k8s cluster. We will
+install linkerd in your k8s cluster, run couple of simple microservices and demonstrate how
+linkerd captures top-line service metrics such as success rates, request volumes and latencies.
+
+== Create kubernetes cluster
+
+Review steps to create k8s cluster from
+https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/install-clusters/README.adoc#create-kubernetes-cluster[install cluster]
+documentation. Run validate cluster and go to next step
+
+  kops validate cluster
+
+== Install linkerd
+
+Install linkerd using kubectl. This will install linkerd as a DaemonSet (i.e., one instance per
+host) running in the default kubernetes namespace
+
+  kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+  k8s-daemonset/k8s/linkerd.yml
+  configmap "l5d-config" created
+  daemonset "l5d" created
+  service "l5d" created
+
+  kubectl get all
+  NAME           READY     STATUS    RESTARTS   AGE
+  po/l5d-f9bwg   2/2       Running   0          4m
+  po/l5d-ss4ht   2/2       Running   0          4m
+  NAME             CLUSTER-IP       EXTERNAL-IP        PORT(S)                                        AGE
+  svc/kubernetes   100.64.0.1       <none>             443/TCP                                        7m
+  svc/l5d          100.66.111.236   a3e9a7e509fd3...   4140:31737/TCP,4141:30084/TCP,9990:31699/TCP   4m
+
+You can go to linkerd's admin page (i.e ELB:9990) to verify installation
+
+  LINKERD_ELB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+  echo $LINKERD_ELB
+
+image::linkerd.png[linkerd image]
+
+== Install sample microservices apps
+
+The https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[Github repo for
+linkerd examples] has two microservices apps called "hello" and "world". They both communicate
+with each other to complete the request. Run this command to install these apps in default
+namespace.
+
+  kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
+  k8s/hello-world.yml
+  replicationcontroller "hello" created
+  service "hello" created
+  replicationcontroller "world-v1" created
+  service "world-v1" created
+
+Generate some traffic by running this command
+
+  http_proxy=$LINKERD_ELB:4140 curl -s http://hello
+
+== Install linkerd-viz
+
+linkerd-viz is a monitoring application based on https://prometheus.io/[Prometheus] and
+http://grafana.org/[Graphana]. It can automatically find linkerd instances and services
+that are installed in your k8s cluster.
+
+  kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
+  replicationcontroller "linkerd-viz" created
+  service "linkerd-viz" created
+
+You can open linkerd-viz ELB to view the dashboard
+
+  LINKERD_VIZ_ELB=$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+  echo $LINKERD_VIZ_ELB
+
+That's it! You can look into linkerd configuration files in https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[linkerd examples]
+to learn more.
+
+== Cleanup
+
+You can review the steps to cleanup from https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/install-clusters/README.adoc#terminate-cluster[terminate cluster]
+documentation
