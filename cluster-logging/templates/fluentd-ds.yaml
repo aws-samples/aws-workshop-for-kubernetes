@@ -26,11 +26,11 @@ spec:
         - name: FLUENTD_CONFIG
           value: fluentd-standalone.conf
         - name: AWS_REGION
-          value: us-east-1
+          value: $REGION
         - name: AWS_ACCESS_KEY
-          value: AKIAJL5INI4GNH7CX43A
+          value: $ACCESS_KEY
         - name: AWS_SECRET_KEY
-          value: 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
+          value: $SECRET_KEY
         resources:
           limits:
             memory: 200Mi
