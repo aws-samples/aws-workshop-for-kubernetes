@@ -19,23 +19,23 @@ There are many options for aggregating and streaming kubernetes logs. In this ex
 
 If you customized the log_group_name (from the previous command) or want to use a custom log_stream_name, you will need to update the output.conf section in ../templates/fluent-configmap.yaml
 
-output.conf: |
-  <match **>
-    # Plugin specific settings
-    type cloudwatch_logs
-    log_group_name kubernetes-cluster
-    log_stream_name fluentd-cloudwatch-demo
-    auto_create_stream true
+    output.conf: |
+      <match **>
+        # Plugin specific settings
+        type cloudwatch_logs
+        log_group_name kubernetes-cluster
+        log_stream_name fluentd-cloudwatch-demo
+        auto_create_stream true
 
-    # Buffer settings
-    buffer_chunk_limit 2M
-    buffer_queue_limit 32
-    flush_interval 10s
-    max_retry_wait 30
-    disable_retry_limit
-    num_threads 8
+        # Buffer settings
+        buffer_chunk_limit 2M
+        buffer_queue_limit 32
+        flush_interval 10s
+        max_retry_wait 30
+        disable_retry_limit
+        num_threads 8
 
-  </match>
+      </match>
 
 You will need to create an IAM user and set the AWS_ACCESS_KEY, AWS_SECRET_KEY and AWS_REGION in the ../templates/fluentd-ds.yaml file. Other options to accomplish this (in a production environment) are to use either kubernetes secrets or ec2 IAM roles.
 
