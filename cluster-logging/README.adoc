@@ -21,12 +21,12 @@ If you customized the log_group_name (from the previous command) or want to use 
 
     output.conf: |
       <match **>
-
+        # Plugin specific settings
         type cloudwatch_logs
         log_group_name kubernetes-cluster
         log_stream_name fluentd-cloudwatch-demo
         auto_create_stream true
-
+        # Buffer settings
         buffer_chunk_limit 2M
         buffer_queue_limit 32
         flush_interval 10s
