@@ -1,0 +1,88 @@
+= Kubernetes - Cluster Logging
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+== Kubernetes - Cluster Logging
+
+There are many options for aggregating and streaming kubernetes logs. In this example we are going to focus on an AWS based deployment which consists of the following:
+
+1. Fluentd DaemonSet deployed with the Cloud Watch Logs plugin
+2. Logs will stream to a CloudWatch Log Group
+3. Lambda will stream the Log Group into a Amazon Elasticsearch cluster
+
+=== Configure CloudWatch Log Group
+
+    aws logs create-log-group --log-group-name kubernetes-logs --region us-east-1
+
+=== Prepare Kubernetes manifest files
+
+If you customized the log_group_name (from the previous command) or want to use a custom log_stream_name, you will need to update the output.conf section in ../templates/fluent-configmap.yaml
+
+    output.conf: |
+      <match **>
+        # Plugin specific settings
+        type cloudwatch_logs
+        log_group_name kubernetes-cluster
+        log_stream_name fluentd-cloudwatch-demo
+        auto_create_stream true
+        # Buffer settings
+        buffer_chunk_limit 2M
+        buffer_queue_limit 32
+        flush_interval 10s
+        max_retry_wait 30
+        disable_retry_limit
+        num_threads 8
+      </match>
+
+You will need to create an IAM user and set the AWS_ACCESS_KEY, AWS_SECRET_KEY and AWS_REGION in the ../templates/fluentd-ds.yaml file. Other options to accomplish this (in a production environment) are to use either kubernetes secrets or ec2 IAM roles.
+
+  env:
+  - name: FLUENTD_CONFIG
+    value: fluentd-standalone.conf
+  - name: AWS_REGION
+    value: $REGION
+  - name: AWS_ACCESS_KEY
+    value: $ACCESS_KEY
+  - name: AWS_SECRET_KEY
+    value: $SECRET_KEY
+
+=== Deploy Fluentd into Kubernetes
+
+First create the logging namespace
+
+    kubectl create ns logging
+
+Create all of the necessary service accounts and roles:
+
+    kubectl create -f ../templates/fluentd-service-account.yaml
+    kubectl create -f ../templates/fluentd-role.yaml
+    kubectl create -f ../templates/fluentd-role-binding.yaml
+
+Then deploy Fluentd:
+
+    kubectl create -f ../templates/fluentd-configmap.yaml
+    kubectl create -f ../templates/fluentd-svc.yaml
+    kubectl create -f ../templates/fluentd-ds.yaml
+
+Watch for all of the pods to change to running status:
+
+    kubectl get pods --watch --namespace=logging
+
+We can now login to the AWS console -> Management Tools -> CloudWatch -> Logs -> kubernetes-cluster -> fluentd-cloudwatch-demo
+
+We should start to see logs arrive into the service and can use the search feature to looks for specific logs
+
+=== Provision an Amazon Elasticsearch cluster
+
+Work in progress:
+
+This example create a new single instance Amazon Elasticsearch cluster named kops-logs in the Virgina region.
+
+    aws es create-elasticsearch-domain --domain-name kops-logs --region us-east-1 --ebs-options EBSEnabled=true,VolumeType=standard,VolumeSize=100 --elasticsearch-version 5.5
+
+== Conclusion
+
+
+
+== Next Steps:
