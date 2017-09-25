@@ -55,15 +55,15 @@ First create the logging namespace
 
 Create all of the necessary service accounts and roles:
 
-    kubectl create -f ../templates/fluentd-service-account.yaml
-    kubectl create -f ../templates/fluentd-role.yaml
-    kubectl create -f ../templates/fluentd-role-binding.yaml
+    kubectl create -f ./templates/fluentd-service-account.yaml
+    kubectl create -f ./templates/fluentd-role.yaml
+    kubectl create -f ./templates/fluentd-role-binding.yaml
 
 Then deploy Fluentd:
 
-    kubectl create -f ../templates/fluentd-configmap.yaml
-    kubectl create -f ../templates/fluentd-svc.yaml
-    kubectl create -f ../templates/fluentd-ds.yaml
+    kubectl create -f ./templates/fluentd-configmap.yaml
+    kubectl create -f ./templates/fluentd-svc.yaml
+    kubectl create -f ./templates/fluentd-ds.yaml
 
 Watch for all of the pods to change to running status:
 
@@ -75,14 +75,16 @@ We should start to see logs arrive into the service and can use the search featu
 
 === Provision an Amazon Elasticsearch cluster
 
-Work in progress:
+This example creates a two instance Amazon Elasticsearch cluster named kops-logs in the Virgina region. Note that this cluster has an open access policy which will need to be locked down in production environments:
 
-This example create a new single instance Amazon Elasticsearch cluster named kops-logs in the Virgina region.
+    aws es create-elasticsearch-domain --domain-name kubernetes-logs --elasticsearch-version 5.5 --elasticsearch-cluster-config  InstanceType=m4.large.elasticsearch,InstanceCount=2 --ebs-options EBSEnabled=true,VolumeType=standard,VolumeSize=100 --access-policies '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["es:*"],"Resource":"*"}]}' --region us-east-1
 
-    aws es create-elasticsearch-domain --domain-name kops-logs --region us-east-1 --ebs-options EBSEnabled=true,VolumeType=standard,VolumeSize=100 --elasticsearch-version 5.5
+Follow the instructions here to stream your logs from CloudWatch logs to your Amazon Elasticsearch cluster:
+
+http://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CWL_ES_Stream.html
+
+Now you can go to the Amazon Elasticsearch console and open the Kibana dashboard from the link and begin using the capabilites to search and visuzalize your Kubernetes cluster metrics
 
 == Conclusion
 
-
-
-== Next Steps:
+In this post we demonstrated how to leverage AWS managed services to collect, search and visualize your kubernetes metrics. This can be used as reference to being to build your own logging solution for Kubernetes on top of AWS.

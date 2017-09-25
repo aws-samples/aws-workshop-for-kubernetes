@@ -278,7 +278,7 @@ data:
     <match **>
       # Plugin specific settings
       type cloudwatch_logs
-      log_group_name kubernetes-cluster
+      log_group_name kubernetes-logs
       log_stream_name fluentd-cloudwatch-demo
       auto_create_stream true
 
