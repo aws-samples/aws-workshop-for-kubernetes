@@ -1,0 +1,18 @@
+= Kubernetes - Cluster Logging
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+== Kubernetes - Cluster Logging
+
+In this tutorial we will demonstrate two main mechanisms for monitoring Kubernetes clusters:
+
+Using the cAdvisor, Heapster, influx DB and Grafana stack
+
+Using Prometheus with Grafana for visualizations
+
+=== Heapster
+
+Each node in a Kubernetes cluster has cAdvisor which is deployed as part of the main node agent, kubelet, which is accessible on port 4194 (default).
+
+To observe this make sure the proper AWS security groups are in place that allow you access to port 4194, and take a look at one the public ip addresses 
