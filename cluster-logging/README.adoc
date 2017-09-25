@@ -33,7 +33,6 @@ If you customized the log_group_name (from the previous command) or want to use 
         max_retry_wait 30
         disable_retry_limit
         num_threads 8
-
       </match>
 
 You will need to create an IAM user and set the AWS_ACCESS_KEY, AWS_SECRET_KEY and AWS_REGION in the ../templates/fluentd-ds.yaml file. Other options to accomplish this (in a production environment) are to use either kubernetes secrets or ec2 IAM roles.
