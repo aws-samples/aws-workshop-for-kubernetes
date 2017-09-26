@@ -7,7 +7,7 @@
 
 In this tutorial we will demonstrate two main mechanisms for monitoring Kubernetes clusters:
 
-Heapster - Aggregates metrics from cAdisor and stores them in an influx db pod. Leverages Grafana to provide visualizations.
+Heapster - Aggregates metrics from cAdvisor and stores them in an influx db pod. Leverages Grafana to provide visualizations.
 
 Prometheus - A monitoring and alerting toolkit, very popular tool used to monitor kubernetes
 
@@ -50,3 +50,34 @@ There are some built in dashboard for monitoring the cluster and workloads, that
 In addition if you log back into the dashboard you will now see CPU and Memory metrics being displayed for Pods and other workloads you may have deployed into your Kubernetes cluster
 
 === Prometheus
+
+First in the file templates/prometheus-configmap.yaml modify the etcd section by replacing the IP address with the IP of your etcd server:
+
+    - job_name: 'etcd'
+    target_groups:
+    - targets:
+    - 172.17.4.51:4001
+
+To determine the IP address that your etcd cluster is listening on (if deployed into Kubernetes cluster), execute this command:
+
+     kubectl get pods --namespace=kube-system
+
+etcd clusters deployed with the most recent version of kops use port 4001, if you have a newer version of etcd it will be listening on port 2379
+
+Once you have saved the etcd information into the file you can deploy the config map:
+
+    kubectl create -f templates/prometheus-configmap.yaml
+
+Next deploy Prometheus into your cluster:
+
+    kubectl create -f templates/prometheus-deployment.yaml
+
+You should now be able to open a browser to the public IP address of your master node at port 30900 to display the Prometheus dashboard.
+
+Finally we will deploy the node exporter DaemonSet which will read system level metrics from each node and export them to Prometheus:
+
+    kubectl create -f templates/node-exporter.yaml
+
+== Conclusion
+
+In this tutorial we showed how to use common monitoring tools for Kubernetes and get them deployed and running in your cluster.
