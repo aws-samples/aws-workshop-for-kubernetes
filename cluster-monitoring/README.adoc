@@ -1,0 +1,83 @@
+= Kubernetes - Cluster Logging
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+== Kubernetes - Cluster Logging
+
+In this tutorial we will demonstrate two main mechanisms for monitoring Kubernetes clusters:
+
+Heapster - Aggregates metrics from cAdvisor and stores them in an influx db pod. Leverages Grafana to provide visualizations.
+
+Prometheus - A monitoring and alerting toolkit, very popular tool used to monitor kubernetes
+
+=== Preliminary steps
+
+Each node in a Kubernetes cluster has cAdvisor which is deployed as part of the main node agent, kubelet, which is accessible on port 4194 (default).
+
+To observe this make sure the proper AWS security groups are in place that allow you access to port 4194, and take a look at one the public ip addresses at port 4194
+
+Also, in order to see the effects of installing the Heapster stack, it is useful to install the Kubernetes Dashobard:
+
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+
+You can start the dashboard with the following command:
+
+    kubectl proxy
+
+Use this link to gain access to your dashboard:
+
+    http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+
+You will see limited resource utilization information on the dashboard because we have not yet deployed Heapster, follow along to see how we gain insight into monitoring metrics through the dashboard.
+
+=== Heapster - configuring and installing
+
+This command will install Heapster, InfluxDB and Grafana
+
+    kubectl create -f templates/
+
+Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance and is now exposed for visualization through Granfana which is accessible here:
+
+    http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1
+
+You may need to run the following to gain access to the Grafana instance:
+
+    kubectl proxy
+
+There are some built in dashboard for monitoring the cluster and workloads, that are available by clicking on the upper left corner of the screen.
+
+In addition if you log back into the dashboard you will now see CPU and Memory metrics being displayed for Pods and other workloads you may have deployed into your Kubernetes cluster
+
+=== Prometheus
+
+First in the file templates/prometheus-configmap.yaml modify the etcd section by replacing the IP address with the IP of your etcd server:
+
+    - job_name: 'etcd'
+    target_groups:
+    - targets:
+    - 172.17.4.51:4001
+
+To determine the IP address that your etcd cluster is listening on (if deployed into Kubernetes cluster), execute this command:
+
+     kubectl get pods --namespace=kube-system
+
+etcd clusters deployed with the most recent version of kops use port 4001, if you have a newer version of etcd it will be listening on port 2379
+
+Once you have saved the etcd information into the file you can deploy the config map:
+
+    kubectl create -f templates/prometheus-configmap.yaml
+
+Next deploy Prometheus into your cluster:
+
+    kubectl create -f templates/prometheus-deployment.yaml
+
+You should now be able to open a browser to the public IP address of your master node at port 30900 to display the Prometheus dashboard.
+
+Finally we will deploy the node exporter DaemonSet which will read system level metrics from each node and export them to Prometheus:
+
+    kubectl create -f templates/node-exporter.yaml
+
+== Conclusion
+
+In this tutorial we showed how to use common monitoring tools for Kubernetes and get them deployed and running in your cluster.

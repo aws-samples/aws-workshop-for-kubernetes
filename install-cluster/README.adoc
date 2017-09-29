@@ -3,7 +3,7 @@
 
 This tutorial will walk you through how to install kubernetes cluster using kops.
 
-. Install kops and kubectl on your PC
+== Install kops and kubectl on your PC
 
     brew update && install kops
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo\
@@ -11,21 +11,21 @@ This tutorial will walk you through how to install kubernetes cluster using kops
     chmod +x ./kubectl
     sudo mv ./kubectl /usr/local/bin/kubectl
 
-. IAM user permission
+== IAM user permission
 
-    Make sure the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
-    is installed. User permissions being used must have these
-    http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies] attached
+Make sure the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
+is installed. User permissions being used must have these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies] attached
+
     AmazonEC2FullAccess
     AmazonRoute53FullAccess
     AmazonS3FullAccess
     IAMFullAccess
     AmazonVPCFullAccess
 
-    Please review this link for additional info on IAM permission:
-    https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user
+Please review this link for additional info on IAM permission:
+https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user
 
-. Create bucket to store k8s config
+== Create bucket to store k8s config
 
     aws s3api create-bucket --bucket kubernetes-aws-config
     # enable versioning and export
@@ -33,21 +33,24 @@ This tutorial will walk you through how to install kubernetes cluster using kops
     Status=Enabled
     export KOPS_STATE_STORE=s3://kubernetes-aws-config
 
-. Create hosted zone on Route53
+== Create hosted zone on Route53
 
-    # If you own Route53 domain name, download https://github.com/stedolan/jq/wiki/Installation[jq]
-    # and run this command:
+If you own Route53 domain name, download https://github.com/stedolan/jq/wiki/Installation[jq]
+and run this command:
+
     ID=$(uuidgen) && aws route53 create-hosted-zone --name kubernetes-aws.io \
     --caller-reference $ID | jq .DelegationSet.NameServers
-    # See other means of creating DNS: https://github.com/kubernetes/kops/blob/master/docs/aws.md#configure-dns
 
-    # If you don't own domain name, you can create custom domain using Route53's private hosted zone
-    # you need to provide VPC info to run this command. See below how to create VPC (optional)
+See other means of creating DNS: https://github.com/kubernetes/kops/blob/master/docs/aws.md#configure-dns
+
+If you don't own domain name, you can create custom domain using Route53's private hosted zone
+you need to provide VPC info to run this command. See below how to <<Create VPC (Optional)>>
+
     ID=$(uuidgen) && aws route53 create-hosted-zone --name k8s-aws.internal \
     --vpc VPCRegion=us-east-1,VPCId=$VPCID --caller-reference $ID \
     | jq .DelegationSet.NameServers
 
-. Create kubernetes cluster
+== Create kubernetes cluster
 
     kops create cluster --name cluster01.kubernetes-aws.io --state s3://kubernetes-aws-config
     # review cluster info and make changes if necessary (for ex, subnet sizing)
@@ -56,17 +59,21 @@ This tutorial will walk you through how to install kubernetes cluster using kops
     # update and commit
     kops update cluster cluster01.kubernetes-aws.io --yes
 
-    # More options for creating k8s clusters are listed below
-    # create cluster with multi master, multi node and multi-az configuration
+More options for creating k8s clusters are listed below
+
+Create cluster with multi master, multi node and multi-az configuration
+
     kops create cluster --name cluster02.kubernetes-aws.io --master-count 2 --master-zones\
     us-east-1a, us-east-1b --node-count 5 --zones us-east-1, us-east-1b, us-east-1c \
      -- state s3://kubernetes-aws-config
-    # create cluster with Route53 private hosted zone and VPC
+
+Create cluster with Route53 private hosted zone and VPC
+
     kops create cluster --dns private --name cluster03.k8s-aws.internal --zones us-east-1a,\
     us-east-1b --state s3://kubernetes-aws-config --vpc $VPCID --network-cidr 10.1.0.0/16\
      --ssh-public-key $mypubkey
 
-. Create VPC (Optional)
+== Create VPC (Optional)
 
      VPCID=`aws ec2 create-vpc --cidr-block 10.1.0.0/16 --region us-east-1 --query 'Vpc.VpcId' --output text`
      # modify dns hostname resolution for the VPC
@@ -75,7 +82,7 @@ This tutorial will walk you through how to install kubernetes cluster using kops
      IGW=`aws ec2 create-internet-gateway --region us-east-1 --query 'InternetGateway.InternetGatewayId' --output text`
      aws ec2 attach-internet-gateway --internet $IGW --vpc $VPCID --region us-east-1
 
-. Terminate cluster
+== Terminate cluster
 
     kops delete cluster cluster01.kubernetes-aws.io --state s3://kubernetes-aws-config --yes
     # Find Route53 hosted zone ID from the console or via CLI and delete hosted zone

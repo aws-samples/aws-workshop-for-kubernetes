@@ -1,0 +1,26 @@
+:toc:
+
+= Upgrading Kubernetes cluster on AWS using blue/green method
+
+Upgrading cluster using blue/green method takes High Availability for your application into
+account. You would setup two k8s cluster, one with 1.6.10 version and second with 1.7.2 and
+migrate your pod deployments and services into new cluster.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This doc is related to https://github.com/arun-gupta/kubernetes-aws-workshop/issues/38

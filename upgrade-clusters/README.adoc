@@ -1,0 +1,24 @@
+:toc:
+
+= Upgrading Kubernetes cluster on AWS
+
+Upgrading Kubernetes cluster on AWS is easy with kops. In this exercise we will demonstrate upgrading
+Kubernetes cluster using two methods.
+
+== Inplace Upgrade
+Upgrading cluster using Inplace is easy with kops. In this exercise we will setup k8s cluster
+with 1.6.10 version and perform automatic rolling upgrade to 1.7.2 using kops. To learn more, please
+review documentation:
+https://github.com/arun-gupta/kubernetes-aws-workshop/tree/master/upgrade-clusters/inplace-method.adoc
+
+== Blue/green Upgrade
+Upgrading cluster using blue/green method is considered more conservative in nature and takes High
+Availability for your application into account. You would setup two k8s cluster, one with 1.6.10
+version and second with 1.7.2 and migrate your pod deployments and services into new cluster. To
+learn more, please review documentation:
+https://github.com/arun-gupta/kubernetes-aws-workshop/tree/master/upgrade-clusters/blue-green-method.adoc
+
+
+
+
+This doc is related to https://github.com/arun-gupta/kubernetes-aws-workshop/issues/8
