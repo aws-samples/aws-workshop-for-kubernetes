@@ -14,7 +14,7 @@ Out of the box, when deploying Kubernetes on AWS, master nodes require a number 
 
 These policies may be augmented via kops.  For example, to allow all nodes ElasticSearch access, perform the following steps:
 
-> Edit your cluster via `kops edit cluster ${CLUSTER_NAME}` and add the following to the spec:
+Edit your cluster via `kops edit cluster ${CLUSTER_NAME}` and add the following to the spec:
 
 ----
   additionalPolicies:
@@ -28,7 +28,7 @@ These policies may be augmented via kops.  For example, to allow all nodes Elast
       ]
 ----
 
-> Update the cluster for changes to take effect:
+Update the cluster for changes to take effect:
 
 ----
 kops update cluster ${CLUSTER_NAME} --yes
@@ -59,7 +59,7 @@ Kube2iam works by intercepting traffic from the containers to the EC2 Metadata A
 
 The following steps describe how to configure kube2iam:
 
-> Edit your cluster via `kops edit cluster ${CLUSTER_NAME}` and add the following to the spec to allow STS to assume roles:
+Edit your cluster via `kops edit cluster ${CLUSTER_NAME}` and add the following to the spec to allow STS to assume roles:
 
 ----
   additionalPolicies:
@@ -73,13 +73,13 @@ The following steps describe how to configure kube2iam:
       ]
 ----
 
-> Update the cluster for changes to take effect:
+Update the cluster for changes to take effect:
 
 ----
 kops update cluster ${CLUSTER_NAME} --yes
 ----
 
-> Deploy kube2iam as a daemonset.  Note that the `kube2iam-ds.yaml` is assuming that your network configuration is based on kops.  If you have changed this as part of another exercise (e.g. switched to Calico) you will need to change the value of the `--host-interface` arg (e.g. set to `cal+` if using Calico).
+Deploy kube2iam as a daemonset.  Note that the `kube2iam-ds.yaml` is assuming that your network configuration is based on kops.  If you have changed this as part of another exercise (e.g. switched to Calico) you will need to change the value of the `--host-interface` arg (e.g. set to `cal+` if using Calico).
 
 ----
 kubectl create -f kube2iam-ds.yaml
@@ -87,51 +87,52 @@ kubectl create -f kube2iam-ds.yaml
 
 === Configure a Pod IAM Role
 
-> We need the IAM Instance Profile ARN assigned to the worker nodes.  We will need this as part of creating pod roles.  We can obtain this by running the following command which will attempt to retrieve the AWS EC2 instanceId (stored as `.spec.externalID`) a worker node, then uses the AWS CLI to query the ARN for the given EC2 instanceId:
+We need the IAM Instance Profile ARN assigned to the worker nodes.  We will need this as part of creating pod roles.  We can obtain this by running the following command which will attempt to retrieve the AWS EC2 instanceId (stored as `.spec.externalID`) a worker node, then uses the AWS CLI to query the ARN for the given EC2 instanceId:
 
 ----
 kubectl get no --selector=kubernetes.io/role==node -o jsonpath='{.items[0].spec.externalID}' | xargs aws ec2 describe-instances --instance-id --query 'Reservations[*].Instances[*].IamInstanceProfile.Arn'
 ----
 
-> Edit the `Pod-Role-Trust-Policy.json` file, replacing `{{NodeIamInstanceProfileARN}}` with the IAM Instance Profile ARN obtained from the previous step.
-> We will first create a role with no permissions.  By configuring the Trusted Policy of the role, we are allowing kube2iam (via the worker node IAM Instance Profile Role) to assume the pod role.  Make note of the role ARN from the response:
+Edit the `Pod-Role-Trust-Policy.json` file, replacing `{{NodeIamInstanceProfileARN}}` with the IAM Instance Profile ARN obtained from the previous step.
+
+We will first create a role with no permissions.  By configuring the Trusted Policy of the role, we are allowing kube2iam (via the worker node IAM Instance Profile Role) to assume the pod role.  Make note of the role ARN from the response:
 
 ----
 aws iam create-role --role-name MyPodRole --assume-role-policy-document file://Pod-Role-Trust-Policy.json"
 ----
 
-> To assign an IAM role to a pod, we set the `iam.amazonaws.com/role` annotation of the pod.  View `aws-cli-po.yaml` as an example.  Run the following which will create a pod with the AWS CLI already installed, with the `MyPodRole` IAM role assigned.
+To assign an IAM role to a pod, we set the `iam.amazonaws.com/role` annotation of the pod.  View `aws-cli-po.yaml` as an example.  Run the following which will create a pod with the AWS CLI already installed, with the `MyPodRole` IAM role assigned.
 
 ----
 kubectl create -f aws-cli-po.yaml
 ----
 
-> Log into the `aws-cli` pod that we have just deployed:
+Log into the `aws-cli` pod that we have just deployed:
 
 ----
 kubectl exec -it aws-cli /bin/bash
 ----
 
->  We will use the AWS CLI to attempt to access S3.  Recall that the `MyPodRole` IAM role that we created has no permissions, therefore the following should fail:
+We will use the AWS CLI to attempt to access S3.  Recall that the `MyPodRole` IAM role that we created has no permissions, therefore the following should fail:
 
 ----
 aws s3 ls
 ----
 
-> Exit the pod, then kill it.
+Exit the pod, then kill it.
 
 ----
 exit
 kubectl delete po aws-cli --force
 ----
 
-> Let's update the role to grant S3 permissions:
+Let's update the role to grant S3 permissions:
 
 ----
 aws iam attach-role-policy --role-name MyPodRole --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 ----
 
-> Recreate the pod, log into it, then try to access S3 again.  We should now be authorized!
+Recreate the pod, log into it, then try to access S3 again.  We should now be authorized!
 
 ----
 kubectl create -f aws-cli-po.yaml
