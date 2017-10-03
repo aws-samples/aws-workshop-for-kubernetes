@@ -7,4 +7,5 @@ In this section, we will review how to launch and manage applications using Stat
 == Deploy and manage MySQL application
 We will review how to deploy MySQL database using StatefulSets. Further we will implement few
 failure modes and review how StatefulSets reacts to those situations. Lastly, we will review
-easier way to scale up and down MySQL clusters
+easier way to scale up and down MySQL clusters. You can find more info on this link:
+https://github.com/arun-gupta/kubernetes-aws-workshop/tree/master/statefulsets/mysql-ebs.adoc
