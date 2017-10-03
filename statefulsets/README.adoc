@@ -1,0 +1,10 @@
+:toc:
+
+= StatefulSets
+
+In this section, we will review how to launch and manage applications using StatefulSets.
+
+== Deploy and manage MySQL application
+We will review how to deploy MySQL database using StatefulSets. Further we will implement few
+failure modes and review how StatefulSets reacts to those situations. Lastly, we will review
+easier way to scale up and down MySQL clusters
