@@ -110,11 +110,6 @@ You can use mysql-client to send some data to the master (mysql-0.mysql)
   INSERT INTO test.messages VALUES ('hello, from mysql-client');
   EOF
 
-  kubectl run mysql-client --image=mysql:5.7 -i --rm --restart=Never --\
-    mysql -h mysql-0.mysql <<EOF
-  INSERT INTO test.messages VALUES ('hello, from mysql-client');
-  EOF
-
 You can run the following to test if slaves (mysql-read) received the data
 
   kubectl run mysql-client --image=mysql:5.7 -i -t --rm --restart=Never --\
@@ -164,7 +159,7 @@ container, second we will review StatefulSet controller in action for Pod downti
 MySQL container uses readiness probe by running 'mysql -h 127.0.0.1 -e 'SELECT 1'' on the server
 to make sure MySQL server is still active.
 
-Run this command to simulate MySQL is not responsive
+Run this command to simulate MySQL as being unresponsive
 
   kubectl exec mysql-2 -c mysql -- mv /usr/bin/mysql.off /usr/bin/mysql
 
@@ -174,8 +169,8 @@ You can check if the container is healthy
   NAME      READY     STATUS    RESTARTS   AGE
   mysql-2   1/2       Running   0          12m
 
-You can also see that mysql-read load balancer stops sending traffic to the failed container if
-you have the loop running in separate window
+mysql-read load balancer detects failures like this and takes action by not sending traffic to
+failed containers. You can check this if you have the loop running in separate window
 
 Revert back to its initial state
 
@@ -183,7 +178,7 @@ Revert back to its initial state
 
 === Failed pod
 
-To simulate failed Pods, you run delete pod
+To simulate failed Pods, you can run delete pod
 
   kubectl delete pod mysql-2
   pod "mysql-2" deleted
@@ -216,17 +211,18 @@ Now you can watch Pod reschedules
   kubectl get pod mysql-2 -o wide --watch
 
 This could be a bug in StatefulSet but my pod was failing to reschedule. The reason was, there
-was no other nodes running in the AZ where the original node failed. The EBS volume attachments
-were failing to other nodes because of different AZ restriction. To mitigate this issue, I
+was no other nodes running in the AZ where the original node failed. The EBS volume was failing to
+to attach to other nodes because of different AZ restriction. To mitigate this issue, I
 manually scaled the nodes to 6 which resulted in an additional node being available in that AZ.
 Your scenario could be different and may not need this step
 
 Edit number of nodes to '6' if you run into 'Pending' issue
+
   kops edit ig nodes
   # review and commit changes
   kops update cluster --yes
 
-You can also watch the progress
+You can also watch the progress of pod reschedule
 
   kubectl get pod mysql-2 -o wide --watch
   NAME      READY     STATUS    RESTARTS   AGE       IP        NODE
