@@ -63,8 +63,8 @@ More options for creating k8s clusters are listed below
 
 Create cluster with multi master, multi node and multi-az configuration
 
-    kops create cluster --name cluster02.kubernetes-aws.io --master-count 2 --master-zones\
-    us-east-1a, us-east-1b --node-count 5 --zones us-east-1, us-east-1b, us-east-1c \
+    kops create cluster --name cluster02.kubernetes-aws.io --master-count 3 --master-zones\
+    us-east-1a,us-east-1b --node-count 5 --zones us-east-1a,us-east-1b,us-east-1c \
      -- state s3://kubernetes-aws-config
 
 Create cluster with Route53 private hosted zone and VPC
@@ -72,6 +72,38 @@ Create cluster with Route53 private hosted zone and VPC
     kops create cluster --dns private --name cluster03.k8s-aws.internal --zones us-east-1a,\
     us-east-1b --state s3://kubernetes-aws-config --vpc $VPCID --network-cidr 10.1.0.0/16\
      --ssh-public-key $mypubkey
+
+== Validate cluster
+
+    kops validate cluster
+
+The following is the output for cluster with 3 master nodes and 6 worker nodes using Route53
+    private hosted zone
+
+    Using cluster from kubectl context: cluster03.k8s-aws.internal
+    Validating cluster cluster03.k8s-aws.internal
+    INSTANCE GROUPS
+    NAME			ROLE	MACHINETYPE	MIN	MAX	SUBNETS
+    master-us-east-1a-1	Master	m3.medium	1	1	us-east-1a
+    master-us-east-1a-2	Master	m3.medium	1	1	us-east-1a
+    master-us-east-1b-1	Master	m3.medium	1	1	us-east-1b
+    nodes			Node	t2.medium	6	6	us-east-1a,us-east-1b,us-east-1c
+
+    NODE STATUS
+    NAME				ROLE	READY
+    ip-10-10-105-101.ec2.internal	node	True
+    ip-10-10-127-80.ec2.internal	node	True
+    ip-10-10-33-192.ec2.internal	master	True
+    ip-10-10-36-230.ec2.internal	master	True
+    ip-10-10-45-69.ec2.internal	node	True
+    ip-10-10-51-111.ec2.internal	node	True
+    ip-10-10-71-96.ec2.internal	node	True
+    ip-10-10-87-59.ec2.internal	node	True
+    ip-10-10-93-160.ec2.internal	master	True
+    Your cluster cluster03.k8s-aws.internal is ready
+
+TIP: You may need to add cluster API endpoints into your hosts file (/etc/hosts) if you use Route53
+private hosted zone along with VPC option.
 
 == Create VPC (Optional)
 
