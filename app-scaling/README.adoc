@@ -33,8 +33,10 @@ Now that our application is running, we create a Horizonal Pod Autoscaler for ou
 
 === Generate Load
 
-The simplest method to do this would be to access the application in an infinite loop, Kubernetes Horizonal Pod Autoscaler documentation:
-1. Deploy a busybox container called "load-generator" and attach to it's prompt:
+The simplest method to do this would be to access the application in an infinite loop similar to the example in the Kubernetes Horizonal Pod Autoscaler documentation:
+
+First, deploy a busybox container, label it *load-generator* and attach to it's prompt:
+
     $ kubectl run -i --tty load-generator --image=busybox /bin/sh
 
 At the command prompt, run a continuous request of the webapp
@@ -42,6 +44,7 @@ At the command prompt, run a continuous request of the webapp
     $ while true; do wget -q -O- http://webapp.default.svc.cluster.local; done
 
 If for any reason you get disconnected from the load-generator container, you can re-attach to it with the following command.
+
     $ kubectl attach $(kubectl get pod | grep load | awk '{print $1}') -c load-generator -i -t
 
 In a different terminal window, check the status of the Horizontal Pod Autoscaler.
@@ -49,6 +52,7 @@ In a different terminal window, check the status of the Horizontal Pod Autoscale
     $ kubectl get hpa
 
 You will see output similar to the following over successive executions of the *kubectl get hpa* command:
+
     $ kubectl get hpa
     NAME         REFERENCE               TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
     webapp       Deployment/webapp       0% / 10%   1         10        1          2m
@@ -61,7 +65,7 @@ You will see output similar to the following over successive executions of the *
     NAME         REFERENCE               TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
     webapp       Deployment/webapp       222% / 10%   1         10        4          4m
 
-Notice that eventually, the value in the *REPLICAS* column will increase the longer the load generator is allowed to run.
+Notice that, eventually, the value in the *REPLICAS* column will increase the longer the load generator is allowed to run.
 
 In the terminal window that is running the load generator, hit Ctrl-C. Again, run the *kubectl get hpa* command every few minutes, and you will see the number of replicas begin to decrease as the CPU load returns to 0%
 
