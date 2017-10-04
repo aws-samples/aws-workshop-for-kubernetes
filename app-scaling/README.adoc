@@ -39,7 +39,7 @@ First, deploy a busybox container, label it *load-generator* and attach to it's 
 
     $ kubectl run -i --tty load-generator --image=busybox /bin/sh
 
-At the command prompt, run a continuous request of the webapp
+At the *load-generator*'s command prompt, run a continuous request of the webapp
 
     $ while true; do wget -q -O- http://webapp.default.svc.cluster.local; done
 
@@ -71,4 +71,4 @@ In the terminal window that is running the load generator, hit Ctrl-C. Again, ru
 
 == Conclusion
 
-In this post we demonstrated how to dynamically scale application due to average CPU utilization by the application. Heapster is the resource monitoring tool that Kubnertes integrates with to enable HPA, and Heapster can be used with a variety of backends (or "sinks"), including Elasticsearch, to store its data.
+In this post, we demonstrated how the Horizontal Pod Autoscaling feature can dynamically scale applications up and down due to average CPU utilization. Heapster is the resource monitoring tool that Kubernetes integrates with to enable HPA, and Heapster can be used with a variety of backends (or "sinks"), including Elasticsearch, to store its data.
