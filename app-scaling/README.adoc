@@ -6,106 +6,65 @@
 
 == Kubernetes - App Scaling
 
-Applications can be scaled out to additional replicas in response to resource utilization metrics.
+Horizontal Pod Autoscaling (HPA) is a Kubernetes feature to dynamically increase/decrease the number of pod replicas based on resource utilization metrics.
 
-Kubernetes leverages Heapster for the  monitored by HeapsKubernetes There are many options for aggregating and streaming kubernetes logs. In this example we are going to focus on an AWS based deployment which consists of the following:
+Heapster is an open source project that collects cluster metrics, and Kubernetes integrates with it to determine CPU consumption. Heapster's default backend, referred to as a "sink", is InfluxDB. Additional sinks are supported including Elasticsearch.
 
-1. Fluentd DaemonSet deployed with the Cloud Watch Logs plugin
-2. Logs will stream to a CloudWatch Log Group
-3. Lambda will stream the Log Group into a Amazon Elasticsearch cluster
+Kubernetes currently has beta support for custom metrics from multiple sources, and not just Heapster. This is enabled via the API Server Aggregation feature, and this documentation will be updated when the feature is live to show HPA with additional types of metrics.
+
+HPA can automatically scale pods deployed in a replication controller, deployment, or a replica set. For additional information on how HPA works, check out the Kubernetes https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/[community documentation].
+
 === Prerequisistes
 
-1. Deploy a Kubernetes cluster
-2. Deploy Heapster
-2. Deploy an Application - pick an application that would be simple to generate lod
+1. https://github.com/arun-gupta/kubernetes-aws-workshop/tree/master/install-cluster[Deploy a Kubernetes cluster] and verify that it works
+2. Deploy Heapster using the steps described in the https://github.com/arun-gupta/kubernetes-aws-workshop/tree/master/cluster-monitoring[Cluster Monitoring] lab.
+
+=== Deploy an Application
+
+In this step, we deploy a simple Go web application and constrain the CPU resources just for the purposes of this test.
+
+    $ kubectl run webapp --image=trevorrobertsjr/webapp --requests=cpu=50m --expose --port=8080
 
 === Horizontal Pod Autoscaler Configuration
-    kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+
+Now that our application is running, we create a Horizonal Pod Autoscaler for our webapp deployment.
+
+    $ kubectl autoscale deployment webapp --cpu-percent=10 --min=1 --max=10
 
 === Generate Load
 
-The simplest method to do this would be to access the application in an infinite loop as documented on the Kubernetes site
+The simplest method to do this would be to access the application in an infinite loop, Kubernetes Horizonal Pod Autoscaler documentation:
+1. Deploy a busybox container called "load-generator" and attach to it's prompt:
+    $ kubectl run -i --tty load-generator --image=busybox /bin/sh
 
-    / # while true; do wget -q -O- 100.96.2.4; done
-    kubectl attach load-generator-3044827360-9tf2w -c load-generator -i -t
+At the command prompt, run a continuous request of the webapp
 
+    $ while true; do wget -q -O- http://webapp.default.svc.cluster.local; done
 
-3. Configure an autoscaler for the application
-Create a Horizontal Pod Autoscaling
-=== Configure CloudWatch Log Group
+If for any reason you get disconnected from the load-generator container, you can re-attach to it with the following command.
+    $ kubectl attach $(kubectl get pod | grep load | awk '{print $1}') -c load-generator -i -t
 
-    aws logs create-log-group --log-group-name kubernetes-logs --region us-east-1
+In a different terminal window, check the status of the Horizontal Pod Autoscaler.
 
-=== Prepare Kubernetes manifest files
+    $ kubectl get hpa
 
-If you customized the log_group_name (from the previous command) or want to use a custom log_stream_name, you will need to update the output.conf section in ../templates/fluent-configmap.yaml
+You will see output similar to the following over successive executions of the *kubectl get hpa* command:
+    $ kubectl get hpa
+    NAME         REFERENCE               TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
+    webapp       Deployment/webapp       0% / 10%   1         10        1          2m
 
-    output.conf: |
-      <match **>
-        # Plugin specific settings
-        type cloudwatch_logs
-        log_group_name kubernetes-cluster
-        log_stream_name fluentd-cloudwatch-demo
-        auto_create_stream true
-        # Buffer settings
-        buffer_chunk_limit 2M
-        buffer_queue_limit 32
-        flush_interval 10s
-        max_retry_wait 30
-        disable_retry_limit
-        num_threads 8
-      </match>
+    $ kubectl get hpa
+    NAME         REFERENCE               TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
+    webapp       Deployment/webapp       206% / 10%   1         10        1          3m
 
-You will need to create an IAM user and set the AWS_ACCESS_KEY, AWS_SECRET_KEY and AWS_REGION in the ../templates/fluentd-ds.yaml file. Other options to accomplish this (in a production environment) are to use either kubernetes secrets or ec2 IAM roles.
+    $ kubectl get hpa
+    NAME         REFERENCE               TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
+    webapp       Deployment/webapp       222% / 10%   1         10        4          4m
 
-  env:
-  - name: FLUENTD_CONFIG
-    value: fluentd-standalone.conf
-  - name: AWS_REGION
-    value: $REGION
-  - name: AWS_ACCESS_KEY
-    value: $ACCESS_KEY
-  - name: AWS_SECRET_KEY
-    value: $SECRET_KEY
+Notice that eventually, the value in the *REPLICAS* column will increase the longer the load generator is allowed to run.
 
-=== Deploy Fluentd into Kubernetes
-
-First create the logging namespace
-
-    kubectl create ns logging
-
-Create all of the necessary service accounts and roles:
-
-    kubectl create -f ./templates/fluentd-service-account.yaml
-    kubectl create -f ./templates/fluentd-role.yaml
-    kubectl create -f ./templates/fluentd-role-binding.yaml
-
-Then deploy Fluentd:
-
-    kubectl create -f ./templates/fluentd-configmap.yaml
-    kubectl create -f ./templates/fluentd-svc.yaml
-    kubectl create -f ./templates/fluentd-ds.yaml
-
-Watch for all of the pods to change to running status:
-
-    kubectl get pods --watch --namespace=logging
-
-We can now login to the AWS console -> Management Tools -> CloudWatch -> Logs -> kubernetes-cluster -> fluentd-cloudwatch-demo
-
-We should start to see logs arrive into the service and can use the search feature to looks for specific logs
-
-=== Provision an Amazon Elasticsearch cluster
-
-This example creates a two instance Amazon Elasticsearch cluster named kops-logs in the Virgina region. Note that this cluster has an open access policy which will need to be locked down in production environments:
-
-    aws es create-elasticsearch-domain --domain-name kubernetes-logs --elasticsearch-version 5.5 --elasticsearch-cluster-config  InstanceType=m4.large.elasticsearch,InstanceCount=2 --ebs-options EBSEnabled=true,VolumeType=standard,VolumeSize=100 --access-policies '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["es:*"],"Resource":"*"}]}' --region us-east-1
-
-Follow the instructions here to stream your logs from CloudWatch logs to your Amazon Elasticsearch cluster:
-
-http://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CWL_ES_Stream.html
-
-Now you can go to the Amazon Elasticsearch console and open the Kibana dashboard from the link and begin using the capabilites to search and visuzalize your Kubernetes cluster metrics
+In the terminal window that is running the load generator, hit Ctrl-C. Again, run the *kubectl get hpa* command every few minutes, and you will see the number of replicas begin to decrease as the CPU load returns to 0%
 
 == Conclusion
 
-In this post we demonstrated how to leverage AWS managed services to collect, search and visualize your kubernetes metrics. This can be used as reference to being to build your own logging solution for Kubernetes on top of AWS.
+In this post we demonstrated how to dynamically scale application due to average CPU utilization by the application. Heapster is the resource monitoring tool that Kubnertes integrates with to enable HPA, and Heapster can be used with a variety of backends (or "sinks"), including Elasticsearch, to store its data.
