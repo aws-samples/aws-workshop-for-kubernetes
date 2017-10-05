@@ -6,7 +6,7 @@ This tutorial will walk you through how to setup cluster scaling using `cluster-
 
 == Pre-Requisites
 
-Each worker running in your Kubernetes cluster MUST have the necessary IAM Policy attached. If you previously setup your cluster using `kops` you can either modify the existing permissions on your worker IAM Role or use the following to create a new policy and attach to the IAM Role.
+Each worker running in your Kubernetes cluster MUST have the necessary IAM Policy attached. If you previously set up your cluster using `kops` you can either modify the existing permissions on your worker IAM Role or use the following to create a new policy and attach to the IAM Role.
 
   {
     "Version": "2012-10-17",
@@ -24,7 +24,7 @@ Each worker running in your Kubernetes cluster MUST have the necessary IAM Polic
     ]
   }
 
-To configure these permissions you need to create the policy then attach them with the worker instance role.
+To configure these permissions, you need to create the policy then attach them with the worker instance role.
 
   $ aws iam create-policy --policy-document file://cluster-scaling/templates/asg-policy.json --policy-name ClusterAutoScaling
   => {
@@ -42,7 +42,7 @@ To configure these permissions you need to create the policy then attach them wi
 }
 
 
-To attach the policy to the IAM Role you first need to get the name of the role, if you setup your cluster using `kops` this will be `nodes.[DOMAIN]` such as `nodes.cluster01.kubernetes-aws.io`
+To attach the policy to the IAM Role, you first need to get the name of the role; if you set up your cluster using `kops`, this will be `nodes.[DOMAIN]` such as `nodes.cluster01.kubernetes-aws.io`
 
 From the output of the `create-policy` command get the `.Policy.Arn` attribute and use that to add the policy to the role.
 
