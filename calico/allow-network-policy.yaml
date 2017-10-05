@@ -1,0 +1,21 @@
+kind: NetworkPolicy
+apiVersion: extensions/v1beta1
+metadata:
+  name: deny-all-by-default
+spec:
+  podSelector:
+    matchLabels: {}
+
+kind: NetworkPolicy
+apiVersion: extensions/v1beta1
+metadata:
+  name: allow
+spec:
+  podSelector:
+    matchLabels:
+      app: http-echo
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: busybox
