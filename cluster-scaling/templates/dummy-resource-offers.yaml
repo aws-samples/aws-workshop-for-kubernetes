@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: greeter
+spec:
+  selector:
+    app: greeter
+  ports:
+    - port: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: greeter
+  labels:
+    app: greeter
+spec:
+  replicas: 6
+  template:
+    metadata:
+      labels:
+        app: greeter
+    spec:
+      containers:
+      - name: name
+        image: arungupta/greeter-service:latest
+        resources:
+          limits:
+            cpu: 1024m
+            memory: 1024M
+          requests:
+            cpu: 500m
+            memory: 512M
+        ports:
+        - containerPort: 8080
