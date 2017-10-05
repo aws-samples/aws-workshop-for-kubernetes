@@ -1,9 +1,9 @@
-= Kubernetes - Cluster Logging
+= Kubernetes - Cluster Monitoring
 :icons:
 :linkcss:
 :imagesdir: ../images
 
-== Kubernetes - Cluster Logging
+== Kubernetes - Cluster Monitoring
 
 In this tutorial we will demonstrate two main mechanisms for monitoring Kubernetes clusters:
 
