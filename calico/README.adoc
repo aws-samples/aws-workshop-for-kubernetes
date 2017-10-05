@@ -8,7 +8,7 @@ This exercise will walk you through configuring Calico and applying a Network Po
 
 == Pre-requisites
 
-Although Calico can be installed on a variety of Kubernetes configurations, this exercise assumes that you have a running Kubernetes cluster deployed opt AWS via `kops`.
+Although Calico can be installed on a variety of Kubernetes configurations, this exercise assumes that you have a running Kubernetes cluster deployed to AWS via `kops`.
 
 == Installation
 
@@ -43,7 +43,7 @@ kops rolling-update cluster ${NAME} --state s3://${KUBERNETES_STATE_STORE_BUCKET
 ----
 
 
-== Exercise 1:  Enforcing Network Isolation
+== Configuration:  Enforcing Network Isolation
 
 This exercise introduces you to configuring Calico.  We will create a namespace, deploy some test pods into it, and see the before and after effects of configuring a Calico based Network Policy.
 
