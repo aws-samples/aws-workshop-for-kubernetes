@@ -6,7 +6,7 @@ how to deploy, scale and configure applications on this cluster.
 Proposed agenda is to go through the following to rampup your knowledge on Kubernetes by following
 workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable as you move through the workshop
 
-[cols="2,2"]
+[cols="2*"]
 .Beginners
 |===
 |Beginners (100 - 200) |Links
@@ -15,7 +15,7 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 |Install Kubernetes cluster using kops  | link:install-cluster[Install cluster]
 |Kubernetes Deployment concepts  | link:deployment-concepts[Deployment concepts]
 |===
-[cols="2,2"]
+[cols="2*"]
 .Mid-level
 |===
 |Mid-level (200 - 300) |Links
@@ -28,7 +28,7 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 |Configuration and Secrets Management  | link:link[link]
 |Pod Autoscaling  | link:link[link]
 |===
-[cols="2,2"]
+[cols="2*"]
 .Advanced
 |===
 |Advanced (300+) |Links
