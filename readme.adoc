@@ -34,7 +34,7 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 
 |Network policies with Calico  | link:calico[Calico]
 |CI/CD pipeline  | link:link[link]
-|StatefulSet with EBS  | link:link[link]
+|StatefulSets with EBS  | link:statefulsets[Statefulsets]
 |ALB ingress controller  | link:link[link]
 |Nginx ingress controller  | link:link[link]
 |Service mesh integration using Linkerd | link:service-mesh#linkerd[Linkerd]
