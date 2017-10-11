@@ -1,6 +1,42 @@
 = Kubernetes on AWS Workshop
 
-This repo explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains how to deploy, scale and configure applications on this cluster.
+This repo explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains
+how to deploy, scale and configure applications on this cluster.
 
-. link:ops.adoc[For Ops]: Setup and manage a Kubernetes cluster on Amazon Web Services
-. link:dev.adoc[For Dev]: Run applications on Kubernetes cluster
+Proposed agenda is to go through the following to rampup your knowledge on Kubernetes by following
+workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable as you move through the workshop
+
+[cols="2*"]
+|===
+|Beginners (100 - 200) |Links
+
+|Kubernetes Getting started  | link:getting-started[Getting started]
+|Install Kubernetes cluster using kops  | link:install-cluster[Install cluster]
+|Kubernetes Deployment concepts  | link:deployment-concepts[Deployment concepts]
+|===
+
+[cols="2*"]
+|===
+|Mid-level (200 - 300) |Links
+
+|Logging with Kubernetes cluster  | link:cluster-logging[Cluster logging]
+|Monitoring with Kubernetes cluster  | link:cluster-monitoring[Cluster monitoring]
+|Upgrading Kubernetes cluster - inplace upgrade  | link:upgrade-clusters#inplace-upgrade[In-place upgrade]
+|Upgrading Kubernetes cluster - blue/green upgrade  | link:upgrade-clusters#inplace-upgrade[Blue/Green upgrade]
+|Cluster scaling  | link:cluster-scaling[Cluster scaling]
+|Configuration and Secrets Management  | link:link[link]
+|Pod Autoscaling  | link:link[link]
+|===
+
+[cols="2*"]
+|===
+|Advanced (300+) |Links
+
+|Network policies with Calico  | link:calico[Calico]
+|CI/CD pipeline  | link:link[link]
+|StatefulSet with EBS  | link:link[link]
+|ALB ingress controller  | link:link[link]
+|Nginx ingress controller  | link:link[link]
+|Service mesh integration using Linkerd | link:service-mesh#linkerd[Linkerd]
+|Service mesh integration using Estio | link:link[link]
+|===
