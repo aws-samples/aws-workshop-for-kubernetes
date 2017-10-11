@@ -3,7 +3,7 @@
 This repo explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains
 how to deploy, scale and configure applications on this cluster.
 
-Proposed agenda is to go through the following to rampup your knowledge on Kubernetes by following
+Proposed agenda is to go through the described format to rampup your knowledge on Kubernetes by following
 workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable as you move through the workshop
 
 [cols="2*"]
@@ -25,7 +25,7 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 |Upgrading Kubernetes cluster - blue/green upgrade  | link:upgrade-clusters#inplace-upgrade[Blue/Green upgrade]
 |Cluster scaling  | link:cluster-scaling[Cluster scaling]
 |Configuration and Secrets Management  | link:link[link]
-|Pod Autoscaling  | link:link[link]
+|Pod Autoscaling  | link:app-scaling[App Scaling]
 |===
 
 [cols="2*"]
@@ -35,7 +35,7 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 |Network policies with Calico  | link:calico[Calico]
 |Managing IAM roles with kube2iam | link:roles[Roles]
 |CI/CD pipeline  | link:link[link]
-|StatefulSet with EBS  | link:link[link]
+|StatefulSets with EBS  | link:statefulsets[Statefulsets]
 |ALB ingress controller  | link:link[link]
 |Nginx ingress controller  | link:link[link]
 |Service mesh integration using Linkerd | link:service-mesh#linkerd[Linkerd]

@@ -3,24 +3,15 @@
 = Upgrading Kubernetes cluster on AWS using blue/green method
 
 Upgrading cluster using blue/green method takes High Availability for your application into
-account. You would setup two k8s cluster, one with 1.6.10 version and second with 1.7.2 and
-migrate your pod deployments and services into new cluster.
+consideration. There are two approaches of implementing blue/green method and we will describe
+these below. These are high level steps and are applicable to stateless applications. Careful
+considerations are to be made for each application by testing these approaches before implementing
+it in production.
 
+== Blue/Green using ALB Ingress controller
+In this approach we will highlight how to use ALB Ingress controller to shift traffic from blue
+cluster to green cluster.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-This doc is related to https://github.com/arun-gupta/kubernetes-aws-workshop/issues/38
+== Blue/Green using Route53 weighted round robin
+In this approach we will go through the steps of using Route53's weighted round robin feature
+to shift the traffic from blue cluster to green cluster.
