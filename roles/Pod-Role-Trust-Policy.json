@@ -13,7 +13,7 @@
         "Sid": "",
         "Effect": "Allow",
         "Principal": {
-          "AWS": "{{NodeIamInstanceProfileARN}}"
+          "AWS": "{{NodeIamRoleARN}}"
         },
         "Action": "sts:AssumeRole"
       }
