@@ -60,9 +60,11 @@ You will see output similar to the following over successive queries of the hpa 
     webapp    Deployment/webapp   140% / 10%   1         10        4         3m
     webapp    Deployment/webapp   90% / 10%   1         10        4         4m
 
+
 Notice that, eventually, the value in the *REPLICAS* column will increase as the load generator continues to run.
 
-In the terminal window that is running the load generator, hit Ctrl-C. Again, run the *kubectl get hpa -w* command, and you will see the number of replicas begin to decrease as the CPU load returns to 0%
+In the terminal window that is running the load generator, hit Ctrl-C. Again, run the *kubectl get hpa -w* command in your other terminal window, and you will see the number of replicas begin to decrease as the CPU load returns to 0%
+
 
 == Conclusion
 
