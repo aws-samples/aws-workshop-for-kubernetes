@@ -3,7 +3,7 @@
 This repo explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains
 how to deploy, scale and configure applications on this cluster.
 
-Proposed agenda is to go through the following to rampup your knowledge on Kubernetes by following
+Proposed agenda is to go through the described format to rampup your knowledge on Kubernetes by following
 workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable as you move through the workshop
 
 [cols="2*"]
@@ -34,7 +34,7 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 
 |Network policies with Calico  | link:calico[Calico]
 |CI/CD pipeline  | link:link[link]
-|StatefulSet with EBS  | link:link[link]
+|StatefulSets with EBS  | link:statefulsets[Statefulsets]
 |ALB ingress controller  | link:link[link]
 |Nginx ingress controller  | link:link[link]
 |Service mesh integration using Linkerd | link:service-mesh#linkerd[Linkerd]
