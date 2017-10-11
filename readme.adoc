@@ -25,7 +25,7 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 |Upgrading Kubernetes cluster - blue/green upgrade  | link:upgrade-clusters#inplace-upgrade[Blue/Green upgrade]
 |Cluster scaling  | link:cluster-scaling[Cluster scaling]
 |Configuration and Secrets Management  | link:link[link]
-|Pod Autoscaling  | link:link[link]
+|Pod Autoscaling  | link:app-scaling[App Scaling]
 |===
 
 [cols="2*"]
