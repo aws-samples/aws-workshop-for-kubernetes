@@ -65,7 +65,7 @@ Create cluster with multi master, multi node and multi-az configuration
 
     kops create cluster --name cluster02.kubernetes-aws.io --master-count 3 --master-zones\
     us-east-1a,us-east-1b --node-count 5 --zones us-east-1a,us-east-1b,us-east-1c \
-     -- state s3://kubernetes-aws-config
+     --state s3://kubernetes-aws-config
 
 Create cluster with Route53 private hosted zone and VPC
 
