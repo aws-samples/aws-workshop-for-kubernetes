@@ -39,5 +39,5 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 |ALB ingress controller  | link:link[link]
 |Nginx ingress controller  | link:link[link]
 |Service mesh integration using Linkerd | link:service-mesh#linkerd[Linkerd]
-|Service mesh integration using Estio | link:link[link]
+|Service mesh integration using Istio | link:link[link]
 |===
