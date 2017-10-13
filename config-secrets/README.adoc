@@ -1,0 +1,80 @@
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+= Kubernetes - Configmap and Secrets
+
+
+== Kubernetes - Configmap and Secrets
+
+Kubernetes as a resource type of Configmap used as a way to abstract pods away from their configuration helping keep the applications more portable.
+
+There is also a secrets object which allows you to pass sensitive data to your applications.
+
+Here will will illiustrate how to pass this information to a redis pod, by passing configuration information with Configmap.
+
+Next
+
+=== Create the Configmap object
+
+    kubectl apply -f ./templates/config-map.yaml
+
+=== Deploy a redis pod that maps the Configmap to the volume where the configuration resides:
+
+    kubectl apply -f ./templates/redis-pod.yaml
+
+=== Validate that your redis cluster picked up the appropriate configuration:
+
+    kubectl exec --it redis redis-cli
+    CONFIG GET maxmemory
+    CONFIG GET maxmemory-policy
+
+You should see the same values that were specified in the ./templates/config-map.yaml outputted in the above commands.
+
+=== Secrets
+
+In this section we will demonstrate how to place secrets into the k8s cluster and then show multiple ways of retrieving those secretes from within pods.
+
+First encode the secrets you want to apply, for this example we will use the username `admin` and the password `password`
+
+    echo -n "admin" | base64
+    echo -n "password" | base64
+
+Both of these values are already written in the file `./templates/secret.yaml`
+
+You can now insert this secret in to kubernetes with the following command:
+
+    kubectl apply -f ./templates/secret.yaml
+
+=== Consuming secrets in your pods
+
+Here we will demonstrate two ways to consume secrets from within pods.
+
+*Using volumes*, deploy the pod:
+
+    kubectl apply -f ./templates/pod-secret-volume.yaml
+
+Open a shell to the pod to see the secrets
+
+    kubectl exec -it pod-secret-volume /bin/bash
+    ls /etc/foo
+    cat /etc/foo/username ; echo
+    cat /etc/foo/password ; echo
+
+The above commands should result in the plain text values, the decoding is done for you.
+
+*Using Environment Variables*, deploy the pod:
+
+    kubectl apply -f ./templates/pod-secret-env.yaml
+
+Open a shell to the pod to see the secrets:
+
+    kubectl exec -it pod-secret-volume /bin/bash
+    echo $SECRET_USERNAME
+    echo $SECRET_PASSWORD
+
+The above commands illustrate how to see the secret values via environment variables
+
+== Conclusion
+
+In this post we demonstrated how to leverage configmaps and secrets in your pods.
