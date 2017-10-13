@@ -26,7 +26,7 @@ before re-purposing this workshop so that you have a better experience going thr
 |Upgrading Kubernetes cluster - inplace upgrade  | link:upgrade-clusters#inplace-upgrade[In-place upgrade]
 |Cluster scaling  | link:cluster-scaling[Cluster scaling]
 |Configuration and Secrets Management  | link:link[link]
-|Pod Autoscaling  | link:link[link]
+|Pod Autoscaling  | link:app-scaling[App Scaling]
 |===
 
 [cols="2*"]
@@ -34,6 +34,7 @@ before re-purposing this workshop so that you have a better experience going thr
 |Advanced (300+) |Links
 
 |Network policies with Calico  | link:calico[Calico]
+|Managing IAM roles with kube2iam | link:roles[Roles]
 |CI/CD pipeline  | link:link[link]
 |StatefulSets with EBS  | link:statefulsets[Statefulsets]
 |ALB ingress controller  | link:link[link]
