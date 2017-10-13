@@ -24,7 +24,7 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 |Upgrading Kubernetes cluster - inplace upgrade  | link:upgrade-clusters#inplace-upgrade[In-place upgrade]
 |Upgrading Kubernetes cluster - blue/green upgrade  | link:upgrade-clusters#inplace-upgrade[Blue/Green upgrade]
 |Cluster scaling  | link:cluster-scaling[Cluster scaling]
-|Configuration and Secrets Management  | link:link[link]
+|Configuration and Secrets Management  | link
 |Pod Autoscaling  | link:app-scaling[App Scaling]
 |===
 
@@ -34,10 +34,11 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 
 |Network policies with Calico  | link:calico[Calico]
 |Managing IAM roles with kube2iam | link:roles[Roles]
-|CI/CD pipeline  | link:link[link]
+|CI/CD pipeline  | link
 |StatefulSets with EBS  | link:statefulsets[Statefulsets]
-|ALB ingress controller  | link:link[link]
-|Nginx ingress controller  | link:link[link]
+|ALB ingress controller  | link
+|Nginx ingress controller  | link
 |Service mesh integration using Linkerd | link:service-mesh#linkerd[Linkerd]
-|Service mesh integration using Istio | link:link[link]
+|Service mesh integration using Istio | link
 |===
+
