@@ -4,9 +4,8 @@
 
 Here are some prereqs for link:readme.adoc[Kubernetes on AWS workshop]
 
-- You will be using an AWS Account while you go through tutorials. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one
-- If you already have an AWS Account, you need to create an IAM user or use an http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policy]
-which has these minimum IAM privileges
+- You will be using an AWS Account while you go through the workshop. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one
+- If you already have an AWS Account, you need to create an IAM user and attach these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies].
 
     AmazonEC2FullAccess
     AmazonRoute53FullAccess
@@ -19,4 +18,16 @@ for additional info on IAM permissions
 
 - Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
 on your PC
-- 
+- Use {TBD} AWS region for this workshop. We have done minimal testing against these AWS regions.
+For ex, installing and terminating k8s cluster. Please file a bug if you run into issues
+
+    US East (N. Virginia) us-east-1
+    US West (Oregon)      us-west-2
+    EU (Frankfurt)        eu-central-1
+    EU (Ireland)          eu-west-1
+
+You can set the default region
+
+    export AWS_DEFAULT_REGION=us-central-1
+
+-
