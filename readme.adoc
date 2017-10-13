@@ -4,7 +4,9 @@ This repo explains how to run and manage a Kubernetes cluster on Amazon Web Serv
 how to deploy, scale and configure applications on this cluster.
 
 Proposed agenda is to go through the described format to rampup your knowledge on Kubernetes by following
-workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable as you move through the workshop
+workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable
+as you move through the workshop. It is recommended to review link:workshop-prereqs.adoc[prereqs document]
+before re-purposing this workshop so that you have a better experience going through these tutorials.
 
 [cols="2*"]
 |===
@@ -22,7 +24,6 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 |Logging with Kubernetes cluster  | link:cluster-logging[Cluster logging]
 |Monitoring with Kubernetes cluster  | link:cluster-monitoring[Cluster monitoring]
 |Upgrading Kubernetes cluster - inplace upgrade  | link:upgrade-clusters#inplace-upgrade[In-place upgrade]
-|Upgrading Kubernetes cluster - blue/green upgrade  | link:upgrade-clusters#inplace-upgrade[Blue/Green upgrade]
 |Cluster scaling  | link:cluster-scaling[Cluster scaling]
 |Configuration and Secrets Management  | link:link[link]
 |Pod Autoscaling  | link:link[link]
@@ -38,5 +39,4 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 |ALB ingress controller  | link:link[link]
 |Nginx ingress controller  | link:link[link]
 |Service mesh integration using Linkerd | link:service-mesh#linkerd[Linkerd]
-|Service mesh integration using Estio | link:link[link]
 |===

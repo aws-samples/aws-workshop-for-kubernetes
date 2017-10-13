@@ -1,0 +1,22 @@
+:toc:
+
+= Prereqs
+
+Here are some prereqs for link:readme.adoc[Kubernetes on AWS workshop]
+
+- You will be using an AWS Account while you go through tutorials. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one
+- If you already have an AWS Account, you need to create an IAM user or use an http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policy]
+which has these minimum IAM privileges
+
+    AmazonEC2FullAccess
+    AmazonRoute53FullAccess
+    AmazonS3FullAccess
+    IAMFullAccess
+    AmazonVPCFullAccess
+
+Please review this link:https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user[link]
+for additional info on IAM permissions
+
+- Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
+on your PC
+- 
