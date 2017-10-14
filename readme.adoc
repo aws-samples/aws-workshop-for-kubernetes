@@ -8,37 +8,38 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 
 [cols="2*"]
 |===
-|Beginners (100 - 200) |Links
+|Beginners (100 - 200) 
 
-|Kubernetes Getting started  | link:getting-started[Getting started]
-|Install Kubernetes cluster using kops  | link:install-cluster[Install cluster]
-|Kubernetes Deployment concepts  | link:deployment-concepts[Deployment concepts]
+| link:getting-started[Kubernetes Getting started]
+| link:install-cluster[Install Kubernetes cluster using kops]
+| link:deployment-concepts[Kubernetes Deployment concepts]
 |===
 
 [cols="2*"]
 |===
-|Mid-level (200 - 300) |Links
+|Mid-level (200 - 300) 
 
-|Logging with Kubernetes cluster  | link:cluster-logging[Cluster logging]
-|Monitoring with Kubernetes cluster  | link:cluster-monitoring[Cluster monitoring]
-|Upgrading Kubernetes cluster - inplace upgrade  | link:upgrade-clusters#inplace-upgrade[In-place upgrade]
-|Upgrading Kubernetes cluster - blue/green upgrade  | link:upgrade-clusters#inplace-upgrade[Blue/Green upgrade]
-|Cluster scaling  | link:cluster-scaling[Cluster scaling]
-|Configuration and Secrets Management  | TODO
-|Pod Autoscaling  | link:app-scaling[App Scaling]
+| link:microservices[Service discovery with microservices]
+| link:cluster-logging[Logging with Kubernetes cluster]
+| link:cluster-monitoring[Monitoring with Kubernetes cluster]
+| link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
+| link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - blue/green upgrade]
+| link:cluster-scaling[Cluster scaling]
+| Configuration and Secrets Management
+| link:app-scaling[Pod Autoscaling]
 |===
 
 [cols="2*"]
 |===
-|Advanced (300+) |Links
+|Advanced (300+)
 
-|Network policies with Calico  | link:calico[Calico]
-|Managing IAM roles with kube2iam | link:roles[Roles]
-|CI/CD pipeline  | TODO
-|StatefulSets with EBS  | link:statefulsets[Statefulsets]
-|ALB ingress controller  | TODO
-|Nginx ingress controller  | TODO
-|Service mesh integration using Linkerd | link:service-mesh#linkerd[Linkerd]
-|Service mesh integration using Istio | TODO
+| link:calico[Network policies with Calico]
+| link:roles[Managing IAM roles with kube2iam]
+| CI/CD pipeline
+| link:statefulsets[StatefulSets with EBS]
+| ALB ingress controller
+| Nginx ingress controller
+| link:service-mesh#linkerd[Service mesh integration using Linkerd]
+| Service mesh integration using Istio
 |===
 
