@@ -6,7 +6,6 @@ how to deploy, scale and configure applications on this cluster.
 Proposed agenda is to go through the described format to rampup your knowledge on Kubernetes by following
 workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable as you move through the workshop
 
-[cols="2*"]
 |===
 |Beginners (100 - 200) 
 
@@ -15,7 +14,6 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 | link:deployment-concepts[Kubernetes Deployment concepts]
 |===
 
-[cols="2*"]
 |===
 |Mid-level (200 - 300) 
 
@@ -29,7 +27,6 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 | link:app-scaling[Pod Autoscaling]
 |===
 
-[cols="2*"]
 |===
 |Advanced (300+)
 
