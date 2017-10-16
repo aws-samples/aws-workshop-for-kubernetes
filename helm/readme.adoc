@@ -1,0 +1,18 @@
+= Helm chars with Kubernetes
+
+https://github.com/kubernetes/helm[Helm] is a tool for managing https://github.com/kubernetes/charts[Kubernetes charts]. A chart is a collection of files that describe a related set of Kubernetes resources. Charts are created as files laid out in a particular directory tree, then they can be packaged into versioned archives to be deployed. Read more details in https://github.com/kubernetes/helm/blob/master/docs/charts.md[Charts introduction].
+
+== Install Helm
+
+There are two parts to Helm: The Helm client (`helm`) and the Helm server (`tiller`). This section shows how to install both the components.
+
+=== Install Helm client
+
+Install on Mac OSX:
+
+    brew install kubernetes-helm
+
+https://docs.helm.sh/using_helm/#installing-helm[Installing Helm] provides complete set of options to install Helm.
+
+=== Install Helm server
+
