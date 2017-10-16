@@ -8,7 +8,7 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 as you move through the workshop. It is recommended to review link:workshop-prereqs.adoc[prereqs document]
 before re-purposing this workshop so that you have a better experience going through these tutorials.
 
-[cols="2*"]
+[cols="1*"]
 |===
 |Beginners (100 - 200)
 
@@ -17,7 +17,7 @@ before re-purposing this workshop so that you have a better experience going thr
 |link:deployment-concepts[Kubernetes Deployment concepts]
 |===
 
-[cols="2*"]
+[cols="1*"]
 |===
 |Mid-level (200 - 300)
 
@@ -31,7 +31,7 @@ before re-purposing this workshop so that you have a better experience going thr
 | link:app-scaling[Pod Autoscaling]
 |===
 
-[cols="2*"]
+[cols="1*"]
 |===
 |Advanced (300+)
 
