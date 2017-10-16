@@ -13,7 +13,7 @@ before re-purposing this workshop so that you have a better experience going thr
 |Beginners (100 - 200)
 
 |link:getting-started[Kubernetes Getting started]
-|link:install-cluster[Install Kubernetes cluster using kops]
+|link:cluster-install[Install Kubernetes cluster using kops]
 |link:deployment-concepts[Kubernetes Deployment concepts]
 |===
 

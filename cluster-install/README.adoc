@@ -29,7 +29,9 @@ https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user
 
     aws s3api create-bucket --bucket kubernetes-aws-config
     # enable versioning and export
-    aws s3api put-bucket-versioning --bucket kubernetes-aws-config --versioning-configuration\
+    aws s3api put-bucket-versioning \
+      --bucket kubernetes-aws-config 
+      --versioning-configuration\
     Status=Enabled
     export KOPS_STATE_STORE=s3://kubernetes-aws-config
 
@@ -38,21 +40,27 @@ https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user
 If you own Route53 domain name, download https://github.com/stedolan/jq/wiki/Installation[jq]
 and run this command:
 
-    ID=$(uuidgen) && aws route53 create-hosted-zone --name kubernetes-aws.io \
-    --caller-reference $ID | jq .DelegationSet.NameServers
+    ID=$(uuidgen) && aws route53 create-hosted-zone \
+      --name kubernetes-aws.io \
+      --caller-reference $ID \
+      | jq .DelegationSet.NameServers
 
 See other means of creating DNS: https://github.com/kubernetes/kops/blob/master/docs/aws.md#configure-dns
 
 If you don't own domain name, you can create custom domain using Route53's private hosted zone
 you need to provide VPC info to run this command. See below how to <<Create VPC (Optional)>>
 
-    ID=$(uuidgen) && aws route53 create-hosted-zone --name k8s-aws.internal \
-    --vpc VPCRegion=us-east-1,VPCId=$VPCID --caller-reference $ID \
-    | jq .DelegationSet.NameServers
+    ID=$(uuidgen) && aws route53 create-hosted-zone ]\
+      --name k8s-aws.internal \
+      --vpc VPCRegion=us-east-1,VPCId=$VPCID \
+      --caller-reference $ID \
+      | jq .DelegationSet.NameServers
 
 == Create kubernetes cluster
 
-    kops create cluster --name cluster01.kubernetes-aws.io --state s3://kubernetes-aws-config
+    kops create cluster \
+      --name cluster01.kubernetes-aws.io \
+      --state s3://kubernetes-aws-config
     # review cluster info and make changes if necessary (for ex, subnet sizing)
     kops get cluster
     kops edit cluster cluster01.kubernetes-aws.io
@@ -63,15 +71,24 @@ More options for creating k8s clusters are listed below
 
 Create cluster with multi master, multi node and multi-az configuration
 
-    kops create cluster --name cluster02.kubernetes-aws.io --master-count 3 --master-zones\
-    us-east-1a,us-east-1b --node-count 5 --zones us-east-1a,us-east-1b,us-east-1c \
-     --state s3://kubernetes-aws-config
+    kops create cluster \
+      --name cluster02.kubernetes-aws.io \
+      --master-count 3 \
+      --master-zones us-east-1a,us-east-1b \
+      --node-count 5 \
+      --zones us-east-1a,us-east-1b,us-east-1c \
+      --state s3://kubernetes-aws-config
 
 Create cluster with Route53 private hosted zone and VPC
 
-    kops create cluster --dns private --name cluster03.k8s-aws.internal --zones us-east-1a,\
-    us-east-1b --state s3://kubernetes-aws-config --vpc $VPCID --network-cidr 10.1.0.0/16\
-     --ssh-public-key $mypubkey
+    kops create cluster \
+      --dns private \
+      --name cluster03.k8s-aws.internal \
+      --zones us-east-1a,us-east-1b \
+      --state s3://kubernetes-aws-config \
+      --vpc $VPCID \
+      --network-cidr 10.1.0.0/16\
+      --ssh-public-key $mypubkey
 
 == Validate cluster
 
@@ -114,9 +131,12 @@ private hosted zone along with VPC option.
      IGW=`aws ec2 create-internet-gateway --region us-east-1 --query 'InternetGateway.InternetGatewayId' --output text`
      aws ec2 attach-internet-gateway --internet $IGW --vpc $VPCID --region us-east-1
 
-== Terminate cluster
+== Delete cluster
 
-    kops delete cluster cluster01.kubernetes-aws.io --state s3://kubernetes-aws-config --yes
+    kops delete cluster \
+      cluster01.kubernetes-aws.io \
+      --state s3://kubernetes-aws-config \
+      --yes
     # Find Route53 hosted zone ID from the console or via CLI and delete hosted zone
     aws route53 delete-hosted-zone --id Z1234567890ABC
     # Delete VPC if you created earlier
@@ -124,4 +144,3 @@ private hosted zone along with VPC option.
     aws ec2 delete-internet-gateway --internet-gateway-id $IGW
     aws ec2 delete-vpc --vpc-id $VPCID
 
-This doc is related to https://github.com/arun-gupta/kubernetes-aws-workshop/issues/5
