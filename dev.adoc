@@ -16,6 +16,10 @@ https://github.com/arun-gupta/kubernetes-aws-workshop/issues/13
 
 https://github.com/arun-gupta/kubernetes-aws-workshop/issues/13
 
+== Rolling update of an application
+
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/7
+
 == Run-once
 
 https://github.com/arun-gupta/kubernetes-aws-workshop/issues/14

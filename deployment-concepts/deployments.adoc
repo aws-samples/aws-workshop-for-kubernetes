@@ -1,0 +1,109 @@
+= Deployments
+
+== Creating a Deployment
+The folowing will be an example Deployment with an nginx base image. Let's begin with the template:
+
+	apiVersion: extensions/v1beta1
+	kind: Deployment # kubernetes object type
+	metadata:
+	  name: nginx-deployment # deployment name
+	spec:
+	  replicas: 3 # number of replicas
+	  template:
+	    metadata:
+	      labels:
+	        app: nginx # pod labels
+	    spec:
+	      containers:
+	      - name: nginx # container name
+	        image: nginx:1.12.1 # nginx image
+	        imagePullPolicy: IfNotPresent # if exists, will not pull new image
+	        ports: # container and host port assignments
+	        - containerPort: 80
+	          hostPort: 80
+	        - containerPort: 443
+	          hostPort: 443          
+
+Run the following command to create Deployment:
+
+	kubectl create -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/deployment.yaml --record
+
+The *--record* flag will track changes made through each revision.
+
+To monitor deployment rollout status:
+
+	kubectl rollout status deployment/nginx-deployment
+
+To obtain state of the deployment:
+
+	kubectl get deployments
+
+== Updating a Deployment
+You can update the Deployment by making edits to the spec template. In this example, let's change to the latest nginx image.
+
+First, type the following to open up the text editor:
+
+	kubectl edit deployment/nginx-deployment
+
+Next, change the image from *nginx:1.12.1* to *nginx:latest*.
+
+This should perform a rolling update of the deployment. To track the deployment details such as revision, image version, and ports - type in the following:
+
+	kubectl describe deployments
+
+The output should look similar the following:
+
+	$ kubectl describe deployments
+	Name:                   nginx-deployment
+	Namespace:              default
+	CreationTimestamp:      Fri, 15 Sep 2017 10:55:55 -0700
+	Labels:                 app=nginx
+	Annotations:            deployment.kubernetes.io/revision=2
+	Selector:               app=nginx
+	Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+	StrategyType:           RollingUpdate
+	MinReadySeconds:        0
+	RollingUpdateStrategy:  1 max unavailable, 1 max surge
+	Pod Template:
+	  Labels:       app=nginx
+	  Containers:
+	   nginx:
+	    Image:              nginx:latest
+	    Ports:              80/TCP, 443/TCP
+	    Environment:        <none>
+	    Mounts:             <none>
+	  Volumes:              <none>
+	Conditions:
+	  Type          Status  Reason
+	  ----          ------  ------
+	  Available     True    MinimumReplicasAvailable
+	OldReplicaSets: <none>
+	NewReplicaSet:  nginx-deployment-2083416819 (3/3 replicas created)
+	Events:
+	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
+	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
+	  17m           17m             1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-3081318877 to 3
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-2083416819 to 1
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled down replica set nginx-deployment-3081318877 to 2
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-2083416819 to 2
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled down replica set nginx-deployment-3081318877 to 1
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-2083416819 to 3
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled down replica set nginx-deployment-3081318877 to 0
+
+== Rolling back a Deployment
+To rollback to a previous version, first check the revision history:
+
+	kubectl rollout history deployment/nginx-deployment
+
+If you only want to rollback to the previous revision, enter the following command:
+
+	kubectl rollout undo deployment/nginx-deployment
+
+If rolling back to a specific revision then enter:
+
+	kubectl rollout undo deployment/nginx-deployment --to-revision=1
+
+== Delete a deployment
+Run the following command to delete deployment:
+
+	kubectl delete -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/deployment.yaml

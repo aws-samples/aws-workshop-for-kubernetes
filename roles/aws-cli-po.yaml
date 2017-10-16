@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: aws-cli
+  labels:
+    name: aws-cli
+  annotations:
+    iam.amazonaws.com/role: MyPodRole
+spec:
+  containers:
+    - image: cgswong/aws:aws
+      command:
+        - "sleep"
+        - "9999999"
+      name: aws-cli

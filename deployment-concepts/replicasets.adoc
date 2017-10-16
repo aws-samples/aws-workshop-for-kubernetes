@@ -1,0 +1,61 @@
+= Replica Sets
+
+== Creating a ReplicaSet
+The folowing will be an example ReplicaSet with an nginx base image. Let's begin with the template:
+
+	apiVersion: extensions/v1beta1
+	kind: ReplicaSet
+	metadata:
+	  name: nginx-replicaset
+	spec:
+	  replicas: 3
+	  template:
+	    metadata:
+	      labels:
+	        name: nginx-replica
+	    spec:
+	      containers:
+	      - name: nginx-replica
+	        image: nginx:1.12.1
+	        imagePullPolicy: IfNotPresent
+	        ports:
+	        - containerPort: 80
+	          hostPort: 80
+	        - containerPort: 443
+	          hostPort: 443      
+
+Run the following command to create the ReplicaSet and pods:
+
+	kubectl create -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/replicaset.yaml --record
+
+The *--record* flag will track changes made through each revision.
+
+To track the ReplicaSet details type in the following:
+
+	kubectl describe rs/nginx-replicaset
+
+The output should look similar the following:
+
+	$ kubectl describe rs/nginx-replicaset
+	Name:           nginx-replicaset
+	Namespace:      default
+	Selector:       name=nginx-replica
+	Labels:         name=nginx-replica
+	Annotations:    <none>
+	Replicas:       3 current / 3 desired
+	Pods Status:    3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+	Pod Template:
+	  Labels:       name=nginx-replica
+	  Containers:
+	   nginx-replica:
+	    Image:              nginx:1.12.1
+	    Ports:              80/TCP, 443/TCP
+	    Environment:        <none>
+	    Mounts:             <none>
+	  Volumes:              <none>
+	Events:
+	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
+	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
+	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-z1sj6
+	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-1b05f
+	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-bftwj

@@ -1,0 +1,149 @@
+= Services
+
+== Creating a Service
+In the following example, we create a service labeled demo-service:
+
+	apiVersion: v1
+	kind: Service
+	metadata:
+	  name: demo-service
+	spec:
+	  selector:
+	    app: demo-app
+	  ports:
+	  - name: http
+	    protocol: TCP
+	    port: 80
+	    targetPort: 8080
+
+The service itself is assigned an IP address used by service proxies. It also defines the incoming ports 80 and 443 to target ports 3030 and 3031. 
+
+* Note that Kubernetes supports both TCP and UDP protocols.
+
+== Service Discovery
+For each Pod that is created, a set of environmental variables are created for each active service. Alternatively, a DNS server can be used to watch the Kubernetes API for new services and creates DNS records for each.
+
+If you would like to expose a service to an external IP, ServiceTypes are used to determine the type of service. Those ServiceTypes are:
+
+	ClusterIP: Service exposed on a internal cluster IP.
+	NodePort: Service exposed on each Node's IP at a defined port.
+	LoadBalancer: Service exposed externally using a cloud based load balancer. 
+	ExternalName: Service is attached to the externalName field. It is mapped to a CNAME with the value.
+
+Below we will provision a Load Balancer and expose your services, add a type field of LoadBalancer. 
+
+First deploy an app. In this example, we will create an echo app that responds with http headers from an Elastic Load Balancer:
+
+	apiVersion: extensions/v1beta1
+	kind: Deployment
+	metadata:
+	  name: demo-deployment 
+	spec:
+	  replicas: 3 
+	  template:
+	    metadata:
+	      labels:
+	        app: demo-app 
+	    spec:
+	      containers:
+	      - name: echoheaders 
+	        image: gcr.io/google_containers/echoserver:1.4
+	        imagePullPolicy: IfNotPresent 
+	        ports: 
+	        - containerPort: 8080
+	          hostPort: 8080  
+
+Type the following to create the deployment:
+
+	kubectl create -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/echo.yaml --record
+
+Type "kubectl describe deployment" to confirm demo-app has been deployed:
+
+	$ kubectl describe deployment
+	Name:                   demo-deployment
+	Namespace:              default
+	CreationTimestamp:      Mon, 02 Oct 2017 13:13:12 -0700
+	Labels:                 app=demo-app
+	Annotations:            deployment.kubernetes.io/revision=1
+	                        kubernetes.io/change-cause=kubectl create --filename=https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/echo.yaml --record=true
+	Selector:               app=demo-app
+	Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+	StrategyType:           RollingUpdate
+	MinReadySeconds:        0
+	RollingUpdateStrategy:  1 max unavailable, 1 max surge
+	Pod Template:
+	  Labels:       app=demo-app
+	  Containers:
+	   echoheaders:
+	    Image:              gcr.io/google_containers/echoserver:1.4
+	    Port:               8080/TCP
+	    Environment:        <none>
+	    Mounts:             <none>
+	  Volumes:              <none>
+	Conditions:
+	  Type          Status  Reason
+	  ----          ------  ------
+	  Available     True    MinimumReplicasAvailable
+	OldReplicaSets: <none>
+	NewReplicaSet:  demo-deployment-706676907 (3/3 replicas created)
+	Events:
+	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
+	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
+	  29s           29s             1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set demo-deployment-706676907 to 3
+
+This template will expose "demo-app" to the internet by creating an outward facing elastic load balancer (ELB):
+
+	apiVersion: v1
+	kind: Service
+	metadata:
+	  name: demo-service
+	spec:
+	  selector:
+	    app: demo-app
+	  ports:
+	  - name: http
+	    protocol: TCP
+	    port: 80
+	    targetPort: 8080
+	  type: LoadBalancer
+
+Run the following command to create the service:
+
+	kubectl create -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/service.yaml --record
+
+After describing, you should get something like the following:
+
+	$ kubectl describe services
+	Name:                   demo-service
+	Namespace:              default
+	Labels:                 <none>
+	Annotations:            kubernetes.io/change-cause=kubectl create --filename=https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/service.yaml --record=true
+	Selector:               app=demo-app
+	Type:                   LoadBalancer
+	IP:                     1.1.1.131
+	LoadBalancer Ingress:   {random-sequence}.us-west-2.elb.amazonaws.com
+	Port:                   http    80/TCP
+	NodePort:               http    31959/TCP
+	Endpoints:              1.1.1.65:8080,1.1.1.131:8080,1.1.1.194:8080
+	Session Affinity:       None
+	Events:
+	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
+	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
+	  5s            5s              1       service-controller                      Normal          CreatingLoadBalancer    Creating load balancer
+	  2s            2s              1       service-controller                      Normal          CreatedLoadBalancer     Created load balancer
+
+
+	Name:                   kubernetes
+	Namespace:              default
+	Labels:                 component=apiserver
+	                        provider=kubernetes
+	Annotations:            <none>
+	Selector:               <none>
+	Type:                   ClusterIP
+	IP:                     10.10.0.1
+	Port:                   https   443/TCP
+	Endpoints:              1.2.3.29:443
+	Session Affinity:       ClientIP
+	Events:                 <none>
+
+If you go to the LoadBalancer Ingress in your browser, you should hit a webpage containing the echo response.
