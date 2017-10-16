@@ -25,7 +25,7 @@ before re-purposing this workshop so that you have a better experience going thr
 | link:cluster-logging[Logging with Kubernetes cluster]
 | link:cluster-monitoring[Monitoring with Kubernetes cluster]
 | link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
-| link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - blue/green upgrade]
+| Upgrading Kubernetes cluster - blue/green upgrade
 | link:cluster-scaling[Cluster scaling]
 | Configuration and Secrets Management
 | link:app-scaling[Pod Autoscaling]
@@ -42,4 +42,5 @@ before re-purposing this workshop so that you have a better experience going thr
 | ALB ingress controller
 | Nginx ingress controller
 | link:service-mesh#linkerd[Service mesh integration using Linkerd]
+| Service mesh integration using Istio
 |===
