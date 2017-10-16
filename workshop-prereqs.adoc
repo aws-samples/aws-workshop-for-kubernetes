@@ -18,7 +18,7 @@ for additional info on IAM permissions
 
 - Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
 on your PC
-- Use {TBD} AWS region for this workshop. We have done minimal testing against these AWS regions.
+- Use EU (Frankfurt) AWS region for this workshop. We have done minimal testing against these AWS regions.
 For ex, installing and terminating k8s cluster. Please file a bug if you run into issues
 
     US East (N. Virginia) us-east-1
@@ -26,7 +26,7 @@ For ex, installing and terminating k8s cluster. Please file a bug if you run int
     EU (Frankfurt)        eu-central-1
     EU (Ireland)          eu-west-1
 
-You can set the default region
+You can set the default region using this command
 
     export AWS_DEFAULT_REGION=us-central-1
 
