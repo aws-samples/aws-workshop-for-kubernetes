@@ -4,29 +4,34 @@ This repo explains how to run and manage a Kubernetes cluster on Amazon Web Serv
 how to deploy, scale and configure applications on this cluster.
 
 Proposed agenda is to go through the described format to rampup your knowledge on Kubernetes by following
-workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable as you move through the workshop
+workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable
+as you move through the workshop. It is recommended to review link:workshop-prereqs.adoc[prereqs document]
+before re-purposing this workshop so that you have a better experience going through these tutorials.
 
+[cols="1*"]
 |===
-|Beginners (100 - 200) 
+|Beginners (100 - 200)
 
-| link:getting-started[Kubernetes Getting started]
-| link:install-cluster[Install Kubernetes cluster using kops]
-| link:deployment-concepts[Kubernetes Deployment concepts]
+|link:getting-started[Kubernetes Getting started]
+|link:install-cluster[Install Kubernetes cluster using kops]
+|link:deployment-concepts[Kubernetes Deployment concepts]
 |===
 
+[cols="1*"]
 |===
-|Mid-level (200 - 300) 
+|Mid-level (200 - 300)
 
 | link:microservices[Service discovery with microservices]
 | link:cluster-logging[Logging with Kubernetes cluster]
 | link:cluster-monitoring[Monitoring with Kubernetes cluster]
 | link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
-| link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - blue/green upgrade]
+| Upgrading Kubernetes cluster - blue/green upgrade
 | link:cluster-scaling[Cluster scaling]
 | Configuration and Secrets Management
 | link:app-scaling[Pod Autoscaling]
 |===
 
+[cols="1*"]
 |===
 |Advanced (300+)
 
