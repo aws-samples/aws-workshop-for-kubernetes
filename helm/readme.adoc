@@ -103,26 +103,26 @@ db:
 
 Finally, install the chart:
 
-  helm install sample
+  helm install --name sample sample
 
 This shows output:
 
 ```
-NAME:   unhinged-crab
-LAST DEPLOYED: Tue Oct 17 03:18:31 2017
+NAME:   sample
+LAST DEPLOYED: Tue Oct 17 03:45:36 2017
 NAMESPACE: default
 STATUS: DEPLOYED
 
 RESOURCES:
+==> v1/Service
+NAME    CLUSTER-IP      EXTERNAL-IP  PORT(S)   AGE
+db      100.68.180.123  <none>       3306/TCP  1s
+webapp  100.70.164.191  <none>       8080/TCP  1s
+
 ==> v1beta1/Deployment
 NAME               DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
 mysql-deployment   1        1        1           0          1s
 webapp-deployment  1        1        1           0          1s
-
-==> v1/Service
-NAME    CLUSTER-IP      EXTERNAL-IP  PORT(S)   AGE
-db      100.65.195.189  <none>       3306/TCP  1s
-webapp  100.71.21.2     <none>       8080/TCP  1s
 ```
 
 == Verify application
@@ -173,5 +173,15 @@ This chart can now be shared with others using a chart repository server. The `h
 
 For production, it's recommended to setup a https://github.com/arun-gupta/kubernetes-aws-workshop/issues/70[chart repository on AWS cloud].
 
+== Delete Helm chart
+
+List the deployed charts using `helm list`:
+
+```
+NAME    REVISION  UPDATED                   STATUS    CHART         NAMESPACE
+sample  1         Tue Oct 17 03:45:36 2017  DEPLOYED  sample-1.0.0  default  
+```
+
+Delete the deployed chart using `helm delete sample`.
 
 
