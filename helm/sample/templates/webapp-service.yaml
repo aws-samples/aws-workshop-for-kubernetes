@@ -6,4 +6,4 @@ spec:
   selector: 
     app: webapp-pod
   ports:
-    - port: 8080
+    - port: {{ .Values.webapp.port }}
