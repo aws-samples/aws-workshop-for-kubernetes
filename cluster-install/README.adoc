@@ -76,7 +76,7 @@ The Kops CLI can be used to create a highly available cluster, with multiple mas
 - Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
 - Installing Kubernetes.
 
-Create a simple Kubernetes cluster using the following command. The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for masters/nodes to discover each other. Note that 'create cluster' only creates and stores the cluster config in S3; you must use `update cluster` to build the cluster:
+Create a simple Kubernetes cluster using the following command. The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for masters/nodes to discover each other. Note that `create cluster` only creates and stores the cluster config in S3; you must use `update cluster` to build the cluster:
 
     kops create cluster \
       --name cluster01.k8s.local \
@@ -112,7 +112,7 @@ Create cluster with Route53 private hosted zone and VPC
 
 == Validate cluster
 
-    kops validate cluster
+    kops validate cluster --name cluster03.k8s-aws.internal
 
 The following is the output for cluster with 3 master nodes and 6 worker nodes using Route53
     private hosted zone
