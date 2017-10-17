@@ -1,5 +1,5 @@
-
 = Kubernetes - App Scaling
+:toc:
 :icons:
 :linkcss:
 :imagesdir: ../images

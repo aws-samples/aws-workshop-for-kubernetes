@@ -3,19 +3,15 @@
 :linkcss:
 :imagesdir: ../images
 
+As part of this initial four part series we will accomplish a few key goals:
 
-== As part of this initial four part series we will accomplish a few key goals:
+. *Setup Local Development Environment* Provision and install a local Kubernetes cluster on a mac via `homebrew`, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures, the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
 
-. *Setup Local Development Environment* Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
+. *Kubernetes Basic Commands* Familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGINX pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
 
-. *Kubernetes Basic Commands* Familiarize ourselves with the kubectl cli tool and basic Kubernetes commands. We will first deploy a basic nginx pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
-
-. *Production Ready Cluster* Deploy a 'production-ready' cluster on AWS with KOPS
+. *Production Ready Cluster* Deploy a 'production-ready' cluster on AWS with Kops.
 
 . *Build on basics of Kubernetes CLI* Explore additional developer functionality with core Kubernetes constructs such as ReplicaSets, Services, Deployments and DaemonSets.
 
-== Lets get started!
+Continue on to link:setup-local-dev.adoc[part 1] of this series to get started by getting a local development environment up and running.
 
-Continue on to part 1 of this series to get started getting a local development environment up and running.
-
-https://github.com/omarlari/kubernetes-aws-workshop/blob/master/getting-started/setup-local-dev.adoc

@@ -1,6 +1,5 @@
-:toc:
-
 = Service Mesh integration with kubernetes
+:toc:
 
 In this section, we will demonstrate how to integrate service mesh component with kubernetes cluster.
 Service mesh is a layer that manages communication between microservices and it is becoming

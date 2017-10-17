@@ -1,11 +1,292 @@
+= StatefulSets and Persistent Volume
 :toc:
 
-= StatefulSets
+In this section, we will review how to launch and manage applications using https://kubernetes.io/docs/concepts/abstractions/controllers/statefulsets/[StatefulSets] and https://kubernetes.io/docs/concepts/storage/persistent-volumes/[Persistent Volumes].
 
-In this section, we will review how to launch and manage applications using StatefulSets.
-
-== Deploy and manage MySQL application
 We will review how to deploy MySQL database using StatefulSets. Further we will implement few
 failure modes and review how StatefulSets reacts to those situations. Lastly, we will review
-easier way to scale up and down MySQL clusters. You can find more info on this link:
-https://github.com/arun-gupta/kubernetes-aws-workshop/tree/master/statefulsets/mysql-ebs.adoc
+easier way to scale up and down MySQL clusters.
+
+In this exercise we will deploy MySQL database using Statefulsets and EBS volumes. The example
+consists of ConfigMap, two MySQL services and a StatefulSet. First, we will deploy MySQL database,
+send some traffic to test connection status, go through few failure modes and review resiliency that
+is built into StatefulSet controller, lastly demonstrate how to use scale options with StatefulSet.
+
+== Create Kubernetes cluster
+
+Review steps to create k8s cluster from
+link:../install-clusters/README.adoc#create-kubernetes-cluster[install cluster]
+documentation. Run `kops validate cluster` and go to next step:
+
+  kops validate cluster
+  Using cluster from kubectl context: cluster01.k8s-aws.internal
+  Validating cluster cluster01.k8s-aws.internal
+  INSTANCE GROUPS
+  NAME			ROLE	MACHINETYPE	MIN	MAX	SUBNETS
+  master-us-east-1a-1	Master	m3.medium	1	1	us-east-1a
+  master-us-east-1a-2	Master	m3.medium	1	1	us-east-1a
+  master-us-east-1b-1	Master	m3.medium	1	1	us-east-1b
+  nodes			Node	t2.medium	5	5	us-east-1a,us-east-1b,us-east-1c
+  NODE STATUS
+  NAME				ROLE	READY
+  ip-10-10-105-101.ec2.internal	node	True
+  ip-10-10-127-80.ec2.internal	node	True
+  ip-10-10-33-192.ec2.internal	master	True
+  ip-10-10-36-230.ec2.internal	master	True
+  ip-10-10-45-69.ec2.internal	node	True
+  ip-10-10-51-111.ec2.internal	node	True
+  ip-10-10-71-96.ec2.internal	node	True
+  ip-10-10-93-160.ec2.internal	master	True
+  Your cluster cluster01.k8s-aws.internal is ready
+
+In this example, we are running 3 master nodes and 5 worker nodes in kubernetes cluster.
+
+== Create ConfigMap
+
+Using ConfigMap, you can independently control MySQL configuration. In this case, we are
+using master to serve replication logs to slave and slaves are read-only
+
+  kubectl create -f mysql-configmap.yaml
+  configmap "mysql" created
+
+== Create Services
+
+Here we create headless service for DNS resolution so that when pods are placed by StatefulSet
+controller, pods can be resolved using <pod-name>.mysql. mysql-read is a client service that
+does load balancing for all slaves.
+
+  kubectl create -f mysql-services.yaml
+  service "mysql" created
+  service "mysql-read" created
+
+== Create StatefulSet
+
+Finally, we create StatefulSet
+
+  kubectl create -f mysql-statefulset.yaml
+  statefulset "mysql" created
+
+  kubectl get statefulset
+  NAME      DESIRED   CURRENT   AGE
+  mysql     3         1         15s
+
+You can watch the progress using the following command
+
+  kubectl get pods -l app=mysql --watch
+  NAME      READY     STATUS     RESTARTS   AGE
+  mysql-0   0/2       Init:0/2   0          32s
+  mysql-0   0/2       Init:1/2   0         34s
+  mysql-0   0/2       PodInitializing   0         44s
+  mysql-0   1/2       Running   0         45s
+  mysql-0   2/2       Running   0         59s
+  mysql-1   0/2       Pending   0         0s
+  mysql-1   0/2       Pending   0         0s
+  mysql-1   0/2       Pending   0         1s
+  mysql-1   0/2       Init:0/2   0         1s
+  mysql-1   0/2       Init:1/2   0         34s
+  mysql-1   0/2       Init:1/2   0         44s
+  mysql-1   0/2       PodInitializing   0         51s
+  mysql-1   1/2       Running   0         52s
+  mysql-1   2/2       Running   0         57s
+  mysql-2   0/2       Pending   0         0s
+  mysql-2   0/2       Pending   0         0s
+  mysql-2   0/2       Pending   0         3s
+  mysql-2   0/2       Init:0/2   0         3s
+  mysql-2   0/2       Init:1/2   0         39s
+  mysql-2   0/2       Init:1/2   0         49s
+  mysql-2   0/2       PodInitializing   0         59s
+  mysql-2   1/2       Running   0         1m
+  mysql-2   2/2       Running   0         1m
+
+Press Ctrl+C to stop watching. If you notice, Pods are initialized in an orderly fashion in their
+startup process. The reason being StatefulSet controller assigns a unique, stable name (mysql-0,
+mysql-1, mysql2) with mysql-0 being the master and others being slaves. The config uses Percona
+Xtrabackup (open-source tool) to clone source MySQL server to its slaves.
+
+== Test MySQL setup
+
+You can use mysql-client to send some data to the master (mysql-0.mysql)
+
+  kubectl run mysql-client --image=mysql:5.7 -i --rm --restart=Never --\
+    mysql -h mysql-0.mysql <<EOF
+  CREATE DATABASE test;
+  CREATE TABLE test.messages (message VARCHAR(250));
+  INSERT INTO test.messages VALUES ('hello, from mysql-client');
+  EOF
+
+You can run the following to test if slaves (mysql-read) received the data
+
+  kubectl run mysql-client --image=mysql:5.7 -i -t --rm --restart=Never --\
+    mysql -h mysql-read -e "SELECT * FROM test.messages"
+  +--------------------------+
+  | message                  |
+  +--------------------------+
+  | hello, from mysql-client |
+  +--------------------------+
+
+To test load balancing across slaves, you can run the following command
+
+  kubectl run mysql-client-loop --image=mysql:5.7 -i -t --rm --restart=Never --\
+  >   bash -ic "while sleep 1; do mysql -h mysql-read -e 'SELECT @@server_id,NOW()'; done"
+
+  +-------------+---------------------+
+  | @@server_id | NOW()               |
+  +-------------+---------------------+
+  |         100 | 2017-10-03 16:10:25 |
+  +-------------+---------------------+
+  +-------------+---------------------+
+  | @@server_id | NOW()               |
+  +-------------+---------------------+
+  |         101 | 2017-10-03 16:10:26 |
+  +-------------+---------------------+
+  +-------------+---------------------+
+  | @@server_id | NOW()               |
+  +-------------+---------------------+
+  |         102 | 2017-10-03 16:10:27 |
+  +-------------+---------------------+
+  +-------------+---------------------+
+  | @@server_id | NOW()               |
+  +-------------+---------------------+
+  |         101 | 2017-10-03 16:10:28 |
+  +-------------+---------------------+
+
+Press Ctrl+C to stop the loop. You can leave this open in a separate window while you run
+failure modes
+
+== Testing failure modes
+
+Here we will run few tests with different failure modes. First, we will simulate for an unstable
+container, second we will review StatefulSet controller in action for Pod downtime and node downtime
+
+=== Failed container
+
+MySQL container uses readiness probe by running 'mysql -h 127.0.0.1 -e 'SELECT 1'' on the server
+to make sure MySQL server is still active.
+
+Run this command to simulate MySQL as being unresponsive
+
+  kubectl exec mysql-2 -c mysql -- mv /usr/bin/mysql.off /usr/bin/mysql
+
+You can check if the container is healthy
+
+  kubectl get pod mysql-2
+  NAME      READY     STATUS    RESTARTS   AGE
+  mysql-2   1/2       Running   0          12m
+
+mysql-read load balancer detects failures like this and takes action by not sending traffic to
+failed containers. You can check this if you have the loop running in separate window
+
+Revert back to its initial state
+
+  kubectl exec mysql-2 -c mysql -- mv /usr/bin/mysql.off /usr/bin/mysql
+
+=== Failed pod
+
+To simulate failed Pods, you can run delete pod
+
+  kubectl delete pod mysql-2
+  pod "mysql-2" deleted
+  kubectl get pod mysql-2
+  NAME      READY     STATUS        RESTARTS   AGE
+  mysql-2   2/2       Terminating   0          14m
+
+StatefulSet controller recognizes failed pods and creates a new one with same name and link to same
+PersistentVolumeClaim.
+
+=== Failed node
+
+You can simulate node downtime by issuing drain. In order to determine which node to drain, run
+this command
+
+  kubectl get pod mysql-2 -o wide
+  NAME      READY     STATUS    RESTARTS   AGE       IP           NODE
+  mysql-2   2/2       Running   0          21s       100.96.7.3   ip-10-10-71-96.ec2.internal
+
+Drain the node
+
+  kubectl drain ip-10-10-71-96.ec2.internal --force --delete-local-data --ignore-daemonsets
+  node "ip-10-10-71-96.ec2.internal" cordoned
+  WARNING: Deleting pods with local storage: mysql-2; Deleting pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet: kube-proxy-ip-10-10-71-96.ec2.internal
+  pod "mysql-2" evicted
+  node "ip-10-10-71-96.ec2.internal" drained
+
+Now you can watch Pod reschedules
+
+  kubectl get pod mysql-2 -o wide --watch
+
+This could be a bug in StatefulSet but my pod was failing to reschedule. The reason was, there
+was no other nodes running in the AZ where the original node failed. The EBS volume was failing to
+to attach to other nodes because of different AZ restriction. To mitigate this issue, I
+manually scaled the nodes to 6 which resulted in an additional node being available in that AZ.
+Your scenario could be different and may not need this step
+
+Edit number of nodes to '6' if you run into 'Pending' issue
+
+  kops edit ig nodes
+  # review and commit changes
+  kops update cluster --yes
+
+You can also watch the progress of pod reschedule
+
+  kubectl get pod mysql-2 -o wide --watch
+  NAME      READY     STATUS    RESTARTS   AGE       IP        NODE
+  mysql-2   0/2       Pending   0          1m        <none>    <none>
+  mysql-2   0/2       Pending   0         4m        <none>    ip-10-10-87-59.ec2.internal
+  mysql-2   0/2       Init:0/2   0         4m        <none>    ip-10-10-87-59.ec2.internal
+  mysql-2   0/2       Init:1/2   0         4m        100.96.8.2   ip-10-10-87-59.ec2.internal
+  mysql-2   0/2       PodInitializing   0         4m        100.96.8.2   ip-10-10-87-59.ec2.internal
+  mysql-2   1/2       Running   0         4m        100.96.8.2   ip-10-10-87-59.ec2.internal
+  mysql-2   2/2       Running   0         4m        100.96.8.2   ip-10-10-87-59.ec2.internal
+
+Let's put the previous node back into normal state
+
+  kubectl uncordon ip-10-10-71-96.ec2.internal
+  node "ip-10-10-71-96.ec2.internal" uncordoned
+
+== Scaling options
+
+You can easily scale the number of slaves by running simple command
+
+  kubectl scale statefulset mysql  --replicas=5
+
+Of course, you can watch the progress of scaling
+
+  kubectl get pods -l app=mysql --watch
+
+You can also verify if the slaves have the same data set
+
+  kubectl run mysql-client --image=mysql:5.7 -i -t --rm --restart=Never --\
+  mysql -h mysql-3.mysql -e "SELECT * FROM test.messages"
+  +--------------------------+
+  | message                  |
+  +--------------------------+
+  | hello, from mysql-client |
+  +--------------------------+
+
+You can scale in by using this command
+
+  kubectl scale statefulset mysql --replicas=3
+  statefulset "mysql" scaled
+
+Note that, scale in doesn't delete the data or PVCs attached to the Pods. You have to delete
+them manually
+
+  kubectl delete pvc data-mysql-3
+  kubectl delete pvc data-mysql-4
+
+== Cleaning up
+
+First delete the StatefulSet. This also terminates the Pods
+
+  kubectl delete statefulset mysql
+
+Verify there are no more pods running
+
+  kubectl get pods -l app=mysql
+
+Delete ConfigMap, Service, PVC
+
+  kubectl delete configmap,service,pvc -l app=mysql
+
+See https://github.com/arun-gupta/kubernetes-aws-workshop/tree/master/install-cluster#terminate-cluster[terminate cluster] section for deleting cluster resources
+

@@ -1,6 +1,5 @@
-:toc:
-
 = Service Discovery for Microservices with Kubernetes
+:toc:
 
 This chapter shows an example that shows different microservices can use service discovery with Kubernetes.
 

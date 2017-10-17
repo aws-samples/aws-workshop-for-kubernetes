@@ -1,4 +1,5 @@
 = Kubernetes - Cluster Monitoring
+:toc:
 :icons:
 :linkcss:
 :imagesdir: ../images
