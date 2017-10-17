@@ -33,11 +33,11 @@ Now that our application is running, we create a Horizonal Pod Autoscaler for ou
 
 The simplest method to do this would be to access the application in an infinite loop similar to the example in the Kubernetes Horizonal Pod Autoscaler documentation:
 
-First, deploy a busybox container, label it *load-generator* and attach to it's prompt:
+First, deploy a busybox container, label it `load-generator` and attach to it's prompt:
 
     $ kubectl run -i --tty load-generator --image=busybox /bin/sh
 
-At the *load-generator*'s command prompt, run a continuous request of the webapp
+At the `load-generator` command prompt, run a continuous request of the webapp
 
     $ while true; do wget -q -O- http://webapp.default.svc.cluster.local:8080; done
 
@@ -59,9 +59,9 @@ You will see output similar to the following over successive queries of the hpa 
     webapp    Deployment/webapp   90% / 10%   1         10        4         4m
 
 
-Notice that, eventually, the value in the *REPLICAS* column will increase as the load generator continues to run.
+Notice that, eventually, the value in the `REPLICAS` column will increase as the load generator continues to run.
 
-In the terminal window that is running the load generator, hit Ctrl-C. Again, run the *kubectl get hpa -w* command in your other terminal window, and you will see the number of replicas begin to decrease as the CPU load returns to 0%
+In the terminal window that is running the load generator, hit `Ctrl`+`C`. Again, run the `kubectl get hpa -w` command in your other terminal window, and you will see the number of replicas begin to decrease as the CPU load returns to 0%
 
 == Conclusion
 
