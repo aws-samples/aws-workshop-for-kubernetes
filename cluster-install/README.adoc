@@ -43,7 +43,7 @@ Kops needs a “state store” to store configuration information of the cluster
 
 == Create hosted zone on Route53 (optional)
 
-As of Kops 1.6.2, a top-level domain or a subdomain is no longer required to create the cluster. Instead, a gossip-based cluster can be easily created. The only requirement to trigger this is to have the cluster name end with .k8s.local. If you wish to use a gossip-based cluster, then you can skip this section.
+As of Kops 1.6.2, a top-level domain or a subdomain is no longer required to create the cluster. Instead, a gossip-based cluster can be easily created. The only requirement to trigger this is to have the cluster name end with `.k8s.local`. If you wish to use a gossip-based cluster, then you can skip this section.
 
 The domain allows the worker nodes to discover the master and the master to discover all the etcd servers. This is also needed for kubectl to be able to talk directly with the master.
 
@@ -76,7 +76,7 @@ The Kops CLI can be used to create a highly available cluster, with multiple mas
 - Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
 - Installing Kubernetes.
 
-Create a simple Kubernetes cluster using the following command. The cluster name suffix of '.k8s.local' will result in the gossip protocol being used for masters/nodes to discover each other. Note that 'create cluster' only creates and stores the cluster config in S3; you must use 'update config' to build the cluster:
+Create a simple Kubernetes cluster using the following command. The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for masters/nodes to discover each other. Note that 'create cluster' only creates and stores the cluster config in S3; you must use `update cluster` to build the cluster:
 
     kops create cluster \
       --name cluster01.k8s.local \
