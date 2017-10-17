@@ -1,0 +1,15 @@
+name: sample
+version: 1.0.0
+description: My first Haml chart
+keywords:
+  - java
+  - javaee
+  - mysql
+  - wildfly
+  - wildfly swarm
+home: https://github.com/arun-gupta/kubernetes-aws-workshop
+sources:
+  - https://github.com/arun-gupta/kubernetes-aws-workshop
+maintainers:
+  - name: Arun Gupta
+    email: arun.gupta@gmail.com

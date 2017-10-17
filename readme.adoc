@@ -22,6 +22,7 @@ before re-purposing this workshop so that you have a better experience going thr
 |Mid-level (200 - 300)
 
 | link:microservices[Service discovery with microservices]
+| link:heml[Deploy applications using Helm charts]
 | link:cluster-logging[Logging with Kubernetes cluster]
 | link:cluster-monitoring[Monitoring with Kubernetes cluster]
 | link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
