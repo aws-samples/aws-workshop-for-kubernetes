@@ -137,6 +137,6 @@ The last item we will take a look as is the kube dashboard which displays some b
 
 Browse around and become familiar with some the of kubernetes terminology which we will dig into deeper in the following tutorials.
 
-Let's create a Kubernetes cluster as explained in link:../cluster-install#install-kops-and-kubectl[].
+Let's create a Kubernetes cluster as explained in link:../cluster-install[Install Kubernetes cluster using Kops].
 
 
