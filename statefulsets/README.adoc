@@ -1,4 +1,4 @@
-= StatefulSets and Persistent Volume
+= Kubernetes Stateful Containers using StatefulSets and Persistent Volumes
 :toc:
 
 In this section, we will review how to launch and manage applications using https://kubernetes.io/docs/concepts/abstractions/controllers/statefulsets/[StatefulSets] and https://kubernetes.io/docs/concepts/storage/persistent-volumes/[Persistent Volumes].

@@ -1,4 +1,4 @@
-= Install kubernetes cluster on AWS using kops
+= Install kubernetes cluster using Kops
 :toc:
 
 This tutorial will walk you through how to install kubernetes cluster using kops.

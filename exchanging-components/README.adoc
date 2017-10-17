@@ -1,4 +1,4 @@
-= Exchanging Core Components
+= Kubernetes Exchanging Core Components
 :toc:
 
 == Kubernetes is very modular and every core component can be exchanged.

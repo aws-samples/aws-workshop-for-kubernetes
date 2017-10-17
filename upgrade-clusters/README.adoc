@@ -1,4 +1,4 @@
-= Upgrading Kubernetes cluster on AWS
+= Upgrading Kubernetes cluster
 :toc:
 
 Upgrading Kubernetes cluster on AWS is easy with kops. In this exercise we will demonstrate upgrading

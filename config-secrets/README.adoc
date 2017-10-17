@@ -2,7 +2,7 @@
 :linkcss:
 :imagesdir: ../images
 
-= Kubernetes - Configmap and Secrets
+= Kubernetes Configmap and Secrets
 :toc:
 
 == Kubernetes - Configmap and Secrets

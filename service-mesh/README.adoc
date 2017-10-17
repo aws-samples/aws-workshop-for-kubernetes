@@ -1,4 +1,4 @@
-= Service Mesh integration with kubernetes
+= Service Mesh integration with Kubernetes
 :toc:
 
 In this section, we will demonstrate how to integrate service mesh component with kubernetes cluster.

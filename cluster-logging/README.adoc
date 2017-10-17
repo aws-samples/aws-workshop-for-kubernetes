@@ -1,4 +1,4 @@
-= Kubernetes - Cluster Logging
+= Kubernetes Cluster Logging
 :toc:
 :icons:
 :linkcss:

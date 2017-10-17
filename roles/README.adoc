@@ -1,4 +1,4 @@
-= Kubernetes - Applying IAM Roles
+= Kubernetes Applying IAM Roles
 :toc:
 
 == Introduction

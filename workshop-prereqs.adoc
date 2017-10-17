@@ -1,8 +1,7 @@
+= Kubernetes Workshop Prereqs
 :toc:
 
-= Prereqs
-
-Here are some prereqs for link:readme.adoc[Kubernetes on AWS workshop]
+Here are some prereqs for the link:readme.adoc[Kubernetes on AWS workshop]
 
 - You will be using an AWS Account while you go through the workshop. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one
 - If you already have an AWS Account, you need to create an IAM user and attach these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies].
