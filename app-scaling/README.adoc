@@ -65,4 +65,4 @@ In the terminal window that is running the load generator, hit `Ctrl`+`C`. Again
 
 == Conclusion
 
-In this post, we demonstrated how the Horizontal Pod Autoscaling feature can dynamically scale applications up and down due to average CPU utilization. Heapster is the resource monitoring tool that Kubernetes integrates with to enable HPA, and Heapster can be used with a variety of backends (or "sinks"), including Elasticsearch, to store its data.
+In this post, we demonstrated how the Horizontal Pod Autoscaling feature can dynamically scale applications up and down due to average CPU utilization. Heapster is the resource monitoring tool that Kubernetes integrates with to enable HPA, and Heapster can be used with a variety of backends (or "`sink`"), including Elasticsearch, to store its data.
