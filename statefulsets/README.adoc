@@ -15,7 +15,7 @@ is built into StatefulSet controller, lastly demonstrate how to use scale option
 == Create Kubernetes cluster
 
 Review steps to create k8s cluster from
-link:../install-clusters/README.adoc#create-kubernetes-cluster[install cluster]
+link:../cluster-install/README.adoc#create-kubernetes-cluster[install cluster]
 documentation. Run `kops validate cluster` and go to next step:
 
   kops validate cluster
@@ -288,5 +288,5 @@ Delete ConfigMap, Service, PVC
 
   kubectl delete configmap,service,pvc -l app=mysql
 
-See https://github.com/arun-gupta/kubernetes-aws-workshop/tree/master/install-cluster#terminate-cluster[terminate cluster] section for deleting cluster resources
+See link:../cluster-install#delete-cluster/README.adoc[delete cluster] section for deleting cluster resources.
 

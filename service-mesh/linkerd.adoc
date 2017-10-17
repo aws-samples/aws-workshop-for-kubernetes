@@ -1,9 +1,9 @@
 :toc:
 :imagesdir: ../images
 
-= Using linkerd with kubernetes
+= Using Linkerd with Kubernetes
 
-https://linkerd.io/[linkerd] adds visibility, control, and reliability to your application with
+https://linkerd.io/[Linkerd] adds visibility, control, and reliability to your application with
 a wide array of powerful techniques: circuit-breaking, latency-aware load balancing, eventually
 consistent (“advisory”) service discovery, deadline propagation, and tracing and instrumentation.
 
@@ -14,14 +14,13 @@ linkerd captures top-line service metrics such as success rates, request volumes
 == Create kubernetes cluster
 
 Review steps to create k8s cluster from
-https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/install-clusters/README.adoc#create-kubernetes-cluster[install cluster]
-documentation. Run validate cluster and go to next step
+link:../cluster-install/README.adoc#create-kubernetes-cluster[cluster install] documentation. Validate the cluster and go to next step.
 
   kops validate cluster
 
 == Install linkerd
 
-Install linkerd using kubectl. This will install linkerd as a DaemonSet (i.e., one instance per
+Install linkerd using `kubectl`. This will install linkerd as a DaemonSet (i.e., one instance per
 host) running in the default kubernetes namespace
 
   kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
@@ -86,5 +85,5 @@ to learn more.
 
 == Cleanup
 
-You can review the steps to cleanup from https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/install-clusters/README.adoc#terminate-cluster[terminate cluster]
-documentation
+You can review the steps to cleanup from link:../cluster-install/README.adoc#_delete_cluster[delete cluster]
+documentation.

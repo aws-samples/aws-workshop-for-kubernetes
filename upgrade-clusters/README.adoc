@@ -1,7 +1,7 @@
 = Upgrading Kubernetes cluster
 :toc:
 
-Upgrading Kubernetes cluster on AWS is easy with kops. In this exercise we will demonstrate upgrading
+Upgrading Kubernetes cluster on AWS is easy with Kops. In this exercise we will demonstrate upgrading
 Kubernetes cluster using two methods.
 
 == Inplace Upgrade

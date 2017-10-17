@@ -9,12 +9,13 @@ info.
 
 We will look into two well-known service mesh integration
 
-== linkerd
-https://linkerd.io/[linkerd] is a layer 5 proxy that serves traffic at HTTP, Thrift, Mux, HTTP/2 and gRPC. Its based
-off of Finagle (built by Twitter). You can find getting started tutorial in our documentation:
-https://github.com/arun-gupta/kubernetes-aws-workshop/tree/master/service-mesh/linkerd.adoc
+== Using Linkerd with Kubernetes
 
-== envoy
+https://linkerd.io/[linkerd] is a layer 5 proxy that serves traffic at HTTP, Thrift, Mux, HTTP/2 and gRPC. Its based
+off of Finagle (built by Twitter). You can find getting started tutorial in our link:linkerd.adoc[documentation].
+
+== Envoy
+
 envoy is a
 
 
