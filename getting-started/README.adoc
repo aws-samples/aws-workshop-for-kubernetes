@@ -2,16 +2,141 @@
 :icons:
 :linkcss:
 :imagesdir: ../images
+:toc:
 
 As part of this initial four part series we will accomplish a few key goals:
 
-. *Setup Local Development Environment* Provision and install a local Kubernetes cluster on a mac via `homebrew`, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures, the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
+== Setup local development environment
 
-. *Kubernetes Basic Commands* Familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGINX pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
+Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
 
-. *Production Ready Cluster* Deploy a 'production-ready' cluster on AWS with Kops.
+=== Install homebrew and cask
 
-. *Build on basics of Kubernetes CLI* Explore additional developer functionality with core Kubernetes constructs such as ReplicaSets, Services, Deployments and DaemonSets.
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-Continue on to link:setup-local-dev.adoc[part 1] of this series to get started by getting a local development environment up and running.
+Details are available at https://brew.sh/
+
+=== Install VirtualBox
+
+    brew cask install virtualbox
+
+=== Install minikube
+
+    brew cask install minikube
+
+=== Install Kubectl CLI
+
+    brew cask install kuberenetes-cli
+
+=== Start minikube
+
+We are using the VirtualBox driver which is the default selection for minikube, if you would like you can use an alternate supported component (xhyve driver or VMware Fusion) using the ```--vm-driver=xxx``` flag. For this walkthrough with VirtualBox use:
+
+    minikube start
+
+
+This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
+
+image::start-minikube.png[startMiniKube]
+
+=== Check status
+
+Check the status of minikube to get the status of your local Kubernetes cluster:
+
+    minikube status
+
+If your output looks like below, everything should be ready to start working with:
+
+image::status-minikube.png[statusMiniKube]
+
+== Kubernetes basic commands
+
+In this part we will familiarize ourselves with the `kubectl` cli tool and basic Kubernetes commands. We will first deploy a basic nginx pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
+
+=== Basic kubectl commands
+
+Now that we have a local cluster up and running we can start issuing some basic commands and deploy some simple resources.
+
+==== Display nodes
+
+This command will show all of the nodes available in your kubernetes cluster:
+
+    kubectl get nodes
+
+==== Display pods
+
+This command shows all of the pods that are deployed into your cluster (into the default namespace), initially this will not show anything:
+    kubectl get pods
+
+==== Display pods in specifc namespace
+
+This command, similar to the one above will show all of the pods in the kube-system namespace:
+
+    kubectl get pods --namespace kube-system
+
+==== Create your first pod
+
+This command creates an nginx pod into your cluster:
+
+    kubectl run nginx --image=nginx
+
+Check for running pods in your cluster:
+
+    kubectl get pods
+
+You see see additional details by running this command, replace the podxxx with the name of a pod from the above output:
+
+    kubectl describe pod podxxx
+
+==== Shell to a running pod
+
+This command will open a tty to a shell in your pod:
+
+    kubectl get pods
+    kubectl exec -it nameOutputFromAbove -- /bin/bash
+
+==== Expose pod
+
+This command will expose the nginx pod to a node port, we will talk about service in more detail in following posts but this will allow us see the nginx home page:
+
+    kubectl expose pod pod-xxx --type=NodePort --name=demo
+
+Where `pod-xxx` is the pod name of your nginx pod
+
+==== View service webpage
+
+This minukube command will display the service for you in a web page:
+
+    minkube service demo
+
+As you will notice it opened a browser with an IP address and the port that the service was exposed on, this is a nice feature of minukube. But what if you wanted to find this information yourself?
+
+You can view the IP address of a node in your cluser with these steps, first find all of the nodes in your cluster:
+
+    kubectl get nodes
+
+Once you have the nodes (in minikubes case there will be only one), we can describe all of the attribute of that node with:
+
+    kubectl describe node node-xxx
+
+Where node-xxx is the output from the previous command. This shows alot of information we are not interested in. Instead just grep for the external IP address:
+
+    kubectl describe node node-xxx | grep InternalIP
+
+Great, now we have the ip address for the node. Now we need to get the port that the service is exposed on. We can retrieve that with:
+
+    kubectl describe service demo
+
+Under the section 'NodePort' you will see which port on the node the service is deployed. So now you have both the IP address and the port and you can either curl that or open it up in a browser
+
+==== Kube dashboard
+
+The last item we will take a look as is the kube dashboard which displays some basic information about your cluster:
+
+    minukube dashboard
+
+Browse around and become familiar with some the of kubernetes terminology which we will dig into deeper in the following tutorials.
+
+Let's create a Kubernetes cluster as explained in link:../cluster-install#install-kops-and-kubectl[].
+
 
