@@ -74,12 +74,13 @@ The Kops CLI can be used to create a highly available cluster, with multiple mas
 - Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
 - Installing Kubernetes.
 
-Start the Kubernetes cluster using the following command:
+Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi node and multi-az configuration:
 
     kops create cluster \
       --name cluster01.kubernetes-aws.io \
+      --zones us-east-1d,us-east-1e \
       --state s3://kubernetes-aws-config
-    # review cluster info and make changes if necessary (for ex, subnet sizing)
+    # review cluster info and make changes if necessary (for e.g., subnet sizing)
     kops get cluster
     kops edit cluster cluster01.kubernetes-aws.io
     # update and commit
@@ -87,7 +88,7 @@ Start the Kubernetes cluster using the following command:
 
 More options for creating k8s clusters are listed below
 
-Create cluster with multi master, multi node and multi-az configuration
+Create a cluster with multi master, multi node and multi-az configuration
 
     kops create cluster \
       --name cluster02.kubernetes-aws.io \

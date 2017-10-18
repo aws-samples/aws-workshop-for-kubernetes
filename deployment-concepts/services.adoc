@@ -55,7 +55,7 @@ First deploy an app. In this example, we will create an echo app that responds w
 
 Type the following to create the deployment:
 
-	kubectl create -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/echo.yaml --record
+	kubectl create -f https://raw.githubusercontent.com/arun-gupta/kubernetes-aws-workshop/master/deployment-concepts/templates/echo.yaml --record
 
 Type "kubectl describe deployment" to confirm demo-app has been deployed:
 
@@ -109,7 +109,7 @@ This template will expose "demo-app" to the internet by creating an outward faci
 
 Run the following command to create the service:
 
-	kubectl create -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/service.yaml --record
+	kubectl create -f https://raw.githubusercontent.com/arun-gupta/kubernetes-aws-workshop/master/deployment-concepts/templates/service.yaml --record
 
 After describing, you should get something like the following:
 
@@ -147,3 +147,9 @@ After describing, you should get something like the following:
 	Events:                 <none>
 
 If you go to the LoadBalancer Ingress in your browser, you should hit a webpage containing the echo response.
+
+== Delete a Service
+Run the following command to delete the Service:
+
+	kubectl delete -f https://raw.githubusercontent.com/arun-gupta/kubernetes-aws-workshop/master/deployment-concepts/templates/service.yaml
+	kubectl delete -f https://raw.githubusercontent.com/arun-gupta/kubernetes-aws-workshop/master/deployment-concepts/templates/echo.yaml
