@@ -41,9 +41,11 @@ Kops needs a “state store” to store configuration information of the cluster
       Status=Enabled
     export KOPS_STATE_STORE=s3://kubernetes-aws-config
 
-== Create hosted zone on Route53 (optional)
+== Create hosted zone on Route53
 
-As of Kops 1.6.2, a top-level domain or a subdomain is no longer required to create the cluster. Instead, a gossip-based cluster can be easily created. The only requirement to trigger this is to have the cluster name end with `.k8s.local`. If you wish to use a gossip-based cluster, then you can skip this section.
+DNS is used by Kubernetes to allow the various Kubernetes components to find and communicate with each other.
+
+As an alternative to using DNS, Kops 1.6.2 introduced the ability to create a gossip-based cluster, making a top-level domain or a subdomain no longer required to create the cluster. The only requirement to trigger this is to have the cluster name end with `.k8s.local`. This is a fairly recent feature, so we recommend you continue to use DNS for production clusters. If you wish to use a gossip-based cluster, then you can skip this section.
 
 The domain allows the worker nodes to discover the master and the master to discover all the etcd servers. This is also needed for kubectl to be able to talk directly with the master.
 
@@ -76,10 +78,11 @@ The Kops CLI can be used to create a highly available cluster, with multiple mas
 - Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
 - Installing Kubernetes.
 
-Create a simple Kubernetes cluster using the following command. The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for masters/nodes to discover each other. Note that `create cluster` only creates and stores the cluster config in S3; you must use `update cluster` to build the cluster:
+Create a simple Kubernetes cluster using the following command. The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for master/node discovery. Note that `create cluster` only creates and stores the cluster config in S3; you must use `update cluster` to build the cluster:
 
     kops create cluster \
       --name cluster01.k8s.local \
+      --zones us-east-1d,us-east-1e \
       --state s3://kubernetes-aws-config
     # review cluster info and make changes if necessary (for ex, subnet sizing)
     kops get cluster
@@ -89,7 +92,7 @@ Create a simple Kubernetes cluster using the following command. The cluster name
 
 More options for creating k8s clusters are listed below.
 
-Create cluster with multi master, multi node and multi-az configuration
+Create a cluster with multi master, multi node and multi-az configuration. As with the example above, this will create a cluster using the gossip protocol:
 
     kops create cluster \
       --name cluster02.k8s.local \
@@ -99,7 +102,7 @@ Create cluster with multi master, multi node and multi-az configuration
       --zones us-east-1a,us-east-1b,us-east-1c \
       --state s3://kubernetes-aws-config
 
-Create cluster with Route53 private hosted zone and VPC
+Create a cluster with Route53 private hosted zone and VPC. For this to work you must have created the Route53 private host zone, as explained above[Create hosted zone on Route53]:
 
     kops create cluster \
       --dns private \
