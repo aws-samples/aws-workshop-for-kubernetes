@@ -8,6 +8,13 @@ workshop guides. You are also encouraged to take a detour and learn advanced top
 as you move through the workshop. It is recommended to review link:workshop-prereqs.adoc[prereqs document]
 before re-purposing this workshop so that you have a better experience going through these tutorials.
 
+
+This workshop is targeted for attendees in both Developer and Operations team, and who would like to get started with Kubernetes on Amazon Web Services (AWS).
+
+It will provide instructions on create, manage, scale a Kubernetes cluster on AWS. A deep integration with several AWS technologies will be shown.
+
+It will also explain how to deploy applications, scale them, running stateless and stateful containers, service discovery between different microservices and other similar concepts.
+
 [cols="1*"]
 |===
 |Beginners (100 - 200)
