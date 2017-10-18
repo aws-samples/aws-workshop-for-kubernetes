@@ -178,9 +178,7 @@ image::monitoring-pods-after.png[]
 
 http://prometheus.io/[Prometheus] is an open-source systems monitoring and alerting toolkit. Prometheus collects metrics from monitored targets by scraping metrics from HTTP endpoints on these targets.
 
-Different targets to scrape are defined in the Prometheus configuration file. Targets may be statically configured via the `static_configs` parameter in the configuration fle or dynamically discovered using one of the supported service-discovery mechanisms (Consul, DNS, Etcd, etc.).
-
-Prometheus gathers these metrics from https://github.com/kubernetes/kube-state-metrics[kube-state-metrics]. A wide variety of metrics are available and documented at https://github.com/kubernetes/kube-state-metrics/tree/master/Documentation.
+Different targets to scrape are defined in a Prometheus configuration file. Targets may be statically configured via the `static_configs` parameter in the configuration fle or dynamically discovered using one of the supported service-discovery mechanisms (Consul, DNS, Etcd, etc.).
 
 === Installation
 
@@ -190,7 +188,7 @@ We need to provide the location of etcd server in our cluster in this configurat
 
      kubectl get pods --namespace=kube-system
 
-It shows an output as:
+It shows output as:
 
 ```
 NAME                                                                  READY     STATUS    RESTARTS   AGE
@@ -198,11 +196,7 @@ etcd-server-events-ip-172-20-48-121.us-west-2.compute.internal        1/1       
 etcd-server-ip-172-20-48-121.us-west-2.compute.internal               1/1       Running   0          9h
 ```
 
-Other pods are shown as well, but we are only showing the etcd pods.
-
-Note down the name of the pod that starts with `etcd-server-ip`.
-
-Get more details about this pod:
+Other pods are shown as well, but we are only showing the etcd pods. Note down the name of the pod that starts with `etcd-server-ip`. Get more details about this pod:
 
   kubectl describe pod/etcd-server-ip-172-20-48-121.us-west-2.compute.internal --namespace=kube-system 
 
@@ -244,11 +238,11 @@ TODO: Is this required? Check config map again. etcd is already running in the c
 
 Node exporter is defined as a DaemonSet, and so there is a single instance running on each node of the cluster.
 
-Once you have saved the etcd information into the file you can deploy the config map:
+Once you save the etcd information then you can deploy the ConfigMap:
 
     kubectl create -f prometheus/templates/prometheus-configmap.yaml
 
-Next deploy Prometheus into your cluster:
+Next, deploy Prometheus into your cluster:
 
     kubectl create -f prometheus/templates/prometheus-deployment.yaml
 
@@ -268,16 +262,16 @@ Prometheus is now scraping metrics from the etcd server, the Kubernetes API serv
 - Kubernetes API server: https://github.com/kubernetes/kube-state-metrics
 - Node exporter: https://github.com/prometheus/node_exporter
 
-Let's take a look at how we can see these metrics in the Prometheus dashboard.
+Let's look at these these metrics in the Prometheus dashboard.
 
 . Find the master node in the EC2 console:
 +
 image::prometheus-ec2-nodes.png[]
 +
-. Copy public IP address of the master node.
-. Edit the security group and add a rule to allow inbound traffic on port 30900 as shown:
+. Copy public IP address of the master node as `<master-ip>`.
+. Prometheus dashboard is accessible on port 30900. Edit the security group and add a rule to allow inbound traffic on port 30900 as shown:
 +
-image::prometheus-ec2-security-group.png[]
+image::prometheus-ec2-security-group.png[
 +
 . Prometheus dashboard is now available at http://<master-ip>:30900. In our case, this will be http://ec2-34-215-44-44.us-west-2.compute.amazonaws.com:30900 and looks like:
 +
