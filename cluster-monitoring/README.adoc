@@ -283,9 +283,17 @@ image::prometheus-ec2-security-group.png[]
 +
 image::prometheus-dashboard-initial.png[]
 +
-. A wide set of metrics are available and can be seen in the dashboard:
+. A wide set of metrics are available and can be seen in the dashboard. Here is a snapshot of metrics from etcd:
 +
-image::prometheus-dashboard-metrics.png[]
+image::prometheus-dashboard-etcd.png[]
++
+Here is a snapshot of metrics from the Kubernetes API server:
++
+image::prometheus-dashboard-kubelet.png[]
++
+Here is a snapshot of metrics from the node exporter:
++
+image::prometheus-dashboard-node-exporter.png[]
 
 === Grafana dashboard
 
