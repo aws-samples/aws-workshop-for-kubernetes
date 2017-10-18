@@ -1,0 +1,584 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: AWS kubernetes Workshop Demo
+Parameters:
+  Nodes:
+    Type: Number
+    Description: Number of kubernetes nodes
+    Default: 3
+
+  NodeInstanceType:
+    Type: String
+    Description: EC2 instance type used for kubernetes nodes
+    Default: c4.large
+    AllowedValues:
+    - t2.nano
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+    - t2.xlarge
+    - t2.2xlarge    
+    - m3.medium
+    - m3.large
+    - m3.xlarge
+    - m3.2xlarge
+    - m4.large
+    - m4.xlarge
+    - m4.2xlarge
+    - m4.4xlarge
+    - m4.10xlarge
+    - m4.16xlarge
+    - c3.large
+    - c3.xlarge
+    - c3.2xlarge
+    - c3.4xlarge
+    - c3.8xlarge
+    - c4.large
+    - c4.xlarge
+    - c4.2xlarge
+    - c4.4xlarge
+    - c4.8xlarge
+    - r3.large
+    - r3.xlarge
+    - r3.2xlarge
+    - r3.4xlarge
+    - r3.8xlarge
+    - r4.large
+    - r4.xlarge
+    - r4.2xlarge
+    - r4.4xlarge
+    - r4.8xlarge  
+    - r4.16xlarge  
+    - p2.xlarge
+    - p2.8xlarge
+    - p2.16xlarge
+    - g3.4xlarge
+    - g3.8xlarge
+    - g3.16xlarge  
+    - f1.2xlarge
+    - f1.16xlarge   
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - d2.xlarge
+    - d2.2xlarge
+    - d2.4xlarge
+    - d2.8xlarge
+
+  MasterInstanceType:
+    Type: String
+    Description: EC2 instance type used for kubernetes master
+    Default: c4.xlarge
+    AllowedValues:
+    - t2.nano
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+    - t2.xlarge
+    - t2.2xlarge    
+    - m3.medium
+    - m3.large
+    - m3.xlarge
+    - m3.2xlarge
+    - m4.large
+    - m4.xlarge
+    - m4.2xlarge
+    - m4.4xlarge
+    - m4.10xlarge
+    - m4.16xlarge
+    - c3.large
+    - c3.xlarge
+    - c3.2xlarge
+    - c3.4xlarge
+    - c3.8xlarge
+    - c4.large
+    - c4.xlarge
+    - c4.2xlarge
+    - c4.4xlarge
+    - c4.8xlarge
+    - r3.large
+    - r3.xlarge
+    - r3.2xlarge
+    - r3.4xlarge
+    - r3.8xlarge
+    - r4.large
+    - r4.xlarge
+    - r4.2xlarge
+    - r4.4xlarge
+    - r4.8xlarge  
+    - r4.16xlarge  
+    - p2.xlarge
+    - p2.8xlarge
+    - p2.16xlarge
+    - g3.4xlarge
+    - g3.8xlarge
+    - g3.16xlarge  
+    - f1.2xlarge
+    - f1.16xlarge   
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - d2.xlarge
+    - d2.2xlarge
+    - d2.4xlarge
+    - d2.8xlarge
+
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+
+  NetworkProvider:
+    Type: String
+    Description: Select a pod Network provider
+    AllowedValues:
+      - calico
+      - weave
+    
+Mappings:
+  Images:
+    us-east-1:
+      Id: ami-fd17f087
+    us-east-2:
+      Id: ami-0be1c36e
+    us-west-1:
+      Id: ami-c94c7aa9
+    us-west-2:
+      Id: ami-2baf5c53
+    ca-central-1:
+      Id: ami-85cf76e1
+    eu-central-1:
+      Id: ami-850cbbea
+    eu-west-1:
+      Id: ami-e717d49e
+    eu-west-2:
+      Id: ami-131e0d77
+    ap-northeast-1:
+      Id: ami-814a88e7
+    ap-northeast-2:
+      Id: ami-d600dbb8
+    ap-south-1:
+      Id: ami-16f6b179
+    ap-southeast-1:
+      Id: ami-370f7a54
+    ap-southeast-2:
+      Id: ami-a031d6c2      
+    sa-east-1:
+      Id: ami-b13a47dd
+
+  Addons:
+    weave:
+      configSet: weave
+    calico:
+      configSet: calico
+
+  Subnets:
+    VPC:
+      CIDR: 10.0.0.0/16
+    AvailabilityZone1:
+      CIDR: 10.0.0.0/24
+    AvailabilityZone2:
+      CIDR: 10.0.1.0/24
+
+Resources:
+  VPCID:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !FindInMap 
+        - Subnets
+        - VPC
+        - CIDR
+
+  SubnetAZ1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCID
+      CidrBlock: !FindInMap 
+        - Subnets
+        - AvailabilityZone1
+        - CIDR
+      AvailabilityZone: !Select 
+        - 0
+        - !GetAZs 
+          Ref: AWS::Region
+
+  SubnetAZ2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCID
+      CidrBlock: !FindInMap 
+        - Subnets
+        - AvailabilityZone2
+        - CIDR
+      AvailabilityZone: !Select 
+        - 1
+        - !GetAZs 
+          Ref: AWS::Region
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    DependsOn: KubernetesToken
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPCID
+      InternetGatewayId: !Ref InternetGateway
+
+  InternetGatewayRoute:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCID
+
+  PublicGatewayRoute:
+    DependsOn: AttachGateway
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref InternetGatewayRoute
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  RouteSubnetAZ1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetAZ1
+      RouteTableId: !Ref InternetGatewayRoute
+
+  RouteSubnetAZ2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref SubnetAZ2
+      RouteTableId: !Ref InternetGatewayRoute
+
+  ClusterSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for cluster
+      VpcId: !Ref VPCID
+
+  ClusterIngressPorts:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ClusterSecGroup
+      SourceSecurityGroupId: !Ref ClusterSecGroup
+      IpProtocol: -1
+      FromPort: 0
+      ToPort: 65535
+
+  IngressSSH:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ClusterSecGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: 0.0.0.0/0
+
+  MasterSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for cluster master
+      VpcId: !Ref VPCID
+
+  APIPort:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref MasterSecGroup
+      IpProtocol: tcp
+      FromPort: 6443
+      ToPort: 6443
+      CidrIp: 0.0.0.0/0
+
+  DiscoveryPort:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref MasterSecGroup
+      IpProtocol: tcp
+      FromPort: 9898
+      ToPort: 9898
+      SourceSecurityGroupId: !Ref NodeSecGroup
+
+  Master:
+    Type: AWS::EC2::Instance
+    DependsOn: AttachGateway
+    Properties:
+      ImageId: !FindInMap 
+        - Images
+        - !Ref AWS::Region
+        - Id
+      InstanceType: !Ref MasterInstanceType
+      KeyName: !Ref KeyName
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - 'Master - '
+              - !Ref AWS::StackName
+      NetworkInterfaces:
+        - DeviceIndex: 0
+          NetworkInterfaceId: !Ref MasterENI
+      UserData: !Base64 
+        Fn::Join:
+          - |+
+
+          - - '#!/bin/bash -ex'
+            - !Join 
+              - ' '
+              - - /usr/local/bin/cfn-init
+                - '--verbose'
+                - '--stack'
+                - !Ref AWS::StackName
+                - '--region'
+                - !Ref AWS::Region
+                - '--resource'
+                - Master
+                - '--configsets'
+                - !FindInMap 
+                  - Addons
+                  - !Ref NetworkProvider
+                  - configSet
+            - !Join 
+              - ' '
+              - - /usr/local/bin/cfn-signal
+                - '--stack'
+                - !Ref AWS::StackName
+                - '--region'
+                - !Ref AWS::Region
+                - '--resource'
+                - Master
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          weave:
+            - kubeadm-init
+            - configure-weave
+          calico:
+            - kubeadm-init
+            - configure-calico
+        kubeadm-init:         
+          commands:
+            0-init:
+              command: !Join
+                - ''
+                - - set -x; kubeadm init --apiserver-advertise-address="$(ec2metadata --public-ipv4)" --token="
+                  - !GetAtt KubernetesToken.Token
+                  - >-
+                    " --kubernetes-version="$(cat /etc/kubernetes_community_ami_version)" --pod-network-cidr=192.168.0.0/16              
+            1-config:
+              command: >-
+                install --owner=ubuntu --group=ubuntu --directory
+                /home/ubuntu/.kube && install --owner=ubuntu --group=ubuntu
+                --mode=0600 /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+        configure-weave:
+          commands:
+            0-add-weave:
+              command: >-
+                kubectl apply --kubeconfig /etc/kubernetes/admin.conf --namespace kube-system -f https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')
+        configure-calico:
+          commands:
+            0-add-calico:
+              command: >-
+                kubectl apply --kubeconfig /etc/kubernetes/admin.conf --namespace kube-system -f http://docs.projectcalico.org/v2.4/getting-started/kubernetes/installation/hosted/kubeadm/1.6/calico.yaml
+
+  MasterEIP:
+    DependsOn: AttachGateway
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  MasterENI:
+    DependsOn: AttachGateway
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      GroupSet:
+        - !Ref MasterSecGroup
+        - !Ref ClusterSecGroup
+      SubnetId: !Ref SubnetAZ1
+
+  MasterAssociateEIP:
+    DependsOn: AttachGateway
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt 
+        - MasterEIP
+        - AllocationId
+      NetworkInterfaceId: !Ref MasterENI
+
+  NodeSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for cluster nodes
+      VpcId: !Ref VPCID
+
+  IngressNodePorts:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref NodeSecGroup
+      IpProtocol: -1
+      FromPort: 0
+      ToPort: 65535
+      CidrIp: 0.0.0.0/0
+
+  LaunchConfiguration:
+    DependsOn: Master
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !FindInMap 
+        - Images
+        - !Ref AWS::Region
+        - Id
+      InstanceType: !Ref NodeInstanceType
+      AssociatePublicIpAddress: true
+      KeyName: !Ref KeyName
+      SecurityGroups:
+        - !Ref ClusterSecGroup
+        - !Ref NodeSecGroup
+      UserData: !Base64 
+        Fn::Join:
+          - |+
+
+          - - '#!/bin/bash -ex'
+            - !Join 
+              - ' '
+              - - /usr/local/bin/cfn-init
+                - '--verbose'
+                - '--stack'
+                - !Ref AWS::StackName
+                - '--region'
+                - !Ref AWS::Region
+                - '--resource'
+                - LaunchConfiguration
+            - !Join 
+              - ' '
+              - - /usr/local/bin/cfn-signal
+                - '--stack'
+                - !Ref AWS::StackName
+                - '--region'
+                - !Ref AWS::Region
+                - '--resource'
+                - AutoScalingGroup
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          commands:
+            0-join: 
+              command: !Join
+                - ''
+                - - kubeadm join --token="
+                  - !GetAtt KubernetesToken.Token
+                  - >-
+                    " 
+                  - !Join 
+                    - ''
+                    - - !GetAtt 
+                        - Master
+                        - PrivateIp
+                      - ':6443' 
+
+  AutoScalingGroup:
+    DependsOn: Master
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Join 
+          - ','
+          - - !Ref SubnetAZ1
+      LaunchConfigurationName: !Ref LaunchConfiguration
+      MinSize: 1
+      MaxSize: !Ref Nodes
+      DesiredCapacity: !Ref Nodes
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - 'Node - '
+              - !Ref AWS::StackName
+          PropagateAtLaunch: true
+
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: "Allow"
+          Principal:
+            Service: ["lambda.amazonaws.com"]
+          Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+      - PolicyName: "lambda_policy"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: "Allow"
+            Action:
+            - "logs:CreateLogGroup"
+            - "logs:CreateLogStream"
+            - "logs:PutLogEvents"
+            Resource: "arn:aws:logs:*:*:*"
+
+  GenerateToken:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        ZipFile: |
+          'use strict';
+          const crypto = require('crypto');
+          const response = require('cfn-response');
+
+          exports.handler = (event, context, callback) => {
+              function tokenGenerator (len) {
+                  return crypto.randomBytes(Math.ceil(len/2)).toString('hex').slice(0,len);
+              }
+              var token = tokenGenerator(6) + '.' + tokenGenerator(16)
+              var responseData = {Token: token}
+              return response.send(event, context, response.SUCCESS, responseData);
+          };
+      Handler: "index.handler"
+      Runtime: "nodejs6.10"
+      Timeout: 10
+      Role: !GetAtt LambdaExecutionRole.Arn
+
+  KubernetesToken:
+    Type: "Custom::GenerateToken"
+    Version: "1.0"
+    Properties:
+      ServiceToken: !GetAtt GenerateToken.Arn 
+
+Outputs:
+  AMI: 
+    Description: The Kubernetes Community ImageId
+    Value: !FindInMap 
+      - Images
+      - !Ref AWS::Region
+      - Id
+  LoginKey: 
+    Description: SSH Key Name
+    Value: !Ref KeyName
+  MasterIPAddress:
+    Description: IP Address of Master instance
+    Value: !GetAtt 
+      - Master
+      - PublicIp
+  MasterInstanceType: 
+    Description: Instance type of Master instance
+    Value: !Ref MasterInstanceType
+  NodeInstanceType: 
+    Description: Instance Type of Nodes
+    Value: !Ref NodeInstanceType
+  NetworkProvider: 
+    Description: Selected Network Provider
+    Value: !Ref NetworkProvider
+  GeneratedToken:
+    Description: Kubernetes Token to Join Nodes
+    Value: !Sub "${KubernetesToken.Token}"
+
+
