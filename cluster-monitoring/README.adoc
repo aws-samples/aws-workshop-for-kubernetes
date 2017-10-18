@@ -8,7 +8,7 @@
 
 This workshop will demonstrate how to monitor Kubernetes clusters using the following:
 
-. Heapster
+. Heapster, InfluxDB and Grafana
 . Prometheus
 
 == Setup
@@ -131,25 +131,47 @@ Copy the value of token from this output, select `Token` in the Dashboard login 
 
 image::kubernetes-dashboard-default.png[]
 
-Metrics and graphics are available after Heapster is running. Otherwise, only a basic resource utilization information is shown.
+Click on `Nodes` to see a textual representation about the nodes running in the cluster:
 
-=== Install Heapster
+image::monitoring-nodes-before.png[]
 
-This command will install Heapster, InfluxDB and Grafana
+Install a Java application as explained in link:../helm[Deploying applications using Kubernetes Helm charts].
 
-    kubectl create -f templates/
+Click on `Pods`, again to see a textual representation about the pods running in the cluster:
 
-Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance and is now exposed for visualization through Granfana which is accessible here:
+image::monitoring-pods-before.png[]
 
-    http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1
+This will change after Heapster, InfluxDB and Grafana are installed.
 
-You may need to run the following to gain access to the Grafana instance:
+=== Installation
 
-    kubectl proxy
+This command will install Heapster, InfluxDB and Grafana:
 
-There are some built in dashboard for monitoring the cluster and workloads, that are available by clicking on the upper left corner of the screen.
+    kubectl create -f heapster/templates/
 
-In addition if you log back into the dashboard you will now see CPU and Memory metrics being displayed for Pods and other workloads you may have deployed into your Kubernetes cluster
+Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance and is now exposed for visualization through Grafana which is accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1. In case proxy was terminated, you need to start it again using `kubectl proxy`.
+
+There are some built-in dashboards for monitoring the cluster and workloads. They are available by clicking on the upper left corner of the screen.
+
+image::monitoring-grafana-dashboards.png[]
+
+The cluster dashboard looks like:
+
+image::monitoring-grafana-dashboards-cluster.png[]
+
+The pods dashboard looks like:
+
+image::monitoring-grafana-dashboards-pods.png[]
+
+In addition, Dashboard now shows graphs about CPU and Memory pods and other workloads.
+
+The updated view of cluster looks like:
+
+image::monitoring-nodes-after.png[]
+
+The updated view of pods looks like:
+
+image::monitoring-pods-after.png[]
 
 == Prometheus
 
