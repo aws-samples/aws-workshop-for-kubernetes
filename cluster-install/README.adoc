@@ -102,7 +102,7 @@ Create a cluster with multi master, multi node and multi-az configuration. As wi
       --zones us-east-1a,us-east-1b,us-east-1c \
       --state s3://kubernetes-aws-config
 
-Create a cluster with Route53 private hosted zone and VPC. For this to work you must have created the Route53 private host zone, as explained in <<Create hosted zone on Route53>>:
+Create a cluster with Route53 private hosted zone and VPC. For this to work you must have created the Route53 private hosted zone, as explained in <<Create hosted zone on Route53>>:
 
     kops create cluster \
       --dns private \
