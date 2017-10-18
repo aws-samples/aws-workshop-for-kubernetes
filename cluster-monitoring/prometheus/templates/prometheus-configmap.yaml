@@ -12,7 +12,7 @@ data:
     - job_name: 'etcd'
       target_groups:
       - targets:
-        - 172.20.59.217:4001
+        - <IP>:4001
     - job_name: 'kubernetes_components'
       kubernetes_sd_configs:
       - api_servers:
