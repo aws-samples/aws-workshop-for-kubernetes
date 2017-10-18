@@ -11,7 +11,7 @@ This workshop will demonstrate how to monitor Kubernetes clusters using the foll
 . Heapster, InfluxDB and Grafana
 . Prometheus
 
-== Setup
+== Pre-requisites
 
 Make sure the cluster is up and running as explained in the link:../cluster-install[installation instructions].
 
@@ -36,21 +36,7 @@ ip-172-20-62-3.us-west-2.compute.internal   node    True
 Your cluster cluster.kubernetes-aws.io is ready
 ```
 
-== Heapster
-
-https://github.com/kubernetes/heapster[Heapster] is a metrics aggregator and processor. It is installed as a cluster-wide pod. It gathers monitoring and events data for all containers on each node by talking to the Kubelet. Kubelet itself fetches this data from https://github.com/google/cadvisor[cAdvisor]. This data is persisted in a time series database https://github.com/influxdata/influxdb[InfluxDB] for storage. The data is then visualized using a using http://grafana.org/[Grafana] dashboard or can be viewed in Kubernetes Dashboard.
-
-Heapster collects and interprets various signals like compute resource usage, lifecycle events, etc, and exports cluster metrics via REST endpoints.
-
-Heapster, InfluxDB and Grafana are http://kubernetes.io/docs/admin/addons/[Kubernetes addons].
-
-=== Configuration
-
-Each node in a Kubernetes cluster has cAdvisor which is deployed as part of the main node agent, kubelet, which is accessible on port 4194 (default).
-
-To observe this make sure the proper AWS security groups are in place that allow you access to port 4194, and take a look at one the public ip addresses at port 4194
-
-=== Kubernetes Dashboard
+== Kubernetes Dashboard
 
 https://github.com/kubernetes/dashboard[Kubernetes Dashboard] is a general purpose web-based UI for Kubernetes clusters.
 
@@ -143,6 +129,14 @@ image::monitoring-pods-before.png[]
 
 This will change after Heapster, InfluxDB and Grafana are installed.
 
+== Heapster
+
+https://github.com/kubernetes/heapster[Heapster] is a metrics aggregator and processor. It is installed as a cluster-wide pod. It gathers monitoring and events data for all containers on each node by talking to the Kubelet. Kubelet itself fetches this data from https://github.com/google/cadvisor[cAdvisor]. This data is persisted in a time series database https://github.com/influxdata/influxdb[InfluxDB] for storage. The data is then visualized using a using http://grafana.org/[Grafana] dashboard or can be viewed in Kubernetes Dashboard.
+
+Heapster collects and interprets various signals like compute resource usage, lifecycle events, etc, and exports cluster metrics via REST endpoints.
+
+Heapster, InfluxDB and Grafana are http://kubernetes.io/docs/admin/addons/[Kubernetes addons].
+
 === Installation
 
 This command will install Heapster, InfluxDB and Grafana:
@@ -150,6 +144,8 @@ This command will install Heapster, InfluxDB and Grafana:
     kubectl create -f heapster/templates/
 
 Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance and is now exposed for visualization through Grafana which is accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1. In case proxy was terminated, you need to start it again using `kubectl proxy`.
+
+=== Grafana dashboards
 
 There are some built-in dashboards for monitoring the cluster and workloads. They are available by clicking on the upper left corner of the screen.
 
@@ -192,7 +188,7 @@ To determine the IP address that your etcd cluster is listening on (if deployed 
 
 etcd clusters deployed with the most recent version of kops use port 4001, if you have a newer version of etcd it will be listening on port 2379
 
-=== Install
+=== Installation
 
 Once you have saved the etcd information into the file you can deploy the config map:
 
