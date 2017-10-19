@@ -148,7 +148,7 @@ Heapster is now aggregating metrics from the cAdvisor instances running on each 
 
 NOTE: Grafana dashboard will not be available if Kubernetes proxy is not running. If not running, then it can be started with the command `kubectl proxy`.
 
-=== Grafana dashboards
+=== Grafana dashboard
 
 There are some built-in dashboards for monitoring the cluster and workloads. They are available by clicking on the upper left corner of the screen.
 
@@ -174,11 +174,19 @@ The updated view of pods looks like:
 
 image::monitoring-pods-after.png[]
 
+=== Cleanup
+
+Remove all the installed components:
+
+    kubectl delete -f heapster/templates/
+
 == Prometheus, Node exporter and Grafana
 
 http://prometheus.io/[Prometheus] is an open-source systems monitoring and alerting toolkit. Prometheus collects metrics from monitored targets by scraping metrics from HTTP endpoints on these targets.
 
 Different targets to scrape are defined in a Prometheus configuration file. Targets may be statically configured via the `static_configs` parameter in the configuration fle or dynamically discovered using one of the supported service-discovery mechanisms (Consul, DNS, Etcd, etc.).
+
+https://github.com/prometheus/node_exporter[Node exporter] is a Prometheus exporter for hardware and OS metrics exposed by *NIX kernels.
 
 === Installation
 
@@ -192,28 +200,38 @@ It shows output as:
 
 ```
 NAME                                                                  READY     STATUS    RESTARTS   AGE
-etcd-server-events-ip-172-20-48-121.us-west-2.compute.internal        1/1       Running   0          10h
-etcd-server-ip-172-20-48-121.us-west-2.compute.internal               1/1       Running   0          9h
+dns-controller-246088375-wbxj2                                        1/1       Running   0          2m
+etcd-server-events-ip-172-20-43-222.us-west-2.compute.internal        1/1       Running   0          2m
+etcd-server-ip-172-20-43-222.us-west-2.compute.internal               1/1       Running   0          2m
+kube-apiserver-ip-172-20-43-222.us-west-2.compute.internal            1/1       Running   0          2m
+kube-controller-manager-ip-172-20-43-222.us-west-2.compute.internal   1/1       Running   0          1m
+kube-dns-479524115-80lnk                                              3/3       Running   0          1m
+kube-dns-479524115-xb1fg                                              3/3       Running   0          35s
+kube-dns-autoscaler-1818915203-wh05v                                  1/1       Running   0          2m
+kube-proxy-ip-172-20-39-86.us-west-2.compute.internal                 1/1       Running   0          1m
+kube-proxy-ip-172-20-43-222.us-west-2.compute.internal                1/1       Running   0          2m
+kube-proxy-ip-172-20-59-49.us-west-2.compute.internal                 1/1       Running   0          1m
+kube-scheduler-ip-172-20-43-222.us-west-2.compute.internal            1/1       Running   0          2m
 ```
 
-Other pods are shown as well, but we are only showing the etcd pods. Note down the name of the pod that starts with `etcd-server-ip`. Get more details about this pod:
+Other pods are shown as well, but we are only interested in the etcd pods. Note down the name of the pod that starts with `etcd-server-ip`. Get more details about this pod:
 
-  kubectl describe pod/etcd-server-ip-172-20-48-121.us-west-2.compute.internal --namespace=kube-system 
+  kubectl describe pod/etcd-server-ip-172-20-43-222.us-west-2.compute.internal --namespace=kube-system 
 
 The output is like:
 
 ```
-Name:         etcd-server-ip-172-20-48-121.us-west-2.compute.internal
+Name:         etcd-server-ip-172-20-43-222.us-west-2.compute.internal
 Namespace:    kube-system
-Node:         ip-172-20-48-121.us-west-2.compute.internal/172.20.48.121
-Start Time:   Wed, 18 Oct 2017 03:09:53 +0200
+Node:         ip-172-20-43-222.us-west-2.compute.internal/172.20.43.222
+Start Time:   Thu, 19 Oct 2017 11:45:00 -0700
 Labels:       k8s-app=etcd-server
-Annotations:  kubernetes.io/config.hash=29e2e50ee6b1cd5c2f410da0f8c0f295
-              kubernetes.io/config.mirror=29e2e50ee6b1cd5c2f410da0f8c0f295
-              kubernetes.io/config.seen=2017-10-18T01:09:48.793098897Z
+Annotations:  kubernetes.io/config.hash=0bf764cce6423977578c5556c557cc39
+              kubernetes.io/config.mirror=0bf764cce6423977578c5556c557cc39
+              kubernetes.io/config.seen=2017-10-19T18:44:55.534222237Z
               kubernetes.io/config.source=file
 Status:       Running
-IP:           172.20.48.121
+IP:           172.20.43.222
 
 . . .
 
@@ -231,7 +249,7 @@ Update the file `prometheus/templates/prometheus-configmap.yaml`, and replace `<
 - job_name: 'etcd'
   target_groups:
   - targets:
-    - 172.20.48.121:4001
+    - 172.20.43.222:4001
 ```
 
 TODO: Is this required? Check config map again. etcd is already running in the cluster. etcd clusters deployed with the most recent version of kops use port 4001, if you have a newer version of etcd it will be listening on port 2379.
@@ -262,18 +280,18 @@ Prometheus is now scraping metrics from the etcd server, the Kubernetes API serv
 - Kubernetes API server: https://github.com/kubernetes/kube-state-metrics
 - Node exporter: https://github.com/prometheus/node_exporter
 
-Let's look at these these metrics in the Prometheus dashboard.
+Let's look at these these metrics in Prometheus dashboard.
 
-. Find the master node in the EC2 console:
+. Find a master node in the EC2 console:
 +
 image::prometheus-ec2-nodes.png[]
 +
 . Copy public IP address of the master node as `<master-ip>`.
-. Prometheus dashboard is accessible on port 30900. Edit the security group and add a rule to allow inbound traffic on port 30900 as shown:
+. Prometheus dashboard is accessible on the port `30900`. Edit the security group and add a rule to allow inbound traffic on the port 30900 as shown:
 +
-image::prometheus-ec2-security-group.png[
+image::prometheus-ec2-security-group.png[]
 +
-. Prometheus dashboard is now available at http://<master-ip>:30900. In our case, this will be http://ec2-34-215-44-44.us-west-2.compute.amazonaws.com:30900 and looks like:
+. Prometheus dashboard is now available at http://<master-ip>:30900. In our case, this will be http://ec2-54-191-175-245.us-west-2.compute.amazonaws.com:30900, and looks like:
 +
 image::prometheus-dashboard-initial.png[]
 +
@@ -291,8 +309,13 @@ image::prometheus-dashboard-node-exporter.png[]
 
 === Grafana dashboard
 
-Grafana dashboard, accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1, now shows the information about the cluster. 
+Grafana dashboard, accessible at http://localhost:8001/api/v1/namespaces/default/services/grafana/proxy/, now shows the information about the cluster. 
 
 NOTE: Grafana dashboard will not be available if Kubernetes proxy is not running. If not running, then it can be started with the command `kubectl proxy`.
 
+=== Cleanup
+
+Remove all the installed components:
+
+    kubectl delete -f prometheus/templates/
 
