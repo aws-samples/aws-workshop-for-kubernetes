@@ -1,4 +1,4 @@
-= Kubernetes Cluster Logging
+= Kubernetes Cluster Logging using Fluentd, Elasticsearch and Kibana
 :toc:
 :icons:
 :linkcss:
@@ -6,19 +6,27 @@
 
 == Kubernetes - Cluster Logging
 
-There are many options for aggregating and streaming kubernetes logs. In this example we are going to focus on an AWS based deployment which consists of the following:
+There are many options for aggregating and streaming kubernetes logs. In this part of the workshop, we are going to focus on an AWS based deployment which consists of the following:
 
-1. Fluentd DaemonSet deployed with the Cloud Watch Logs plugin
-2. Logs will stream to a CloudWatch Log Group
-3. Lambda will stream the Log Group into a Amazon Elasticsearch cluster
+. https://www.fluentd.org/[Fluentd] is an open source data collector from 600+ types of systems for a unified logging layer.
+. https://www.elastic.co/products/elasticsearch[Elasticsearch] is a distributed, RESTful search and analytics engine.
+. https://www.elastic.co/products/kibana[Kibana] lets you visualize your Elasticsearch data.
 
-=== Configure CloudWatch Log Group
+Together, Fluentd, Elasticsearch and Kibana is also known as EFK stack.
+
+In terms of architecture, Fluentd is deployed as a DaemonSet with the Cloud Watch logs plugin. Logs from different pods?? in the cluster will stream to a CloudWatch log group. An AWS Lambda function will stream the Log Group into an Amazon Elasticsearch cluster.
+
+CloudWatch log group allow to combine log streams that share the same retention, monitoring, and access control settings.
+
+=== CloudWatch Log Group
+
+Cretea a CloudWatch log group:
 
     aws logs create-log-group --log-group-name kubernetes-logs --region us-east-1
 
 === Prepare Kubernetes manifest files
 
-If you customized the log_group_name (from the previous command) or want to use a custom log_stream_name, you will need to update the output.conf section in ../templates/fluent-configmap.yaml
+If you customized the log_group_name (from the previous command) or want to use a custom log_stream_name, you will need to update the `output.conf` section in `templates/fluentd-configmap.yaml`.
 
     output.conf: |
       <match **>
