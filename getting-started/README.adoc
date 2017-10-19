@@ -26,7 +26,7 @@ Details are available at https://brew.sh/
 
 === Install Kubectl CLI
 
-    brew cask install kuberenetes-cli
+    brew install kubernetes-cli
 
 === Start minikube
 
@@ -35,7 +35,7 @@ We are using the VirtualBox driver which is the default selection for minikube, 
     minikube start
 
 
-This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
+This will deploy a local Kubernetes 1.7.x cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
 
 image::start-minikube.png[startMiniKube]
 
@@ -57,6 +57,8 @@ In this part we will familiarize ourselves with the `kubectl` cli tool and basic
 
 Now that we have a local cluster up and running we can start issuing some basic commands and deploy some simple resources.
 
+Note that the kubectl commands below will be routed via your virtualbox network interface. If you are using a VPN or have a local firewall, this may prevent kubectl from contacting the minikube endpoint. Stopping the VPN or adding a firewall rule may resolve this.
+
 ==== Display nodes
 
 This command will show all of the nodes available in your kubernetes cluster:
@@ -66,6 +68,7 @@ This command will show all of the nodes available in your kubernetes cluster:
 ==== Display pods
 
 This command shows all of the pods that are deployed into your cluster (into the default namespace), initially this will not show anything:
+
     kubectl get pods
 
 ==== Display pods in specifc namespace
@@ -138,5 +141,3 @@ The last item we will take a look as is the kube dashboard which displays some b
 Browse around and become familiar with some the of kubernetes terminology which we will dig into deeper in the following tutorials.
 
 Let's create a Kubernetes cluster as explained in link:../cluster-install[Install Kubernetes cluster using Kops].
-
-
