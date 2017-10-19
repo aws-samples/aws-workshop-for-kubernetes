@@ -1,0 +1,98 @@
+= Install gossip-based Kubernetes cluster using Kops
+:toc:
+
+This tutorial will walk you through how to install a Kubernetes cluster using kops. This cluster will use the gossip protocol for node discovery and communication.
+
+https://github.com/kubernetes/kops[Kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters in the cloud. A rolling upgrade of an older version of Kubernetes to a new version can also be performed. It also manages the cluster add-ons. After the cluster is created, the usual kubectl CLI can be used to manage resources in the cluster.
+
+== Install kops and kubectl
+
+There is no need to download the Kubernetes binary distribution for creating a cluster using kops. However, you do need to download the kops CLI. It then takes care of downloading the right Kubernetes binary in the cloud, and provisions the cluster.
+
+    brew update && install kops
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo\
+    gleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
+    chmod +x ./kubectl
+    sudo mv ./kubectl /usr/local/bin/kubectl
+
+== IAM user permission
+
+Make sure the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
+is installed. User permissions being used must have these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies] attached
+
+    AmazonEC2FullAccess
+    AmazonRoute53FullAccess
+    AmazonS3FullAccess
+    IAMFullAccess
+    AmazonVPCFullAccess
+
+Please review this link for additional info on IAM permission:
+https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user
+
+== S3 bucket to store Kubernetes config
+
+Kops needs a “state store” to store configuration information of the cluster.  For example, how many nodes, instance type of each node, and Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store as well. As of now, Amazon S3 is the only supported storage mechanism. Create a S3 bucket and pass that to the kops CLI during cluster creation.
+
+    aws s3api create-bucket --bucket kubernetes-aws-config
+    # enable versioning and export
+    aws s3api put-bucket-versioning \
+      --bucket kubernetes-aws-config 
+      --versioning-configuration\
+    Status=Enabled
+    export KOPS_STATE_STORE=s3://kubernetes-aws-config
+
+== Create kubernetes cluster
+
+The Kops CLI can be used to create a highly available cluster, with multiple master nodes spread across multiple Availability Zones. Workers can be spread across multiple zones as well. Some of the tasks that happen behind the scene during cluster creation are:
+
+- Provisioning EC2 instances
+- Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
+- Installing Kubernetes.
+
+Below are examples of how to use kops to create different cluster configurations. To create a cluster using the gossip protocol, the cluster name suffix of `.k8s.local` is required.
+
+=== Create a single master, multi-node, multi-az cluster
+Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi-node and multi-az configuration. Note that `create cluster` only creates and stores the cluster config in S3; you must use `update cluster` to build the cluster:
+
+    kops create cluster \
+      --name cluster01.k8s.local \
+      --zones us-east-1d,us-east-1e \
+      --state s3://kubernetes-aws-config
+
+Now build the cluster:
+
+    # review cluster info and make changes if necessary (for ex, subnet sizing)
+    kops get cluster
+    kops edit cluster cluster01.k8s.local
+    # update and commit
+    kops update cluster cluster01.k8s.local --yes
+
+=== Create a multi-master, multi-node, multi-az cluster
+Create a cluster with multi-master, multi-node and multi-az configuration
+
+    kops create cluster \
+      --name cluster02.k8s.local \
+      --master-count 3 \
+      --master-zones us-east-1a,us-east-1b,us-east-1c \
+      --node-count 5 \
+      --zones us-east-1a,us-east-1b,us-east-1c \
+      --state s3://kubernetes-aws-config
+
+Now build the cluster:
+
+    # review cluster info and make changes if necessary (for ex, subnet sizing)
+    kops get cluster
+    kops edit cluster cluster02.k8s.local
+    # update and commit
+    kops update cluster cluster02.k8s.local --yes
+
+== Validate cluster
+
+    kops validate cluster
+
+== Delete cluster
+
+    kops delete cluster \
+      cluster01.k8s.local \
+      --state s3://kubernetes-aws-config \
+      --yes

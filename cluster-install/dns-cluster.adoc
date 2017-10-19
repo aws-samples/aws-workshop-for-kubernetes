@@ -1,7 +1,7 @@
-= Install Kubernetes cluster using Kops
+= Install DNS-based Kubernetes cluster using Kops
 :toc:
 
-This tutorial will walk you through how to install Kubernetes cluster using kops.
+This tutorial will walk you through how to install a Kubernetes cluster using kops. This cluster will use DNS for node discovery and communication.
 
 https://github.com/kubernetes/kops[Kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters in the cloud. A rolling upgrade of an older version of Kubernetes to a new version can also be performed. It also manages the cluster add-ons. After the cluster is created, the usual kubectl CLI can be used to manage resources in the cluster.
 
@@ -43,7 +43,7 @@ Kops needs a “state store” to store configuration information of the cluster
 
 == Create hosted zone on Route53
 
-As of Kops 1.7.0, a top-level domain or a subdomain is required to create the cluster. This domain allows the worker nodes to discover the master and the master to discover all the etcd servers. This is also needed for kubectl to be able to talk directly with the master.
+A top-level domain or a subdomain is required to create the cluster. This domain allows the worker nodes to discover the master and the master to discover all the etcd servers. This is also needed for kubectl to be able to talk directly with the master.
 
 This domain may be registered with AWS, in which case a Route 53 hosted zone is created for you. Alternatively, this domain may be at a different registrar. In this case, create a Route 53 hosted zone. Specify the name server (NS) records from the created zone as NS records with the domain registrar.
 
@@ -74,55 +74,77 @@ The Kops CLI can be used to create a highly available cluster, with multiple mas
 - Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
 - Installing Kubernetes.
 
+Below are examples of how to use kops to create different cluster configurations.
+
+=== Create a single master, multi-node, multi-az cluster
 Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi node and multi-az configuration:
 
     kops create cluster \
       --name cluster01.kubernetes-aws.io \
       --zones us-east-1d,us-east-1e \
       --state s3://kubernetes-aws-config
+
+Now build the cluster:
+
     # review cluster info and make changes if necessary (for e.g., subnet sizing)
     kops get cluster
     kops edit cluster cluster01.kubernetes-aws.io
     # update and commit
     kops update cluster cluster01.kubernetes-aws.io --yes
 
-More options for creating k8s clusters are listed below
-
-Create a cluster with multi master, multi node and multi-az configuration
+=== Create a multi-master, multi-node, multi-az cluster
+Create a cluster with multi-master, multi-node and multi-az configuration
 
     kops create cluster \
       --name cluster02.kubernetes-aws.io \
       --master-count 3 \
-      --master-zones us-east-1a,us-east-1b \
+      --master-zones us-east-1a,us-east-1b,us-east-1c \
       --node-count 5 \
       --zones us-east-1a,us-east-1b,us-east-1c \
       --state s3://kubernetes-aws-config
 
-Create cluster with Route53 private hosted zone and VPC
+Now build the cluster:
+
+    # review cluster info and make changes if necessary (for e.g., subnet sizing)
+    kops get cluster
+    kops edit cluster cluster02.kubernetes-aws.io
+    # update and commit
+    kops update cluster cluster02.kubernetes-aws.io --yes
+
+=== Create a single master, multi-node, multi-az cluster with a Route53 private hosted zone and VPC
 
     kops create cluster \
       --dns private \
       --name cluster03.k8s-aws.internal \
-      --zones us-east-1a,us-east-1b \
+      --master-zones us-east-1a,us-east-1b,us-east-1c \
+      --node-count 6 \
+      --zones us-east-1a,us-east-1b,us-east-1c \
       --state s3://kubernetes-aws-config \
       --vpc $VPCID \
       --network-cidr 10.1.0.0/16\
       --ssh-public-key $mypubkey
 
-== Validate cluster
+Now build the cluster:
+
+    # review cluster info and make changes if necessary (for e.g., subnet sizing)
+    kops get cluster
+    kops edit cluster cluster03.k8s-aws.internal
+    # update and commit
+    kops update cluster cluster03.k8s-aws.internal --yes
+
+== Validate the cluster
 
     kops validate cluster
 
-The following is the output for cluster with 3 master nodes and 6 worker nodes using Route53
-    private hosted zone
+The following is the output for cluster with 3 master nodes and 6 worker nodes using Route53 private hosted zone
 
     Using cluster from kubectl context: cluster03.k8s-aws.internal
     Validating cluster cluster03.k8s-aws.internal
     INSTANCE GROUPS
     NAME			ROLE	MACHINETYPE	MIN	MAX	SUBNETS
     master-us-east-1a-1	Master	m3.medium	1	1	us-east-1a
-    master-us-east-1a-2	Master	m3.medium	1	1	us-east-1a
     master-us-east-1b-1	Master	m3.medium	1	1	us-east-1b
+    master-us-east-1c-1	Master	m3.medium	1	1	us-east-1c
     nodes			Node	t2.medium	6	6	us-east-1a,us-east-1b,us-east-1c
 
     NODE STATUS
@@ -153,7 +175,7 @@ private hosted zone along with VPC option.
 == Delete cluster
 
     kops delete cluster \
-      cluster01.kubernetes-aws.io \
+      cluster03.k8s-aws.internal \
       --state s3://kubernetes-aws-config \
       --yes
     # Find Route53 hosted zone ID from the console or via CLI and delete hosted zone

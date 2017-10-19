@@ -137,6 +137,15 @@ The last item we will take a look as is the kube dashboard which displays some b
 
 Browse around and become familiar with some the of kubernetes terminology which we will dig into deeper in the following tutorials.
 
-Let's create a Kubernetes cluster as explained in link:../cluster-install[Install Kubernetes cluster using Kops].
+== Setup Kubernetes cluster on AWS using Kops
+
+Provision a highly available Kubernetes cluster on AWS using Kops, the Kubernetes Operations tool. When setting up a cluster you have two options on how the nodes in the cluster communicate:
+
+* using the gossip protocol. A gossip-based cluster is easier to setup, so we'll use this as the default. Setup a link:../cluster-install/gossip-cluster.adoc[gossip-based cluster] here
+* using DNS. If you'd like to setup a DNS-based cluster, the instructions for this are included link:../cluster-install/dns-cluster.adoc[here]
+
+The examples in this repo should work with either option.
+
+
 
 
