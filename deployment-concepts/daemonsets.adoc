@@ -1,7 +1,7 @@
 = Daemon Sets
 
 == Creating a DaemonSet
-The folowing will be an example DaemonSet that runs a logstash image. Let's begin with the template:
+The following is an example of a DaemonSet that runs a logstash image. Let's begin with the template:
 
 	apiVersion: extensions/v1beta1
 	kind: DaemonSet
@@ -41,7 +41,7 @@ The folowing will be an example DaemonSet that runs a logstash image. Let's begi
 
 Run the following command to create the ReplicaSet and pods:
 
-	kubectl create -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/daemonset.yaml --record
+	kubectl create -f https://raw.githubusercontent.com/arun-gupta/kubernetes-aws-workshop/master/deployment-concepts/templates/daemonset.yaml --record
 
 The *--record* flag will track changes made through each revision.
 
@@ -127,3 +127,8 @@ After the update is performed, we have now configured logstash to run off a spec
 	logstash-daemonset-hb365   1/1       Running       5          26m
 	logstash-daemonset-pzvkw   1/1       Terminating   0          1m
 	logstash-daemonset-t9f0n   1/1       Terminating   0          1m
+
+== Delete the DaemonSet
+Run the following command to delete the DaemonSet:
+
+	kubectl delete -f https://raw.githubusercontent.com/arun-gupta/kubernetes-aws-workshop/master/deployment-concepts/templates/daemonset.yaml

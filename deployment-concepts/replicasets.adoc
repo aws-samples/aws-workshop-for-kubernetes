@@ -26,7 +26,7 @@ The folowing will be an example ReplicaSet with an nginx base image. Let's begin
 
 Run the following command to create the ReplicaSet and pods:
 
-	kubectl create -f https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/replicaset.yaml --record
+	kubectl create -f https://raw.githubusercontent.com/arun-gupta/kubernetes-aws-workshop/master/deployment-concepts/templates/replicaset.yaml --record
 
 The *--record* flag will track changes made through each revision.
 
@@ -59,3 +59,8 @@ The output should look similar the following:
 	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-z1sj6
 	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-1b05f
 	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-bftwj
+
+== Delete a ReplicaSet
+Run the following command to delete the ReplicaSet:
+
+	kubectl create -f https://raw.githubusercontent.com/arun-gupta/kubernetes-aws-workshop/master/deployment-concepts/templates/replicaset.yaml
