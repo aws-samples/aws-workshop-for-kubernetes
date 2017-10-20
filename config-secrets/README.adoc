@@ -2,28 +2,32 @@
 :linkcss:
 :imagesdir: ../images
 
-= Kubernetes Configmap and Secrets
+= Kubernetes ConfigMap and Secrets
 :toc:
 
-== Kubernetes - Configmap and Secrets
+Kubernetes has resource types that allows to decouple application code from configuration. It makes the applications to be more portable.
 
-Kubernetes as a resource type of Configmap used as a way to abstract pods away from their configuration helping keep the applications more portable.
+ConfigMap is just a set of key-value pairs. It allow you to decouple configuration artifacts from image content. Secrets allows separating sensitive information such as credentials and keys from an application. ConfigMap is similar to Secrets, but provides a means of working with strings that don’t contain sensitive information.
 
-There is also a secrets object which allows you to pass sensitive data to your applications.
+This section will explain how to use ConfigMap and Secrets.
 
-Here will will illiustrate how to pass this information to a redis pod, by passing configuration information with Configmap.
+== ConfigMap
 
-Next
+We will illiustrate how to pass this information to a Redis pod, by passing configuration information with Configmap.
 
-=== Create the Configmap object
+=== Create the ConfigMap object
 
     kubectl apply -f ./templates/config-map.yaml
 
-=== Deploy a redis pod that maps the Configmap to the volume where the configuration resides:
+=== Deploy a Redis pod
+
+Deploy a Redis pod that maps the Configmap to the volume where the configuration resides:
 
     kubectl apply -f ./templates/redis-pod.yaml
 
-=== Validate that your redis cluster picked up the appropriate configuration:
+=== Validate Redis cluster
+
+Validate that your redis cluster picked up the appropriate configuration:
 
     kubectl exec --it redis redis-cli
     CONFIG GET maxmemory
@@ -31,9 +35,11 @@ Next
 
 You should see the same values that were specified in the ./templates/config-map.yaml outputted in the above commands.
 
-=== Secrets
+== Secrets
 
-In this section we will demonstrate how to place secrets into the k8s cluster and then show multiple ways of retrieving those secretes from within pods.
+In this section we will demonstrate how to place secrets into the Kubernetes cluster and then show multiple ways of retrieving those secretes from within pods.
+
+=== Create secrets
 
 First encode the secrets you want to apply, for this example we will use the username `admin` and the password `password`
 
@@ -46,11 +52,13 @@ You can now insert this secret in to kubernetes with the following command:
 
     kubectl apply -f ./templates/secret.yaml
 
-=== Consuming secrets in your pods
+=== Consume secrets
 
 Here we will demonstrate two ways to consume secrets from within pods.
 
-*Using volumes*, deploy the pod:
+==== Using volumes
+
+Deploy the pod:
 
     kubectl apply -f ./templates/pod-secret-volume.yaml
 
@@ -63,7 +71,9 @@ Open a shell to the pod to see the secrets
 
 The above commands should result in the plain text values, the decoding is done for you.
 
-*Using Environment Variables*, deploy the pod:
+==== Using Environment Variables
+
+Deploy the pod:
 
     kubectl apply -f ./templates/pod-secret-env.yaml
 
@@ -75,6 +85,3 @@ Open a shell to the pod to see the secrets:
 
 The above commands illustrate how to see the secret values via environment variables
 
-== Conclusion
-
-In this post we demonstrated how to leverage configmaps and secrets in your pods.
