@@ -1,11 +1,10 @@
 = Kubernetes on AWS Workshop
 
-This repo explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains
-how to deploy, scale and configure applications on this cluster.
+This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains how to deploy, scale and configure applications on this cluster.
 
 Proposed agenda is to go through the described format to rampup your knowledge on Kubernetes by following
 workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable
-as you move through the workshop. It is recommended to review link:workshop-prereqs.adoc[prereqs document]
+as you move through the workshop. It is recommended to review link:prereqs.adoc[prereqs document]
 before re-purposing this workshop so that you have a better experience going through these tutorials.
 
 
@@ -17,7 +16,7 @@ It will also explain how to deploy applications, scale them, running stateless a
 
 [cols="1*"]
 |===
-|Beginners (100 - 200)
+|Beginners
 
 |link:getting-started[Kubernetes Getting started]
 |link:cluster-install[Install Kubernetes cluster using kops]
