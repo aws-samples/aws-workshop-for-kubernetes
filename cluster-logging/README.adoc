@@ -70,7 +70,7 @@ It uses the log group name of `kubernetes-logs` and the log stream name of `flue
 
 === IAM configuration
 
-You will need to create an IAM user and set the AWS_ACCESS_KEY, AWS_SECRET_KEY and AWS_REGION in the `templates/fluentd-ds.yaml` file. Other options to accomplish this (in a production environment) are to use either kubernetes secrets or EC2 IAM roles.
+You will need to create an IAM user and set the `AWS_ACCESS_KEY`, `AWS_SECRET_KEY` and `AWS_REGION` in the `templates/fluentd-ds.yaml` file. Other options to accomplish this (in a production environment) are to use either kubernetes secrets or EC2 IAM roles.
 
   env:
   - name: FLUENTD_CONFIG
