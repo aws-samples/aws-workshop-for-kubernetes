@@ -1,20 +1,470 @@
 :toc:
 
-= Kubernetes Concepts
+= Kubernetes Developer Concepts
+
 Kubernetes contains a number of abstractions that map to API objects. These Kubernetes API Objects can be used to describe your cluster's desired state which will include info such as applications and workloads running, replicas, container images, networking resources and more. Below are a few examples.
 
 == Deployments
 A desired state can be described in a Deployment object. The Deployment controller changes the actaul state to the desired state. 
-https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/deployment-concepts/deployments.adoc
+
+=== Creating a Deployment
+The folowing will be an example Deployment with an nginx base image. Let's begin with the template:
+
+	apiVersion: extensions/v1beta1
+	kind: Deployment # kubernetes object type
+	metadata:
+	  name: nginx-deployment # deployment name
+	spec:
+	  replicas: 3 # number of replicas
+	  template:
+	    metadata:
+	      labels:
+	        app: nginx # pod labels
+	    spec:
+	      containers:
+	      - name: nginx # container name
+	        image: nginx:1.12.1 # nginx image
+	        imagePullPolicy: IfNotPresent # if exists, will not pull new image
+	        ports: # container and host port assignments
+	        - containerPort: 80
+	          hostPort: 80
+	        - containerPort: 443
+	          hostPort: 443          
+
+Run the following command to create Deployment:
+
+	kubectl create -f templates/deployment.yaml --record
+
+The *--record* flag will track changes made through each revision.
+
+To monitor deployment rollout status:
+
+	kubectl rollout status deployment/nginx-deployment
+
+To obtain state of the deployment:
+
+	kubectl get deployments
+
+=== Updating a Deployment
+You can update the Deployment by making edits to the spec template. In this example, let's change to the latest nginx image.
+
+First, type the following to open up the text editor:
+
+	kubectl edit deployment/nginx-deployment
+
+Next, change the image from *nginx:1.12.1* to *nginx:latest*.
+
+This should perform a rolling update of the deployment. To track the deployment details such as revision, image version, and ports - type in the following:
+
+	kubectl describe deployments
+
+The output should look similar the following:
+
+	$ kubectl describe deployments
+	Name:                   nginx-deployment
+	Namespace:              default
+	CreationTimestamp:      Fri, 15 Sep 2017 10:55:55 -0700
+	Labels:                 app=nginx
+	Annotations:            deployment.kubernetes.io/revision=2
+	Selector:               app=nginx
+	Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+	StrategyType:           RollingUpdate
+	MinReadySeconds:        0
+	RollingUpdateStrategy:  1 max unavailable, 1 max surge
+	Pod Template:
+	  Labels:       app=nginx
+	  Containers:
+	   nginx:
+	    Image:              nginx:latest
+	    Ports:              80/TCP, 443/TCP
+	    Environment:        <none>
+	    Mounts:             <none>
+	  Volumes:              <none>
+	Conditions:
+	  Type          Status  Reason
+	  ----          ------  ------
+	  Available     True    MinimumReplicasAvailable
+	OldReplicaSets: <none>
+	NewReplicaSet:  nginx-deployment-2083416819 (3/3 replicas created)
+	Events:
+	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
+	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
+	  17m           17m             1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-3081318877 to 3
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-2083416819 to 1
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled down replica set nginx-deployment-3081318877 to 2
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-2083416819 to 2
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled down replica set nginx-deployment-3081318877 to 1
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-2083416819 to 3
+	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled down replica set nginx-deployment-3081318877 to 0
+
+=== Rolling back a Deployment
+To rollback to a previous version, first check the revision history:
+
+	kubectl rollout history deployment/nginx-deployment
+
+If you only want to rollback to the previous revision, enter the following command:
+
+	kubectl rollout undo deployment/nginx-deployment
+
+If rolling back to a specific revision then enter:
+
+	kubectl rollout undo deployment/nginx-deployment --to-revision=1
+
+=== Delete a Deployment
+Run the following command to delete deployment:
+
+	kubectl delete -f templates/deployment.yaml
 
 == Replica Sets
 A RepllicaSet specifies a number of pod repliacas that can be run at any given time. The Deployment manages the ReplicaSets and provides updates to those pods. ReplicaSets can be used in lieu of Deployments if you require custom orchestration or do not need updates.
-https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/deployment-concepts/replicasets.adoc
+
+=== Creating a ReplicaSet
+The folowing will be an example ReplicaSet with an nginx base image. Let's begin with the template:
+
+	apiVersion: extensions/v1beta1
+	kind: ReplicaSet
+	metadata:
+	  name: nginx-replicaset
+	spec:
+	  replicas: 3
+	  template:
+	    metadata:
+	      labels:
+	        name: nginx-replica
+	    spec:
+	      containers:
+	      - name: nginx-replica
+	        image: nginx:1.12.1
+	        imagePullPolicy: IfNotPresent
+	        ports:
+	        - containerPort: 80
+	          hostPort: 80
+	        - containerPort: 443
+	          hostPort: 443      
+
+Run the following command to create the ReplicaSet and pods:
+
+	kubectl create -f templates/replicaset.yaml --record
+
+The *--record* flag will track changes made through each revision.
+
+To track the ReplicaSet details type in the following:
+
+	kubectl describe rs/nginx-replicaset
+
+The output should look similar the following:
+
+	$ kubectl describe rs/nginx-replicaset
+	Name:           nginx-replicaset
+	Namespace:      default
+	Selector:       name=nginx-replica
+	Labels:         name=nginx-replica
+	Annotations:    <none>
+	Replicas:       3 current / 3 desired
+	Pods Status:    3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+	Pod Template:
+	  Labels:       name=nginx-replica
+	  Containers:
+	   nginx-replica:
+	    Image:              nginx:1.12.1
+	    Ports:              80/TCP, 443/TCP
+	    Environment:        <none>
+	    Mounts:             <none>
+	  Volumes:              <none>
+	Events:
+	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
+	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
+	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-z1sj6
+	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-1b05f
+	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-bftwj
+
+=== Scaling a Replica Set
+
+=== Deleting a Replica Set
 
 == Daemon Sets
 DeamonSets allow the cluster of nodes to run a specified pod. As nodes are added, pods are added. As nodes are removed, pods are removed through garbage collection.  
-https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/deployment-concepts/daemonsets.adoc
+
+=== Creating a DaemonSet
+The folowing will be an example DaemonSet that runs a logstash image. Let's begin with the template:
+
+	apiVersion: extensions/v1beta1
+	kind: DaemonSet
+	metadata:
+	  name: logstash-daemonset
+	  labels:
+	    app: logstash
+	spec:
+	  template:
+	    metadata:
+	      labels:
+	        app: logstash
+	    spec:
+	      containers:
+	      - name: logstash
+	        image: logstash:5.5.2
+	        imagePullPolicy: IfNotPresent # if exists, will not pull new image
+	        resources:
+	          limits:
+	            memory: 50Mi
+	          requests:
+	            cpu: 50m
+	            memory: 50Mi
+	        volumeMounts:
+	        - name: varlog
+	          mountPath: /var/log
+	        - name: varlibdockercontainers
+	          mountPath: /var/lib/docker/containers
+	          readOnly: true
+	      volumes:
+	      - name: varlog
+	        hostPath:
+	          path: /var/log
+	      - name: varlibdockercontainers
+	        hostPath:
+	          path: /var/lib/docker/containers
+
+Run the following command to create the ReplicaSet and pods:
+
+	kubectl create -f templates/daemonset.yaml --record
+
+The *--record* flag will track changes made through each revision.
+
+To track the ReplicaSet details type in the following:
+
+	kubectl describe ds/logstash-daemonset
+
+The output should look similar the following:
+
+	$ kubectl describe ds
+	Name:           logstash-daemonset
+	Selector:       app=logstash
+	Node-Selector:  <none>
+	Labels:         app=logstash
+	Annotations:    kubernetes.io/change-cause=kubectl create --filename=daemonset.yaml --record=true
+	Desired Number of Nodes Scheduled: 3
+	Current Number of Nodes Scheduled: 3
+	Number of Nodes Scheduled with Up-to-date Pods: 3
+	Number of Nodes Scheduled with Available Pods: 3
+	Number of Nodes Misscheduled: 0
+	Pods Status:    3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+	Pod Template:
+	  Labels:       app=logstash
+	  Containers:
+	   logstash:
+	    Image:      logstash:5.5.2
+	    Port:       <none>
+	    Limits:
+	      memory:   50Mi
+	    Requests:
+	      cpu:              50m
+	      memory:           50Mi
+	    Environment:        <none>
+	    Mounts:
+	      /var/lib/docker/containers from varlibdockercontainers (ro)
+	      /var/log from varlog (rw)
+	  Volumes:
+	   varlog:
+	    Type:       HostPath (bare host directory volume)
+	    Path:       /var/log
+	   varlibdockercontainers:
+	    Type:       HostPath (bare host directory volume)
+	    Path:       /var/lib/docker/containers
+	Events:
+	  FirstSeen     LastSeen        Count   From            SubObjectPath   Type            Reason                  Message
+	  ---------     --------        -----   ----            -------------   --------        ------                  -------
+	  6s            6s              1       daemon-set                      Normal          SuccessfulCreate        Created pod: logstash-daemonset-zjw24
+	  6s            6s              1       daemon-set                      Normal          SuccessfulCreate        Created pod: logstash-daemonset-b0w72
+	  6s            6s              1       daemon-set                      Normal          SuccessfulCreate        Created pod: logstash-daemonset-hb365
+
+=== Limiting DaemonSets to specific nodes
+Verify that the logstash pod was successfully deployed to the cluster nodes:
+
+	kubectl get pods -o wide
+
+Output should mirror the following:
+
+	$ kubectl get pods -o wide
+	NAME                       READY     STATUS    RESTARTS   AGE       IP           NODE
+	logstash-daemonset-b0w72   1/1       Running   1          1m        100.96.2.9   ip-172-20-76-225.us-west-2.compute.internal
+	logstash-daemonset-hb365   1/1       Running   0          1m        100.96.1.9   ip-172-20-38-189.us-west-2.compute.internal
+	logstash-daemonset-zjw24   1/1       Running   2          1m        100.96.3.9   ip-172-20-121-97.us-west-2.compute.internal
+
+Rename one of the node labels as follows:
+
+	kubectl label node ip-172-20-38-189.us-west-2.compute.internal app=logstash-node
+
+Next, edit the DaemonSet template to include a nodeSelector that matches the changed label:
+
+	................
+	spec:
+	  nodeSelector:
+	    app: logstash-node
+      containers:
+      - name: logstash
+        image: logstash:5.5.2
+    ................
+
+After the update is performed, we have now configured logstash to run off a specific node:
+
+	$ kubectl get pods
+	NAME                       READY     STATUS        RESTARTS   AGE
+	logstash-daemonset-hb365   1/1       Running       5          26m
+	logstash-daemonset-pzvkw   1/1       Terminating   0          1m
+	logstash-daemonset-t9f0n   1/1       Terminating   0          1m
+
+=== Deleting a DaemonSet
 
 == Services
 A Kubernetes service defines a logical set of pods and enables them to be access through micro-services. 
-https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/deployment-concepts/services.adoc
+
+=== Creating a Service
+In the following example, we create a service labeled demo-service:
+
+	apiVersion: v1
+	kind: Service
+	metadata:
+	  name: demo-service
+	spec:
+	  selector:
+	    app: demo-app
+	  ports:
+	  - name: http
+	    protocol: TCP
+	    port: 80
+	    targetPort: 8080
+
+The service itself is assigned an IP address used by service proxies. It also defines the incoming ports 80 and 443 to target ports 3030 and 3031. 
+
+* Note that Kubernetes supports both TCP and UDP protocols.
+
+=== Service Discovery
+For each Pod that is created, a set of environmental variables are created for each active service. Alternatively, a DNS server can be used to watch the Kubernetes API for new services and creates DNS records for each.
+
+If you would like to expose a service to an external IP, ServiceTypes are used to determine the type of service. Those ServiceTypes are:
+
+	ClusterIP: Service exposed on a internal cluster IP.
+	NodePort: Service exposed on each Node's IP at a defined port.
+	LoadBalancer: Service exposed externally using a cloud based load balancer. 
+	ExternalName: Service is attached to the externalName field. It is mapped to a CNAME with the value.
+
+Below we will provision a Load Balancer and expose your services, add a type field of LoadBalancer. 
+
+First deploy an app. In this example, we will create an echo app that responds with http headers from an Elastic Load Balancer:
+
+	apiVersion: extensions/v1beta1
+	kind: Deployment
+	metadata:
+	  name: demo-deployment 
+	spec:
+	  replicas: 3 
+	  template:
+	    metadata:
+	      labels:
+	        app: demo-app 
+	    spec:
+	      containers:
+	      - name: echoheaders 
+	        image: gcr.io/google_containers/echoserver:1.4
+	        imagePullPolicy: IfNotPresent 
+	        ports: 
+	        - containerPort: 8080
+	          hostPort: 8080  
+
+Type the following to create the deployment:
+
+	kubectl create -f templates/echo.yaml --record
+
+Type "kubectl describe deployment" to confirm demo-app has been deployed:
+
+	$ kubectl describe deployment
+	Name:                   demo-deployment
+	Namespace:              default
+	CreationTimestamp:      Mon, 02 Oct 2017 13:13:12 -0700
+	Labels:                 app=demo-app
+	Annotations:            deployment.kubernetes.io/revision=1
+	                        kubernetes.io/change-cause=kubectl create --filename=https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/echo.yaml --record=true
+	Selector:               app=demo-app
+	Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+	StrategyType:           RollingUpdate
+	MinReadySeconds:        0
+	RollingUpdateStrategy:  1 max unavailable, 1 max surge
+	Pod Template:
+	  Labels:       app=demo-app
+	  Containers:
+	   echoheaders:
+	    Image:              gcr.io/google_containers/echoserver:1.4
+	    Port:               8080/TCP
+	    Environment:        <none>
+	    Mounts:             <none>
+	  Volumes:              <none>
+	Conditions:
+	  Type          Status  Reason
+	  ----          ------  ------
+	  Available     True    MinimumReplicasAvailable
+	OldReplicaSets: <none>
+	NewReplicaSet:  demo-deployment-706676907 (3/3 replicas created)
+	Events:
+	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
+	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
+	  29s           29s             1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set demo-deployment-706676907 to 3
+
+This template will expose "demo-app" to the internet by creating an outward facing elastic load balancer (ELB):
+
+	apiVersion: v1
+	kind: Service
+	metadata:
+	  name: demo-service
+	spec:
+	  selector:
+	    app: demo-app
+	  ports:
+	  - name: http
+	    protocol: TCP
+	    port: 80
+	    targetPort: 8080
+	  type: LoadBalancer
+
+Run the following command to create the service:
+
+	kubectl create -f templates/service.yaml --record
+
+After describing, you should get something like the following:
+
+	$ kubectl describe services
+	Name:                   demo-service
+	Namespace:              default
+	Labels:                 <none>
+	Annotations:            kubernetes.io/change-cause=kubectl create --filename=https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/service.yaml --record=true
+	Selector:               app=demo-app
+	Type:                   LoadBalancer
+	IP:                     1.1.1.131
+	LoadBalancer Ingress:   {random-sequence}.us-west-2.elb.amazonaws.com
+	Port:                   http    80/TCP
+	NodePort:               http    31959/TCP
+	Endpoints:              1.1.1.65:8080,1.1.1.131:8080,1.1.1.194:8080
+	Session Affinity:       None
+	Events:
+	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
+	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
+	  5s            5s              1       service-controller                      Normal          CreatingLoadBalancer    Creating load balancer
+	  2s            2s              1       service-controller                      Normal          CreatedLoadBalancer     Created load balancer
+
+
+	Name:                   kubernetes
+	Namespace:              default
+	Labels:                 component=apiserver
+	                        provider=kubernetes
+	Annotations:            <none>
+	Selector:               <none>
+	Type:                   ClusterIP
+	IP:                     10.10.0.1
+	Port:                   https   443/TCP
+	Endpoints:              1.2.3.29:443
+	Session Affinity:       ClientIP
+	Events:                 <none>
+
+If you go to the LoadBalancer Ingress in your browser, you should hit a webpage containing the echo response.
+
+=== Deleting a Service
+
