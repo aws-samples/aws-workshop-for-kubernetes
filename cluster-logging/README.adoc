@@ -1,4 +1,4 @@
-= Kubernetes Cluster Logging using Fluentd, Elasticsearch and Kibana
+= Kubernetes Cluster Logging using Elasticsearch, Fluentd, and Kibana
 :toc:
 :icons:
 :linkcss:
@@ -43,7 +43,7 @@ Cretea a CloudWatch log group:
 
 Create the log group in the same region as your cluster.
 
-== Prepare Kubernetes manifest files
+== Deploy Fluentd
 
 === Log group name and log stream name
 
@@ -82,7 +82,7 @@ You will need to create an IAM user and set the AWS_ACCESS_KEY, AWS_SECRET_KEY a
   - name: AWS_SECRET_KEY
     value: $SECRET_KEY
 
-== Deploy Fluentd
+=== Create Kubernetes resources
 
 First create the logging namespace
 
@@ -175,3 +175,4 @@ Begin using the capabilites to search and visuzalize your Kubernetes cluster met
 = Conclusion
 
 In this post we demonstrated how to leverage AWS managed services to collect, search and visualize your kubernetes metrics. This can be used as reference to being to build your own logging solution for Kubernetes on top of AWS.
+
