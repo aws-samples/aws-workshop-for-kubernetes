@@ -4,8 +4,6 @@
 :linkcss:
 :imagesdir: ../images
 
-== Kubernetes - Cluster Logging
-
 There are many options for aggregating and streaming kubernetes logs. In this part of the workshop, we are going to focus on an AWS based deployment which consists of the following:
 
 . https://www.fluentd.org/[Fluentd] is an open source data collector from 600+ types of systems for a unified logging layer.
@@ -16,7 +14,7 @@ Together, Fluentd, Elasticsearch and Kibana is also known as "`EFK stack`".
 
 In terms of architecture, Fluentd is deployed as a DaemonSet with the Cloud Watch logs plugin. Logs from different pods?? in the cluster will stream to a CloudWatch log group. An AWS Lambda function will stream the Log Group into an Amazon Elasticsearch cluster. The logs can then be viewed using a Kibana dashboard.
 
-=== Provision an Amazon Elasticsearch cluster
+== Provision an Amazon Elasticsearch cluster
 
 This example creates a two instance Amazon Elasticsearch cluster named `kubernetes-logs`. This cluster is created in the same region as the Kubernetes cluster and CloudWatch log group. Note that this cluster has an open access policy which will need to be locked down in production environments:
 
@@ -27,7 +25,7 @@ This example creates a two instance Amazon Elasticsearch cluster named `kubernet
       InstanceType=m4.large.elasticsearch,InstanceCount=2 \
       --ebs-options EBSEnabled=true,VolumeType=standard,VolumeSize=100 \
       --access-policies '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["es:*"],"Resource":"*"}]}' \
-      --region us-west-2
+      --region us-west-1
 
 It takes a little while for the cluster to be created and come into `active` state. The AWS Consol should show the following status when the cluster is ready:
 
@@ -35,19 +33,19 @@ image::logging-cloudwatch-es-cluster.png[]
 
 Look for the word `Active` in the right column.
 
-=== CloudWatch Log Group
+== CloudWatch Log Group
 
 CloudWatch log group allow to combine log streams that share the same retention, monitoring, and access control settings.
 
 Cretea a CloudWatch log group:
 
-    aws logs create-log-group --log-group-name kubernetes-logs --region us-west-2
+    aws logs create-log-group --log-group-name kubernetes-logs --region us-west-1
 
 Create the log group in the same region as your cluster.
 
-=== Prepare Kubernetes manifest files
+== Prepare Kubernetes manifest files
 
-==== Log group name and log stream name
+=== Log group name and log stream name
 
 Here is an excerpt from `templates/fluentd-configmap.yaml`:
 
@@ -70,7 +68,7 @@ Here is an excerpt from `templates/fluentd-configmap.yaml`:
 
 It uses the log group name of `kubernetes-logs` and the log stream name of `fluentd-cloudwatch`. If a different log group name is used in the previous command or a different log stream name is needed, then that needs to be configured in this configuration file.
 
-==== IAM configuration
+=== IAM configuration
 
 You will need to create an IAM user and set the AWS_ACCESS_KEY, AWS_SECRET_KEY and AWS_REGION in the `templates/fluentd-ds.yaml` file. Other options to accomplish this (in a production environment) are to use either kubernetes secrets or EC2 IAM roles.
 
@@ -84,7 +82,7 @@ You will need to create an IAM user and set the AWS_ACCESS_KEY, AWS_SECRET_KEY a
   - name: AWS_SECRET_KEY
     value: $SECRET_KEY
 
-=== Deploy Fluentd into Kubernetes
+== Deploy Fluentd
 
 First create the logging namespace
 
@@ -108,15 +106,19 @@ Watch for all of the pods to change to running status:
 
 The output should look like:
 
-    NAME            READY     STATUS    RESTARTS   AGE
-    fluentd-7mxhg   1/1       Running   0          5s
-    fluentd-nrz66   1/1       Running   0          5s
+    NAME            READY     STATUS              RESTARTS   AGE
+    fluentd-0v9nz   0/1       ContainerCreating   0          5s
+    fluentd-b4kq7   0/1       ContainerCreating   0          5s
+    fluentd-0v9nz   1/1       Running   0         10s
+    fluentd-0v9nz   1/1       Running   0         11s
+    fluentd-b4kq7   1/1       Running   0         11s
+    fluentd-b4kq7   1/1       Running   0         12s
 
 We can now login to the AWS console -> Management Tools -> CloudWatch -> Logs -> kubernetes-logs -> fluentd-cloudwatch
 
 We should start to see logs arrive into the service and can use the search feature to looks for specific logs
 
-=== Subscribe a CloudWatch Log Group to Amazon Elastisearch
+== Subscribe a CloudWatch Log Group to Amazon Elastisearch
 
 CloudWatch Logs can be delivered to other services such as Amazon Elasticsearch for custom processing. This can be achieved by subscribing to a real-time feed of log events. A subscription filter defines the filter pattern to use for filtering which log events gets delivered to Elasticsearch, as well as information about where to send matching log events to.
 
@@ -150,7 +152,7 @@ The fields that are sent to the Elasticsearch cluster can be selected. Optionall
 +
 image::logging-cloudwatch-es-subscribe-confirmation.png[]
 +
-. Click on `Start streaming`:
+. Click on `Next` and then `Start streaming`:
 +
 image::logging-cloudwatch-es-subscribe-start-streaming.png[]
 +
@@ -158,8 +160,18 @@ image::logging-cloudwatch-es-subscribe-start-streaming.png[]
 +
 image::logging-cloudwatch-es-subscribe-filter-created.png[]
 
-Now you can go to the Amazon Elasticsearch console and open the Kibana dashboard from the link and begin using the capabilites to search and visuzalize your Kubernetes cluster metrics
+== Kibana dashboard
 
-== Conclusion
+In https://us-west-1.console.aws.amazon.com/es/home?#kubernetes-logs:dashboard[Amazon Elasticsearch console], select the Elasticsearch cluster.
+
+image::logging-cloudwatch-es-overview.png[]
+
+Open the Kibana dashboard from the link:
+
+image::logging-cloudwatch-kibana-default.png[]
+
+Begin using the capabilites to search and visuzalize your Kubernetes cluster metrics.
+
+= Conclusion
 
 In this post we demonstrated how to leverage AWS managed services to collect, search and visualize your kubernetes metrics. This can be used as reference to being to build your own logging solution for Kubernetes on top of AWS.
