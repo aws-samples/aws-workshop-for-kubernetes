@@ -106,8 +106,8 @@ metadata:
 . `kubectl create configmap redis-config --from-file=<properties file>` where `<properties file>` is a property file with key/value pairs. For example, `templates/redis-config` looks like:
 +
 ```
-maxmemory=2mb
-maxmemory-policy=allkeys-lru
+maxmemory 2mb
+maxmemory-policy allkeys-lru
 ```
 +
 And now ConfigMap can be created as:
@@ -147,8 +147,13 @@ Let's use `redis-config` ConfigMap to create our `redis.conf` configuration file
 
     kubectl apply -f ./templates/redis-pod.yaml
 
+Wait for the pod to run:
 
-Check the logs from the pod to verify that Redis has started:
+    $ kubectl get pods
+    NAME        READY     STATUS    RESTARTS   AGE
+    redis-pod   1/1       Running   0          12m
+
+Check logs from the pod to verify that Redis has started:
 
 ```
 $ kubectl logs redis-pod
@@ -200,9 +205,11 @@ Now, changing the pod configuration would involve the following steps:
 
 === Define environment variables using ConfigMap data
 
+
+
 == Secrets
 
-In this section we will demonstrate how to place secrets into the Kubernetes cluster and then show multiple ways of retrieving those secretes from within pods.
+In this section we will demonstrate how to place secrets into the Kubernetes cluster and then show multiple ways of retrieving those secretes from within a pod.
 
 === Create secrets
 
@@ -211,9 +218,20 @@ First encode the secrets you want to apply, for this example we will use the use
     echo -n "admin" | base64
     echo -n "password" | base64
 
-Both of these values are already written in the file `./templates/secret.yaml`
+Both of these values are already written in the file `./templates/secret.yaml`. The configuration looks like:
 
-You can now insert this secret in to kubernetes with the following command:
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: cGFzc3dvcmQ=
+```
+
+You can now insert this secret in the Kubernetes cluster with the following command:
 
     kubectl apply -f ./templates/secret.yaml
 
@@ -227,7 +245,7 @@ Deploy the pod:
 
     kubectl apply -f ./templates/pod-secret-volume.yaml
 
-Open a shell to the pod to see the secrets
+Open a shell to the pod to see the secrets:
 
     kubectl exec -it pod-secret-volume /bin/bash
     ls /etc/foo
@@ -248,5 +266,5 @@ Open a shell to the pod to see the secrets:
     echo $SECRET_USERNAME
     echo $SECRET_PASSWORD
 
-The above commands illustrate how to see the secret values via environment variables
+The above commands illustrate how to see the secret values via environment variables.
 
