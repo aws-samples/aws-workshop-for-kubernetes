@@ -5,15 +5,13 @@ This tutorial will walk you through how to install Kubernetes cluster using kops
 
 https://github.com/kubernetes/kops[Kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters in the cloud. A rolling upgrade of an older version of Kubernetes to a new version can also be performed. It also manages the cluster add-ons. After the cluster is created, the usual kubectl CLI can be used to manage resources in the cluster.
 
-== Install kops and kubectl
+== Install kops
 
 There is no need to download the Kubernetes binary distribution for creating a cluster using kops. However, you do need to download the kops CLI. It then takes care of downloading the right Kubernetes binary in the cloud, and provisions the cluster.
 
     brew update && brew install kops
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo\
-    gleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
-    chmod +x ./kubectl
-    sudo mv ./kubectl /usr/local/bin/kubectl
+
+In addition, you also need kubectl CLI to manage the resources on Kubernetes cluster. Instructions to install kubectl CLI are covered in link:../getting-started#setup-local-development-environment[].
 
 == IAM user permission
 
