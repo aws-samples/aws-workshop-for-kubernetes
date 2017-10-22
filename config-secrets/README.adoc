@@ -5,23 +5,70 @@
 = Kubernetes ConfigMap and Secrets
 :toc:
 
-Kubernetes has resource types that allows to decouple application code from configuration. It makes the applications to be more portable.
+Kubernetes has resource types that allows to decouple application code from configuration. It makes the applications to be more portable. This chapter will cover how ConfigMap and Secrets can be used to do that.
 
-ConfigMap is just a set of key-value pairs. It allow you to decouple configuration artifacts from image content. Secrets allows separating sensitive information such as credentials and keys from an application. ConfigMap is similar to Secrets, but provides a means of working with strings that don’t contain sensitive information.
+. ConfigMap is just a set of key-value pairs. It allow you to decouple configuration artifacts from image content.
+. Secrets allows separating sensitive information such as credentials and keys from an application.
+
+ConfigMap is similar to Secrets, but provides a means of working with strings that don’t contain sensitive information.
 
 This section will explain how to use ConfigMap and Secrets.
 
 == ConfigMap
 
-We will illiustrate how to pass this information to a Redis pod, by passing configuration information with Configmap.
+We will illiustrate how to pass configuration information to a Redis pod using ConfigMap.
 
-=== Create the ConfigMap object
+=== Create a ConfigMap object
+
+Create a ConfigMap:
 
     kubectl apply -f ./templates/config-map.yaml
 
+`config-map.yaml` defines the configuration information as:
+
+```
+data:
+  redis-config: |
+    maxmemory 2mb
+    maxmemory-policy allkeys-lru
+```
+
+Get the list of created ConfiMaps:
+
+```
+$ kubectl get configmap
+NAME           DATA      AGE
+redis-config   1         4m
+```
+
+Get more details about the created ConfigMap:
+
+```
+kubectl describe configmap/redis-config
+$ Name:         redis-config
+Namespace:    default
+Labels:       k8s-app=redis
+Annotations:  kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","data":{"redis-config":"maxmemory 2mb\nmaxmemory-policy allkeys-lru\n"},"kind":"ConfigMap","metadata":{"annotations":{},"labels":{"k...
+
+Data
+====
+redis-config:
+----
+maxmemory 2mb
+maxmemory-policy allkeys-lru
+
+Events:  <none>
+```
+
+In this case, we created a ConfigMap using a resource configuration file. Other ways to create ConfigMap are listed below:
+
+. `kubectl create configmap --from-literal=<key>:<value>`. Multiple `--from-literal=<key>:<value>` options can be used to define different key/value pairs
+. `kubectl create configmap redis-config --from-file=<properties file>` where `<properties file>` is a property file with key/value pairs
+. `kubectl create configmap redis-config --from-file=<directory>` where `<directory>` is a directory that consists of property files with key/value pairs
+
 === Deploy a Redis pod
 
-Deploy a Redis pod that maps the Configmap to the volume where the configuration resides:
+Deploy a Redis pod that maps the ConfigMap to the volume where the configuration resides:
 
     kubectl apply -f ./templates/redis-pod.yaml
 
