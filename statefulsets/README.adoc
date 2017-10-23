@@ -3,105 +3,133 @@
 
 In this section, we will review how to launch and manage applications using https://kubernetes.io/docs/concepts/abstractions/controllers/statefulsets/[StatefulSets] and https://kubernetes.io/docs/concepts/storage/persistent-volumes/[Persistent Volumes].
 
-We will review how to deploy MySQL database using StatefulSets. Further we will implement few
-failure modes and review how StatefulSets reacts to those situations. Lastly, we will review
-easier way to scale up and down MySQL clusters.
+We will review how to deploy MySQL database using StatefulSets and EBS volumes. The example is a MySQL single-master topology with multiple slaves running asynchronous replication.
 
-In this exercise we will deploy MySQL database using Statefulsets and EBS volumes. The example
-consists of ConfigMap, two MySQL services and a StatefulSet. First, we will deploy MySQL database,
+The example consists of ConfigMap, two MySQL services and a StatefulSet. We will deploy MySQL database,
 send some traffic to test connection status, go through few failure modes and review resiliency that
-is built into StatefulSet controller, lastly demonstrate how to use scale options with StatefulSet.
+is built into the StatefulSet. Lastly, we'll demonstrate how to use scale options with StatefulSet.
 
-== Create Kubernetes cluster
+== Pre-requisites
 
-Review steps to create k8s cluster from
-link:../cluster-install/README.adoc#create-kubernetes-cluster[install cluster]
-documentation. Run `kops validate cluster` and go to next step:
-
-  kops validate cluster
-  Using cluster from kubectl context: cluster01.k8s-aws.internal
-  Validating cluster cluster01.k8s-aws.internal
-  INSTANCE GROUPS
-  NAME			ROLE	MACHINETYPE	MIN	MAX	SUBNETS
-  master-us-east-1a-1	Master	m3.medium	1	1	us-east-1a
-  master-us-east-1a-2	Master	m3.medium	1	1	us-east-1a
-  master-us-east-1b-1	Master	m3.medium	1	1	us-east-1b
-  nodes			Node	t2.medium	5	5	us-east-1a,us-east-1b,us-east-1c
-  NODE STATUS
-  NAME				ROLE	READY
-  ip-10-10-105-101.ec2.internal	node	True
-  ip-10-10-127-80.ec2.internal	node	True
-  ip-10-10-33-192.ec2.internal	master	True
-  ip-10-10-36-230.ec2.internal	master	True
-  ip-10-10-45-69.ec2.internal	node	True
-  ip-10-10-51-111.ec2.internal	node	True
-  ip-10-10-71-96.ec2.internal	node	True
-  ip-10-10-93-160.ec2.internal	master	True
-  Your cluster cluster01.k8s-aws.internal is ready
-
-In this example, we are running 3 master nodes and 5 worker nodes in kubernetes cluster.
+Create a 3 master node, 5 worker node cluster as explained at link:../cluster-install#create-a-multi-master-multi-node-multi-az-gossip-based-cluster[].
 
 == Create ConfigMap
 
-Using ConfigMap, you can independently control MySQL configuration. In this case, we are
-using master to serve replication logs to slave and slaves are read-only
+Using ConfigMap, you can independently control MySQL configuration. The ConfigMap looks like as shown:
 
-  kubectl create -f mysql-configmap.yaml
-  configmap "mysql" created
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  labels:
+    app: mysql
+data:
+  master.cnf: |
+    # Apply this config only on the master.
+    [mysqld]
+    log-bin
+  slave.cnf: |
+    # Apply this config only on slaves.
+    [mysqld]
+    super-read-only
+```
+
+In this case, we are using master to serve replication logs to slave and slaves are read-only. Create the ConfigMap using the command shown:
+
+  $ kubectl create -f templates/mysql-configmap.yaml
+  configmap "mysql-config" created
 
 == Create Services
 
-Here we create headless service for DNS resolution so that when pods are placed by StatefulSet
-controller, pods can be resolved using <pod-name>.mysql. mysql-read is a client service that
-does load balancing for all slaves.
+Create two headless services using the following configuration:
 
-  kubectl create -f mysql-services.yaml
+```
+# Headless service for stable DNS entries of StatefulSet members.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  clusterIP: None
+  selector:
+    app: mysql
+---
+# Client service for connecting to any MySQL instance for reads.
+# For writes, you must instead connect to the master: mysql-0.mysql.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-read
+  labels:
+    app: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  selector:
+    app: mysql
+```
+
+The `mysql` service is used for DNS resolution so that when pods are placed by StatefulSet controller, pods can be resolved using `<pod-name>.mysql`. `mysql-read` is a client service that does load balancing for all slaves.
+
+  $ kubectl create -f templates/mysql-services.yaml
   service "mysql" created
   service "mysql-read" created
 
+Only read queries can use the load-balanced `mysql-read` service. Because there is only one MySQL master, clients should connect directly to the MySQL master Pod, identified by `mysql-0.mysql`, to execute writes.
+
 == Create StatefulSet
 
-Finally, we create StatefulSet
+Finally, we create StatefulSet using the configuration in `templates/mysql-statefulset.yaml` using the command shown:
 
-  kubectl create -f mysql-statefulset.yaml
+  $ kubectl create -f templates/mysql-statefulset.yaml
   statefulset "mysql" created
 
-  kubectl get statefulset
+  $ kubectl get -w statefulset
   NAME      DESIRED   CURRENT   AGE
-  mysql     3         1         15s
+  mysql     3         1         8s
+  mysql     3         2         59s
+  mysql     3         3         2m
+  mysql     3         3         3m
 
-You can watch the progress using the following command
+In a different terminal window, wou can watch the progress of pods creation using the following command:
 
-  kubectl get pods -l app=mysql --watch
+  $ kubectl get pods -l app=mysql --watch
   NAME      READY     STATUS     RESTARTS   AGE
-  mysql-0   0/2       Init:0/2   0          32s
-  mysql-0   0/2       Init:1/2   0         34s
-  mysql-0   0/2       PodInitializing   0         44s
-  mysql-0   1/2       Running   0         45s
+  mysql-0   0/2       Init:0/2   0          30s
+  mysql-0   0/2       Init:1/2   0         35s
+  mysql-0   0/2       PodInitializing   0         47s
+  mysql-0   1/2       Running   0         48s
   mysql-0   2/2       Running   0         59s
   mysql-1   0/2       Pending   0         0s
   mysql-1   0/2       Pending   0         0s
-  mysql-1   0/2       Pending   0         1s
-  mysql-1   0/2       Init:0/2   0         1s
-  mysql-1   0/2       Init:1/2   0         34s
-  mysql-1   0/2       Init:1/2   0         44s
-  mysql-1   0/2       PodInitializing   0         51s
-  mysql-1   1/2       Running   0         52s
-  mysql-1   2/2       Running   0         57s
+  mysql-1   0/2       Pending   0         0s
+  mysql-1   0/2       Init:0/2   0         0s
+  mysql-1   0/2       Init:1/2   0         35s
+  mysql-1   0/2       Init:1/2   0         45s
+  mysql-1   0/2       PodInitializing   0         54s
+  mysql-1   1/2       Running   0         55s
+  mysql-1   2/2       Running   0         1m
+  mysql-2   0/2       Pending   0         <invalid>
+  mysql-2   0/2       Pending   0         <invalid>
   mysql-2   0/2       Pending   0         0s
-  mysql-2   0/2       Pending   0         0s
-  mysql-2   0/2       Pending   0         3s
-  mysql-2   0/2       Init:0/2   0         3s
-  mysql-2   0/2       Init:1/2   0         39s
-  mysql-2   0/2       Init:1/2   0         49s
-  mysql-2   0/2       PodInitializing   0         59s
-  mysql-2   1/2       Running   0         1m
-  mysql-2   2/2       Running   0         1m
+  mysql-2   0/2       Init:0/2   0         0s
+  mysql-2   0/2       Init:1/2   0         32s
+  mysql-2   0/2       Init:1/2   0         43s
+  mysql-2   0/2       PodInitializing   0         50s
+  mysql-2   1/2       Running   0         52s
+  mysql-2   2/2       Running   0         56s
 
-Press Ctrl+C to stop watching. If you notice, Pods are initialized in an orderly fashion in their
-startup process. The reason being StatefulSet controller assigns a unique, stable name (mysql-0,
-mysql-1, mysql2) with mysql-0 being the master and others being slaves. The config uses Percona
-Xtrabackup (open-source tool) to clone source MySQL server to its slaves.
+Press `Ctrl`+`C` to stop watching. If you notice, the pods are initialized in an orderly fashion in their
+startup process. The reason being StatefulSet controller assigns a unique, stable name (`mysql-0`,
+`mysql-1`, `mysql-2`) with `mysql-0` being the master and others being slaves. The configuration uses https://www.percona.com/software/mysql-database/percona-xtrabackup[Percona
+Xtrabackup] (open-source tool) to clone source MySQL server to its slaves.
 
 == Test MySQL setup
 
