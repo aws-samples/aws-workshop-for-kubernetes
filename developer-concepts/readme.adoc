@@ -6,7 +6,9 @@ Kubernetes has a number of abstractions that map to API objects. These Kubernete
 
 == Deployments
 
-A "`desired state`", such as 4 replicas of a pod, can be described in a Deployment object. The Deployment controller in Kubernetes cluster then ensures the desired and the actual state are matching. If a pod dies, then a new pod is started to ensure the desired vs actual matches.
+A "`desired state`", such as 4 replicas of a pod, can be described in a Deployment object. The Deployment controller in Kubernetes cluster then ensures the desired and the actual state are matching. Deployment ensures the recreation of a pod when the worker node fails or reboots. It also allows both up- and down-scaling the number of replicas. 
+
+If a pod dies, then a new pod is started to ensure the desired vs actual matches.
 
 === Create a Deployment
 
@@ -29,9 +31,9 @@ The folowing example will create a Deployment with 3 replicas of NGINX base imag
 	        imagePullPolicy: IfNotPresent # if exists, will not pull new image
 	        ports: # container and host port assignments
 	        - containerPort: 80
-	          hostPort: 80
 	        - containerPort: 443
-	          hostPort: 443          
+
+This deployment will create 3 instances of NGINX image.
 
 Run the following command to create Deployment:
 
@@ -43,22 +45,48 @@ To monitor deployment rollout status:
 
 	kubectl rollout status deployment/nginx-deployment
 
-A Deployment creates a ReplicaSet to manage the number of replicas. Lets take a look at existing deployments and replica set.
+A Deployment creates a ReplicaSet to manage the number of replicas. Let's take a look at existing deployments and replica set.
 
 ```
 $ kubectl get deployments
+NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment   3         3         3            3           25s
 $ kubectl get replicaset
+NAME                          DESIRED   CURRENT   READY     AGE
+nginx-deployment-3081318877   3         3         3         31s
+$ kubectl get pods
+NAME                                READY     STATUS    RESTARTS   AGE
+nginx-deployment-3081318877-1xt4t   1/1       Running   0          58s
+nginx-deployment-3081318877-8212t   1/1       Running   0          58s
+nginx-deployment-3081318877-dxhxw   1/1       Running   0          58s
 ```
 
-To obtain state of the deployment:
+=== Scaling a Deployment
 
-	kubectl get deployments
+Number of replicas for a Deployment can be scaled using the following command:
+
+    kubectl scale --replicas=5 deployment/nginx-deployment
+
+Verify deployment and pods:
+
+```
+$ kubectl get deployments
+NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment   5         5         5            5           35s
+$ kubectl get pods
+NAME                                READY     STATUS    RESTARTS   AGE
+nginx-deployment-3441592026-d8z6m   1/1       Running   0          1m
+nginx-deployment-3441592026-f85rb   1/1       Running   0          1m
+nginx-deployment-3441592026-r4p85   1/1       Running   0          1m
+nginx-deployment-3441592026-tj0xh   1/1       Running   0          1m
+nginx-deployment-3441592026-w5m40   1/1       Running   0          1m
+```
 
 === Update a Deployment
 
-You can update the Deployment by making edits to the spec template. In this example, let's change to the latest nginx image.
+A more general update to Deployment can be made by making edits to the spec template. In this example, let's change to the latest nginx image.
 
-First, type the following to open up the text editor:
+First, type the following to open up a text editor:
 
 	kubectl edit deployment/nginx-deployment
 
@@ -70,42 +98,47 @@ This should perform a rolling update of the deployment. To track the deployment 
 
 The output should look similar the following:
 
-	$ kubectl describe deployments
-	Name:                   nginx-deployment
-	Namespace:              default
-	CreationTimestamp:      Fri, 15 Sep 2017 10:55:55 -0700
-	Labels:                 app=nginx
-	Annotations:            deployment.kubernetes.io/revision=2
-	Selector:               app=nginx
-	Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
-	StrategyType:           RollingUpdate
-	MinReadySeconds:        0
-	RollingUpdateStrategy:  1 max unavailable, 1 max surge
-	Pod Template:
-	  Labels:       app=nginx
-	  Containers:
-	   nginx:
-	    Image:              nginx:latest
-	    Ports:              80/TCP, 443/TCP
-	    Environment:        <none>
-	    Mounts:             <none>
-	  Volumes:              <none>
-	Conditions:
-	  Type          Status  Reason
-	  ----          ------  ------
-	  Available     True    MinimumReplicasAvailable
-	OldReplicaSets: <none>
-	NewReplicaSet:  nginx-deployment-2083416819 (3/3 replicas created)
-	Events:
-	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
-	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
-	  17m           17m             1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-3081318877 to 3
-	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-2083416819 to 1
-	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled down replica set nginx-deployment-3081318877 to 2
-	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-2083416819 to 2
-	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled down replica set nginx-deployment-3081318877 to 1
-	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set nginx-deployment-2083416819 to 3
-	  1m            1m              1       deployment-controller                   Normal          ScalingReplicaSet       Scaled down replica set nginx-deployment-3081318877 to 0
+```
+$ kubectl describe deployments
+Name:                   nginx-deployment
+Namespace:              default
+CreationTimestamp:      Sun, 22 Oct 2017 22:18:11 -0400
+Labels:                 app=nginx
+Annotations:            deployment.kubernetes.io/revision=2
+                        kubernetes.io/change-cause=kubectl edit deployment/nginx-deployment
+Selector:               app=nginx
+Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  1 max unavailable, 1 max surge
+Pod Template:
+  Labels:  app=nginx
+  Containers:
+   nginx:
+    Image:        nginx:latest
+    Ports:        80/TCP, 443/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   nginx-deployment-886641336 (3/3 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  2m    deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 3
+  Normal  ScalingReplicaSet  1m    deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 7
+  Normal  ScalingReplicaSet  54s   deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 3
+  Normal  ScalingReplicaSet  10s   deployment-controller  Scaled up replica set nginx-deployment-886641336 to 1
+  Normal  ScalingReplicaSet  10s   deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 2
+  Normal  ScalingReplicaSet  9s    deployment-controller  Scaled up replica set nginx-deployment-886641336 to 2
+  Normal  ScalingReplicaSet  8s    deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 1
+  Normal  ScalingReplicaSet  8s    deployment-controller  Scaled up replica set nginx-deployment-886641336 to 3
+  Normal  ScalingReplicaSet  8s    deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 0
+```
 
 === Rollback a Deployment
 
@@ -116,6 +149,8 @@ To rollback to a previous version, first check the revision history:
 If you only want to rollback to the previous revision, enter the following command:
 
 	kubectl rollout undo deployment/nginx-deployment
+
+In our case, the deployment will rollback to use the `nginx:1.12.1` image.
 
 If rolling back to a specific revision then enter:
 
@@ -129,11 +164,13 @@ Run the following command to delete deployment:
 
 == Replica Sets
 
-A RepllicaSet specifies a number of pod repliacas that can be run at any given time. The Deployment manages the ReplicaSets and provides updates to those pods. ReplicaSets can be used in lieu of Deployments if you require custom orchestration or do not need updates.
+A RepllicaSet specifies a number of pod replicas that can be run at any given time. The Deployment manages the ReplicaSets and provides updates to those pods. ReplicaSets can be used in lieu of Deployments if you require custom orchestration or do not need updates.
+
+For replica set, matching of pods is done according to a set of values. The supported operators are `in`, `notin` and `exists` (only for the key). For example, replication controller can select pods such as "`environment = dev`". Replica set can select pods such as "`environment in ["dev", "test"]`".
 
 === Create a ReplicaSet
 
-The folowing will be an example ReplicaSet with an nginx base image. Let's begin with the template:
+The folowing will be an example ReplicaSet with an NGINX base image. Let's begin with the template:
 
 	apiVersion: extensions/v1beta1
 	kind: ReplicaSet
@@ -152,15 +189,13 @@ The folowing will be an example ReplicaSet with an nginx base image. Let's begin
 	        imagePullPolicy: IfNotPresent
 	        ports:
 	        - containerPort: 80
-	          hostPort: 80
 	        - containerPort: 443
-	          hostPort: 443      
 
 Run the following command to create the ReplicaSet and pods:
 
 	kubectl create -f templates/replicaset.yaml --record
 
-The *--record* flag will track changes made through each revision.
+The `--record` flag will track changes made through each revision.
 
 To track the ReplicaSet details type in the following:
 
@@ -168,35 +203,72 @@ To track the ReplicaSet details type in the following:
 
 The output should look similar the following:
 
-	$ kubectl describe rs/nginx-replicaset
-	Name:           nginx-replicaset
-	Namespace:      default
-	Selector:       name=nginx-replica
-	Labels:         name=nginx-replica
-	Annotations:    <none>
-	Replicas:       3 current / 3 desired
-	Pods Status:    3 Running / 0 Waiting / 0 Succeeded / 0 Failed
-	Pod Template:
-	  Labels:       name=nginx-replica
-	  Containers:
-	   nginx-replica:
-	    Image:              nginx:1.12.1
-	    Ports:              80/TCP, 443/TCP
-	    Environment:        <none>
-	    Mounts:             <none>
-	  Volumes:              <none>
-	Events:
-	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
-	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
-	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-z1sj6
-	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-1b05f
-	  9m            9m              1       replicaset-controller                   Normal          SuccessfulCreate        Created pod: nginx-replicaset-bftwj
+```
+$ kubectl create -f templates/replicaset.yaml --record
+replicaset "nginx-replicaset" created
+developer-concepts $ kubectl describe rs/nginx-replicaset
+Name:         nginx-replicaset
+Namespace:    default
+Selector:     name=nginx-replica
+Labels:       name=nginx-replica
+Annotations:  kubernetes.io/change-cause=kubectl create --filename=templates/replicaset.yaml --record=true
+Replicas:     3 current / 3 desired
+Pods Status:  3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  name=nginx-replica
+  Containers:
+   nginx-replica:
+    Image:        nginx:1.12.1
+    Ports:        80/TCP, 443/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Events:
+  Type    Reason            Age   From                   Message
+  ----    ------            ----  ----                   -------
+  Normal  SuccessfulCreate  10s   replicaset-controller  Created pod: nginx-replicaset-tzvz3
+  Normal  SuccessfulCreate  10s   replicaset-controller  Created pod: nginx-replicaset-lhmgq
+  Normal  SuccessfulCreate  10s   replicaset-controller  Created pod: nginx-replicaset-p5l6x
+```
 
 === Scale a Replica Set
 
+Number of replicas in a Replica Set can be scaled up using the following command:
+
+```
+$ kubectl get rs
+NAME               DESIRED   CURRENT   READY     AGE
+nginx-replicaset   3         3         3         1m
+developer-concepts $ kubectl scale --replicas=5 rs/nginx-replicaset
+replicaset "nginx-replicaset" scaled
+developer-concepts $ kubectl get rs
+NAME               DESIRED   CURRENT   READY     AGE
+nginx-replicaset   5         5         5         2m
+developer-concepts $ kubectl get pods
+NAME                     READY     STATUS    RESTARTS   AGE
+nginx-replicaset-gmkj3   1/1       Running   0          18s
+nginx-replicaset-k77kg   1/1       Running   0          18s
+nginx-replicaset-lhmgq   1/1       Running   0          2m
+nginx-replicaset-p5l6x   1/1       Running   0          2m
+nginx-replicaset-tzvz3   1/1       Running   0          2m
+```    
+
 === Delete a Replica Set
 
+A Replica Set can be deleted using the following command:
+
+```
+$ kubectl delete rs/nginx-replicaset
+replicaset "nginx-replicaset" deleted
+```
+
 == Services
+
+A pod is ephemeral. Each pod is assigned a unique IP address. If a pod that belongs to a replication controller dies, then it is recreated and may be given a different IP address. Further, aAdditional pods may be created using Deployment or Replica Set. This makes it difficult for an application server, such as WildFly, to access a database, such as MySQL, using its IP address.
+
+A Service is an abstraction that defines a logical set of pods and a policy by which to access them. The IP address assigned to a service does not change over time, and thus can be relied upon by other pods. Typically, the pods belonging to a service are defined by a label selector. This is similar mechanism to how pods belong to a replica set.
+
+This abstraction of selecting pods using labels enables a loose coupling. The number of pods in the deployment may scale up or down but the application server can continue to access the database using the service.
 
 A Kubernetes service defines a logical set of pods and enables them to be access through micro-services. 
 
