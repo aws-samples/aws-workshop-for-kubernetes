@@ -1,4 +1,4 @@
-= Install Kubernetes cluster using Kops
+= Create Kubernetes cluster using Kops
 :toc:
 
 This tutorial will walk you through how to install Kubernetes cluster using kops.

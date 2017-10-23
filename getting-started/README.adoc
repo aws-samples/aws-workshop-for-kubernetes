@@ -1,4 +1,4 @@
-= Kubernetes Getting Started
+= Kubernetes - Setup Development Environment and First Steps
 :icons:
 :linkcss:
 :imagesdir: ../images
