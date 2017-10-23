@@ -1,0 +1,56 @@
+= Kubernetes Getting Started - Build Local Development Environment
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+== Setup Local Development Environment (part 1 of 4)
+
+Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
+
+=== Install Homebrew and Cask:
+
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+details are available here:
+https://brew.sh/
+
+=== Install virtualbox:
+
+    brew cask install virtualbox
+
+=== Install minikube:
+
+    brew cask install minikube
+
+=== Install kubectl:
+
+    brew cask install kuberenetes-cli
+
+=== Start minikube
+
+We are using the VirtualBox driver which is the default selection for minikube, if you would like you can use an alternate supported component (xhyve driver or VMware Fusion) using the ```--vm-driver=xxx``` flag. For this walkthrough with VirtualBox use:
+
+    minikube start
+
+
+This will deploy a local Kubernetes 1.7.0 cluster that you can interact with to start developing and testing your application against. If you see the following output you should be good to go:
+
+image::start-minikube.png[startMiniKube]
+
+=== Check the status of minikube to get the status of your local Kubernetes cluster:
+
+    minikube status
+
+If your output looks like below, everything should be ready to start working with:
+
+image::status-minikube.png[statusMiniKube]
+
+== Conclusion
+
+In the first part of this series we used homebrew to install VirtualBox, MiniKube and Kubectl to deploy a local kubernetes cluster. We used some basic minikube commands to assure we had a healthy cluster which we can now use to familiarize ourselves with the Kubernetes cli.
+
+== Next Steps:
+
+Continue on to part 2 of this series where we will begin to issue some basic commands and deploy our first kubernetes pod!
+
+https://github.com/omarlari/kubernetes-aws-workshop/blob/master/getting-started/kube-basics.adoc

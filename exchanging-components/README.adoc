@@ -1,0 +1,11 @@
+= Exchanging Core Components
+
+== Kubernetes is very modular and every core component can be exchanged.
+
+== apiserver
+== DNS
+link:dns.adoc[Tutorial]
+
+== Scheduler
+
+== By now you should know how the core components can be exchanged with custom or more specialized versions
