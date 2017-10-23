@@ -139,7 +139,7 @@ The filename becomes a key stored in the data section of the ConfigMap. The file
 
 At the end of this section, you'll have created a ConfigMap `redis-config`.
 
-=== Using ConfigMap in a Pod volume
+=== Consume in a pod volume
 
 A ConfigMap must be created before referencing it in a Pod specification (unless you mark the ConfigMap as "`optional`"). If you reference a ConfigMap that doesn’t exist would , the Pod won’t start.
 
@@ -203,7 +203,7 @@ Now, changing the pod configuration would involve the following steps:
 . Wrap the pod in a Deployment
 . Terminate the pod, Deployment will restart the pod and pick up new configuration
 
-=== Using ConfigMap data as Pod environment variables
+=== Consume as pod environment variables
 
 The data from ConfigMap can be used to initialize environment variables in a pod. We'll use `arungupta/print-hello` image to print "`Hello World`" on the console. The number of times this message is printed is defined by an environment variable `COUNT`. This value of this variable is defined in the ConfigMap.
 
@@ -288,17 +288,58 @@ data:
 
 You can now insert this secret in the Kubernetes cluster with the following command:
 
-    kubectl apply -f ./templates/secret.yaml
+  kubectl apply -f ./templates/secret.yaml
 
-=== Consume secrets
+The list of created secrets can be seen as:
 
-Here we will demonstrate two ways to consume secrets from within pods.
+  $ kubectl get secrets
+  NAME                  TYPE                                  DATA      AGE
+  default-token-4cqsx   kubernetes.io/service-account-token   3         8h
+  mysecret              Opaque                                2         6s
 
-==== Using volumes
+The values of the secret are displayed as `Opaque`.
+
+Get more details about the secret:
+
+  $ kubectl describe secrets/mysecret
+  Name:         mysecret
+  Namespace:    default
+  Labels:       <none>
+  Annotations:  <none>
+
+  Type:  Opaque
+
+  Data
+  ====
+  password:  8 bytes
+  username:  5 bytes
+
+Once again, the values of the secret are not shown.
+
+==== Consume as volumes
 
 Deploy the pod:
 
     kubectl apply -f ./templates/pod-secret-volume.yaml
+
+The pod configuration file looks like:
+
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: pod-secret-volume
+    spec:
+      containers:
+      - name: pod-secret-volume
+        image: redis
+        volumeMounts:
+        - name: foo
+          mountPath: "/etc/foo"
+          readOnly: true
+      volumes:
+      - name: foo
+        secret:
+          secretName: mysecret
 
 Open a shell to the pod to see the secrets:
 
@@ -309,15 +350,42 @@ Open a shell to the pod to see the secrets:
 
 The above commands should result in the plain text values, the decoding is done for you.
 
-==== Using Environment Variables
+Delete the pod:
+
+    kubectl delete -f ./templates/pod-secret-volume.yaml
+
+=== Consume as environment variables
 
 Deploy the pod:
 
     kubectl apply -f ./templates/pod-secret-env.yaml
 
+The pod configuration file looks like:
+
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: pod-secret-env
+    spec:
+      containers:
+      - name: pod-secret-env
+        image: redis
+        env:
+          - name: SECRET_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mysecret
+                key: username
+          - name: SECRET_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysecret
+                key: password
+      restartPolicy: Never
+
 Open a shell to the pod to see the secrets:
 
-    kubectl exec -it pod-secret-volume /bin/bash
+    kubectl exec -it pod-secret-env /bin/bash
     echo $SECRET_USERNAME
     echo $SECRET_PASSWORD
 
