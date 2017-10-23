@@ -139,7 +139,7 @@ The filename becomes a key stored in the data section of the ConfigMap. The file
 
 At the end of this section, you'll have created a ConfigMap `redis-config`.
 
-=== Using ConfigMap in a Pod
+=== Using ConfigMap in a Pod volume
 
 A ConfigMap must be created before referencing it in a Pod specification (unless you mark the ConfigMap as "`optional`"). If you reference a ConfigMap that doesn’t exist would , the Pod won’t start.
 
@@ -203,9 +203,64 @@ Now, changing the pod configuration would involve the following steps:
 . Wrap the pod in a Deployment
 . Terminate the pod, Deployment will restart the pod and pick up new configuration
 
-=== Define environment variables using ConfigMap data
+=== Using ConfigMap data as Pod environment variables
 
+The data from ConfigMap can be used to initialize environment variables in a pod. We'll use `arungupta/print-hello` image to print "`Hello World`" on the console. The number of times this message is printed is defined by an environment variable `COUNT`. This value of this variable is defined in the ConfigMap.
 
+. Create a ConfigMap:
+
+  kubectl create configmap hello-count --from-literal=COUNT=2
+
+. Get more details about this ConfigMap:
+
+  $ kubectl get configmap/hello-count -o yaml
+  apiVersion: v1
+  data:
+    COUNT: "2"
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: 2017-10-23T09:55:26Z
+    name: hello-count
+    namespace: default
+    resourceVersion: "3317"
+    selfLink: /api/v1/namespaces/default/configmaps/hello-count
+    uid: 4bbb1a85-b7d8-11e7-8708-0800278e0f7d
+
+. Use this ConfigMap to create a pod:
+
+  kuebctl create -f templates/app-pod.yaml
++
+The pod configuration file looks like:
++
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: app-pod
+  spec:
+    containers:
+    - name: app
+      image: arungupta/print-hello:latest
+      env:
+      - name: COUNT
+        valueFrom:
+          configMapKeyRef:
+            name: app-config
+            key: COUNT
+      ports:
+      - containerPort: 8080
+
+. Get logs from the pod:
+
+  kubectl logs <pod-name>
++
+Check that the message is printed two times.
++
+. Change the ConfigMap:
+
+  kubectl edit configmap/hello-count
+
+. Change the value to `4`
+. Run the pod again. Check the logs again to confirm that the message is now printed 4 times.
 
 == Secrets
 
