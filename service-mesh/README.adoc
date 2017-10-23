@@ -1,44 +1,43 @@
 = Service Mesh integration with Kubernetes
 :toc:
 
-In this section, we will demonstrate how to integrate service mesh component with kubernetes cluster.
+In this section, we will demonstrate how to integrate service mesh components with a Kubernetes cluster.
 Service mesh is a layer that manages communication between microservices and it is becoming
-more popular for cloud native applications. Some of the critical features are service discovery,
+increasingly popular for cloud native applications. Some of the critical features are service discovery,
 load balancing, automatic retries, circuit breakers, collect request/response metrics and tracing
 info.
 
-We will look into two well-known service mesh integration
+We will look into two well-known service mesh integrations.
 
 == Using Linkerd with Kubernetes
 
-https://linkerd.io/[linkerd] is a layer 5 proxy that serves traffic at HTTP, Thrift, Mux, HTTP/2 and gRPC. Its based
-off of Finagle (built by Twitter). You can find getting started tutorial in our link:linkerd.adoc[documentation].
+https://linkerd.io/[Linkerd] is a layer 5/7 proxy that routes and load balances traffic over HTTP, Thrift, Mux, HTTP/2 and gRPC.
+Its based on Finagle (built by Twitter), and in January 2017 linkerd became a member of the link:https://www.cncf.io/[CNCF], alongside Kubernetes.
 
 https://linkerd.io/[Linkerd] adds visibility, control, and reliability to your application with
 a wide array of powerful techniques: circuit-breaking, latency-aware load balancing, eventually
 consistent (“advisory”) service discovery, deadline propagation, and tracing and instrumentation.
 
-In this exercise, we will focus on visibility for your services running on k8s cluster. We will
-install linkerd in your k8s cluster, run couple of simple microservices and demonstrate how
+In this exercise, we will focus on visibility for your services running in a Kubernetes cluster. We will
+install linkerd in your k8s cluster, run a couple of simple microservices and demonstrate how
 linkerd captures top-line service metrics such as success rates, request volumes and latencies.
 
 === Create Kubernetes cluster
 
-Review steps to create k8s cluster from
-link:../cluster-install/README.adoc#create-kubernetes-cluster[cluster install] documentation. Validate the cluster and go to next step.
+Review the steps to create a Kubernetes cluster on AWS using Kops in the
+link:../cluster-install/README.adoc#create-kubernetes-cluster[cluster install] documentation. Validate the cluster before installing linkerd.
 
   kops validate cluster
 
 === Install linkerd
 
 Install linkerd using `kubectl`. This will install linkerd as a DaemonSet (i.e., one instance per
-host) running in the default kubernetes namespace
+host) running in the default Kubernetes namespace.
 
   kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
   k8s-daemonset/k8s/linkerd.yml
-  configmap "l5d-config" created
-  daemonset "l5d" created
-  service "l5d" created
+
+Check that the linkerd (named as l5d) pods and service is running
 
   kubectl get all
   NAME           READY     STATUS    RESTARTS   AGE
@@ -48,57 +47,57 @@ host) running in the default kubernetes namespace
   svc/kubernetes   100.64.0.1       <none>             443/TCP                                        7m
   svc/l5d          100.66.111.236   a3e9a7e509fd3...   4140:31737/TCP,4141:30084/TCP,9990:31699/TCP   4m
 
-You can go to linkerd's admin page (i.e ELB:9990) to verify installation
+You can go to linkerd's admin page (i.e ELB:9990) to verify installation. It make take a minute or two before the
+ELB DNS is available. If you have an issue accessing the load balancer endpoint, it could be because your firewall
+or VPN is preventing access to port 9990.
 
   LINKERD_ELB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
-  echo $LINKERD_ELB
+  open http://$LINKERD_ELB:9990
 
 === Install sample microservices apps
 
 The https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[Github repo for
 linkerd examples] has two microservices apps called "hello" and "world". They both communicate
-with each other to complete the request. Run this command to install these apps in default
+with each other to complete the request. Run this command to install these apps in the default
 namespace.
 
   kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
   k8s/hello-world.yml
-  replicationcontroller "hello" created
-  service "hello" created
-  replicationcontroller "world-v1" created
-  service "world-v1" created
 
 Generate some traffic by running this command and linkerd will show the number of requests being
 served, connections and bunch of rich data
 
   http_proxy=$LINKERD_ELB:4140 curl -s http://hello
 
-image::linkerd.png[linkerd image]
+image::linkerd.png[]
 
 === Install linkerd-viz
 
 linkerd-viz is a monitoring application based on https://prometheus.io/[Prometheus] and
-http://grafana.org/[Graphana]. It can automatically find linkerd instances and services
+http://grafana.org/[Grafana]. It can automatically find linkerd instances and services
 that are installed in your k8s cluster.
 
   kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
-  replicationcontroller "linkerd-viz" created
-  service "linkerd-viz" created
 
 You can open linkerd-viz ELB to view the dashboard
 
   LINKERD_VIZ_ELB=$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].*}")
-  echo $LINKERD_VIZ_ELB
+  open http://$LINKERD_VIZ_ELB
 
-image::linkerd-viz.png[linkerd image]
+image::linkerd-viz.png[]
 
 That's it! You can look into linkerd configuration files in https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[linkerd examples]
 to learn more.
 
 === Cleanup
 
-You can review the steps to cleanup from link:../cluster-install/README.adoc#_delete_cluster[delete cluster]
-documentation.
+Remove the installed components
 
+  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
+  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
+  k8s/hello-world.yml
+  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+  k8s-daemonset/k8s/linkerd.yml
 
 == Envoy
 
