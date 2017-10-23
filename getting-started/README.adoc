@@ -350,6 +350,12 @@ The value of 'NodePort' attribute shows the port on which the service is deploye
 
 The host and the port are the exact same values where minikube opened the service page in the browser.
 
+=== Delete resources
+
+Delete the Kubernetes resources created so far:
+
+    kubectl delete svc/web deployment/nginx
+
 === Kubernetes dashboard
 
 Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters. It provides an overview of applications running on the cluster, as well as create or modify individual Kubernetes resources and workloads, such as replica sets, jobs, services, and pods. The dashboard can be used to manage the cluster as well.
@@ -365,4 +371,12 @@ image::minikube-dashboard.png[]
 Look around the dashboard and become familiar with some the of Kubernetes terminology. This will be explained in the subsequent chapters.
 
 Let's create a Kubernetes cluster as explained in link:../cluster-install[Install Kubernetes cluster using Kops].
+
+=== Shutdown cluster
+
+The cluster can be shutdown using the following command:
+
+    $ minikube stop
+    Stopping local Kubernetes cluster...
+    Machine stopped.
 
