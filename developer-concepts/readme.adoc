@@ -4,6 +4,10 @@
 
 Kubernetes has a number of abstractions that map to API objects. These Kubernetes API Objects can be used to describe your cluster's desired state which will include info such as applications and workloads running, replicas, container images, networking resources and more. This section explains the key concepts relevant from an application developer perspecitve.
 
+== Pre-requisites
+
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-worker-cluster-highly-available[] is used for this chapter.
+
 == Deployments
 
 A "`desired state`", such as 4 replicas of a pod, can be described in a Deployment object. The Deployment controller in Kubernetes cluster then ensures the desired and the actual state are matching. Deployment ensures the recreation of a pod when the worker node fails or reboots. It also allows both up- and down-scaling the number of replicas. 
@@ -37,54 +41,64 @@ This deployment will create 3 instances of NGINX image.
 
 Run the following command to create Deployment:
 
-	kubectl create -f templates/deployment.yaml --record
+	$ kubectl create -f templates/deployment.yaml --record
+	deployment "nginx-deployment" created
 
 The `--record` flag will track changes made through each revision.
 
 To monitor deployment rollout status:
 
-	kubectl rollout status deployment/nginx-deployment
+	$ kubectl rollout status deployment/nginx-deployment
+	deployment "nginx-deployment" successfully rolled out
 
 A Deployment creates a ReplicaSet to manage the number of replicas. Let's take a look at existing deployments and replica set.
 
-```
-$ kubectl get deployments
-NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-nginx-deployment   3         3         3            3           25s
-$ kubectl get replicaset
-NAME                          DESIRED   CURRENT   READY     AGE
-nginx-deployment-3081318877   3         3         3         31s
-$ kubectl get pods
-NAME                                READY     STATUS    RESTARTS   AGE
-nginx-deployment-3081318877-1xt4t   1/1       Running   0          58s
-nginx-deployment-3081318877-8212t   1/1       Running   0          58s
-nginx-deployment-3081318877-dxhxw   1/1       Running   0          58s
-```
+Get the deployments:
+
+	$ kubectl get deployments
+	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+	nginx-deployment   3         3         3            3           25s
+
+Get the replica set for the deployment:
+
+	$ kubectl get replicaset
+	NAME                          DESIRED   CURRENT   READY     AGE
+	nginx-deployment-3441592026   3         3         3         1m
+
+Get the list of running pods:
+
+	$ kubectl get pods
+	NAME                                READY     STATUS    RESTARTS   AGE
+	nginx-deployment-3441592026-ddpf0   1/1       Running   0          2m
+	nginx-deployment-3441592026-kkp8h   1/1       Running   0          2m
+	nginx-deployment-3441592026-lx304   1/1       Running   0          2m
 
 === Scaling a Deployment
 
 Number of replicas for a Deployment can be scaled using the following command:
 
-    kubectl scale --replicas=5 deployment/nginx-deployment
+	$ kubectl scale --replicas=5 deployment/nginx-deployment
+	deployment "nginx-deployment" scaled
 
-Verify deployment and pods:
+Verify the deployment:
 
-```
-$ kubectl get deployments
-NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-nginx-deployment   5         5         5            5           35s
-$ kubectl get pods
-NAME                                READY     STATUS    RESTARTS   AGE
-nginx-deployment-3441592026-d8z6m   1/1       Running   0          1m
-nginx-deployment-3441592026-f85rb   1/1       Running   0          1m
-nginx-deployment-3441592026-r4p85   1/1       Running   0          1m
-nginx-deployment-3441592026-tj0xh   1/1       Running   0          1m
-nginx-deployment-3441592026-w5m40   1/1       Running   0          1m
-```
+	$ kubectl get deployments
+	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+	nginx-deployment   5         5         5            5           2m
+
+Verify the pods in the deployment:
+
+	$ kubectl get pods
+	NAME                                READY     STATUS    RESTARTS   AGE
+	nginx-deployment-3441592026-36957   1/1       Running   0          44s
+	nginx-deployment-3441592026-8wch5   1/1       Running   0          44s
+	nginx-deployment-3441592026-ddpf0   1/1       Running   0          3m
+	nginx-deployment-3441592026-kkp8h   1/1       Running   0          3m
+	nginx-deployment-3441592026-lx304   1/1       Running   0          3m
 
 === Update a Deployment
 
-A more general update to Deployment can be made by making edits to the spec template. In this example, let's change to the latest nginx image.
+A more general update to Deployment can be made by making edits to the pod spec. In this example, let's change to the latest nginx image.
 
 First, type the following to open up a text editor:
 
@@ -94,20 +108,16 @@ Next, change the image from `nginx:1.12.1` to `nginx:latest`.
 
 This should perform a rolling update of the deployment. To track the deployment details such as revision, image version, and ports - type in the following:
 
-	kubectl describe deployments
-
-The output should look similar the following:
-
 ```
 $ kubectl describe deployments
 Name:                   nginx-deployment
 Namespace:              default
-CreationTimestamp:      Sun, 22 Oct 2017 22:18:11 -0400
+CreationTimestamp:      Mon, 23 Oct 2017 09:14:36 -0400
 Labels:                 app=nginx
 Annotations:            deployment.kubernetes.io/revision=2
                         kubernetes.io/change-cause=kubectl edit deployment/nginx-deployment
 Selector:               app=nginx
-Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+Replicas:               5 desired | 5 updated | 5 total | 5 available | 0 unavailable
 StrategyType:           RollingUpdate
 MinReadySeconds:        0
 RollingUpdateStrategy:  1 max unavailable, 1 max surge
@@ -125,42 +135,52 @@ Conditions:
   ----           ------  ------
   Available      True    MinimumReplicasAvailable
 OldReplicaSets:  <none>
-NewReplicaSet:   nginx-deployment-886641336 (3/3 replicas created)
+NewReplicaSet:   nginx-deployment-886641336 (5/5 replicas created)
 Events:
-  Type    Reason             Age   From                   Message
-  ----    ------             ----  ----                   -------
-  Normal  ScalingReplicaSet  2m    deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 3
-  Normal  ScalingReplicaSet  1m    deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 7
-  Normal  ScalingReplicaSet  54s   deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 3
-  Normal  ScalingReplicaSet  10s   deployment-controller  Scaled up replica set nginx-deployment-886641336 to 1
-  Normal  ScalingReplicaSet  10s   deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 2
-  Normal  ScalingReplicaSet  9s    deployment-controller  Scaled up replica set nginx-deployment-886641336 to 2
-  Normal  ScalingReplicaSet  8s    deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 1
-  Normal  ScalingReplicaSet  8s    deployment-controller  Scaled up replica set nginx-deployment-886641336 to 3
-  Normal  ScalingReplicaSet  8s    deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 0
+  Type    Reason             Age                From                   Message
+  ----    ------             ----               ----                   -------
+  Normal  ScalingReplicaSet  4m                 deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 3
+  Normal  ScalingReplicaSet  1m                 deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 5
+  Normal  ScalingReplicaSet  32s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 1
+  Normal  ScalingReplicaSet  32s                deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 4
+  Normal  ScalingReplicaSet  32s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 2
+  Normal  ScalingReplicaSet  29s                deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 3
+  Normal  ScalingReplicaSet  29s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 3
+  Normal  ScalingReplicaSet  28s                deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 2
+  Normal  ScalingReplicaSet  28s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 4
+  Normal  ScalingReplicaSet  25s (x3 over 26s)  deployment-controller  (combined from similar events): Scaled down replica set nginx-deployment-3441592026 to 0
 ```
 
 === Rollback a Deployment
 
 To rollback to a previous version, first check the revision history:
 
-	kubectl rollout history deployment/nginx-deployment
+	$ kubectl rollout history deployment/nginx-deployment
+	deployments "nginx-deployment"
+	REVISION  CHANGE-CAUSE
+	1         kubectl scale deployment/nginx-deployment --replicas=5
+	2         kubectl edit deployment/nginx-deployment
 
 If you only want to rollback to the previous revision, enter the following command:
 
-	kubectl rollout undo deployment/nginx-deployment
+	$ kubectl rollout undo deployment/nginx-deployment
+	deployment "nginx-deployment" rolled back
 
-In our case, the deployment will rollback to use the `nginx:1.12.1` image.
+In our case, the deployment will rollback to use the `nginx:1.12.1` image. Check the image name:
+
+	$ kubectl describe deployments | grep Image
+    Image:        nginx:1.12.1
 
 If rolling back to a specific revision then enter:
 
-	kubectl rollout undo deployment/nginx-deployment --to-revision=1
+	kubectl rollout undo deployment/nginx-deployment --to-revision=<version>
 
 === Delete a Deployment
 
 Run the following command to delete deployment:
 
-	kubectl delete -f templates/deployment.yaml
+	$ kubectl delete -f templates/deployment.yaml
+	deployment "nginx-deployment" deleted
 
 == Replica Sets
 
@@ -193,19 +213,23 @@ The folowing will be an example ReplicaSet with an NGINX base image. Let's begin
 
 Run the following command to create the ReplicaSet and pods:
 
-	kubectl create -f templates/replicaset.yaml --record
+	$ kubectl create -f templates/replicaset.yaml --record
+	replicaset "nginx-replicaset" created
 
 The `--record` flag will track changes made through each revision.
 
-To track the ReplicaSet details type in the following:
+Get the list of replica sets:
 
-	kubectl describe rs/nginx-replicaset
+	$ kubectl get rs
+	NAME               DESIRED   CURRENT   READY     AGE
+	nginx-replicaset   3         3         3         40s
 
-The output should look similar the following:
+To track the replica set details type in the following:
 
 ```
-$ kubectl create -f templates/replicaset.yaml --record
-replicaset "nginx-replicaset" created
+$ kubectl get rs
+NAME               DESIRED   CURRENT   READY     AGE
+nginx-replicaset   3         3         3         40s
 developer-concepts $ kubectl describe rs/nginx-replicaset
 Name:         nginx-replicaset
 Namespace:    default
@@ -226,41 +250,40 @@ Pod Template:
 Events:
   Type    Reason            Age   From                   Message
   ----    ------            ----  ----                   -------
-  Normal  SuccessfulCreate  10s   replicaset-controller  Created pod: nginx-replicaset-tzvz3
-  Normal  SuccessfulCreate  10s   replicaset-controller  Created pod: nginx-replicaset-lhmgq
-  Normal  SuccessfulCreate  10s   replicaset-controller  Created pod: nginx-replicaset-p5l6x
+  Normal  SuccessfulCreate  1m    replicaset-controller  Created pod: nginx-replicaset-p46sn
+  Normal  SuccessfulCreate  1m    replicaset-controller  Created pod: nginx-replicaset-dhzfn
+  Normal  SuccessfulCreate  1m    replicaset-controller  Created pod: nginx-replicaset-18290
 ```
 
 === Scale a Replica Set
 
 Number of replicas in a Replica Set can be scaled up using the following command:
 
-```
-$ kubectl get rs
-NAME               DESIRED   CURRENT   READY     AGE
-nginx-replicaset   3         3         3         1m
-developer-concepts $ kubectl scale --replicas=5 rs/nginx-replicaset
-replicaset "nginx-replicaset" scaled
-developer-concepts $ kubectl get rs
-NAME               DESIRED   CURRENT   READY     AGE
-nginx-replicaset   5         5         5         2m
-developer-concepts $ kubectl get pods
-NAME                     READY     STATUS    RESTARTS   AGE
-nginx-replicaset-gmkj3   1/1       Running   0          18s
-nginx-replicaset-k77kg   1/1       Running   0          18s
-nginx-replicaset-lhmgq   1/1       Running   0          2m
-nginx-replicaset-p5l6x   1/1       Running   0          2m
-nginx-replicaset-tzvz3   1/1       Running   0          2m
-```    
+	$ kubectl scale --replicas=5 rs/nginx-replicaset
+	replicaset "nginx-replicaset" scaled
+
+Get the list of replica set:
+
+	$ kubectl get rs
+	NAME               DESIRED   CURRENT   READY     AGE
+	nginx-replicaset   5         5         5         2m
+
+Get the list of pods:
+
+	$ kubectl get pods
+	NAME                     READY     STATUS    RESTARTS   AGE
+	nginx-replicaset-18290   1/1       Running   0          8m
+	nginx-replicaset-dhzfn   1/1       Running   0          8m
+	nginx-replicaset-p46sn   1/1       Running   0          8m
+	nginx-replicaset-qwttl   1/1       Running   0          5m
+	nginx-replicaset-xgvwx   1/1       Running   0          5m
 
 === Delete a Replica Set
 
 A Replica Set can be deleted using the following command:
 
-```
-$ kubectl delete rs/nginx-replicaset
-replicaset "nginx-replicaset" deleted
-```
+	$ kubectl delete rs/nginx-replicaset
+	replicaset "nginx-replicaset" deleted
 
 == Services
 
@@ -270,54 +293,24 @@ A Service is an abstraction that defines a logical set of pods and a policy by w
 
 This abstraction of selecting pods using labels enables a loose coupling. The number of pods in the deployment may scale up or down but the application server can continue to access the database using the service.
 
-A Kubernetes service defines a logical set of pods and enables them to be access through micro-services. 
+A Kubernetes service defines a logical set of pods and enables them to be access through micro-services.
 
-=== Create a Service
+=== Create a Deployment for Service
 
-In the following example, we create a service labeled demo-service:
+Pods belong to a service by using a loosely-coupled model where labels are attached to a pod and a service picks the pods by using those labels.
 
-	apiVersion: v1
-	kind: Service
-	metadata:
-	  name: demo-service
-	spec:
-	  selector:
-	    app: demo-app
-	  ports:
-	  - name: http
-	    protocol: TCP
-	    port: 80
-	    targetPort: 8080
-
-The service itself is assigned an IP address used by service proxies. It also defines the incoming ports 80 and 443 to target ports 3030 and 3031. 
-
-* Note that Kubernetes supports both TCP and UDP protocols.
-
-=== Service Discovery
-
-For each Pod that is created, a set of environmental variables are created for each active service. Alternatively, a DNS server can be used to watch the Kubernetes API for new services and creates DNS records for each.
-
-If you would like to expose a service to an external IP, ServiceTypes are used to determine the type of service. Those ServiceTypes are:
-
-	`ClusterIP`: Service exposed on a internal cluster IP.
-	`NodePort`: Service exposed on each Node's IP at a defined port.
-	`LoadBalancer`: Service exposed externally using a cloud based load balancer. 
-	`ExternalName`: Service is attached to the externalName field. It is mapped to a CNAME with the value.
-
-Below we will provision a load balancer and expose your services, add a `type` field of LoadBalancer. 
-
-First deploy an app. In this example, we will create an echo app that responds with http headers from an Elastic Load Balancer:
+Let's create a Deployment first that will create 3 replicas of a pod:
 
 	apiVersion: extensions/v1beta1
 	kind: Deployment
 	metadata:
-	  name: demo-deployment 
+	  name: echo-deployment 
 	spec:
 	  replicas: 3 
 	  template:
 	    metadata:
 	      labels:
-	        app: demo-app 
+	        app: echo-pod
 	    spec:
 	      containers:
 	      - name: echoheaders 
@@ -325,55 +318,111 @@ First deploy an app. In this example, we will create an echo app that responds w
 	        imagePullPolicy: IfNotPresent 
 	        ports: 
 	        - containerPort: 8080
-	          hostPort: 8080  
+
+
+This example creates an echo app that responds with HTTP headers from an Elastic Load Balancer.
 
 Type the following to create the deployment:
 
-	kubectl create -f templates/echo.yaml --record
+	kubectl create -f templates/echo-deployment.yaml --record
 
-Use the `kubectl describe deployment` command to confirm demo-app has been deployed:
+Use the `kubectl describe deployment` command to confirm `echo-app` has been deployed:
 
-	$ kubectl describe deployment
-	Name:                   demo-deployment
-	Namespace:              default
-	CreationTimestamp:      Mon, 02 Oct 2017 13:13:12 -0700
-	Labels:                 app=demo-app
-	Annotations:            deployment.kubernetes.io/revision=1
-	                        kubernetes.io/change-cause=kubectl create --filename=https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/echo.yaml --record=true
-	Selector:               app=demo-app
-	Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
-	StrategyType:           RollingUpdate
-	MinReadySeconds:        0
-	RollingUpdateStrategy:  1 max unavailable, 1 max surge
-	Pod Template:
-	  Labels:       app=demo-app
-	  Containers:
-	   echoheaders:
-	    Image:              gcr.io/google_containers/echoserver:1.4
-	    Port:               8080/TCP
-	    Environment:        <none>
-	    Mounts:             <none>
-	  Volumes:              <none>
-	Conditions:
-	  Type          Status  Reason
-	  ----          ------  ------
-	  Available     True    MinimumReplicasAvailable
-	OldReplicaSets: <none>
-	NewReplicaSet:  demo-deployment-706676907 (3/3 replicas created)
-	Events:
-	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
-	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
-	  29s           29s             1       deployment-controller                   Normal          ScalingReplicaSet       Scaled up replica set demo-deployment-706676907 to 3
+```
+$ kubectl describe deployment
+Name:                   echo-deployment
+Namespace:              default
+CreationTimestamp:      Mon, 23 Oct 2017 10:07:47 -0400
+Labels:                 app=echo-pod
+Annotations:            deployment.kubernetes.io/revision=1
+                        kubernetes.io/change-cause=kubectl create --filename=templates/echo-deployment.yaml --record=true
+Selector:               app=echo-pod
+Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  1 max unavailable, 1 max surge
+Pod Template:
+  Labels:  app=echo-pod
+  Containers:
+   echoheaders:
+    Image:        gcr.io/google_containers/echoserver:1.4
+    Port:         8080/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   echo-deployment-3396249933 (3/3 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  10s   deployment-controller  Scaled up replica set echo-deployment-3396249933 to 3
+```
 
-This template will expose "demo-app" to the internet by creating an outward facing elastic load balancer (ELB):
+Get the list of pods:
+
+```
+$ kubectl get pods
+NAME                               READY     STATUS    RESTARTS   AGE
+echo-deployment-3396249933-8slzp   1/1       Running   0          1m
+echo-deployment-3396249933-bjwqj   1/1       Running   0          1m
+echo-deployment-3396249933-r05nr   1/1       Running   0          1m
+```
+
+Check the label for a pod:
+
+```
+kubectl describe pods/echo-deployment-3396249933-8slzp | grep Label
+Labels:         app=echo-pod
+```
+
+Each pod in this deployment has `app=echo-pod` label attached to it.
+
+=== Create a Service
+
+In the following example, we create a service `echo-service`:
 
 	apiVersion: v1
 	kind: Service
 	metadata:
-	  name: demo-service
+	  name: echo-service
 	spec:
 	  selector:
-	    app: demo-app
+	    app: echo-pod
+	  ports:
+	  - name: http
+	    protocol: TCP
+	    port: 80
+	    targetPort: 8080
+	  type: LoadBalancer
+
+The set of pods targeted by the service are determined by the label `app: echo-pod` attached to them. It also defines an inbound port 80 to the target port of 8080 on the container.
+
+Kubernetes supports both TCP and UDP protocols.
+
+=== Publish a Service
+
+A service can be published to an external IP using the `type` attribute. This attribute can take one of the following values:
+
+. `ClusterIP`: Service exposed on an IP address inside the cluster. This is the default behavior.
+. `NodePort`: Service exposed on each Node's IP address at a defined port.
+. `LoadBalancer`: If deployed in the cloud, exposed externally using a cloud-specific load balancer. 
+. `ExternalName`: Service is attached to the `externalName` field. It is mapped to a CNAME with the value.
+
+Let's publish the service load balancer and expose your services, add a `type` field of `LoadBalancer`.
+
+This template will expose `echo-app` service on an Elastic Load Balancer (ELB):
+
+	apiVersion: v1
+	kind: Service
+	metadata:
+	  name: echo-service
+	spec:
+	  selector:
+	    app: echo-pod
 	  ports:
 	  - name: http
 	    protocol: TCP
@@ -385,45 +434,71 @@ Run the following command to create the service:
 
 	kubectl create -f templates/service.yaml --record
 
-After describing, you should get something like the following:
+Get more details about the service:
 
-	$ kubectl describe services
-	Name:                   demo-service
-	Namespace:              default
-	Labels:                 <none>
-	Annotations:            kubernetes.io/change-cause=kubectl create --filename=https://github.com/arun-gupta/kubernetes-aws-workshop/blob/master/templates/service.yaml --record=true
-	Selector:               app=demo-app
-	Type:                   LoadBalancer
-	IP:                     1.1.1.131
-	LoadBalancer Ingress:   {random-sequence}.us-west-2.elb.amazonaws.com
-	Port:                   http    80/TCP
-	NodePort:               http    31959/TCP
-	Endpoints:              1.1.1.65:8080,1.1.1.131:8080,1.1.1.194:8080
-	Session Affinity:       None
-	Events:
-	  FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
-	  ---------     --------        -----   ----                    -------------   --------        ------                  -------
-	  5s            5s              1       service-controller                      Normal          CreatingLoadBalancer    Creating load balancer
-	  2s            2s              1       service-controller                      Normal          CreatedLoadBalancer     Created load balancer
+```
+$ kubectl get svc
+NAME           TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
+echo-service   LoadBalancer   100.66.161.199   ad0b47976b7fe...   80:30125/TCP   40s
+kubernetes     ClusterIP      100.64.0.1       <none>             443/TCP        1h
+developer-concepts $ kubectl describe service echo-service
+Name:                     echo-service
+Namespace:                default
+Labels:                   <none>
+Annotations:              kubernetes.io/change-cause=kubectl create --filename=templates/service.yaml --record=true
+Selector:                 app=echo-pod
+Type:                     LoadBalancer
+IP:                       100.66.161.199
+LoadBalancer Ingress:     ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
+Port:                     http  80/TCP
+TargetPort:               8080/TCP
+NodePort:                 http  30125/TCP
+Endpoints:                100.96.3.8:8080,100.96.4.9:8080,100.96.5.9:8080
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:
+  Type    Reason                Age   From                Message
+  ----    ------                ----  ----                -------
+  Normal  CreatingLoadBalancer  58s   service-controller  Creating load balancer
+  Normal  CreatedLoadBalancer   56s   service-controller  Created load balancer
+```
 
+Access the service using the LoadBalancer Ingress:
 
-	Name:                   kubernetes
-	Namespace:              default
-	Labels:                 component=apiserver
-	                        provider=kubernetes
-	Annotations:            <none>
-	Selector:               <none>
-	Type:                   ClusterIP
-	IP:                     10.10.0.1
-	Port:                   https   443/TCP
-	Endpoints:              1.2.3.29:443
-	Session Affinity:       ClientIP
-	Events:                 <none>
+```
+curl http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
+CLIENT VALUES:
+client_address=172.20.45.253
+command=GET
+real path=/
+query=nil
+request_version=1.1
+request_uri=http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com:8080/
 
-Wait for 3 minutes for the load balancer to be ready to be used. If you go to the LoadBalancer Ingress in your browser, you should hit a webpage containing the echo response.
+SERVER VALUES:
+server_version=nginx: 1.10.0 - lua: 10001
+
+HEADERS RECEIVED:
+accept=*/*
+host=ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
+user-agent=curl/7.51.0
+BODY:
+-no body in request-
+```
+
+Note the `client_address` value shown in the output. This is the IP address of the pod serving the request. Multiple invocations of this command will show different values for this attribute.
+
+Now, the number of pods in the deployment can be scaled up and down. Or the pods may terminate and restart on a different host. But the service will still be able to target those pods because of the labels attached to the pod and used by the service.
 
 === Delete a Service
 
+Delete the service:
+
+    kubectl delete -f templates/service.yaml
+
+The backend deployment needs to be explicitly deleted as well:
+
+    kubectl delete -f templates/echo-deployment.yaml
 
 == Daemon Sets
 
