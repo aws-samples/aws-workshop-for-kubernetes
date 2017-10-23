@@ -17,7 +17,7 @@ as you move through the workshop.
 |Beginners
 
 |link:prereqs.adoc[Pre-requisites]
-|link:getting-started[Kubernetes - Setup Development Environment and First Steps]
+|link:getting-started[Setup Development Environment and First Steps]
 |link:cluster-install[Create Kubernetes cluster using Kops]
 |link:developer-concepts[Kubernetes Developer Concepts]
 |===
