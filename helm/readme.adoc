@@ -52,7 +52,7 @@ https://docs.helm.sh/using_helm/#installing-tiller[Installing Tiller] provides c
 
 A Helm chart can be installed using the `helm install` command.
 
-Helm allows you to find issues with your chart's formatting or templates using `lint` command. Let's run `helm lint` on our sample application:
+Before installing a chart, Helm allows you to find issues with your chart's formatting or templates using the `lint` command. Let's run `helm lint` on our sample application in the helm folder:
 
 ```
 $ helm lint sample
@@ -144,7 +144,7 @@ mysql-deployment-1668503186-9h7lz   1/1       Running   0          1m
 webapp-deployment-372583675-hlcbg   1/1       Running   0          1m
 ```
 
-Start a proxy:
+Start a proxy. Since the webapp service does not expose a public endpoint, proxy will allow you to access your service endpoint via the Kubernetes API:
 
   kubectl proxy
 
@@ -174,13 +174,17 @@ For production, it's recommended to setup a https://github.com/arun-gupta/kubern
 
 == Delete Helm chart
 
-List the deployed charts using `helm list`:
+List the deployed charts
+
+    helm list
 
 ```
 NAME    REVISION  UPDATED                   STATUS    CHART         NAMESPACE
-sample  1         Tue Oct 17 03:45:36 2017  DEPLOYED  sample-1.0.0  default  
+sample  1         Tue Oct 17 03:45:36 2017  DEPLOYED  sample-1.0.0  default
 ```
 
-Delete the deployed chart using `helm delete sample`.
+Delete the deployed chart
+
+    helm delete sample
 
 
