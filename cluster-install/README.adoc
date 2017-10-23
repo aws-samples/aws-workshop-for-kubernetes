@@ -111,7 +111,7 @@ Create a simple Kubernetes cluster using the following command:
 
 The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for master/node discovery. The `create cluster` command only creates and stores the cluster config in S3. Adding `--yes` option ensures that the cluster is immediately created as well.
 
-Alternatively, you may not specify `--yes` option. Then you can use `kops edit cluster cluster.k8s.local` command to view the current cluster state and make changes. the cluster creation in that case is started with the following command:
+Alternatively, you may not specify `--yes` option as part of the `kops create cluster` command. Then you can use `kops edit cluster cluster.k8s.local` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
 
     kops update cluster cluster.k8s.local --yes
 
@@ -157,11 +157,9 @@ Create a cluster with multi master, multi node and multi-az configuration. As wi
       --state s3://kubernetes-aws-io \
       --yes
 
-For a multi-master cluster, its recommended to specify multiple AZs. Kops will spread out the servers across different AZs.
+A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The list of zones is defaulted from the value of `--zones` option. Alternatively, the AZs for master can be specified using the `--master-zones` option/ Kops will spread out the servers across different AZs.
 
-The number of masters is specified using the `--master-count` option, and must be an odd number. The masters are spread across different AZs. Optionally, the AZs for master can be specified using `--master-zones` option.
-
-The number of workers can be specified using the `--node-count` option.
+`--zones` is used to distribute the worker nodes. The number of workers can be specified using the `--node-count` option.
 
 Validate the cluster:
 
