@@ -1,13 +1,13 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: demo-deployment 
+  name: echo-deployment 
 spec:
   replicas: 3 
   template:
     metadata:
       labels:
-        app: demo-app 
+        app: echo-pod
     spec:
       containers:
       - name: echoheaders 
@@ -15,4 +15,3 @@ spec:
         imagePullPolicy: IfNotPresent 
         ports: 
         - containerPort: 8080
-          hostPort: 8080
