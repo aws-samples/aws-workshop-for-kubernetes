@@ -56,16 +56,16 @@ You'll need to choose one of the two options above. Instructions for both option
 
 === Creating a DNS-based Kubernetes cluster
 
-To create a DNS-based Kubernetes cluster you'll need a top-level domain or subdomain that meet one of the following scenarios:
+To create a DNS-based Kubernetes cluster you'll need a top-level domain or subdomain that meets one of the following scenarios:
 
 . Domain purchased/hosted via AWS
 . A subdomain under a domain purchased/hosted via AWS
 . Setting up Route53 for a domain purchased with another registrar, transfering the domain to Route53
 . Subdomain for clusters in Route53, leaving the domain at another registrar
 
-Then you need to follow the instructions in https://github.com/kubernetes/kops/blob/master/docs/aws.md#configure-dns[configure DNS]. Typically, the first and the last bullet are common scenarios.
+Then you need to follow the instructions in https://github.com/kubernetes/kops/blob/master/docs/aws.md#configure-dns[configure DNS]. Typically, the first and the last bullets are common scenarios.
 
-==== Create private VPC
+==== Create private hosted zone
 
 <to be fixed>
 TODO: What is the need for it?
@@ -90,7 +90,7 @@ Now, create a Route53 private hosted zone using this VPC:
 
 </to be fixed>
 
-==== Multi-master, multi-worker cluster, highly available, with private VPC
+==== Single-master, multi-worker cluster, highly available, with private VPC
 
 <to be fixed>
 
@@ -104,7 +104,7 @@ Then create the cluster:
 
     kops create cluster \
       --dns private \
-      --name cluster03.k8s-aws.internal \
+      --name cluster.k8s-aws.internal \
       --zones us-east-1a,us-east-1b \
       --state s3://kubernetes-aws-config \
       --vpc $VPCID \
@@ -116,7 +116,7 @@ private hosted zone along with VPC option.
 
 </to be fixed>
 
-=== Creating a gossip-based cluster
+=== Creating a gossip-based Kubernetes cluster
 
 Kops also has experimental support for a gossip-based cluster. It uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to Kops by using a cluster name with a suffix of `.k8s.local`.
 
@@ -142,7 +142,7 @@ Now build the cluster:
 
 ==== Create a multi-master, multi-node, multi-az cluster
 Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in
-one step by passing the `--yes` flag
+one step by passing the `--yes` flag.
 
     kops create cluster \
       --name cluster.k8s.local \
@@ -153,13 +153,13 @@ one step by passing the `--yes` flag
       --state s3://kubernetes-aws-config \
       --yes
 
-A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The list of master zones can be defaulted from the value of the `--zones` option. Alternatively, the AZs for master can be specified using the `--master-zones` option. Kops will spread the servers across different AZs.
+A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The AZs for master can be specified using the `--master-zones` option. Kops will spread the servers across different AZs.
 
 `--zones` is used to distribute the worker nodes. The number of workers can be specified using the `--node-count` option.
 
 The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for master/node discovery.
 
-== Validate the cluster:
+== Validate the cluster
 Your output may differ from that shown below depending on the type of cluster you created.
 The following is the output for a cluster with 3 master nodes and 6 worker nodes using a Route53 private hosted zone
 
