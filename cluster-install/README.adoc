@@ -1,7 +1,7 @@
 = Create Kubernetes cluster using Kops
 :toc:
 
-This tutorial will walk you through how to install Kubernetes cluster using kops.
+This tutorial will walk you through how to install a Kubernetes cluster using kops.
 
 https://github.com/kubernetes/kops[Kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters in the cloud. A rolling upgrade of an older version of Kubernetes to a new version can also be performed. It also manages the cluster add-ons. After the cluster is created, the usual kubectl CLI can be used to manage resources in the cluster.
 
@@ -16,7 +16,7 @@ In addition, you also need kubectl CLI to manage the resources on Kubernetes clu
 == IAM user permission
 
 Make sure the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
-is installed. User permissions being used must have these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies] attached
+is installed. User permissions used in this workshop must have these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies] attached.
 
     AmazonEC2FullAccess
     AmazonRoute53FullAccess
@@ -24,12 +24,12 @@ is installed. User permissions being used must have these http://docs.aws.amazon
     IAMFullAccess
     AmazonVPCFullAccess
 
-Please review this link for additional info on IAM permission:
+Please review this link for additional info on IAM permissions:
 https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user
 
 == S3 bucket to store Kubernetes config
 
-Kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes, instance type of each node, and Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store as well. As of now, Amazon S3 is the only supported storage mechanism. Create a S3 bucket and pass that to the kops CLI during cluster creation.
+Kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
 
     aws s3api create-bucket --bucket kubernetes-aws-io
     # enable versioning and export
@@ -39,17 +39,24 @@ Kops needs a "`state store`" to store configuration information of the cluster. 
       Status=Enabled
     export KOPS_STATE_STORE=s3://kubernetes-aws-io
 
-== Configure DNS
+== Create Kubernetes cluster on AWS using Kops
 
-Creating a Kubernetes cluster using kops requires a top-level domain or a subdomain and setting up Route 53 hosted zones. This allows the various Kubernetes components to find and communicate with each other. This is also needed for kubectl to be able to talk directly with the master.
+The Kops CLI can be used to create a highly available cluster, with multiple master nodes spread across multiple Availability Zones. Workers can be spread across multiple zones as well. Some of the tasks that happen behind the scene during cluster creation are:
 
-Kops also has an experimental support for gossip-based cluster. This does not require a top-level domain, subdomain or a Route53 hosted zone to be registered.
+- Provisioning EC2 instances
+- Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
+- Installing Kubernetes
 
-In order to create a cluster, you need to pick one of the options. These are described below.
+When setting up a cluster you have two options on how the nodes in the cluster communicate:
 
-=== Top-level domain or subdomain-based cluster
+. using DNS. Creating a Kubernetes that uses DNS for node discovery requires a top-level domain or a subdomain and setting up Route 53 hosted zones. This allows the various Kubernetes components to find and communicate with each other. This is also needed for kubectl to be able to talk directly with the master.
+. using the gossip protocol. Kops has experimental support for a gossip-based cluster. This does not require a top-level domain, subdomain or a Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup.
 
-If you are using top-level domain or subdomain, and has any of the following scenarios:
+You'll need to choose one of the two options above. Instructions for both options are provided below, and the examples in the workshop should work with either option.
+
+=== Creating a DNS-based Kubernetes cluster
+
+To create a DNS-based Kubernetes cluster you'll need a top-level domain or subdomain that meet one of the following scenarios:
 
 . Domain purchased/hosted via AWS
 . A subdomain under a domain purchased/hosted via AWS
@@ -58,13 +65,7 @@ If you are using top-level domain or subdomain, and has any of the following sce
 
 Then you need to follow the instructions in https://github.com/kubernetes/kops/blob/master/docs/aws.md#configure-dns[configure DNS]. Typically, the first and the last bullet are common scenarios.
 
-=== Gossip-based cluster
-
-Kops also has an experimental support for gossip-based cluster. It uses Weave Mesh behind the scene. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much more simplified. This also means a top-level domain or a subdomain is no longer required to create the cluster. The only requirement to trigger this is to have the cluster name end with `.k8s.local`. 
-
-This is a fairly recent feature, so we recommend you continue to use DNS for production clusters. However, setting up a gossip-based cluster allows you to get started rather quickly.
-
-=== Create private VPC
+==== Create private VPC
 
 <to be fixed>
 TODO: What is the need for it?
@@ -89,79 +90,78 @@ Now, create a Route53 private hosted zone using this VPC:
 
 </to be fixed>
 
-== Create Kubernetes cluster
+==== Multi-master, multi-worker cluster, highly available, with private VPC
 
-The Kops CLI can be used to create a highly available cluster, with multiple master nodes spread across multiple Availability Zones. Workers can be spread across multiple zones as well. Some of the tasks that happen behind the scene during cluster creation are:
+<to be fixed>
 
-- Provisioning EC2 instances
-- Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
-- Installing Kubernetes
+Create a cluster with Route53 private hosted zone and VPC. For this to work you must have created the Route53 private hosted zone, as explained in <<Create hosted zone on Route53>>:
 
-The examples below are using gossip-based protocol as opposed to using a top-level domain.
+Check the list of Availability Zones that exist for your region using the following command:
 
-=== Default cluster
+    aws --region <region> ec2 describe-availability-zones
 
-Create a simple Kubernetes cluster using the following command:
+Then create the cluster:
+
+    kops create cluster \
+      --dns private \
+      --name cluster03.k8s-aws.internal \
+      --zones us-east-1a,us-east-1b \
+      --state s3://kubernetes-aws-config \
+      --vpc $VPCID \
+      --network-cidr 10.1.0.0/16 \
+      --ssh-public-key $mypubkey
+
+TIP: You may need to add cluster API endpoints into your hosts file (/etc/hosts) if you use Route53
+private hosted zone along with VPC option.
+
+</to be fixed>
+
+=== Creating a gossip-based cluster
+
+Kops also has experimental support for a gossip-based cluster. It uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to Kops by using a cluster name with a suffix of `.k8s.local`.
+
+This is a fairly recent feature, so we recommend you continue to use DNS for production clusters. However, setting up a gossip-based cluster allows you to get started rather quickly.
+
+We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Workshop exercises will work on both types of cluster.
+
+==== Create a single-master, multi-node, multi-az cluster
+Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi-node and multi-az configuration. Note that `create cluster` only creates and stores the cluster config in S3; you must use `update cluster` to build the cluster:
 
     kops create cluster \
       --name cluster.k8s.local \
       --zones us-east-1d,us-east-1e \
-      --state s3://kubernetes-aws-io \
-      --yes
+      --state s3://kubernetes-aws-config
 
-The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for master/node discovery. The `create cluster` command only creates and stores the cluster config in S3. Adding `--yes` option ensures that the cluster is immediately created as well.
+Now build the cluster:
 
-Alternatively, you may not specify `--yes` option as part of the `kops create cluster` command. Then you can use `kops edit cluster cluster.k8s.local` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
+    # review cluster info and make changes if necessary (for ex, subnet sizing)
+    kops get cluster
+    kops edit cluster cluster01.k8s.local
+    # update and commit
+    kops update cluster cluster01.k8s.local --yes
 
-    kops update cluster cluster.k8s.local --yes
-
-By default, this command creates a one master node and two worker nodes cluster.
-
-Validate the cluster:
-
-```
-$ kops validate cluster
-Using cluster from kubectl context: cluster.k8s.local
-
-Validating cluster cluster.k8s.local
-
-INSTANCE GROUPS
-NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
-master-us-east-1d Master  m3.medium 1 1 us-east-1d
-nodes     Node  t2.medium 2 2 us-east-1d,us-east-1e
-
-NODE STATUS
-NAME        ROLE  READY
-ip-172-20-57-94.ec2.internal  master  True
-ip-172-20-63-55.ec2.internal  node  True
-ip-172-20-75-78.ec2.internal  node  True
-
-Your cluster cluster.k8s.local is ready
-```
-
-More options for creating Kubernetes clusters are listed below.
-
-=== Multi-master, multi-worker cluster, highly available
-
-Check the list of Availability Zones available using the following command:
-
-    aws --region <zone> ec2 describe-availability-zones
-
-Create a cluster with multi master, multi node and multi-az configuration. As with the example above, this will create a cluster using the gossip protocol:
+==== Create a multi-master, multi-node, multi-az cluster
+Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in
+one step by passing the `--yes` flag
 
     kops create cluster \
       --name cluster.k8s.local \
       --master-count 3 \
+      --master-zones us-east-1a,us-east-1b,us-east-1c \
       --node-count 5 \
       --zones us-east-1a,us-east-1b,us-east-1c \
-      --state s3://kubernetes-aws-io \
+      --state s3://kubernetes-aws-config \
       --yes
 
-A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The list of zones is defaulted from the value of `--zones` option. Alternatively, the AZs for master can be specified using the `--master-zones` option/ Kops will spread out the servers across different AZs.
+A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The list of master zones can be defaulted from the value of the `--zones` option. Alternatively, the AZs for master can be specified using the `--master-zones` option. Kops will spread the servers across different AZs.
 
 `--zones` is used to distribute the worker nodes. The number of workers can be specified using the `--node-count` option.
 
-Validate the cluster:
+The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for master/node discovery.
+
+== Validate the cluster:
+Your output may differ from that shown below depending on the type of cluster you created.
+The following is the output for a cluster with 3 master nodes and 6 worker nodes using a Route53 private hosted zone
 
 ```
 $ kops validate cluster
@@ -171,10 +171,10 @@ Validating cluster cluster.k8s.local
 
 INSTANCE GROUPS
 NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
-master-us-east-1a Master  m3.medium 1 1 us-east-1a
-master-us-east-1b Master  m3.medium 1 1 us-east-1b
-master-us-east-1c Master  c4.large  1 1 us-east-1c
-nodes     Node  t2.medium 5 5 us-east-1a,us-east-1b,us-east-1c
+master-us-east-1a-1	Master	m3.medium	1	1	us-east-1a
+master-us-east-1b-1	Master	m3.medium	1	1	us-east-1b
+master-us-east-1c-1	Master	m3.medium	1	1	us-east-1c
+nodes			Node	t2.medium	6	6	us-east-1a,us-east-1b,us-east-1c
 
 NODE STATUS
 NAME        ROLE  READY
@@ -192,26 +192,6 @@ Your cluster cluster.k8s.local is ready
 
 Note that all masters are spread across different AZs.
 
-=== Multi-master, multi-worker cluster, highly available, with private VPC
-
-<to be fixed>
-
-Create a cluster with Route53 private hosted zone and VPC. For this to work you must have created the Route53 private hosted zone, as explained in <<Create hosted zone on Route53>>:
-
-    kops create cluster \
-      --dns private \
-      --name cluster03.k8s-aws.internal \
-      --zones us-east-1a,us-east-1b \
-      --state s3://kubernetes-aws-config \
-      --vpc $VPCID \
-      --network-cidr 10.1.0.0/16 \
-      --ssh-public-key $mypubkey
-
-TIP: You may need to add cluster API endpoints into your hosts file (/etc/hosts) if you use Route53
-private hosted zone along with VPC option.
-
-</to be fixed>
-
 == Delete cluster
 
 Any cluster can be deleted as shown:
@@ -227,8 +207,6 @@ Any cluster can be deleted as shown:
       cluster.k8s.local \
       --state s3://kubernetes-aws-io \
       --yes
-
-<to be fixed>
 
 If you created a private VPC, then an additional cleanup of resources is required as shown below:
 

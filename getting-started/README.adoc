@@ -4,13 +4,13 @@
 :imagesdir: ../images
 :toc:
 
-Kubernetes cluster can be created on your laptop, VM, cloud provider or a rack of bare metal servers. For development purpose, its easiest to start with a one-node cluster using https://github.com/kubernetes/minikube[Minikube]. Hosted solutions or cloud-based solutions provide the scalability and higher availability for production purpose. A complete list of solutions to create Kubernetes cluster is explained at http://kubernetes.io/docs/getting-started-guides/.
+A Kubernetes cluster can be created on your laptop, VM, cloud provider or a rack of bare metal servers. For development purposes, it's easiest to start with a one-node cluster using https://github.com/kubernetes/minikube[Minikube]. Hosted solutions or cloud-based solutions provide the scalability and higher availability for production purposes. A complete list of solutions to create a Kubernetes cluster is explained at http://kubernetes.io/docs/getting-started-guides/.
 
-This section will explain how to create and shutdown a development Kubernetes cluster using Minikube. The deployment of such an application typically happens on a cloud platform such as Amazon Web Services (AWS). A common way to start a highly available cluster using https://github.com/kubernetes/kops[Kops] on AWS is explained in link:../cluster-install[].
+This section will explain how to create and shutdown a development Kubernetes cluster using Minikube. The next section will show how to create a highly available cluster on AWS using https://github.com/kubernetes/kops[Kops], as explained in the link:../cluster-install[cluster install] section.
 
 == Download and Install
 
-Minikube runs a single-node Kubernetes cluster inside a VM on your laptop. This allows users to try out Kubernetes on your local machine easily. Minikube packages and configures a Linux VM, the container runtime, and all Kubernetes components, optimized for local development.
+Minikube runs a single-node Kubernetes cluster inside a VM on your laptop. This allows users to easily try out Kubernetes on your local machine. Minikube packages and configures a Linux VM, the container runtime, and all Kubernetes components, optimized for local development.
 
 Complete installation instructions are available at https://github.com/kubernetes/minikube. Here are quick instructions:
 
@@ -56,13 +56,13 @@ Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh
 
 == Start Kubernetes cluster
 
-We are using the VirtualBox driver which is the default selection for minikube, if you would like you can use an alternate supported component (xhyve driver or VMware Fusion) using the `--vm-driver=xxx` flag.
+We are using the VirtualBox driver which is the default selection for minikube. If you would prefer you can use an alternate supported component (xhyve driver or VMware Fusion) using the `--vm-driver=xxx` flag.
 
-Start a single-node Kubernetes cluster on your local machine as:
+Start a single-node Kubernetes cluster on your local machine:
 
     minikube start
 
-First start of minikube will download the ISO file and then start the cluster. It shows the following output:
+The first start of minikube will download the ISO file and then start the cluster. It shows the following output:
 
 ```
 $ minikube start
@@ -98,7 +98,7 @@ Kubectl CLI is configured to talk to this cluster.
 
 Now that we have a local cluster up and running we can start issuing some basic commands and deploy some simple resources.
 
-In this part we will familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGINX pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
+In this part we will familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGINX pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps get developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
 
 NOTE: The kubectl commands below will be routed via your virtualbox network interface. If you are using a VPN or have a local firewall, this may prevent kubectl from contacting the minikube endpoint. Stopping the VPN or adding a firewall rule may resolve this.
 
@@ -183,7 +183,7 @@ Events:
   Normal  Started                51s   kubelet, minikube  Started container
 ```
 
-By default, pods are created a in a `default` namespace. In additiopn, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
+By default, pods are created in a `default` namespace. In additiopn, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
 
 ```
 $ kubectl get pods --namespace kube-system
@@ -317,13 +317,13 @@ Events:
   Normal   Starting                 8m               kube-proxy, minikube  Starting kube-proxy.
 ```
 
-IP address information can be obtained by looking for `InternalIP` field:
+IP address information can be obtained by looking at the `InternalIP` field:
 
     kubectl describe node minikube | grep InternalIP
 
 This gives us the IP address where the service is hosted. Now, we need to get the port that the service is exposed on. This can be found using the following command:
 
-    kubectl describe service demo
+    kubectl describe service web
 
 It shows the output:
 
@@ -358,19 +358,17 @@ Delete the Kubernetes resources created so far:
 
 === Kubernetes dashboard
 
-Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters. It provides an overview of applications running on the cluster, as well as create or modify individual Kubernetes resources and workloads, such as replica sets, jobs, services, and pods. The dashboard can be used to manage the cluster as well.
+Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters. It provides an overview of applications running on the cluster, as well as the ability to create or modify individual Kubernetes resources and workloads, such as replica sets, jobs, services, and pods. The dashboard can be used to manage the cluster as well.
 
 Kubernetes dashboard with minikube can be easily viewed using the following command:
 
     minukube dashboard
 
-It looks like:
+It looks like this:
 
 image::minikube-dashboard.png[]
 
-Look around the dashboard and become familiar with some the of Kubernetes terminology. This will be explained in the subsequent chapters.
-
-Let's create a Kubernetes cluster as explained in link:../cluster-install[Install Kubernetes cluster using Kops].
+Look around the dashboard and become familiar with some of the Kubernetes terminology. This will be explained in the subsequent chapters.
 
 === Shutdown cluster
 
@@ -379,4 +377,8 @@ The cluster can be shutdown using the following command:
     $ minikube stop
     Stopping local Kubernetes cluster...
     Machine stopped.
+
+== Create a multi-node cluster on AWS
+
+Though some of the exercises that follow would work on Minikube, let's create a multi-node Kubernetes cluster on AWS as explained in link:../cluster-install[Install Kubernetes cluster using Kops].
 

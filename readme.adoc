@@ -2,13 +2,13 @@
 
 This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains how to deploy, scale and configure applications on this cluster.
 
-This workshop is targeted for attendees in both Developer and Operations team, and who would like to get started with Kubernetes on Amazon Web Services (AWS).
+This workshop is targeted for attendees in both Developer and Operations teams who would like to get started with Kubernetes on Amazon Web Services (AWS).
 
-It will provide instructions on create, manage, scale a Kubernetes cluster on AWS. A deep integration with several AWS technologies will be shown.
+It will provide instructions to create, manage and scale a Kubernetes cluster on AWS. Deep integration with several AWS technologies will be shown.
 
-It will also explain how to deploy applications, scale them, running stateless and stateful containers, service discovery between different microservices and other similar concepts.
+It will also explain how to deploy applications, scale them, run stateless and stateful containers, perform service discovery between different microservices and other similar concepts.
 
-Proposed agenda is to go through the described format to rampup your knowledge on Kubernetes by following
+The proposed agenda is to go through the described format to ramp up your knowledge on Kubernetes by following
 the workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable
 as you move through the workshop.
 
