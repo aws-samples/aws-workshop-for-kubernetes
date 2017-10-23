@@ -106,17 +106,16 @@ Create a simple Kubernetes cluster using the following command:
     kops create cluster \
       --name cluster.k8s.local \
       --zones us-east-1d,us-east-1e \
-      --state s3://kubernetes-aws-io
-    # review cluster info and make changes if necessary (for ex, subnet sizing)
-    kops edit cluster cluster.k8s.local
-    # update and commit
+      --state s3://kubernetes-aws-io \
+      --yes
+
+The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for master/node discovery. The `create cluster` command only creates and stores the cluster config in S3. Adding `--yes` option ensures that the cluster is immediately created as well.
+
+Alternatively, you may not specify `--yes` option. Then you can use `kops edit cluster cluster.k8s.local` command to view the current cluster state and make changes. the cluster creation in that case is started with the following command:
+
     kops update cluster cluster.k8s.local --yes
 
-The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for master/node discovery. Note that `create cluster` only creates and stores the cluster config in S3. The `update cluster` command is used with `--yes` option to create all the resources required for the cluster.
-
-Alternatively, `--yes` option can be specified with `create cluster` command to immediately create the cluster as well.
-
-By default, this will create a single master node and two worker node cluster.
+By default, this command creates a one master node and two worker nodes cluster.
 
 Validate the cluster:
 
