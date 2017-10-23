@@ -1,0 +1,27 @@
+= Docker image for Kubernetes ConfigMap in a Pod
+
+== Docker Container
+
+. Build Docker image:
+
+  docker image build -t arungupta/print-hello .
+
+. Run Docker container
+
+  docker container run -it -p 8080:8080 -e COUNT=2 arungupta/print-hello
+
+== Kubernetes Pod with environment variable
+
+. Run pod:
+
+  kubectl run app --env="COUNT=2" --image=arungupta/print-hello
+
+== Kubernetes Deployment with ConfigMap
+
+. Create ConfigMap:
+
+  kubectl create configmap hello-count --from-literal=COUNT=2
+
+. Create Pod with ConfigMap
+
+  kuebctl create -f templates/app-pod.yaml
