@@ -316,7 +316,7 @@ Get more details about the secret:
 
 Once again, the values of the secret are not shown.
 
-==== Consume as volumes
+=== Consume in a pod volumes
 
 Deploy the pod:
 
@@ -354,7 +354,7 @@ Delete the pod:
 
     kubectl delete -f ./templates/pod-secret-volume.yaml
 
-=== Consume as environment variables
+=== Consume as pod environment variables
 
 Deploy the pod:
 
