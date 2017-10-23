@@ -66,7 +66,8 @@ This is a fairly recent feature, so we recommend you continue to use DNS for pro
 
 === Create private VPC
 
-TODO: where does it fit?
+<to be fixed>
+TODO: What is the need for it?
 
 If you don't own a DNS domain name, you can create a custom domain using Route53's private hosted zone.
 You need to provide VPC info to run this command.
@@ -85,6 +86,8 @@ Now, create a Route53 private hosted zone using this VPC:
       --vpc VPCRegion=us-east-1,VPCId=$VPCID \
       --caller-reference $ID \
       | jq .DelegationSet.NameServers
+
+</to be fixed>
 
 == Create Kubernetes cluster
 
@@ -190,6 +193,8 @@ Note that all masters are spread across different AZs.
 
 === Multi-master, multi-worker cluster, highly available, with private VPC
 
+<to be fixed>
+
 Create a cluster with Route53 private hosted zone and VPC. For this to work you must have created the Route53 private hosted zone, as explained in <<Create hosted zone on Route53>>:
 
     kops create cluster \
@@ -203,6 +208,8 @@ Create a cluster with Route53 private hosted zone and VPC. For this to work you 
 
 TIP: You may need to add cluster API endpoints into your hosts file (/etc/hosts) if you use Route53
 private hosted zone along with VPC option.
+
+</to be fixed>
 
 == Delete cluster
 
@@ -220,6 +227,7 @@ Any cluster can be deleted as shown:
       --state s3://kubernetes-aws-io \
       --yes
 
+<to be fixed>
 
 If you created a private VPC, then an additional cleanup of resources is required as shown below:
 
@@ -230,3 +238,4 @@ If you created a private VPC, then an additional cleanup of resources is require
     aws ec2 delete-internet-gateway --internet-gateway-id $IGW
     aws ec2 delete-vpc --vpc-id $VPCID
 
+</to be fixed>
