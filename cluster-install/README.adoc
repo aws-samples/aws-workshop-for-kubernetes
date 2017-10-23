@@ -95,9 +95,11 @@ The Kops CLI can be used to create a highly available cluster, with multiple mas
 
 - Provisioning EC2 instances
 - Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
-- Installing Kubernetes.
+- Installing Kubernetes
 
-=== Simple cluster
+The examples below are using gossip-based protocol as opposed to using a top-level domain.
+
+=== Default cluster
 
 Create a simple Kubernetes cluster using the following command:
 
@@ -113,6 +115,8 @@ Create a simple Kubernetes cluster using the following command:
 The cluster name suffix of `.k8s.local` will result in the gossip protocol being used for master/node discovery. Note that `create cluster` only creates and stores the cluster config in S3. The `update cluster` command is used with `--yes` option to create all the resources required for the cluster.
 
 Alternatively, `--yes` option can be specified with `create cluster` command to immediately create the cluster as well.
+
+By default, this will create a single master node and two worker node cluster.
 
 Validate the cluster:
 
