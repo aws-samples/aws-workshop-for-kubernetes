@@ -177,7 +177,7 @@ If rolling back to a specific revision then enter:
 
 === Delete a Deployment
 
-Run the following command to delete deployment:
+Run the following command to delete the Deployment:
 
 	$ kubectl delete -f templates/deployment.yaml
 	deployment "nginx-deployment" deleted
@@ -190,7 +190,7 @@ For replica set, matching of pods is done according to a set of values. The supp
 
 === Create a ReplicaSet
 
-The folowing will be an example ReplicaSet with an NGINX base image. Let's begin with the template:
+The folowing is an example ReplicaSet with an NGINX base image. Let's begin with the template:
 
 	apiVersion: extensions/v1beta1
 	kind: ReplicaSet
@@ -280,7 +280,7 @@ Get the list of pods:
 
 === Delete a Replica Set
 
-A Replica Set can be deleted using the following command:
+Run the following command to delete the ReplicaSet:
 
 	$ kubectl delete rs/nginx-replicaset
 	replicaset "nginx-replicaset" deleted
@@ -293,7 +293,7 @@ A Service is an abstraction that defines a logical set of pods and a policy by w
 
 This abstraction of selecting pods using labels enables a loose coupling. The number of pods in the deployment may scale up or down but the application server can continue to access the database using the service.
 
-A Kubernetes service defines a logical set of pods and enables them to be access through micro-services.
+A Kubernetes service defines a logical set of pods and enables them to be accessed through microservices.
 
 === Create a Deployment for Service
 
@@ -492,57 +492,40 @@ Now, the number of pods in the deployment can be scaled up and down. Or the pods
 
 === Delete a Service
 
-Delete the service:
+Run the following command to delete the Service:
 
     kubectl delete -f templates/service.yaml
 
-The backend deployment needs to be explicitly deleted as well:
+The backend Deployment needs to be explicitly deleted as well:
 
     kubectl delete -f templates/echo-deployment.yaml
 
 == Daemon Sets
 
-DeamonSets allow the cluster of nodes to run a specified pod. As nodes are added, pods are added. As nodes are removed, pods are removed through garbage collection.  
+Daemon Set ensure that a copy of the pod runs on a selected set of nodes. By default, all nodes in the cluster are selected. A selection critieria may be specified to select a limited number of nodes. 
+
+As new nodes are added to the cluster, pods are started on them. As nodes are removed, pods are removed through garbage collection.  
 
 === Create a DaemonSet
 
-The folowing will be an example DaemonSet that runs a logstash image. Let's begin with the template:
+The folowing is an example DaemonSet that runs a Prometheus container. Let's begin with the template:
 
 	apiVersion: extensions/v1beta1
 	kind: DaemonSet
 	metadata:
-	  name: logstash-daemonset
-	  labels:
-	    app: logstash
+	  name: prometheus-daemonset
 	spec:
 	  template:
 	    metadata:
 	      labels:
-	        app: logstash
+	        tier: monitoring
+	        name: prometheus-exporter
 	    spec:
 	      containers:
-	      - name: logstash
-	        image: logstash:5.5.2
-	        imagePullPolicy: IfNotPresent # if exists, will not pull new image
-	        resources:
-	          limits:
-	            memory: 50Mi
-	          requests:
-	            cpu: 50m
-	            memory: 50Mi
-	        volumeMounts:
-	        - name: varlog
-	          mountPath: /var/log
-	        - name: varlibdockercontainers
-	          mountPath: /var/lib/docker/containers
-	          readOnly: true
-	      volumes:
-	      - name: varlog
-	        hostPath:
-	          path: /var/log
-	      - name: varlibdockercontainers
-	        hostPath:
-	          path: /var/lib/docker/containers
+	      - name: prometheus
+	        image: prom/node-exporter
+	        ports:
+	        - containerPort: 80
 
 Run the following command to create the ReplicaSet and pods:
 
@@ -550,89 +533,104 @@ Run the following command to create the ReplicaSet and pods:
 
 The `--record` flag will track changes made through each revision.
 
-To track the ReplicaSet details type in the following:
+Get basic details about the DaemonSet:
 
-	kubectl describe ds/logstash-daemonset
+	$ kubectl get daemonsets/prometheus-daemonset
+	NAME                   DESIRED   CURRENT   READY     UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+	prometheus-daemonset   5         5         5         5            5           <none>          7s
 
-The output should look similar the following:
+Get more details about the DaemonSet:
 
-	$ kubectl describe ds
-	Name:           logstash-daemonset
-	Selector:       app=logstash
-	Node-Selector:  <none>
-	Labels:         app=logstash
-	Annotations:    kubernetes.io/change-cause=kubectl create --filename=daemonset.yaml --record=true
-	Desired Number of Nodes Scheduled: 3
-	Current Number of Nodes Scheduled: 3
-	Number of Nodes Scheduled with Up-to-date Pods: 3
-	Number of Nodes Scheduled with Available Pods: 3
-	Number of Nodes Misscheduled: 0
-	Pods Status:    3 Running / 0 Waiting / 0 Succeeded / 0 Failed
-	Pod Template:
-	  Labels:       app=logstash
-	  Containers:
-	   logstash:
-	    Image:      logstash:5.5.2
-	    Port:       <none>
-	    Limits:
-	      memory:   50Mi
-	    Requests:
-	      cpu:              50m
-	      memory:           50Mi
-	    Environment:        <none>
-	    Mounts:
-	      /var/lib/docker/containers from varlibdockercontainers (ro)
-	      /var/log from varlog (rw)
-	  Volumes:
-	   varlog:
-	    Type:       HostPath (bare host directory volume)
-	    Path:       /var/log
-	   varlibdockercontainers:
-	    Type:       HostPath (bare host directory volume)
-	    Path:       /var/lib/docker/containers
-	Events:
-	  FirstSeen     LastSeen        Count   From            SubObjectPath   Type            Reason                  Message
-	  ---------     --------        -----   ----            -------------   --------        ------                  -------
-	  6s            6s              1       daemon-set                      Normal          SuccessfulCreate        Created pod: logstash-daemonset-zjw24
-	  6s            6s              1       daemon-set                      Normal          SuccessfulCreate        Created pod: logstash-daemonset-b0w72
-	  6s            6s              1       daemon-set                      Normal          SuccessfulCreate        Created pod: logstash-daemonset-hb365
+```
+$ kubectl describe daemonset/prometheus-daemonset
+Name:           prometheus-daemonset
+Selector:       name=prometheus-exporter,tier=monitoring
+Node-Selector:  <none>
+Labels:         name=prometheus-exporter
+                tier=monitoring
+Annotations:    kubernetes.io/change-cause=kubectl create --filename=templates/daemonset.yaml --record=true
+Desired Number of Nodes Scheduled: 5
+Current Number of Nodes Scheduled: 5
+Number of Nodes Scheduled with Up-to-date Pods: 5
+Number of Nodes Scheduled with Available Pods: 5
+Number of Nodes Misscheduled: 0
+Pods Status:  5 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  name=prometheus-exporter
+           tier=monitoring
+  Containers:
+   prometheus:
+    Image:        prom/node-exporter
+    Port:         80/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Events:
+  Type    Reason            Age   From        Message
+  ----    ------            ----  ----        -------
+  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-pzfl8
+  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-sjcgh
+  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-ctrg4
+  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-rxg79
+  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-cnbkh
+```
+
+Get pods in the DaemonSet:
+
+```
+$ kubectl get pods -lname=prometheus-exporter
+NAME                         READY     STATUS    RESTARTS   AGE
+prometheus-daemonset-cnbkh   1/1       Running   0          57s
+prometheus-daemonset-ctrg4   1/1       Running   0          57s
+prometheus-daemonset-pzfl8   1/1       Running   0          57s
+prometheus-daemonset-rxg79   1/1       Running   0          57s
+prometheus-daemonset-sjcgh   1/1       Running   0          57s
+```
 
 === Limit DaemonSets to specific nodes
 
-Verify that the logstash pod was successfully deployed to the cluster nodes:
+Verify that the Prometheus pod was successfully deployed to the cluster nodes:
 
 	kubectl get pods -o wide
 
-Output should mirror the following:
+The output should look as shown:
 
 	$ kubectl get pods -o wide
-	NAME                       READY     STATUS    RESTARTS   AGE       IP           NODE
-	logstash-daemonset-b0w72   1/1       Running   1          1m        100.96.2.9   ip-172-20-76-225.us-west-2.compute.internal
-	logstash-daemonset-hb365   1/1       Running   0          1m        100.96.1.9   ip-172-20-38-189.us-west-2.compute.internal
-	logstash-daemonset-zjw24   1/1       Running   2          1m        100.96.3.9   ip-172-20-121-97.us-west-2.compute.internal
+	NAME                         READY     STATUS    RESTARTS   AGE       IP            NODE
+	prometheus-daemonset-sjcgh   1/1       Running   0          1m        100.96.7.10   ip-172-20-52-200.ec2.internal
+	prometheus-daemonset-cnbkh   1/1       Running   0          1m        100.96.3.10   ip-172-20-57-5.ec2.internal
+	prometheus-daemonset-ctrg4   1/1       Running   0          1m        100.96.6.10   ip-172-20-64-152.ec2.internal
+	prometheus-daemonset-pzfl8   1/1       Running   0          1m        100.96.5.10   ip-172-20-125-181.ec2.internal
+	prometheus-daemonset-rxg79   1/1       Running   0          1m        100.96.4.9    ip-172-20-107-81.ec2.internal
 
 Rename one of the node labels as follows:
 
-	kubectl label node ip-172-20-38-189.us-west-2.compute.internal app=logstash-node
+	$ kubectl label node ip-172-20-52-200.ec2.internal app=prometheus-node
+	node "ip-172-20-52-200.ec2.internal" labeled
 
-Next, edit the DaemonSet template to include a nodeSelector that matches the changed label:
+Next, edit the DaemonSet template using the command shown:
 
-	................
+	kubectl edit ds/prometheus-daemonset
+
+Change the `spec.template.spec` to include a `nodeSelector` that matches the changed label:
+
 	spec:
 	  nodeSelector:
-	    app: logstash-node
+	    app: prometheus-node
       containers:
-      - name: logstash
-        image: logstash:5.5.2
-    ................
+      - image: prom/node-exporter
+		imagePullPolicy: Always
+        name: prometheus      
 
-After the update is performed, we have now configured logstash to run off a specific node:
+After the update is performed, we have now configured Prometheus to run on a specific node:
 
-	$ kubectl get pods
-	NAME                       READY     STATUS        RESTARTS   AGE
-	logstash-daemonset-hb365   1/1       Running       5          26m
-	logstash-daemonset-pzvkw   1/1       Terminating   0          1m
-	logstash-daemonset-t9f0n   1/1       Terminating   0          1m
+	$ kubectl get ds/prometheus-daemonset
+	NAME                   DESIRED   CURRENT   READY     UP-TO-DATE   AVAILABLE   NODE SELECTOR         AGE
+	prometheus-daemonset   1         1         1         0            1           app=prometheus-node   2m
 
 === Delete a DaemonSet
+
+Run the following command to delete the DaemonSet:
+
+	kubectl delete -f templates/daemonset.yaml
 
