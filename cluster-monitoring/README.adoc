@@ -1,83 +1,333 @@
-= Kubernetes - Cluster Monitoring
+= Kubernetes Cluster Monitoring
+:toc:
 :icons:
 :linkcss:
 :imagesdir: ../images
 
-== Kubernetes - Cluster Monitoring
+== Introduction
 
-In this tutorial we will demonstrate two main mechanisms for monitoring Kubernetes clusters:
+This workshop will demonstrate how to monitor a Kubernetes cluster using the following:
 
-Heapster - Aggregates metrics from cAdvisor and stores them in an influx db pod. Leverages Grafana to provide visualizations.
+. Kubernetes Dashboard
+. Heapster, InfluxDB and Grafana
+. Prometheus, Node exporter and Grafana
 
-Prometheus - A monitoring and alerting toolkit, very popular tool used to monitor kubernetes
+== Pre-requisites
 
-=== Preliminary steps
+Make sure the cluster is up and running as explained in the link:../cluster-install[installation instructions].
 
-Each node in a Kubernetes cluster has cAdvisor which is deployed as part of the main node agent, kubelet, which is accessible on port 4194 (default).
+This workshop will use a two node cluster:
 
-To observe this make sure the proper AWS security groups are in place that allow you access to port 4194, and take a look at one the public ip addresses at port 4194
+```
+Using cluster from kubectl context: cluster.kubernetes-aws.io
 
-Also, in order to see the effects of installing the Heapster stack, it is useful to install the Kubernetes Dashobard:
+Validating cluster cluster.kubernetes-aws.io
+
+INSTANCE GROUPS
+NAME            ROLE    MACHINETYPE MIN MAX SUBNETS
+master-us-west-2a   Master  m3.medium   1   1   us-west-2a
+nodes           Node    t2.medium   2   2   us-west-2a
+
+NODE STATUS
+NAME                        ROLE    READY
+ip-172-20-48-121.us-west-2.compute.internal master  True
+ip-172-20-55-130.us-west-2.compute.internal node    True
+ip-172-20-62-3.us-west-2.compute.internal   node    True
+
+Your cluster cluster.kubernetes-aws.io is ready
+```
+
+== Kubernetes Dashboard
+
+https://github.com/kubernetes/dashboard[Kubernetes Dashboard] is a general purpose web-based UI for Kubernetes clusters.
+
+Deploy Dashboard using the following command:
 
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
 
-You can start the dashboard with the following command:
+Dashboard can be seen using the following command:
 
     kubectl proxy
 
-Use this link to gain access to your dashboard:
+Now, Dashboard is accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/.
 
-    http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+Starting with Kubernetes 1.7, Dashboard supports authentication. Read more about it at https://github.com/kubernetes/dashboard/wiki/Access-control#introduction. We'll use a bearer token for authentication.
 
-You will see limited resource utilization information on the dashboard because we have not yet deployed Heapster, follow along to see how we gain insight into monitoring metrics through the dashboard.
+Check existing secrets in the `kube-system` namespace:
 
-=== Heapster - configuring and installing
+    kubectl -n kube-system get secret
 
-This command will install Heapster, InfluxDB and Grafana
+It shows the output as:
 
-    kubectl create -f templates/
+```
+NAME                                     TYPE                                  DATA      AGE
+attachdetach-controller-token-dhkcr      kubernetes.io/service-account-token   3         3h
+certificate-controller-token-p131b       kubernetes.io/service-account-token   3         3h
+daemon-set-controller-token-r4mmp        kubernetes.io/service-account-token   3         3h
+default-token-7vh0x                      kubernetes.io/service-account-token   3         3h
+deployment-controller-token-jlzkj        kubernetes.io/service-account-token   3         3h
+disruption-controller-token-qrx2v        kubernetes.io/service-account-token   3         3h
+dns-controller-token-v49b6               kubernetes.io/service-account-token   3         3h
+endpoint-controller-token-hgkbm          kubernetes.io/service-account-token   3         3h
+generic-garbage-collector-token-34fvc    kubernetes.io/service-account-token   3         3h
+horizontal-pod-autoscaler-token-lhbkf    kubernetes.io/service-account-token   3         3h
+job-controller-token-c2s8j               kubernetes.io/service-account-token   3         3h
+kube-dns-autoscaler-token-s3svx          kubernetes.io/service-account-token   3         3h
+kube-dns-token-92xzb                     kubernetes.io/service-account-token   3         3h
+kube-proxy-token-0ww14                   kubernetes.io/service-account-token   3         3h
+kubernetes-dashboard-certs               Opaque                                2         9m
+kubernetes-dashboard-key-holder          Opaque                                2         9m
+kubernetes-dashboard-token-vt0fd         kubernetes.io/service-account-token   3         10m
+namespace-controller-token-423gh         kubernetes.io/service-account-token   3         3h
+node-controller-token-r6lsr              kubernetes.io/service-account-token   3         3h
+persistent-volume-binder-token-xv30g     kubernetes.io/service-account-token   3         3h
+pod-garbage-collector-token-fwmv4        kubernetes.io/service-account-token   3         3h
+replicaset-controller-token-0cg8r        kubernetes.io/service-account-token   3         3h
+replication-controller-token-3fwxd       kubernetes.io/service-account-token   3         3h
+resourcequota-controller-token-6rl9f     kubernetes.io/service-account-token   3         3h
+route-controller-token-9brzb             kubernetes.io/service-account-token   3         3h
+service-account-controller-token-bqlsk   kubernetes.io/service-account-token   3         3h
+service-controller-token-1qlg6           kubernetes.io/service-account-token   3         3h
+statefulset-controller-token-kmgzg       kubernetes.io/service-account-token   3         3h
+ttl-controller-token-vbnhf               kubernetes.io/service-account-token   3         3h
+```
 
-Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance and is now exposed for visualization through Granfana which is accessible here:
+We can login using any secret with type 'kubernetes.io/service-account-token', though each of them have different privileges. In our case, we'll use the token from secret `default-token-7vh0x` to login. Use the following command to get the token for this secret:
 
-    http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1
+    kubectl -n kube-system describe secret default-token-7vh0x
 
-You may need to run the following to gain access to the Grafana instance:
+Note you'll need to replace `default-token-7vh0x` with the default-token from your output list.
 
-    kubectl proxy
+It shows the output:
 
-There are some built in dashboard for monitoring the cluster and workloads, that are available by clicking on the upper left corner of the screen.
+```
+Name:         default-token-7vh0x
+Namespace:    kube-system
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name=default
+              kubernetes.io/service-account.uid=3a3fea86-b3a1-11e7-9d90-06b1e747c654
 
-In addition if you log back into the dashboard you will now see CPU and Memory metrics being displayed for Pods and other workloads you may have deployed into your Kubernetes cluster
+Type:  kubernetes.io/service-account-token
 
-=== Prometheus
+Data
+====
+ca.crt:     1046 bytes
+namespace:  11 bytes
+token:      eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLTd2aDB4Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIzYTNmZWE4Ni1iM2ExLTExZTctOWQ5MC0wNmIxZTc0N2M2NTQiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06ZGVmYXVsdCJ9.GHW-7rJcxmvujkClrN6heOi_RYlRivzwb4ScZZgGyaCR9tu2V0Z8PE5UR6E_3Vi9iBCjuO6L6MLP641bKoHB635T0BZymJpSeMPQ7t1F02BsnXAbyDFfal9NUSV7HoPAhlgURZWQrnWojNlVIFLqhAPO-5T493SYT56OwNPBhApWwSBBGdeF8EvAHGtDFBW1EMRWRt25dSffeyaBBes5PoJ4SPq4BprSCLXPdt-StPIB-FyMx1M-zarfqkKf7EJKetL478uWRGyGNNhSfRC-1p6qrRpbgCdf3geCLzDtbDT2SBmLv1KRjwMbW3EF4jlmkM4ZWyacKIUljEnG0oltjA
+```
 
-First in the file templates/prometheus-configmap.yaml modify the etcd section by replacing the IP address with the IP of your etcd server:
+Copy the value of token from this output, select `Token` in the Dashboard login window, and paste the text. Click on `SIGN IN` to see the default Dashboard view:
 
-    - job_name: 'etcd'
-    target_groups:
-    - targets:
-    - 172.17.4.51:4001
+image::kubernetes-dashboard-default.png[]
 
-To determine the IP address that your etcd cluster is listening on (if deployed into Kubernetes cluster), execute this command:
+
+Click on `Nodes` to see a textual representation about the nodes running in the cluster:
+
+image::monitoring-nodes-before.png[]
+
+
+Install a Java application as explained in link:../helm[Deploying applications using Kubernetes Helm charts].
+
+Click on `Pods`, again to see a textual representation about the pods running in the cluster:
+
+image::monitoring-pods-before.png[]
+
+
+This will change after Heapster, InfluxDB and Grafana are installed.
+
+== Heapster, InfluxDB and Grafana
+
+https://github.com/kubernetes/heapster[Heapster] is a metrics aggregator and processor. It is installed as a cluster-wide pod. It gathers monitoring and events data for all containers on each node by talking to the Kubelet. Kubelet itself fetches this data from https://github.com/google/cadvisor[cAdvisor]. This data is persisted in a time series database https://github.com/influxdata/influxdb[InfluxDB] for storage. The data is then visualized using a http://grafana.org/[Grafana] dashboard, or it can be viewed in Kubernetes Dashboard.
+
+Heapster collects and interprets various signals like compute resource usage, lifecycle events, etc., and exports cluster metrics via REST endpoints.
+
+Heapster, InfluxDB and Grafana are http://kubernetes.io/docs/admin/addons/[Kubernetes addons].
+
+=== Installation
+
+Execute this command to install Heapster, InfluxDB and Grafana:
+
+    kubectl create -f heapster/templates/
+
+Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance running in the cluster. Grafana dashboard, accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1, now shows the information about the cluster. 
+
+NOTE: Grafana dashboard will not be available if Kubernetes proxy is not running. If proxy is not running, it can be started with the command `kubectl proxy`.
+
+=== Grafana dashboard
+
+There are some built-in dashboards for monitoring the cluster and workloads. They are available by clicking on the upper left corner of the screen.
+
+image::monitoring-grafana-dashboards.png[]
+
+The "`Cluster`" dashboard shows all worker nodes, and their CPU and memory metrics. Type in a node name to see its collected metrics during a chosen period of time.
+
+The cluster dashboard looks like this:
+
+image::monitoring-grafana-dashboards-cluster.png[]
+
+The "`Pods`"" dashboard allows you to see the resource utilization of every pod in the cluster. As with nodes, you can select the pod by typing its name in the top filter box.
+
+image::monitoring-grafana-dashboards-pods.png[]
+
+After the deployment of Heapster, Kubernetes Dashboard now shows additional graphs such as CPU and Memory utilization for pods and nodes, and other workloads.
+
+The updated view of the cluster in Kubernetes Dashboard looks like this:
+
+image::monitoring-nodes-after.png[]
+
+The updated view of pods looks like this:
+
+image::monitoring-pods-after.png[]
+
+=== Cleanup
+
+Remove all the installed components:
+
+    kubectl delete -f heapster/templates/
+
+== Prometheus, Node exporter and Grafana
+
+http://prometheus.io/[Prometheus] is an open-source systems monitoring and alerting toolkit. Prometheus collects metrics from monitored targets by scraping metrics from HTTP endpoints on these targets.
+
+Different targets to scrape are defined in a Prometheus configuration file. Targets may be statically configured via the `static_configs` parameter in the configuration file or dynamically discovered using one of the supported service-discovery mechanisms (Consul, DNS, Etcd, etc.).
+
+https://github.com/prometheus/node_exporter[Node exporter] is a Prometheus exporter for hardware and OS metrics exposed by *NIX kernels.
+
+=== Installation
+
+The Prometheus configuration file is defined as a ConfigMap in the file `prometheus/templates/prometheus-configmap.yaml`.
+
+We need to provide the location of the etcd server in our cluster in this configuration file. In our case, etcd is running inside the Kubernetes cluster. Find the IP address of etcd using this command:
 
      kubectl get pods --namespace=kube-system
 
-etcd clusters deployed with the most recent version of kops use port 4001, if you have a newer version of etcd it will be listening on port 2379
+It shows output as:
 
-Once you have saved the etcd information into the file you can deploy the config map:
+```
+NAME                                                                  READY     STATUS    RESTARTS   AGE
+dns-controller-246088375-wbxj2                                        1/1       Running   0          2m
+etcd-server-events-ip-172-20-43-222.us-west-2.compute.internal        1/1       Running   0          2m
+etcd-server-ip-172-20-43-222.us-west-2.compute.internal               1/1       Running   0          2m
+kube-apiserver-ip-172-20-43-222.us-west-2.compute.internal            1/1       Running   0          2m
+kube-controller-manager-ip-172-20-43-222.us-west-2.compute.internal   1/1       Running   0          1m
+kube-dns-479524115-80lnk                                              3/3       Running   0          1m
+kube-dns-479524115-xb1fg                                              3/3       Running   0          35s
+kube-dns-autoscaler-1818915203-wh05v                                  1/1       Running   0          2m
+kube-proxy-ip-172-20-39-86.us-west-2.compute.internal                 1/1       Running   0          1m
+kube-proxy-ip-172-20-43-222.us-west-2.compute.internal                1/1       Running   0          2m
+kube-proxy-ip-172-20-59-49.us-west-2.compute.internal                 1/1       Running   0          1m
+kube-scheduler-ip-172-20-43-222.us-west-2.compute.internal            1/1       Running   0          2m
+```
 
-    kubectl create -f templates/prometheus-configmap.yaml
+Other pods are shown as well, but we are only interested in the etcd pods. Note down the name of the pod that starts with `etcd-server-ip`. Get more details about this pod:
 
-Next deploy Prometheus into your cluster:
+  kubectl describe pod/etcd-server-ip-172-20-43-222.us-west-2.compute.internal --namespace=kube-system 
 
-    kubectl create -f templates/prometheus-deployment.yaml
+The output looks like this:
 
-You should now be able to open a browser to the public IP address of your master node at port 30900 to display the Prometheus dashboard.
+```
+Name:         etcd-server-ip-172-20-43-222.us-west-2.compute.internal
+Namespace:    kube-system
+Node:         ip-172-20-43-222.us-west-2.compute.internal/172.20.43.222
+Start Time:   Thu, 19 Oct 2017 11:45:00 -0700
+Labels:       k8s-app=etcd-server
+Annotations:  kubernetes.io/config.hash=0bf764cce6423977578c5556c557cc39
+              kubernetes.io/config.mirror=0bf764cce6423977578c5556c557cc39
+              kubernetes.io/config.seen=2017-10-19T18:44:55.534222237Z
+              kubernetes.io/config.source=file
+Status:       Running
+IP:           172.20.43.222
 
-Finally we will deploy the node exporter DaemonSet which will read system level metrics from each node and export them to Prometheus:
+. . .
 
-    kubectl create -f templates/node-exporter.yaml
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     :NoExecute
+Events:          <none>
+```
 
-== Conclusion
+Note down the IP address from this output.
 
-In this tutorial we showed how to use common monitoring tools for Kubernetes and get them deployed and running in your cluster.
+Update the file `prometheus/templates/prometheus-configmap.yaml`, and replace `<IP>` with the IP address of the `etcd` server in your cluster. The updated fragment will look like as shown:
+
+```
+- job_name: 'etcd'
+  target_groups:
+  - targets:
+    - 172.20.43.222:4001
+```
+
+TODO: Is this required? Check config map again. etcd is already running in the cluster. etcd clusters deployed with the most recent version of kops use port 4001, if you have a newer version of etcd it will be listening on port 2379.
+
+Once you save the etcd information then you can deploy the ConfigMap:
+
+    kubectl create -f prometheus/templates/prometheus-configmap.yaml
+
+Next, deploy Prometheus into your cluster:
+
+    kubectl create -f prometheus/templates/prometheus-deployment.yaml
+
+Next, we will deploy the node exporter DaemonSet which will read system level metrics from each node and export them to Prometheus. Node exporter is defined as a DaemonSet, and so there is a single instance running on each node of the cluster:
+
+    kubectl create -f prometheus/templates/node-exporter.yaml
+
+Finally, deploy the Grafana dashboard:
+
+    kubectl create -f prometheus/templates/grafana.yml
+
+=== Prometheus Dashboard
+
+Prometheus is now scraping metrics from the etcd server, the Kubernetes API server and the node exporter. Metrics exported by different sources are listed below:
+
+- etcd: https://coreos.com/etcd/docs/latest/metrics
+- Kubernetes API server: https://github.com/kubernetes/kube-state-metrics
+- Node exporter: https://github.com/prometheus/node_exporter
+
+Let's look at these these metrics in the Prometheus dashboard. There are a few way to access the Prometheus dashboard?
+
+You can use port forwarding. First find the pod name, then forward the traffic on that pod:
+
+    kubectl get pods
+    kubectl port-forward prometheus-570506388-1vjm5 8080:9090 &
+
+and enter http://127.0.0.1:8080/graph in your browser. Remember to replace the pod name in the `port-forward` command above.
+
+Or you can access the dashboard directly on an EC2 instance:
+
+. Find a master node in the EC2 console:
++
+image::prometheus-ec2-nodes.png[]
++
+. Copy public IP address of the master node as `<master-ip>`.
+. Prometheus dashboard is accessible on the port `30900`. Edit the security group and add a rule to allow inbound traffic on the port 30900 as shown:
++
+image::prometheus-ec2-security-group.png[]
++
+. Prometheus dashboard is now available at http://<master-ip>:30900. In our case, this will be http://ec2-54-191-175-245.us-west-2.compute.amazonaws.com:30900, and looks like:
++
+image::prometheus-dashboard-initial.png[]
++
+. A wide set of metrics are available and can be seen in the dashboard. Here is a snapshot of metrics from etcd:
++
+image::prometheus-dashboard-etcd.png[]
++
+Here is a snapshot of metrics from the Kubernetes API server:
++
+image::prometheus-dashboard-kubelet.png[]
++
+Here is a snapshot of metrics from the node exporter:
++
+image::prometheus-dashboard-node-exporter.png[]
+
+=== Grafana dashboard
+
+Grafana dashboard, accessible at http://localhost:8001/api/v1/proxy/namespaces/default/services/grafana/, now shows the information about the cluster.
+
+NOTE: Grafana dashboard will not be available if Kubernetes proxy is not running. If not running, then it can be started with the command `kubectl proxy`.
+
+=== Cleanup
+
+Remove all the installed components:
+
+    kubectl delete -f prometheus/templates/
+

@@ -1,21 +1,384 @@
-= Kubernetes Getting Started
+= Kubernetes - Setup Development Environment and First Steps
 :icons:
 :linkcss:
 :imagesdir: ../images
+:toc:
 
+A Kubernetes cluster can be created on your laptop, VM, cloud provider or a rack of bare metal servers. For development purposes, it's easiest to start with a one-node cluster using https://github.com/kubernetes/minikube[Minikube]. Hosted solutions or cloud-based solutions provide the scalability and higher availability for production purposes. A complete list of solutions to create a Kubernetes cluster is explained at http://kubernetes.io/docs/getting-started-guides/.
 
-== As part of this initial four part series we will accomplish a few key goals:
+This section will explain how to create and shutdown a development Kubernetes cluster using Minikube. The next section will show how to create a highly available cluster on AWS using https://github.com/kubernetes/kops[Kops], as explained in the link:../cluster-install[cluster install] section.
 
-. *Setup Local Development Environment* Provision and install a local Kubernetes cluster on a mac via homebrew, intended for use as a local development environment for developers to initially gain familiarity with the base Kubernetes constructs. As the developer matures the local environment can be used to develop and test functionality release in the latest branches of the main Kubernetes project.
+== Download and Install
 
-. *Kubernetes Basic Commands* Familiarize ourselves with the kubectl cli tool and basic Kubernetes commands. We will first deploy a basic nginx pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps gets developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
+Minikube runs a single-node Kubernetes cluster inside a VM on your laptop. This allows users to easily try out Kubernetes on your local machine. Minikube packages and configures a Linux VM, the container runtime, and all Kubernetes components, optimized for local development.
 
-. *Production Ready Cluster* Deploy a 'production-ready' cluster on AWS with KOPS
+Complete installation instructions are available at https://github.com/kubernetes/minikube. Here are quick instructions:
 
-. *Build on basics of Kubernetes CLI* Explore additional developer functionality with core Kubernetes constructs such as ReplicaSets, Services, Deployments and DaemonSets.
+=== Setup on Mac OSX
 
-== Lets get started!
+Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh/[homebrew].
 
-Continue on to part 1 of this series to get started getting a local development environment up and running.
+. Install homebrew and cask
++
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
++
+. Install VirtualBox
++
+    brew cask install virtualbox
++
+. Install minikube
++
+    brew cask install minikube
++
+. Install Kubectl CLI
++
+    brew install kubernetes-cli
 
-https://github.com/omarlari/kubernetes-aws-workshop/blob/master/getting-started/setup-local-dev.adoc
+=== Setup on Windows
+
+. Download and install https://www.virtualbox.org/wiki/Downloads[VirtualBox].
+. Download the https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe[minikube-windows-amd64.exe] file, and rename it to `minikube.exe`.
+. Download kubectl CLI:
++
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo \
+    gleapis.com/kubernetes-release/release/stable.txt)/bin/windows/amd64/kubectl
+
+=== Setup on Linux
+
+. Download and install https://www.virtualbox.org/wiki/Downloads[VirtualBox].
+. Install minikube:
++
+    curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
++
+. Install Kubectl CLI:
++
+    curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+
+== Start Kubernetes cluster
+
+We are using the VirtualBox driver which is the default selection for minikube. If you would prefer you can use an alternate supported component (xhyve driver or VMware Fusion) using the `--vm-driver=xxx` flag.
+
+Start a single-node Kubernetes cluster on your local machine:
+
+    minikube start
+
+The first start of minikube will download the ISO file and then start the cluster. It shows the following output:
+
+```
+$ minikube start
+Starting local Kubernetes v1.7.5 cluster...
+Starting VM...
+Downloading Minikube ISO
+ 139.09 MB / 139.09 MB [============================================] 100.00% 0s
+Getting VM IP address...
+Moving files into cluster...
+Setting up certs...
+Connecting to cluster...
+Setting up kubeconfig...
+Starting cluster components...
+Kubectl is now configured to use the cluster.
+```
+
+Now you can start to develop and test your application.
+
+=== Check status
+
+Check the status of minikube to get the status of your local Kubernetes cluster:
+
+```
+$ minikube status
+minikube: Running
+cluster: Running
+kubectl: Correctly Configured: pointing to minikube-vm at 192.168.99.100
+```
+
+Kubectl CLI is configured to talk to this cluster.
+
+== Kubernetes basic commands
+
+Now that we have a local cluster up and running we can start issuing some basic commands and deploy some simple resources.
+
+In this part we will familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGINX pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps get developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
+
+NOTE: The kubectl commands below will be routed via your virtualbox network interface. If you are using a VPN or have a local firewall, this may prevent kubectl from contacting the minikube endpoint. Stopping the VPN or adding a firewall rule may resolve this.
+
+=== Display nodes
+
+This command will show all the nodes available in your kubernetes cluster:
+
+    kubectl get nodes
+
+It shows the output as:
+
+    NAME       STATUS    ROLES     AGE       VERSION
+    minikube   Ready     <none>    7d        v1.7.5
+
+=== Create your first pod
+
+This command creates an nginx pod into your cluster:
+
+    kubectl run nginx --image=nginx
+
+Get the list of deployments:
+
+    $ kubectl get deployments
+    NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    nginx     1         1         1            0           41s
+
+Get the list of running pods:
+
+    $ kubectl get pods
+    NAME                     READY     STATUS    RESTARTS   AGE
+    nginx-4217019353-h7mns   1/1       Running   0          1m
+
+Get additional details for the pod by using the `<pod-name>` from the above output:
+
+```
+$ kubectl describe pod/nginx-4217019353-h7mns
+Name:           nginx-4217019353-h7mns
+Namespace:      default
+Node:           minikube/192.168.99.100
+Start Time:     Sun, 22 Oct 2017 21:19:07 -0400
+Labels:         pod-template-hash=4217019353
+                run=nginx
+Annotations:    kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"nginx-4217019353","uid":"2ac75475-b790-11e7-98ed-08002724bd66","...
+Status:         Running
+IP:             172.17.0.6
+Created By:     ReplicaSet/nginx-4217019353
+Controlled By:  ReplicaSet/nginx-4217019353
+Containers:
+  nginx:
+    Container ID:   docker://75ac01bf97fee66ea8e5cfd6cfe00d3b29d8b09d9ca52b7be1782db5dd610057
+    Image:          nginx
+    Image ID:       docker://sha256:1e5ab59102ce46c277eda5ed77affaa4e3b06a59fe209fe0b05200606db3aa7a
+    Port:           <none>
+    State:          Running
+      Started:      Sun, 22 Oct 2017 21:20:02 -0400
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-c5xdg (ro)
+Conditions:
+  Type           Status
+  Initialized    True 
+  Ready          True 
+  PodScheduled   True 
+Volumes:
+  default-token-c5xdg:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-c5xdg
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     <none>
+Events:
+  Type    Reason                 Age   From               Message
+  ----    ------                 ----  ----               -------
+  Normal  Scheduled              1m    default-scheduler  Successfully assigned nginx-4217019353-h7mns to minikube
+  Normal  SuccessfulMountVolume  1m    kubelet, minikube  MountVolume.SetUp succeeded for volume "default-token-c5xdg"
+  Normal  Pulling                1m    kubelet, minikube  pulling image "nginx"
+  Normal  Pulled                 51s   kubelet, minikube  Successfully pulled image "nginx"
+  Normal  Created                51s   kubelet, minikube  Created container
+  Normal  Started                51s   kubelet, minikube  Started container
+```
+
+By default, pods are created in a `default` namespace. In additiopn, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
+
+```
+$ kubectl get pods --namespace kube-system
+NAME                          READY     STATUS    RESTARTS   AGE
+kube-addon-manager-minikube   1/1       Running   0          1m
+kube-dns-1326421443-69xs9     3/3       Running   0          1m
+kubernetes-dashboard-5jt9q    1/1       Running   0          1m
+```
+
+=== Get logs from the pod
+
+Logs from the pod can be obtained:
+
+    kubectl logs <pod-name>
+
+=== Execute a shell on the running pod
+
+This command will open a TTY to a shell in your pod:
+
+    kubectl get pods
+    kubectl exec -it <pod-name> /bin/bash
+
+This opens a Bash shell and allows you to look around the filesystem of the container.
+
+=== Expose pod
+
+By default, all Kubernetes resources are only accessible within the cluster. This command will publish the NGINX pod to a port on the host where its deployed:
+
+    kubectl expose pod <pod-name> --port=80 --type=NodePort --name=web
+
+Where `<pod-name>` is the pod name of your NGINX pod. This will expose the pod as a Service. You can see the published service:
+
+    $ kubectl get svc
+    NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)        AGE
+    web          NodePort    10.0.0.14    <none>        80:30934/TCP   3s
+
+=== View service webpage
+
+This minukube command will display the service for you in a web page:
+
+    minkube service web
+
+This opened a browser with an IP address and the port that the service was exposed on. It looks like as shown:
+
+image::nginx-welcome-page.png[]
+
+This is a convenient feature of minukube. But what if you wanted to find this information yourself?
+
+You can view the IP address of a node in your cluser with these steps, first find all of the nodes in your cluster:
+
+    kubectl get nodes
+
+Once you have the nodes (in minikubes case there will be only one), we can describe all of the attribute of that node with:
+
+    kubectl describe node <node-name>
+
+Where `<node-name>` is the output from the previous command. This shows a lot of information about the node:
+
+```
+$ kubectl describe node minikube
+Name:               minikube
+Roles:              <none>
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/hostname=minikube
+Annotations:        alpha.kubernetes.io/provided-node-ip=192.168.99.100
+                    node.alpha.kubernetes.io/ttl=0
+                    volumes.kubernetes.io/controller-managed-attach-detach=true
+Taints:             <none>
+CreationTimestamp:  Sun, 15 Oct 2017 17:22:22 -0400
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  OutOfDisk        False   Sun, 22 Oct 2017 21:26:44 -0400   Mon, 16 Oct 2017 19:28:57 -0400   KubeletHasSufficientDisk     kubelet has sufficient disk space available
+  MemoryPressure   False   Sun, 22 Oct 2017 21:26:44 -0400   Mon, 16 Oct 2017 19:28:57 -0400   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Sun, 22 Oct 2017 21:26:44 -0400   Mon, 16 Oct 2017 19:28:57 -0400   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  Ready            True    Sun, 22 Oct 2017 21:26:44 -0400   Mon, 16 Oct 2017 19:28:57 -0400   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:  192.168.99.100
+  Hostname:    minikube
+Capacity:
+ cpu:     2
+ memory:  2048484Ki
+ pods:    110
+Allocatable:
+ cpu:     2
+ memory:  1946084Ki
+ pods:    110
+System Info:
+ Machine ID:                 6756b9ba9cd3480fa019cf553d4fea04
+ System UUID:                AC4BE6D4-7896-46EF-B921-44BD0BC92D0D
+ Boot ID:                    66a504af-ce10-4d45-ad50-334f21a2063e
+ Kernel Version:             4.7.2
+ OS Image:                   Buildroot 2016.08
+ Operating System:           linux
+ Architecture:               amd64
+ Container Runtime Version:  docker://1.11.1
+ Kubelet Version:            v1.7.5
+ Kube-Proxy Version:         v1.7.5
+ExternalID:                  minikube
+Non-terminated Pods:         (4 in total)
+  Namespace                  Name                           CPU Requests  CPU Limits  Memory Requests  Memory Limits
+  ---------                  ----                           ------------  ----------  ---------------  -------------
+  default                    nginx-4217019353-h7mns         0 (0%)        0 (0%)      0 (0%)           0 (0%)
+  kube-system                kube-addon-manager-minikube    5m (0%)       0 (0%)      50Mi (2%)        0 (0%)
+  kube-system                kube-dns-1326421443-tbzqc      260m (13%)    0 (0%)      110Mi (5%)       170Mi (8%)
+  kube-system                kubernetes-dashboard-zqd7w     0 (0%)        0 (0%)      0 (0%)           0 (0%)
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  CPU Requests  CPU Limits  Memory Requests  Memory Limits
+  ------------  ----------  ---------------  -------------
+  265m (13%)    0 (0%)      160Mi (8%)       170Mi (8%)
+Events:
+  Type     Reason                   Age              From                  Message
+  ----     ------                   ----             ----                  -------
+  Normal   Starting                 6d               kubelet, minikube     Starting kubelet.
+  Normal   NodeAllocatableEnforced  6d               kubelet, minikube     Updated Node Allocatable limit across pods
+  Warning  Rebooted                 6d               kubelet, minikube     Node minikube has been rebooted, boot id: d80f975d-2373-4fd0-9d11-3262049e1f39
+  Normal   NodeNotReady             6d               kubelet, minikube     Node minikube status is now: NodeNotReady
+  Normal   Starting                 6d               kube-proxy, minikube  Starting kube-proxy.
+  Normal   NodeHasSufficientDisk    6d (x2 over 6d)  kubelet, minikube     Node minikube status is now: NodeHasSufficientDisk
+  Normal   NodeHasSufficientMemory  6d (x2 over 6d)  kubelet, minikube     Node minikube status is now: NodeHasSufficientMemory
+  Normal   NodeHasNoDiskPressure    6d (x2 over 6d)  kubelet, minikube     Node minikube status is now: NodeHasNoDiskPressure
+  Normal   NodeReady                6d (x2 over 6d)  kubelet, minikube     Node minikube status is now: NodeReady
+  Normal   Starting                 8m               kubelet, minikube     Starting kubelet.
+  Normal   NodeAllocatableEnforced  8m               kubelet, minikube     Updated Node Allocatable limit across pods
+  Normal   NodeHasSufficientDisk    8m               kubelet, minikube     Node minikube status is now: NodeHasSufficientDisk
+  Normal   NodeHasSufficientMemory  8m               kubelet, minikube     Node minikube status is now: NodeHasSufficientMemory
+  Normal   NodeHasNoDiskPressure    8m               kubelet, minikube     Node minikube status is now: NodeHasNoDiskPressure
+  Warning  Rebooted                 8m               kubelet, minikube     Node minikube has been rebooted, boot id: 66a504af-ce10-4d45-ad50-334f21a2063e
+  Normal   Starting                 8m               kube-proxy, minikube  Starting kube-proxy.
+```
+
+IP address information can be obtained by looking at the `InternalIP` field:
+
+    kubectl describe node minikube | grep InternalIP
+
+This gives us the IP address where the service is hosted. Now, we need to get the port that the service is exposed on. This can be found using the following command:
+
+    kubectl describe service web
+
+It shows the output:
+
+```
+$ kubectl describe service web
+Name:                     web
+Namespace:                default
+Labels:                   pod-template-hash=4217019353
+                          run=nginx
+Annotations:              <none>
+Selector:                 pod-template-hash=4217019353,run=nginx
+Type:                     NodePort
+IP:                       10.0.0.14
+Port:                     <unset>  80/TCP
+TargetPort:               80/TCP
+NodePort:                 <unset>  30934/TCP
+Endpoints:                172.17.0.6:80
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+```
+
+The value of 'NodePort' attribute shows the port on which the service is deployed.
+
+The host and the port are the exact same values where minikube opened the service page in the browser.
+
+=== Delete resources
+
+Delete the Kubernetes resources created so far:
+
+    kubectl delete svc/web deployment/nginx
+
+=== Kubernetes dashboard
+
+Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters. It provides an overview of applications running on the cluster, as well as the ability to create or modify individual Kubernetes resources and workloads, such as replica sets, jobs, services, and pods. The dashboard can be used to manage the cluster as well.
+
+Kubernetes dashboard with minikube can be easily viewed using the following command:
+
+    minukube dashboard
+
+It looks like this:
+
+image::minikube-dashboard.png[]
+
+Look around the dashboard and become familiar with some of the Kubernetes terminology. This will be explained in the subsequent chapters.
+
+=== Shutdown cluster
+
+The cluster can be shutdown using the following command:
+
+    $ minikube stop
+    Stopping local Kubernetes cluster...
+    Machine stopped.
+
+== Create a multi-node cluster on AWS
+
+Though some of the exercises that follow would work on Minikube, let's create a multi-node Kubernetes cluster on AWS as explained in link:../cluster-install[Install Kubernetes cluster using Kops].
+

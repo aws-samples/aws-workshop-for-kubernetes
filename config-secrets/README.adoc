@@ -2,59 +2,346 @@
 :linkcss:
 :imagesdir: ../images
 
-= Kubernetes - Configmap and Secrets
+= Kubernetes ConfigMap and Secrets
+:toc:
 
+Kubernetes has resource types that allows to decouple application code from configuration. It makes the applications to be more portable. This chapter will cover how ConfigMap and Secrets can be used to do that.
 
-== Kubernetes - Configmap and Secrets
+. ConfigMap is just a set of key-value pairs. It allow you to decouple configuration artifacts from image content.
+. Secrets allows separating sensitive information such as credentials and keys from an application.
 
-Kubernetes as a resource type of Configmap used as a way to abstract pods away from their configuration helping keep the applications more portable.
+ConfigMap is similar to Secrets, but provides a means of working with strings that don’t contain sensitive information.
 
-There is also a secrets object which allows you to pass sensitive data to your applications.
+This section will explain how to use ConfigMap and Secrets.
 
-Here will will illiustrate how to pass this information to a redis pod, by passing configuration information with Configmap.
+== ConfigMap
 
-Next
+This section will explain:
 
-=== Create the Configmap object
+. Pass configuration information to a Pod
+. Define environment variables in a Pod using ConfigMap
 
-    kubectl apply -f ./templates/config-map.yaml
+=== Create a ConfigMap object
 
-=== Deploy a redis pod that maps the Configmap to the volume where the configuration resides:
+Create a ConfigMap:
+
+    kubectl apply -f ./templates/redis-configmap.yaml
+
+`redis-configmap.yaml` is a standard resource configuration file. It defines the configuration information as:
+
+```
+data:
+  redis-config: |
+    maxmemory=2mb
+    maxmemory-policy=allkeys-lru
+```
+
+The configuration data is stored in the main key `data`. `redis-config` is an attribute inside this key where the configuration information for the Redis pod is defined as key-value pairs.
+
+Get the list of ConfigMaps:
+
+```
+$ kubectl get configmap
+NAME           DATA      AGE
+redis-config   1         4m
+```
+
+Get more details about the created ConfigMap:
+
+```
+$ kubectl get configmap/redis-config -o yaml
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    redis-config: |
+      maxmemory 2mb
+      maxmemory-policy allkeys-lru
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: 2017-10-22T18:38:27Z
+    labels:
+      k8s-app: redis
+    name: redis-config
+    namespace: default
+    resourceVersion: "302238"
+    selfLink: /api/v1/namespaces/default/configmaps/redis-config
+    uid: 316309d0-b758-11e7-8c3f-06329c8974cc
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
+```
+
+The configuration information is shown as key/value pairs in the `data` key.
+
+==== Alternative ways to create ConfigMap
+
+We created a ConfigMap using a resource configuration file. Other ways to create ConfigMap are listed below:
+
+. `kubectl create configmap --from-literal=<key>:<value>`. Multiple `--from-literal=<key>:<value>` options can be used to define different key/value pairs. For example:
++
+```
+kubectl create configmap redis-config --from-literal=maxmemory=2mb --from-literal=maxmemory-policy=allkeys-lru
+```
++
+More details about the ConfigMap can be obtained as:
++
+```
+$ kubectl get configmap/redis-config -o yaml
+apiVersion: v1
+data:
+  maxmemory: 2mb
+  maxmemory-policy: allkeys-lru
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2017-10-22T15:29:31Z
+  name: redis-config
+  namespace: default
+  resourceVersion: "287452"
+  selfLink: /api/v1/namespaces/default/configmaps/redis-config
+  uid: cccf20b7-b73d-11e7-8c3f-06329c8974cc
+```
++
+. `kubectl create configmap redis-config --from-file=<properties file>` where `<properties file>` is a property file with key/value pairs. For example, `templates/redis-config` looks like:
++
+```
+maxmemory 2mb
+maxmemory-policy allkeys-lru
+```
++
+And now ConfigMap can be created as:
++
+```
+kubectl create configmap redis-config --from-file=templates/redis-config
+```
++
+More details about the ConfigMap can be obtained as:
++
+```
+$ kubectl get configmap/redis-config -o yaml
+apiVersion: v1
+data:
+  redis-config: |
+    maxmemory=2mb
+    maxmemory-policy=allkeys-lru
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2017-10-22T15:56:08Z
+  name: redis-config
+  namespace: default
+  resourceVersion: "289533"
+  selfLink: /api/v1/namespaces/default/configmaps/redis-config
+  uid: 84901162-b741-11e7-8c3f-06329c8974cc
+```
++
+The filename becomes a key stored in the data section of the ConfigMap. The file contents become the key’s value.
+
+At the end of this section, you'll have created a ConfigMap `redis-config`.
+
+=== Consume in a pod volume
+
+A ConfigMap must be created before referencing it in a Pod specification (unless you mark the ConfigMap as "`optional`"). If you reference a ConfigMap that doesn’t exist would , the Pod won’t start.
+
+Let's use `redis-config` ConfigMap to create our `redis.conf` configuration file in the pod `redis-pod`. It maps the ConfigMap to the volume where the configuration resides:
 
     kubectl apply -f ./templates/redis-pod.yaml
 
-=== Validate that your redis cluster picked up the appropriate configuration:
+Wait for the pod to run:
 
-    kubectl exec --it redis redis-cli
-    CONFIG GET maxmemory
-    CONFIG GET maxmemory-policy
+    $ kubectl get pods
+    NAME        READY     STATUS    RESTARTS   AGE
+    redis-pod   1/1       Running   0          12m
 
-You should see the same values that were specified in the ./templates/config-map.yaml outputted in the above commands.
+Check logs from the pod to verify that Redis has started:
 
-=== Secrets
+```
+$ kubectl logs redis-pod
+                _._                                                  
+           _.-``__ ''-._                                             
+      _.-``    `.  `_.  ''-._           Redis 2.8.19 (00000000/0) 64 bit
+  .-`` .-```.  ```\/    _.,_ ''-._                                   
+ (    '      ,       .-`  | `,    )     Running in stand alone mode
+ |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6379
+ |    `-._   `._    /     _.-'    |     PID: 6
+  `-._    `-._  `-./  _.-'    _.-'                                   
+ |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+ |    `-._`-._        _.-'_.-'    |           http://redis.io        
+  `-._    `-._`-.__.-'_.-'    _.-'                                   
+ |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+ |    `-._`-._        _.-'_.-'    |                                  
+  `-._    `-._`-.__.-'_.-'    _.-'                                   
+      `-._    `-.__.-'    _.-'                                       
+          `-._        _.-'                                           
+              `-.__.-'                                               
 
-In this section we will demonstrate how to place secrets into the k8s cluster and then show multiple ways of retrieving those secretes from within pods.
+[6] 22 Oct 18:39:45.386 # Server started, Redis version 2.8.19
+[6] 22 Oct 18:39:45.386 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+[6] 22 Oct 18:39:45.386 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
+[6] 22 Oct 18:39:45.386 * The server is now ready to accept connections on port 6379
+```
+
+Validate that your redis cluster picked up the appropriate configuration:
+
+```
+$ kubectl exec redis-pod -it redis-cli
+127.0.0.1:6379> CONFIG GET maxmemory
+1) "maxmemory"
+2) "2097152"
+127.0.0.1:6379> CONFIG GET maxmemory-policy
+1) "maxmemory-policy"
+2) "allkeys-lru"
+127.0.0.1:6379> quit
+```
+
+You should see the same values that were specified in `./templates/redis-configmap.yaml` outputted in the above commands.
+
+Now, changing the pod configuration would involve the following steps:
+
+. Edit `redis-configmap.yaml`
+. Update the ConfigMap using the command: `kubectl apply -f templates/redis-config.yaml`
+. Wrap the pod in a Deployment
+. Terminate the pod, Deployment will restart the pod and pick up new configuration
+
+=== Consume as pod environment variables
+
+The data from ConfigMap can be used to initialize environment variables in a pod. We'll use `arungupta/print-hello` image to print "`Hello World`" on the console. The number of times this message is printed is defined by an environment variable `COUNT`. This value of this variable is defined in the ConfigMap.
+
+. Create a ConfigMap:
+
+  kubectl create configmap hello-count --from-literal=COUNT=2
+
+. Get more details about this ConfigMap:
+
+  $ kubectl get configmap/hello-count -o yaml
+  apiVersion: v1
+  data:
+    COUNT: "2"
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: 2017-10-23T09:55:26Z
+    name: hello-count
+    namespace: default
+    resourceVersion: "3317"
+    selfLink: /api/v1/namespaces/default/configmaps/hello-count
+    uid: 4bbb1a85-b7d8-11e7-8708-0800278e0f7d
+
+. Use this ConfigMap to create a pod:
+
+  kuebctl create -f templates/app-pod.yaml
++
+The pod configuration file looks like:
++
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: app-pod
+  spec:
+    containers:
+    - name: app
+      image: arungupta/print-hello:latest
+      env:
+      - name: COUNT
+        valueFrom:
+          configMapKeyRef:
+            name: app-config
+            key: COUNT
+      ports:
+      - containerPort: 8080
+
+. Get logs from the pod:
+
+  kubectl logs <pod-name>
++
+Check that the message is printed two times.
++
+. Change the ConfigMap:
+
+  kubectl edit configmap/hello-count
+
+. Change the value to `4`
+. Run the pod again. Check the logs again to confirm that the message is now printed 4 times.
+
+== Secrets
+
+In this section we will demonstrate how to place secrets into the Kubernetes cluster and then show multiple ways of retrieving those secretes from within a pod.
+
+=== Create secrets
 
 First encode the secrets you want to apply, for this example we will use the username `admin` and the password `password`
 
     echo -n "admin" | base64
     echo -n "password" | base64
 
-Both of these values are already written in the file `./templates/secret.yaml`
+Both of these values are already written in the file `./templates/secret.yaml`. The configuration looks like:
 
-You can now insert this secret in to kubernetes with the following command:
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: cGFzc3dvcmQ=
+```
 
-    kubectl apply -f ./templates/secret.yaml
+You can now insert this secret in the Kubernetes cluster with the following command:
 
-=== Consuming secrets in your pods
+  kubectl apply -f ./templates/secret.yaml
 
-Here we will demonstrate two ways to consume secrets from within pods.
+The list of created secrets can be seen as:
 
-*Using volumes*, deploy the pod:
+  $ kubectl get secrets
+  NAME                  TYPE                                  DATA      AGE
+  default-token-4cqsx   kubernetes.io/service-account-token   3         8h
+  mysecret              Opaque                                2         6s
+
+The values of the secret are displayed as `Opaque`.
+
+Get more details about the secret:
+
+  $ kubectl describe secrets/mysecret
+  Name:         mysecret
+  Namespace:    default
+  Labels:       <none>
+  Annotations:  <none>
+
+  Type:  Opaque
+
+  Data
+  ====
+  password:  8 bytes
+  username:  5 bytes
+
+Once again, the values of the secret are not shown.
+
+=== Consume in a pod volume
+
+Deploy the pod:
 
     kubectl apply -f ./templates/pod-secret-volume.yaml
 
-Open a shell to the pod to see the secrets
+The pod configuration file looks like:
+
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: pod-secret-volume
+    spec:
+      containers:
+      - name: pod-secret-volume
+        image: redis
+        volumeMounts:
+        - name: foo
+          mountPath: "/etc/foo"
+          readOnly: true
+      volumes:
+      - name: foo
+        secret:
+          secretName: mysecret
+
+Open a shell to the pod to see the secrets:
 
     kubectl exec -it pod-secret-volume /bin/bash
     ls /etc/foo
@@ -63,18 +350,44 @@ Open a shell to the pod to see the secrets
 
 The above commands should result in the plain text values, the decoding is done for you.
 
-*Using Environment Variables*, deploy the pod:
+Delete the pod:
+
+    kubectl delete -f ./templates/pod-secret-volume.yaml
+
+=== Consume as pod environment variables
+
+Deploy the pod:
 
     kubectl apply -f ./templates/pod-secret-env.yaml
 
+The pod configuration file looks like:
+
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: pod-secret-env
+    spec:
+      containers:
+      - name: pod-secret-env
+        image: redis
+        env:
+          - name: SECRET_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mysecret
+                key: username
+          - name: SECRET_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysecret
+                key: password
+      restartPolicy: Never
+
 Open a shell to the pod to see the secrets:
 
-    kubectl exec -it pod-secret-volume /bin/bash
+    kubectl exec -it pod-secret-env /bin/bash
     echo $SECRET_USERNAME
     echo $SECRET_PASSWORD
 
-The above commands illustrate how to see the secret values via environment variables
+The above commands illustrate how to see the secret values via environment variables.
 
-== Conclusion
-
-In this post we demonstrated how to leverage configmaps and secrets in your pods.

@@ -1,20 +1,25 @@
 = Kubernetes on AWS Workshop
 
-This repo explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains
-how to deploy, scale and configure applications on this cluster.
+This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains how to deploy, scale and configure applications on this cluster.
 
-Proposed agenda is to go through the described format to rampup your knowledge on Kubernetes by following
-workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable
-as you move through the workshop. It is recommended to review link:workshop-prereqs.adoc[prereqs document]
-before re-purposing this workshop so that you have a better experience going through these tutorials.
+This workshop is targeted for attendees in both Developer and Operations teams who would like to get started with Kubernetes on Amazon Web Services (AWS).
+
+It will provide instructions to create, manage and scale a Kubernetes cluster on AWS. Deep integration with several AWS technologies will be shown.
+
+It will also explain how to deploy applications, scale them, run stateless and stateful containers, perform service discovery between different microservices and other similar concepts.
+
+The proposed agenda is to go through the described format to ramp up your knowledge on Kubernetes by following
+the workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable
+as you move through the workshop.
 
 [cols="1*"]
 |===
-|Beginners (100 - 200)
+|Beginners
 
-|link:getting-started[Kubernetes Getting started]
-|link:install-cluster[Install Kubernetes cluster using kops]
-|link:deployment-concepts[Kubernetes Deployment concepts]
+|link:prereqs.adoc[Pre-requisites]
+|link:getting-started[Setup Development Environment and First Steps]
+|link:cluster-install[Create Kubernetes cluster using Kops]
+|link:developer-concepts[Kubernetes Developer Concepts]
 |===
 
 [cols="1*"]
@@ -22,12 +27,13 @@ before re-purposing this workshop so that you have a better experience going thr
 |Mid-level (200 - 300)
 
 | link:microservices[Service discovery with microservices]
+| link:helm[Deploy applications using Helm charts]
 | link:cluster-logging[Logging with Kubernetes cluster]
 | link:cluster-monitoring[Monitoring with Kubernetes cluster]
 | link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
 | Upgrading Kubernetes cluster - blue/green upgrade
 | link:cluster-scaling[Cluster scaling]
-| Configuration and Secrets Management
+| link:config-secrets[Configuration and Secrets Management]
 | link:app-scaling[Pod Autoscaling]
 |===
 

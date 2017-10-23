@@ -1,6 +1,5 @@
-:toc:
-
 = Setup kubernetes cluster federation on AWS
+:toc:
 
 There are many use cases for configuring k8s cluster federation. Most important is high availability
 across AWS regions (also same regions) but this approach can also be applied to hybrid use cases. In this exercise,
@@ -173,4 +172,4 @@ federated cluster
     kops delete cluster earth-k8s.internal --yes
     kops delete cluster mars-k8s.internal --yes
 
-This doc is related to https://github.com/arun-gupta/kubernetes-aws-workshop/issues/6
+

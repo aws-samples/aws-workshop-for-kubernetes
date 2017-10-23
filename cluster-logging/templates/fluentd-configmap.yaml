@@ -279,7 +279,7 @@ data:
       # Plugin specific settings
       type cloudwatch_logs
       log_group_name kubernetes-logs
-      log_stream_name fluentd-cloudwatch-demo
+      log_stream_name fluentd-cloudwatch
       auto_create_stream true
 
       # Buffer settings

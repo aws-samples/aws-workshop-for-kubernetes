@@ -1,0 +1,27 @@
+= Kubernetes Workshop Prereqs
+:toc:
+
+Here are the pre-requisites for the link:readme.adoc[Kubernetes on AWS workshop]:
+
+. *AWS Account*: You will be using an AWS Account while you go through the workshop. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one
+. *IAM Permissions*: If you already have an AWS Account, you need to create an IAM user and attach these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies].
++
+    AmazonEC2FullAccess
+    AmazonRoute53FullAccess
+    AmazonS3FullAccess
+    IAMFullAccess
+    AmazonVPCFullAccess
++
+Please review this link:https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user[link]
+for additional info on IAM permissions
++
+. *AWS CLI*: Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
+on your PC
+. *AWS Region*: Use `eu-central-1` AWS region for this workshop. We have done minimal testing against these AWS regions.
+For ex, installing and terminating k8s cluster. Please https://github.com/arun-gupta/kubernetes-aws-workshop/issues[file a bug] if you run into issues.
++
+You can set the default region using this command
++
+    export AWS_DEFAULT_REGION=eu-central-1
++
+Several parts of the workshop require the region to be explicitly specified. The code sample may be using a different region but its recommended to use this region instead.

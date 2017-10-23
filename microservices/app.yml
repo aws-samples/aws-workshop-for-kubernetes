@@ -62,6 +62,7 @@ spec:
   ports:
     - name: web
       port: 80
+      targetPort: 8080
   type: LoadBalancer
 ---
 apiVersion: extensions/v1beta1

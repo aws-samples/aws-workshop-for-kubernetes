@@ -1,4 +1,5 @@
 = Kubernetes - Enforcing Network Security Policies with Calico
+:toc:
 
 == Introduction
 
