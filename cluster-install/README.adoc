@@ -328,18 +328,21 @@ Specific API versions can be turned on or off by passing `--runtime-config=api/<
 
 For a cluster created using kops, this can be done by editing the cluster configuration using the command shown:
 
-  kops edit cluster
+  kops edit cluster --name cluster.k8s.local
 
 This will open up the cluster configuration in a text editor. Update the `spec` attribute such that it looks like as shown:
 
     spec:
       kubeAPIServer:
-      runtimeConfig:
+        runtimeConfig:
           batch/v2alpha1: "true"
+      api:
 
 Save the changes and exit the editor. Kubernetes cluster needs to re-read the configuration. This can be done by forcing a rolling update of the cluster using the following command:
 
-   $ kops rolling-update cluster --force --yes
+NOTE: This process can easily take 30-45 minutes. Its recommended to leave the cluster without any updates during that time.
+
+  $ kops rolling-update cluster --force --yes
   Using cluster from kubectl context: cluster.k8s.local
 
   NAME      STATUS  NEEDUPDATE  READY MIN MAX NODES
@@ -347,19 +350,26 @@ Save the changes and exit the editor. Kubernetes cluster needs to re-read the co
   master-us-east-1b Ready 0   1 1 1 1
   master-us-east-1c Ready 0   1 1 1 1
   nodes     Ready 0   5 5 5 5
-  I1024 06:51:08.660179    2156 instancegroups.go:350] Stopping instance "i-0cf49dfd778de8fdd", node "ip-172-20-46-130.ec2.internal", in AWS ASG "master-us-east-1a.masters.cluster.k8s.local".
-  I1024 06:56:08.836734    2156 instancegroups.go:350] Stopping instance "i-099c930cb3c1b712a", node "ip-172-20-89-122.ec2.internal", in AWS ASG "master-us-east-1b.masters.cluster.k8s.local".
-  I1024 07:01:09.335770    2156 instancegroups.go:350] Stopping instance "i-0b0849b685f3d1dff", node "ip-172-20-127-230.ec2.internal", in AWS ASG "master-us-east-1c.masters.cluster.k8s.local".
-  I1024 07:06:09.777166    2156 instancegroups.go:350] Stopping instance "i-02a0bde58819b874f", node "ip-172-20-54-5.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+  I1024 13:52:24.157265   10015 instancegroups.go:350] Stopping instance "i-0e360bb9e0727dd8b", node "ip-172-20-41-119.ec2.internal", in AWS ASG "master-us-east-1a.masters.cluster.k8s.local".
+  I1024 13:57:24.716916   10015 instancegroups.go:350] Stopping instance "i-035218266920adef4", node "ip-172-20-69-240.ec2.internal", in AWS ASG "master-us-east-1b.masters.cluster.k8s.local".
+  I1024 14:02:26.525752   10015 instancegroups.go:350] Stopping instance "i-066f3297de579bf8c", node "ip-172-20-118-170.ec2.internal", in AWS ASG "master-us-east-1c.masters.cluster.k8s.local".
+  I1024 14:07:27.116643   10015 instancegroups.go:350] Stopping instance "i-02d9f1c5da4196e14", node "ip-172-20-94-105.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+  I1024 14:09:27.904629   10015 instancegroups.go:350] Stopping instance "i-02f9476eeabf7da94", node "ip-172-20-34-109.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+  I1024 14:11:28.407498   10015 instancegroups.go:350] Stopping instance "i-03e47a6d0443cba9a", node "ip-172-20-118-38.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+  I1024 14:13:28.976021   10015 instancegroups.go:350] Stopping instance "i-0b638251009866d81", node "ip-172-20-49-221.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+  I1024 14:15:29.457640   10015 instancegroups.go:350] Stopping instance "i-0cf7b9f76b964a918", node "ip-172-20-116-234.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+  I1024 14:17:29.939175   10015 rollingupdate.go:174] Rolling update completed!
 
 This command will first stop one master node in the cluster, re-read the configuration information and start that master. Then it will do the same for rest of the master nodes. And then it will repeat that for each worker node in the cluster. After all the server and worker nodes have been restarted, the rolling update of the cluster is complete.
 
 Let's verify that the attributes are now successfully passed to the API server. Get the list of pods for the API server using the command shown:
 
   $ kubectl get pods --all-namespaces | grep kube-apiserver
-  <OUTPUT>
+  kube-system   kube-apiserver-ip-172-20-117-32.ec2.internal            1/1       Running   0          7m
+  kube-system   kube-apiserver-ip-172-20-62-108.ec2.internal            1/1       Running   6          16m
+  kube-system   kube-apiserver-ip-172-20-79-64.ec2.internal             1/1       Running   2          12m
 
-The output shows three pods corresponding to the three master nodes.
+The output shows three pods, one each for API server, corresponding to the three master nodes.
 
 Search for the `--runtime-config` option as shown:
 
