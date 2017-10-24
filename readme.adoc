@@ -47,7 +47,6 @@ as you move through the workshop.
 | CI/CD pipeline
 | ALB ingress controller
 | Nginx ingress controller
-| link:service-mesh#linkerd[Service mesh integration using Linkerd]
-| Service mesh integration using Istio
+| link:service-mesh[Service mesh integration using Linkerd and Istio]
 |===
 
