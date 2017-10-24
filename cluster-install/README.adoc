@@ -105,6 +105,14 @@ ip-172-20-91-39.ec2.internal  node  True
 Your cluster cluster.kubernetes-aws.io is ready
 ```
 
+Verify the client and server version:
+
+  $ kubectl version
+  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
+  Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+
+It shows that Kubectl CLI version if 1.8.1 and the server version is 1.7.4.
+
 ==== Multi-master, multi-node, multi-az DNS-based cluster
 
 Check the list of Availability Zones that exist for your region using the following command:
