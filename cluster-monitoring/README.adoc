@@ -14,28 +14,9 @@ This workshop will demonstrate how to monitor a Kubernetes cluster using the fol
 
 == Pre-requisites
 
-Make sure the cluster is up and running as explained in the link:../cluster-install[installation instructions].
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
 
-This workshop will use a two node cluster:
-
-```
-Using cluster from kubectl context: cluster.kubernetes-aws.io
-
-Validating cluster cluster.kubernetes-aws.io
-
-INSTANCE GROUPS
-NAME            ROLE    MACHINETYPE MIN MAX SUBNETS
-master-us-west-2a   Master  m3.medium   1   1   us-west-2a
-nodes           Node    t2.medium   2   2   us-west-2a
-
-NODE STATUS
-NAME                        ROLE    READY
-ip-172-20-48-121.us-west-2.compute.internal master  True
-ip-172-20-55-130.us-west-2.compute.internal node    True
-ip-172-20-62-3.us-west-2.compute.internal   node    True
-
-Your cluster cluster.kubernetes-aws.io is ready
-```
+All configuration files for this chapter are in the `cluster-monitoring` directory.
 
 == Kubernetes Dashboard
 
@@ -120,18 +101,15 @@ Copy the value of token from this output, select `Token` in the Dashboard login 
 
 image::kubernetes-dashboard-default.png[]
 
-
 Click on `Nodes` to see a textual representation about the nodes running in the cluster:
 
 image::monitoring-nodes-before.png[]
-
 
 Install a Java application as explained in link:../helm[Deploying applications using Kubernetes Helm charts].
 
 Click on `Pods`, again to see a textual representation about the pods running in the cluster:
 
 image::monitoring-pods-before.png[]
-
 
 This will change after Heapster, InfluxDB and Grafana are installed.
 

@@ -3,6 +3,12 @@
 
 This chapter shows an example that shows different microservices can use service discovery with Kubernetes.
 
+== Pre-requisites
+
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+
+All configuration files for this chapter are in the `microservices` directory.
+
 == Application architecture
 
 The sample application uses three services:

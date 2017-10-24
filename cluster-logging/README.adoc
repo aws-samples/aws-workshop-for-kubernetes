@@ -14,6 +14,12 @@ Together, Fluentd, Elasticsearch and Kibana is also known as "`EFK stack`".
 
 In terms of architecture, Fluentd is deployed as a DaemonSet with the CloudWatch Logs plugin. The default configuration will stream system logs, Kubernetes container logs and Kubernetes API server audit logs to a CloudWatch log group. An AWS Lambda function, which is provided for you, will stream the Log Group into an Amazon Elasticsearch cluster. The logs can then be viewed using a Kibana dashboard.
 
+== Pre-requisites
+
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+
+All configuration files for this chapter are in the `cluster-logging` directory.
+
 == Provision an Amazon Elasticsearch cluster
 
 This example creates a two instance Amazon Elasticsearch cluster named `kubernetes-logs`. This cluster is created in the same region as the Kubernetes cluster and CloudWatch log group. Note that this cluster has an open access policy which will need to be locked down in production environments:
