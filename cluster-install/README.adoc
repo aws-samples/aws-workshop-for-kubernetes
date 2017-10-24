@@ -282,7 +282,7 @@ Your output may differ from the one shown here based up on the type of cluster y
 
 == Turn on an API version for your cluster
 
-Kubernetes resources are created with a specific API version. The exact value is defined by the `apiVersion` attribute in the resource configuration file. Some of the values are `v1`, `extensions/v1beta1` or `batch/v1`. By default, resources with `apiVersion` values are enabled. If a resource has a version with the word `alpha` in it, then that version needs to be explicitly enabled in the cluster. For example, if you are running a Kubernetes cluster of version 1.7.x, then Cron Job resource can only be created with API version `batch/v2alpha1`. Cron Job resource cannot be created unless `batch/v2alpha1` is explicitly enabled.
+Kubernetes resources are created with a specific API version. The exact value is defined by the `apiVersion` attribute in the resource configuration file. Some of the values are `v1`, `extensions/v1beta1` or `batch/v1`. By default, resources with `apiVersion` values X, Y, Z are enabled. If a resource has a version with the word `alpha` in it, then that version needs to be explicitly enabled in the cluster. For example, if you are running a Kubernetes cluster of version 1.7.x, then Cron Job resource can only be created with API version `batch/v2alpha1`. Cron Job resource cannot be created unless `batch/v2alpha1` is explicitly enabled.
 
 This section shows how turn on an API version for your cluster. It will use `batch/v2alpha1` as an example.
 
