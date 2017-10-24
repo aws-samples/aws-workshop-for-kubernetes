@@ -634,3 +634,57 @@ Run the following command to delete the DaemonSet:
 
 	kubectl delete -f templates/daemonset.yaml
 
+== Job
+
+A Job creates one or more pods and ensures that a specified number of them successfully complete. A job keeps track of successful completion of a pod. When the specified number of pods have successfully completed, the job itself is complete. The job will start a new pod if the pod fails or is deleted due to hardware failure. A successful completion of the specified number of pods means the job is complete.
+
+This is different from a replica set or a deployment which ensures that a certain number of pods are always running. So if a pod in a replica set or deployment terminates, then it is restarted again. This makes replica set or deployment as long-running processes. This is well suited for a web server, such as NGINX. But a job is completed if the specified number of pods successfully completes. This is well suited for tasks that need to run only once. For example, a job may convert an image format from one to another. Restarting this pod in replication controller would not only cause redundant work but may be harmful in certain cases.
+
+=== Non-parallel Job
+
+Only one pod is started, unless the pod fails. Job is complete as soon as the pod terminates successfully.
+
+Create a job using the command:
+
+	$ kubectl apply -f templates/job.yaml 
+	job "wait" created
+
+Look at the job:
+
+	$ kubectl get jobs
+	NAME      DESIRED   SUCCESSFUL   AGE
+	wait      1         0            0s
+
+The output shows that the job is not successful yet. Watch the pod status to confirm:
+
+	$ kubectl get -w pods
+	NAME         READY     STATUS    RESTARTS   AGE
+	wait-lk49x   1/1       Running   0          7s
+	wait-lk49x   0/1       Completed   0         24s
+
+To begin with, it shows that the pod for the job is running. The pod successfully exits after a few seconds.
+
+Now, watch the job status again:
+
+	$ kubectl get jobs
+	NAME      DESIRED   SUCCESSFUL   AGE
+	wait      1         1            1m
+
+The output shows that the job was successfully executed.
+
+The list of completed pods can be seen using the following command:
+
+	$ kubectl get pods --show-all
+	NAME         READY     STATUS      RESTARTS   AGE
+	wait-lk49x   0/1       Completed   0          1m
+
+=== Parallel Job
+
+== Cron Job
+
+CronJob allows to manage time based jobs. There are two primary use cases:
+
+. Run jobs once at a specified point in time
+. Repeatedly at a specified point in time
+
+
