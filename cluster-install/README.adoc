@@ -13,6 +13,17 @@ There is no need to download a Kubernetes binary distribution for creating a clu
 
 Kops is only available on Mac OSX and Linux. Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
 
+If you already have kops, then make sure you have the latest version:
+
+    brew upgrade kops
+
+Check kops version:
+
+    $ kops version
+    Version 1.7.1
+
+Latest and early versions of kops can be downloaded from https://github.com/kubernetes/kops/releases.
+
 In addition, you also need kubectl CLI to manage the resources on Kubernetes cluster. Instructions to install kubectl CLI are covered in link:../getting-started#setup-local-development-environment[].
 
 == IAM user permission
@@ -166,48 +177,6 @@ Note that all masters are spread across different AZs.
 
 Your output may differ from the one shown here based up on the type of cluster you created.
 
-==== Multi-master, multi-node, multi-az DNS-based cluster, with private VPC hosted zone
-
-If you don't own a DNS domain name, you can create a custom domain using Route53's private hosted zone.
-You need to provide VPC info to run this command. 
-
-Create private VPC:
-
-     VPCID=`aws ec2 create-vpc --cidr-block 10.1.0.0/16 --region us-east-1 --query 'Vpc.VpcId' --output text`
-     # modify dns hostname resolution for the VPC
-     aws ec2 modify-vpc-attribute --vpc-id $VPCID --region us-east-1 --enable-dns-hostnames "{\"Value\":true}"
-     # create internet gateway and attach it to VPC
-     IGW=`aws ec2 create-internet-gateway --region us-east-1 --query 'InternetGateway.InternetGatewayId' --output text`
-     aws ec2 attach-internet-gateway --internet $IGW --vpc $VPCID --region us-east-1
-
-Create a Route53 private hosted zone using this VPC:
-
-    ID=$(uuidgen) && aws route53 create-hosted-zone \
-      --name k8s-aws.internal \
-      --vpc VPCRegion=us-east-1,VPCId=$VPCID \
-      --caller-reference $ID \
-      | jq .DelegationSet.NameServers
-
-Create a cluster with Route53 private hosted zone and VPC:
-
-    kops create cluster \
-      --dns private \
-      --name cluster.k8s-aws.internal \
-      --zones us-east-1a,us-east-1b \
-      --state s3://kubernetes-aws-io \
-      --vpc $VPCID \
-      --network-cidr 10.1.0.0/16 \
-      --yes
-
-TIP: You may need to add cluster API endpoints into your hosts file (/etc/hosts) if you use Route53
-private hosted zone along with VPC option.
-
-Validate the cluster:
-
-    kops validate cluster --name=cluster.k8s-aws.internal
-
-This is giving an error and reported as https://github.com/arun-gupta/kubernetes-aws-workshop/issues/85.
-
 === Create a gossip-based Kubernetes cluster
 
 Kops also has experimental support for a gossip-based cluster. It uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to Kops by using a cluster name with a suffix of `.k8s.local`.
@@ -225,7 +194,7 @@ Create a Kubernetes cluster using the following command. This will create a clus
     kops create cluster \
       --name cluster.k8s.local \
       --zones us-east-1d,us-east-1e \
-      --state s3://kubernetes-aws-config \
+      --state s3://kubernetes-aws-io \
       --yes
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
@@ -256,7 +225,7 @@ ip-172-20-75-78.ec2.internal  node  True
 Your cluster cluster.k8s.local is ready
 ```
 
-==== Create a multi-master, multi-node, multi-az gossip-based cluster
+==== Multi-master, multi-node, multi-az gossip-based cluster
 
 Check the list of Availability Zones that exist for your region using the following command:
 
@@ -271,7 +240,7 @@ one step by passing the `--yes` flag.
       --master-zones us-east-1a,us-east-1b,us-east-1c \
       --node-count 5 \
       --zones us-east-1a,us-east-1b,us-east-1c \
-      --state s3://kubernetes-aws-config \
+      --state s3://kubernetes-aws-io \
       --yes
 
 A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The AZs for master can be specified using the `--master-zones` option. Kops will spread the servers across different AZs.
