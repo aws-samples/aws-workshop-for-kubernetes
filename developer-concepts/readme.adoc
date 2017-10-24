@@ -640,9 +640,32 @@ A Job creates one or more pods and ensures that a specified number of them succe
 
 This is different from a replica set or a deployment which ensures that a certain number of pods are always running. So if a pod in a replica set or deployment terminates, then it is restarted again. This makes replica set or deployment as long-running processes. This is well suited for a web server, such as NGINX. But a job is completed if the specified number of pods successfully completes. This is well suited for tasks that need to run only once. For example, a job may convert an image format from one to another. Restarting this pod in replication controller would not only cause redundant work but may be harmful in certain cases.
 
+Jobs are complementary to Replica Set. A Replica Set manages pods which are not expected to terminate (e.g. web servers), and a Job manages pods that are expected to terminate (e.g. batch jobs).
+
+Job is only appropriate for pods with `RestartPolicy` equal to `OnFailure` or `Never`.
+
 === Non-parallel Job
 
 Only one pod is started, unless the pod fails. Job is complete as soon as the pod terminates successfully.
+
+Here is the job specification:
+
+	apiVersion: batch/v1
+	kind: Job
+	metadata:
+	  name: wait
+	spec:
+	  template:
+	    metadata:
+	      name: wait
+	    spec:
+	      containers:
+	      - name: wait
+	        image: ubuntu
+	        command: ["sleep",  "20"]
+	      restartPolicy: Never
+
+It creates an Ubuntu container, sleeps for 20 seconds and that's it!
 
 Create a job using the command:
 
@@ -680,11 +703,44 @@ The list of completed pods can be seen using the following command:
 
 === Parallel Job
 
+This is also called as Fixed Completion Count job.
+
 == Cron Job
 
-CronJob allows to manage time based jobs. There are two primary use cases:
+=== Pre-requisites
+
+For Kubernetes cluster versions < 1.8, Cron Job is created with API version `batch/v2alpha1`. This version needs to be explicitly enabled in the Kubernetes cluster as explained in link:cluster-install#turn-on-an-api-version-for-your cluster[Turn on an API version for your cluster].
+
+`batch/v2alpha1` API version for Cron Job is deprecated for cluster version >= 1.8. You should switch to `batch/v1beta1`. This version is enabled by default in the API server.
+
+=== Create Cron Job
+
+A Cron Job is a job that runs on a given schedule, written in Cron format. There are two primary use cases:
 
 . Run jobs once at a specified point in time
 . Repeatedly at a specified point in time
+
+Here is the job specification:
+
+	apiVersion: batch/v1alpha1
+	kind: CronJob
+	metadata:
+	  name: hello
+	spec:
+	  schedule: "*/1 * * * *"
+	  jobTemplate:
+	    spec:
+	      template:
+	        spec:
+	          containers:
+	          - name: hello
+	            image: busybox
+	            args:
+	            - /bin/sh
+	            - -c
+	            - date; echo Hello World!
+	          restartPolicy: OnFailure
+
+This job prints the current timestamp and the message "`Hello World`" every minute.
 
 
