@@ -280,6 +280,44 @@ Note that all masters are spread across different AZs.
 
 Your output may differ from the one shown here based up on the type of cluster you created.
 
+=== Create a Kubernetes cluster in a private VPC
+
+Kops can create a private Kubernetes cluster, where the master and worker nodes are launched in private subnets in a VPC. This is possible with both Gossip and DNS-based clusters. This reduces the attack surface on your instances by protecting them behind security groups inside private subnets. The services hosted in the cluster can still be exposed via internet-facing ELBs if required. It's necessary to run an overlay network in the Kubernetes cluster when using a private topology. We have used https://www.projectcalico.org/[Calico] below, though other options such as `kopeio-vxlan`, `weave` and `cni` are available.
+
+Create a gossip-based private cluster with master and worker nodes in private subnets:
+
+    kops create cluster \
+      --networking calico \
+      --topology private \
+      --name cluster.k8s.local \
+      --zones us-east-1a,us-east-1b \
+      --state s3://kubernetes-aws-io \
+      --yes
+
+Validate the cluster:
+
+```
+$ kops validate cluster
+Using cluster from kubectl context: cluster.k8s.local
+
+Validating cluster cluster.k8s.local
+
+INSTANCE GROUPS
+NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
+master-us-east-1a Master  m3.medium 1 1 us-east-1a
+nodes     Node  t2.medium 2 2 us-east-1a,us-east-1b
+
+NODE STATUS
+NAME        ROLE  READY
+ip-172-20-40-184.ec2.internal master  True
+ip-172-20-40-237.ec2.internal node  True
+ip-172-20-77-74.ec2.internal  node  True
+
+Your cluster cluster.k8s.local is ready
+```
+
+It is also possible to create a DNS-based cluster where the master and worker nodes are in private subnets. A `--dns-zone` argument is required to specify the domain. If `--dns private` is also specified, a Route53 private hosted zone is created for routing the traffic for the domain within one or more VPCs. The Kubernetes API can therefore only be accessed from within the VPC. This is a current issue with kops (see https://github.com/kubernetes/kops/issues/2032). A possible workaround is to mirror the private Route53 hosted zone with a public hosted zone that exposes only the API server ELB endpoint. This workaround is discussed http://kubecloud.io/setup-ha-k8s-kops/[here].
+
 == Turn on an API version for your cluster
 
 Kubernetes resources are created with a specific API version. The exact value is defined by the `apiVersion` attribute in the resource configuration file. Some of the values are `v1`, `extensions/v1beta1` or `batch/v1`. By default, resources with `apiVersion` values X, Y, Z are enabled. If a resource has a version with the word `alpha` in it, then that version needs to be explicitly enabled in the cluster. For example, if you are running a Kubernetes cluster of version 1.7.x, then Cron Job resource can only be created with API version `batch/v2alpha1`. Cron Job resource cannot be created unless `batch/v2alpha1` is explicitly enabled.
