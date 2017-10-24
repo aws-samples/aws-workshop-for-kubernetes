@@ -105,7 +105,7 @@ Remove the installed components
   kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
   k8s-daemonset/k8s/linkerd.yml
 
-== Using Isio with Kubernetes
+== Using Istio with Kubernetes
 
 https://istio.io[Istio] is a layer 4/7 proxy that routes and load balances traffic over HTTP, WebSocket, HTTP/2, gRPC and
 supports application protocols such as MongoDB and Redis. Istio uses the Envoy proxy to manage all inbound/outbound traffic
@@ -160,7 +160,7 @@ directory where you downloaded Istio in the step above.
 
     kubectl apply -f install/kubernetes/istio.yaml
 
-Check the Istio has been installed
+Check the Istio has been installed. Note that Istio is installed into its own namespace.
 
 ```
 $ kubectl get all --namespace istio-system
@@ -241,7 +241,9 @@ po/reviews-v1-2270568731-25p41       0/2       PodInitializing   0          31s
 po/reviews-v2-3464433395-bc0tq       0/2       PodInitializing   0          31s
 po/reviews-v3-3687453687-0hldq       0/2       PodInitializing   0          30s
 ```
-If all components were installed successfully, you should be able to see the product page
+If all components were installed successfully, you should be able to see the product page. This may take a minute or two,
+first for the Ingress to be created, and secondly for the Ingress to hook up with the services it exposes. Just keep
+refreshing the browser until the booking product page appears.
 
   ISTIO_INGRESS=$(kubectl get ingress gateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
   open http://$ISTIO_INGRESS/productpage
@@ -251,14 +253,18 @@ If all components were installed successfully, you should be able to see the pro
 The sample application is pretty useful. You can see in the 'kubectl get all' above that its deployed
 more than one version of the 'reviews' microservice. We're going to use weighted routing to route
 50% of the traffic to v3 of the reviews microservice. v3 shows stars for each review, whereas v1 does not.
+We'll then query the bookinfo product page a few times and count the number of times a review page appears
+containing stars for a review; this will indicate we are being routed to v3 of the reviews page.
 
     kubectl create -f samples/bookinfo/kube/route-rule-all-v1.yaml
     kubectl replace -f samples/bookinfo/kube/route-rule-reviews-50-v3.yaml
 
-The Envoy proxy does not round robin the routing to different versions of the microservice, but over
-a hundred requests 50% of them should be routed to a different version. We can test this using
+The Envoy proxy does not round robin the routing to different versions of the microservice, so if you access
+theh product page twice you are unlikely to see one request use v1 of reviews, and a second request use v3. However, over
+a hundred requests 50% of them should be routed to v3 of the reviews page. We can test this using
 the script below. Make sure you don't have a file called 'mfile' in your current folder before running this.
-The 100 'curls' may take around 30s. For the eagle eyed amongst you, the divde by 2 is because the
+The script sends 100 'curl' requests to the bookinfo product page, which may take around 30s, and then counts
+those which have stars in the response. For the eagle eyed amongst you, the divde by 2 is because the
 productpage html contains two reviewers, and we simply want to count the number of 'curls' that returned
 'full stars' in the review page. Out of 100 curls we expect 50 of them to contain 'full stars'.
 
@@ -310,7 +316,8 @@ View the Servicegraph UI - we'll use port forwarding to access this
     kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8088:8088 &
     open http://localhost:8088/dotviz
 
-You should see a distributed trace that looks something like this
+You should see a distributed trace that looks something like this. It may take a few seconds for Servicegraph to become
+available, so refresh the browser if you do not receive a response.
 
 image::istio-trace.png[]
 
@@ -334,9 +341,17 @@ all traffic between microservices will now be encrypted.
 
 Remove the installed components
 
-    ./samples/bookinfo/kube/cleanup.sh
     kubectl delete -f install/kubernetes/addons/servicegraph.yaml
     kubectl delete -f install/kubernetes/addons/prometheus.yaml
     kubectl delete -f install/kubernetes/istio-auth.yaml
     kubectl delete -f install/kubernetes/istio.yaml
+    ./samples/bookinfo/kube/cleanup.sh
+
+Accept the `default` namespace in the cleanup script above.
+Some errors may appear in the output when deleting Istio. These are related to Istio components you have not installed,
+so no need to worry about these. You can confirm that everything has been uninstalled as follows. No Istio or Bookinfo
+components should remain:
+
+    kubectl get all
+    kubectl get all --namespace istio-system
 
