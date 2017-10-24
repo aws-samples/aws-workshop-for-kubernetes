@@ -381,50 +381,122 @@ The list of nodes is now shown as:
   ip-172-20-73-181.ec2.internal    Ready     node      3m        v1.7.4
   ip-172-20-76-117.ec2.internal    Ready     master    10h       v1.7.4
 
-== Scaling options
+== Scaling slaves
 
-You can easily scale the number of slaves by running simple command
+More slaves can be added to the MySQL cluster to increase the read query capacity. This can be done using the command shown:
 
-  kubectl scale statefulset mysql --replicas=5
+  $ kubectl scale statefulset mysql --replicas=5
+  statefulset "mysql" scaled
 
 Of course, you can watch the progress of scaling
 
-  kubectl get pods -l app=mysql --watch
+  kubectl get pods -l app=mysql -w
 
-You can also verify if the slaves have the same data set
+It shows the output:
+
+  $ kubectl get pods -l app=mysql -w
+  NAME      READY     STATUS     RESTARTS   AGE
+  mysql-0   2/2       Running    0          6h
+  mysql-1   2/2       Running    0          6h
+  mysql-2   2/2       Running    0          16m
+  mysql-3   0/2       Init:0/2   0          1s
+  mysql-3   0/2       Init:1/2   0         18s
+  mysql-3   0/2       Init:1/2   0         28s
+  mysql-3   0/2       PodInitializing   0         36s
+  mysql-3   1/2       Running   0         37s
+  mysql-3   2/2       Running   0         43s
+  mysql-4   0/2       Pending   0         <invalid>
+  mysql-4   0/2       Pending   0         <invalid>
+  mysql-4   0/2       Pending   0         0s
+  mysql-4   0/2       Init:0/2   0         0s
+  mysql-4   0/2       Init:1/2   0         31s
+  mysql-4   0/2       Init:1/2   0         41s
+  mysql-4   0/2       PodInitializing   0         52s
+  mysql-4   1/2       Running   0         53s
+  mysql-4   2/2       Running   0         58s
+
+If the loop is still running, then it will print an output as shown:
+
+  +-------------+---------------------+
+  |         101 | 2017-10-24 03:53:53 |
+  +-------------+---------------------+
+  +-------------+---------------------+
+  | @@server_id | NOW()               |
+  +-------------+---------------------+
+  |         100 | 2017-10-24 03:53:54 |
+  +-------------+---------------------+
+  +-------------+---------------------+
+  | @@server_id | NOW()               |
+  +-------------+---------------------+
+  |         102 | 2017-10-24 03:53:55 |
+  +-------------+---------------------+
+  +-------------+---------------------+
+  | @@server_id | NOW()               |
+  +-------------+---------------------+
+  |         103 | 2017-10-24 03:53:57 |
+  +-------------+---------------------+
+  +-------------+---------------------+
+  | @@server_id | NOW()               |
+  +-------------+---------------------+
+  |         103 | 2017-10-24 03:53:58 |
+  +-------------+---------------------+
+  +-------------+---------------------+
+  | @@server_id | NOW()               |
+  +-------------+---------------------+
+  |         104 | 2017-10-24 03:53:59 |
+  +-------------+---------------------+
+
+You can also verify if the slaves have the same data set:
 
   kubectl run mysql-client --image=mysql:5.7 -i -t --rm --restart=Never --\
   mysql -h mysql-3.mysql -e "SELECT * FROM test.messages"
+
+It still shows the same result:
+
   +--------------------------+
   | message                  |
   +--------------------------+
   | hello, from mysql-client |
   +--------------------------+
 
-You can scale in by using this command
+You can scale down by using the command shown:
 
   kubectl scale statefulset mysql --replicas=3
   statefulset "mysql" scaled
 
-Note that, scale in doesn't delete the data or PVCs attached to the Pods. You have to delete
+Note that, scale in doesn't delete the data or PVCs attached to the pods. You have to delete
 them manually
 
   kubectl delete pvc data-mysql-3
   kubectl delete pvc data-mysql-4
 
+It shows the output:
+
+  persistentvolumeclaim "data-mysql-3" deleted
+  persistentvolumeclaim "data-mysql-4" deleted
+
 == Cleaning up
 
-First delete the StatefulSet. This also terminates the Pods
+First delete the StatefulSet. This also terminates the pods:
 
-  kubectl delete statefulset mysql
+  $ kubectl delete statefulset mysql
+  statefulset "mysql" deleted
 
-Verify there are no more pods running
+Verify there are no more pods running:
 
   kubectl get pods -l app=mysql
 
-Delete ConfigMap, Service, PVC
+It shows the output:
 
-  kubectl delete configmap,service,pvc -l app=mysql
+  No resources found.
 
-See link:../cluster-install#delete-cluster/README.adoc[delete cluster] section for deleting cluster resources.
+Delete ConfigMap, Service, PVC using the command:
+
+  $ kubectl delete configmap,service,pvc -l app=mysql
+  configmap "mysql-config" deleted
+  service "mysql" deleted
+  service "mysql-read" deleted
+  persistentvolumeclaim "data-mysql-0" deleted
+  persistentvolumeclaim "data-mysql-1" deleted
+  persistentvolumeclaim "data-mysql-2" deleted
 
