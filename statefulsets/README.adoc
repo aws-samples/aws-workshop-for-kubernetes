@@ -197,99 +197,195 @@ Alternatively, you can use `Ctrl`+`C` to terminate the loop.
 
 == Testing failure modes
 
-Here we will run few tests with different failure modes. First, we will simulate for an unstable
-container, second we will review StatefulSet controller in action for Pod downtime and node downtime
+We will see how StatefulSet behave in different failure modes. The following modes will be tested:
 
-=== Failed container
+. Unhealthy container
+. Failed pod
+. Failed node
 
-MySQL container uses readiness probe by running 'mysql -h 127.0.0.1 -e 'SELECT 1'' on the server
-to make sure MySQL server is still active.
+=== Unhealthy container
 
-Run this command to simulate MySQL as being unresponsive
+MySQL container uses readiness probe by running `mysql -h 127.0.0.1 -e 'SELECT 1'` on the server to make sure MySQL server is still active.
 
-  kubectl exec mysql-2 -c mysql -- mv /usr/bin/mysql.off /usr/bin/mysql
+Run this command to simulate MySQL as being unresponsive:
 
-You can check if the container is healthy
+  kubectl exec mysql-2 -c mysql -- mv /usr/bin/mysql /usr/bin/mysql.off
+
+This command renames the `/usr/bin/mysql` command so that readiness probe cannot find it. After a few seconds, during the next health check, the Pod should report one of its containers is not healthy. This can be verified using the command:
 
   kubectl get pod mysql-2
   NAME      READY     STATUS    RESTARTS   AGE
   mysql-2   1/2       Running   0          12m
 
-mysql-read load balancer detects failures like this and takes action by not sending traffic to
-failed containers. You can check this if you have the loop running in separate window
+`mysql-read` load balancer detects failures like this and takes action by not sending traffic to failed containers. You can check this if you have the loop running in separate window. The loop shows the following output:
+
+```
++-------------+---------------------+
+| @@server_id | NOW()               |
++-------------+---------------------+
+|         101 | 2017-10-24 03:17:09 |
++-------------+---------------------+
++-------------+---------------------+
+| @@server_id | NOW()               |
++-------------+---------------------+
+|         101 | 2017-10-24 03:17:10 |
++-------------+---------------------+
++-------------+---------------------+
+| @@server_id | NOW()               |
++-------------+---------------------+
+|         100 | 2017-10-24 03:17:11 |
++-------------+---------------------+
++-------------+---------------------+
+| @@server_id | NOW()               |
++-------------+---------------------+
+|         100 | 2017-10-24 03:17:12 |
++-------------+---------------------+
+```
 
 Revert back to its initial state
 
   kubectl exec mysql-2 -c mysql -- mv /usr/bin/mysql.off /usr/bin/mysql
 
+Check the status again to see that both the pods are running and healthy:
+
+    $ kubectl get pod -w mysql-2
+    NAME      READY     STATUS    RESTARTS   AGE
+    mysql-2   2/2       Running   0          5h
+
+And the loop is now also showing all three servers.
+
 === Failed pod
 
-To simulate failed Pods, you can run delete pod
+To simulate a failed pod, you can delete a pod as shown:
 
   kubectl delete pod mysql-2
   pod "mysql-2" deleted
-  kubectl get pod mysql-2
-  NAME      READY     STATUS        RESTARTS   AGE
-  mysql-2   2/2       Terminating   0          14m
 
-StatefulSet controller recognizes failed pods and creates a new one with same name and link to same
+StatefulSet controller recognizes failed pods and creates a new one with same name and link to the same
 PersistentVolumeClaim.
+
+  $ kubectl get pod -w mysql-2
+  NAME      READY     STATUS     RESTARTS   AGE
+  mysql-2   0/2       Init:0/2   0          28s
+  mysql-2   0/2       Init:1/2   0         31s
+  mysql-2   0/2       PodInitializing   0         32s
+  mysql-2   1/2       Running   0         33s
+  mysql-2   2/2       Running   0         37s
 
 === Failed node
 
-You can simulate node downtime by issuing drain. In order to determine which node to drain, run
+Kubernetes allows a node to be marked unschedulable using the `kubectl drain` command. This prevents any new pods to be scheduled on this node. If the API server supports eviction, then it will evict the pods. Otherwise, it will delete all the pods. The evict and delete happens for all the pods except mirror pods (which cannot be deleted through API server). Read more about drain at https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/.
+
+You can simulate node downtime by draining the node. In order to determine which node to drain, run
 this command
 
-  kubectl get pod mysql-2 -o wide
-  NAME      READY     STATUS    RESTARTS   AGE       IP           NODE
-  mysql-2   2/2       Running   0          21s       100.96.7.3   ip-10-10-71-96.ec2.internal
+  $ kubectl get pod mysql-2 -o wide
+  NAME      READY     STATUS    RESTARTS   AGE       IP            NODE
+  mysql-2   2/2       Running   0          11m       100.96.6.12   ip-172-20-64-152.ec2.internal
 
-Drain the node
+Drain the node using the command:
 
-  kubectl drain ip-10-10-71-96.ec2.internal --force --delete-local-data --ignore-daemonsets
-  node "ip-10-10-71-96.ec2.internal" cordoned
-  WARNING: Deleting pods with local storage: mysql-2; Deleting pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet: kube-proxy-ip-10-10-71-96.ec2.internal
+  $ kubectl drain ip-172-20-64-152.ec2.internal --force --delete-local-data --ignore-daemonsets
+  node "ip-172-20-64-152.ec2.internal" cordoned
+  WARNING: Deleting pods with local storage: mysql-2; Deleting pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet: kube-proxy-ip-172-20-64-152.ec2.internal
+  pod "kube-dns-479524115-76s6j" evicted
   pod "mysql-2" evicted
-  node "ip-10-10-71-96.ec2.internal" drained
+  node "ip-172-20-64-152.ec2.internal" drained
+
+You can look at the list of nodes:
+
+  $ kubectl get nodes
+  NAME                             STATUS                     ROLES     AGE       VERSION
+  ip-172-20-107-81.ec2.internal    Ready                      node      10h       v1.7.4
+  ip-172-20-122-243.ec2.internal   Ready                      master    10h       v1.7.4
+  ip-172-20-125-181.ec2.internal   Ready                      node      10h       v1.7.4
+  ip-172-20-37-239.ec2.internal    Ready                      master    10h       v1.7.4
+  ip-172-20-52-200.ec2.internal    Ready                      node      10h       v1.7.4
+  ip-172-20-57-5.ec2.internal      Ready                      node      10h       v1.7.4
+  ip-172-20-64-152.ec2.internal    Ready,SchedulingDisabled   node      10h       v1.7.4
+  ip-172-20-76-117.ec2.internal    Ready                      master    10h       v1.7.4
+
+Notice how scheduling is disabled on one node.
 
 Now you can watch Pod reschedules
 
   kubectl get pod mysql-2 -o wide --watch
 
-This could be a bug in StatefulSet but my pod was failing to reschedule. The reason was, there
-was no other nodes running in the AZ where the original node failed. The EBS volume was failing to
-to attach to other nodes because of different AZ restriction. To mitigate this issue, I
-manually scaled the nodes to 6 which resulted in an additional node being available in that AZ.
-Your scenario could be different and may not need this step
+The output always stay at:
 
-Edit number of nodes to '6' if you run into 'Pending' issue
+  NAME      READY     STATUS    RESTARTS   AGE       IP        NODE
+  mysql-2   0/2       Pending   0          33s       <none>    <none>
+
+This could be a bug in StatefulSet as the pod was failing to reschedule. The reason was, there was no other nodes running in the AZ where the original node failed. The EBS volume was failing to to attach to other nodes because of different AZ restriction.
+
+To mitigate this issue, manually scale the nodes to 6 which resulted in an additional node being available in that AZ.
+Your scenario could be different and may not need this step.
+
+Edit number of nodes to `6` if you run into `Pending` issue:
 
   kops edit ig nodes
-  # review and commit changes
+
+Change the specification to:
+
+  spec:
+    image: kope.io/k8s-1.7-debian-jessie-amd64-hvm-ebs-2017-07-28
+    machineType: t2.medium
+    maxSize: 6
+    minSize: 6
+    role: Node
+    subnets:
+    - us-east-1a
+    - us-east-1b
+    - us-east-1c
+
+Review and commit changes:
+
   kops update cluster --yes
 
-You can also watch the progress of pod reschedule
+It takes a few minutes for a new node to be provisioned. This can be verified using the command shown:
 
-  kubectl get pod mysql-2 -o wide --watch
-  NAME      READY     STATUS    RESTARTS   AGE       IP        NODE
-  mysql-2   0/2       Pending   0          1m        <none>    <none>
-  mysql-2   0/2       Pending   0         4m        <none>    ip-10-10-87-59.ec2.internal
-  mysql-2   0/2       Init:0/2   0         4m        <none>    ip-10-10-87-59.ec2.internal
-  mysql-2   0/2       Init:1/2   0         4m        100.96.8.2   ip-10-10-87-59.ec2.internal
-  mysql-2   0/2       PodInitializing   0         4m        100.96.8.2   ip-10-10-87-59.ec2.internal
-  mysql-2   1/2       Running   0         4m        100.96.8.2   ip-10-10-87-59.ec2.internal
-  mysql-2   2/2       Running   0         4m        100.96.8.2   ip-10-10-87-59.ec2.internal
+  $ kubectl get nodes
+  NAME                             STATUS                     ROLES     AGE       VERSION
+  ip-172-20-107-81.ec2.internal    Ready                      node      10h       v1.7.4
+  ip-172-20-122-243.ec2.internal   Ready                      master    10h       v1.7.4
+  ip-172-20-125-181.ec2.internal   Ready                      node      10h       v1.7.4
+  ip-172-20-37-239.ec2.internal    Ready                      master    10h       v1.7.4
+  ip-172-20-52-200.ec2.internal    Ready                      node      10h       v1.7.4
+  ip-172-20-57-5.ec2.internal      Ready                      node      10h       v1.7.4
+  ip-172-20-64-152.ec2.internal    Ready,SchedulingDisabled   node      10h       v1.7.4
+  ip-172-20-73-181.ec2.internal    Ready                      node      1m        v1.7.4
+  ip-172-20-76-117.ec2.internal    Ready                      master    10h       v1.7.4
 
-Let's put the previous node back into normal state
+Now you can watch the status of the pod:
 
-  kubectl uncordon ip-10-10-71-96.ec2.internal
+  $ kubectl get pod mysql-2 -o wide
+  NAME      READY     STATUS    RESTARTS   AGE       IP           NODE
+  mysql-2   2/2       Running   0          11m       100.96.8.2   ip-172-20-73-181.ec2.internal
+
+Let's put the previous node back into normal state:
+
+  $ kubectl uncordon ip-172-20-64-152.ec2.internal
   node "ip-10-10-71-96.ec2.internal" uncordoned
+
+The list of nodes is now shown as:
+
+  $ kubectl get nodes
+  NAME                             STATUS    ROLES     AGE       VERSION
+  ip-172-20-107-81.ec2.internal    Ready     node      10h       v1.7.4
+  ip-172-20-122-243.ec2.internal   Ready     master    10h       v1.7.4
+  ip-172-20-125-181.ec2.internal   Ready     node      10h       v1.7.4
+  ip-172-20-37-239.ec2.internal    Ready     master    10h       v1.7.4
+  ip-172-20-52-200.ec2.internal    Ready     node      10h       v1.7.4
+  ip-172-20-57-5.ec2.internal      Ready     node      10h       v1.7.4
+  ip-172-20-64-152.ec2.internal    Ready     node      10h       v1.7.4
+  ip-172-20-73-181.ec2.internal    Ready     node      3m        v1.7.4
+  ip-172-20-76-117.ec2.internal    Ready     master    10h       v1.7.4
 
 == Scaling options
 
 You can easily scale the number of slaves by running simple command
 
-  kubectl scale statefulset mysql  --replicas=5
+  kubectl scale statefulset mysql --replicas=5
 
 Of course, you can watch the progress of scaling
 
