@@ -6,9 +6,53 @@ Kubernetes has a number of abstractions that map to API objects. These Kubernete
 
 == Pre-requisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-worker-cluster-highly-available[] is used for this chapter.
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
 
-== Deployments
+All configuration files for this chapter are in the `developer-concepts` directory.
+
+== Pod
+
+A Pod is the smallest deployable unit that can be created, scheduled, and managed. It’s a logical collection of containers that belong to an application. Pods are created in a namespace. All containers in a pod share the namespace, volumes and networking stack. This allows containers in the pod to "`find`" each other and communicate using `localhost`.
+
+=== Create a Pod
+
+Each resource in Kubernetes can be defined using a configuration file. For example, an NGINX pod can be defined with configuration file shown in below:
+
+	apiVersion: v1
+	kind: Pod
+	metadata:
+	  name: nginx-pod
+	  labels:
+	    name: nginx-pod
+	spec:
+	  containers:
+	  - name: nginx
+	    image: nginx:latest
+	    ports:
+	    - containerPort: 80
+
+Create the pod as shown below:
+
+	$ kubectl create -f templates/pod.yaml
+	pod "nginx-pod" created
+
+Get the list of pod:
+
+	$ kubectl get pods
+	NAME        READY     STATUS    RESTARTS   AGE
+	nginx-pod   1/1       Running   0          22s
+
+If the containers in the pod generate logs, then they can be seen using the command shown:
+
+	$ kubectl logs nginx-pod
+
+=== Delete a Pod
+
+Delete the pod as shown below:
+
+	$ kubectl delete -f templates/pod.yaml
+
+== Deployment
 
 A "`desired state`", such as 4 replicas of a pod, can be described in a Deployment object. The Deployment controller in Kubernetes cluster then ensures the desired and the actual state are matching. Deployment ensures the recreation of a pod when the worker node fails or reboots. It also allows both up- and down-scaling the number of replicas. 
 
@@ -182,13 +226,13 @@ Run the following command to delete the Deployment:
 	$ kubectl delete -f templates/deployment.yaml
 	deployment "nginx-deployment" deleted
 
-== Replica Sets
+== Replica Set
 
 A RepllicaSet specifies a number of pod replicas that can be run at any given time. The Deployment manages the ReplicaSets and provides updates to those pods. ReplicaSets can be used in lieu of Deployments if you require custom orchestration or do not need updates.
 
 For replica set, matching of pods is done according to a set of values. The supported operators are `in`, `notin` and `exists` (only for the key). For example, replication controller can select pods such as "`environment = dev`". Replica set can select pods such as "`environment in ["dev", "test"]`".
 
-=== Create a ReplicaSet
+=== Create a Replica Set
 
 The folowing is an example ReplicaSet with an NGINX base image. Let's begin with the template:
 
@@ -285,7 +329,7 @@ Run the following command to delete the ReplicaSet:
 	$ kubectl delete rs/nginx-replicaset
 	replicaset "nginx-replicaset" deleted
 
-== Services
+== Service
 
 A pod is ephemeral. Each pod is assigned a unique IP address. If a pod that belongs to a replication controller dies, then it is recreated and may be given a different IP address. Further, aAdditional pods may be created using Deployment or Replica Set. This makes it difficult for an application server, such as WildFly, to access a database, such as MySQL, using its IP address.
 
@@ -500,7 +544,7 @@ The backend Deployment needs to be explicitly deleted as well:
 
     kubectl delete -f templates/echo-deployment.yaml
 
-== Daemon Sets
+== Daemon Set
 
 Daemon Set ensure that a copy of the pod runs on a selected set of nodes. By default, all nodes in the cluster are selected. A selection critieria may be specified to select a limited number of nodes. 
 
@@ -646,7 +690,7 @@ Job is only appropriate for pods with `RestartPolicy` equal to `OnFailure` or `N
 
 === Non-parallel Job
 
-Only one pod is started, unless the pod fails. Job is complete as soon as the pod terminates successfully.
+Only one pod per job is started, unless the pod fails. Job is complete as soon as the pod terminates successfully.
 
 Here is the job specification:
 
@@ -685,7 +729,7 @@ The output shows that the job is not successful yet. Watch the pod status to con
 	wait-lk49x   1/1       Running   0          7s
 	wait-lk49x   0/1       Completed   0         24s
 
-To begin with, it shows that the pod for the job is running. The pod successfully exits after a few seconds.
+To begin with, it shows that the pod for the job is running. The pod successfully exits after a few seconds and shows the `Completed` status.
 
 Now, watch the job status again:
 
@@ -695,7 +739,7 @@ Now, watch the job status again:
 
 The output shows that the job was successfully executed.
 
-The list of completed pods can be seen using the following command:
+The completed pod is not shown in the `kubectl get pods` command. Instead it can be shown by passing an additional option as shown below:
 
 	$ kubectl get pods --show-all
 	NAME         READY     STATUS      RESTARTS   AGE
@@ -703,7 +747,98 @@ The list of completed pods can be seen using the following command:
 
 === Parallel Job
 
-This is also called as Fixed Completion Count job.
+Non-parallel job runs one only one pod per job. This API is used to run multiple pods in parallel for the job. The number of pods to complete is defined by `.spec.completions` attribute in the configuration file. The number of pods to run in parallel is defined by `.spec.parallelism` attribute in the configuration file. The default value for both of these attributes is 1.
+
+The job is complete when there is one successful pod for each value in the range in 1 to `.spec.completions`. For that reason, it is also called as _fixed completion count_ job.
+
+Here is a job specification:
+
+	apiVersion: batch/v1
+	kind: Job
+	metadata:
+	  name: wait
+	spec:
+	  completions: 6
+	  parallelism: 2
+	  template:
+	    metadata:
+	      name: wait
+	    spec:
+	      containers:
+	      - name: wait
+	        image: ubuntu
+	        command: ["sleep",  "20"]
+	      restartPolicy: Never
+
+This job specification is similar to the non-parallel job specification. It has two new attributes added: `.spec.completions` and `.spec.parallelism`. This means the job will be complete when six pods have successfully completed. A maximum of two pods will run in parallel at a given time.
+
+Create a parallel job using the command:
+
+	kubectl apply -f templates/job-parallel.yaml
+
+Watch the status of the job as shown:
+
+	$ kubectl get -w jobs
+	NAME      DESIRED   SUCCESSFUL   AGE
+	wait      6         0            2s
+	wait      6         1         22s
+	wait      6         2         22s
+	wait      6         3         43s
+	wait      6         4         43s
+	wait      6         5         1m
+	wait      6         6         1m
+
+The output shows that 2 pods are created about every 20 seconds.
+
+In another terminal window, watch the status of pods created:
+
+	$ kubectl get -w pods -l job-name=wait
+	NAME         READY     STATUS    RESTARTS   AGE
+	wait-f7kgb   1/1       Running   0          5s
+	wait-smp4t   1/1       Running   0          5s
+	wait-smp4t   0/1       Completed   0         22s
+	wait-jbdp7   0/1       Pending   0         0s
+	wait-jbdp7   0/1       Pending   0         0s
+	wait-jbdp7   0/1       ContainerCreating   0         0s
+	wait-f7kgb   0/1       Completed   0         22s
+	wait-r5v8n   0/1       Pending   0         0s
+	wait-r5v8n   0/1       Pending   0         0s
+	wait-r5v8n   0/1       ContainerCreating   0         0s
+	wait-r5v8n   1/1       Running   0         1s
+	wait-jbdp7   1/1       Running   0         1s
+	wait-r5v8n   0/1       Completed   0         21s
+	wait-ngrgl   0/1       Pending   0         0s
+	wait-ngrgl   0/1       Pending   0         0s
+	wait-ngrgl   0/1       ContainerCreating   0         0s
+	wait-jbdp7   0/1       Completed   0         21s
+	wait-6l22s   0/1       Pending   0         0s
+	wait-6l22s   0/1       Pending   0         0s
+	wait-6l22s   0/1       ContainerCreating   0         0s
+	wait-ngrgl   1/1       Running   0         1s
+	wait-6l22s   1/1       Running   0         1s
+	wait-ngrgl   0/1       Completed   0         21s
+	wait-6l22s   0/1       Completed   0         21s
+
+After all the pods have completed, `kubectl get pods` will not show the lis of completed pods. The command to show the list of pods is shown below:
+
+	$ kubectl get pods -a
+	NAME         READY     STATUS      RESTARTS   AGE
+	wait-6l22s   0/1       Completed   0          1m
+	wait-f7kgb   0/1       Completed   0          2m
+	wait-jbdp7   0/1       Completed   0          2m
+	wait-ngrgl   0/1       Completed   0          1m
+	wait-r5v8n   0/1       Completed   0          2m
+	wait-smp4t   0/1       Completed   0          2m
+
+Similarly, `kubectl get jobs` shows the status of the job after it has completed:
+
+	$ kubectl get jobs
+	NAME      DESIRED   SUCCESSFUL   AGE
+	wait      6         6            3m
+
+Deleting a job deletes all the pods as well. Delete the job as:
+
+	$ kubectl delete -f templates/job-parallel.yaml
 
 == Cron Job
 
@@ -711,7 +846,7 @@ This is also called as Fixed Completion Count job.
 
 For Kubernetes cluster versions < 1.8, Cron Job is created with API version `batch/v2alpha1`. This version needs to be explicitly enabled in the Kubernetes cluster as explained in link:cluster-install#turn-on-an-api-version-for-your cluster[Turn on an API version for your cluster].
 
-`batch/v2alpha1` API version for Cron Job is deprecated for cluster version >= 1.8. You should switch to `batch/v1beta1`. This version is enabled by default in the API server.
+`batch/v2alpha1` API version for Cron Job is deprecated for the cluster version >= 1.8. You should switch to `batch/v1beta1`. This version is enabled by default in the API server.
 
 === Create Cron Job
 
@@ -722,7 +857,7 @@ A Cron Job is a job that runs on a given schedule, written in Cron format. There
 
 Here is the job specification:
 
-	apiVersion: batch/v1alpha1
+	apiVersion: batch/v2alpha1
 	kind: CronJob
 	metadata:
 	  name: hello
@@ -743,4 +878,52 @@ Here is the job specification:
 
 This job prints the current timestamp and the message "`Hello World`" every minute.
 
+Create the Cron Job as shown in the command:
+
+	$ kubectl create -f template/cronjob.yaml --validate=false
+
+`--validate=false` is required because kubectl CLI version is 1.8. Without this option, you'll get the error:
+
+	error: error validating "templates/cronjob.yaml": error validating data: unknown object type schema.GroupVersionKind{Group:"batch", Version:"v2alpha1", Kind:"CronJob"}; if you choose to ignore these errors, turn validation off with --validate=false
+
+Watch the status of the job as shown:
+
+	$ kubectl get -w cronjobs
+	NAME      SCHEDULE      SUSPEND   ACTIVE    LAST SCHEDULE   AGE
+	hello     */1 * * * *   False     0         <none>
+	hello     */1 * * * *   False     0         <none>
+	hello     */1 * * * *   False     1         Tue, 24 Oct 2017 15:41:00 -0700
+	hello     */1 * * * *   False     0         Tue, 24 Oct 2017 15:41:00 -0700
+	hello     */1 * * * *   False     1         Tue, 24 Oct 2017 15:42:00 -0700
+	hello     */1 * * * *   False     0         Tue, 24 Oct 2017 15:42:00 -0700
+
+In another terminal window, watch the status of pods created:
+
+	$ kubectl get -w pods -l app=hello-cronpod
+	NAME                     READY     STATUS    RESTARTS   AGE
+	hello-1508884860-cq004   0/1       Pending   0          0s
+	hello-1508884860-cq004   0/1       Pending   0         0s
+	hello-1508884860-cq004   0/1       ContainerCreating   0         0s
+	hello-1508884860-cq004   0/1       Completed   0         1s
+	hello-1508884920-wl5bx   0/1       Pending   0         0s
+	hello-1508884920-wl5bx   0/1       Pending   0         0s
+	hello-1508884920-wl5bx   0/1       ContainerCreating   0         0s
+	hello-1508884920-wl5bx   0/1       Completed   0         2s
+	hello-1508884980-45ktd   0/1       Pending   0         0s
+	hello-1508884980-45ktd   0/1       Pending   0         0s
+	hello-1508884980-45ktd   0/1       ContainerCreating   0         0s
+	hello-1508884980-45ktd   0/1       Completed   0         2s
+
+Get logs from one of the pods:
+
+    $ kubectl logs hello-1508884860-cq004
+	Tue Oct 24 22:41:02 UTC 2017
+	Hello World!
+
+=== Delete Cron Job
+
+Delete the Cron Job as shown in the following command:
+
+	$ kubectl delete -f templates/cronjob.yaml 
+	cronjob "hello" deleted
 
