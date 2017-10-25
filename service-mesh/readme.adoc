@@ -28,7 +28,7 @@ In this exercise, we will focus on visibility for your services running in a Kub
 install linkerd in your k8s cluster, run a couple of simple microservices and demonstrate how
 linkerd captures top-line service metrics such as success rates, request volumes and latencies.
 
-In this exercise we'll look at a few of the features Istio provides, such as:
+In this exercise we'll look at a few of the features linkerd provides, such as:
 
 . Monitoring the traffic within the service mesh
 . Per request routing
