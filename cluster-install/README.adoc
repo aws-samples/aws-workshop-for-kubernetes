@@ -38,7 +38,7 @@ is installed. User permissions used in this workshop must have these http://docs
     AmazonVPCFullAccess
 
 Please review this link for additional info on IAM permissions:
-https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user
+https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md provide more details about the permissions themselves.
 
 == S3 bucket to store Kubernetes config
 
