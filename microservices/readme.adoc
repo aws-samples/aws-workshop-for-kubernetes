@@ -1,11 +1,11 @@
 = Service Discovery for Microservices with Kubernetes
 :toc:
 
-This chapter shows an example that shows different microservices can use service discovery with Kubernetes.
+This chapter shows an example of how different microservices within an application can use service discovery to locate each other in the infrastructure rather than via hardcoded IP addresses.
 
 == Pre-requisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+A 3 master nodes and 5 worker nodes cluster as explained in the link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[cluster-install] chapter.
 
 All configuration files for this chapter are in the `microservices` directory.
 
@@ -22,7 +22,7 @@ image::services.png[]
 
 These services are built as Docker images and deployed in Kubernetes. All services are built as Node.js application. The source code for the services is at https://github.com/arun-gupta/container-service-discovery/tree/master/services.
 
-`webapp` service need to be configured using the following parameters:
+The `webapp` service needs to be configured with the environment variables below to communicate with the `name` and `greeter` services. The `NAME_SERVICE_HOST` and `GREETER_SERVICE_HOST` environment variables refer to these services by their labels rather than by static references like pod or host IP addresses. The benefit is that if an existing `name` and/or `greeter` pod is no longer operable, the `webapp` service will continue to function if there are sufficient resources in the cluster to continue running the services it depends on:
 
 . `NAME_SERVICE_HOST`
 . `NAME_SERVICE_PORT`
