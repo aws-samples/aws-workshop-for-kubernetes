@@ -50,9 +50,10 @@ https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https
 
 Kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
     
-    # create a variable pointing to a unique bucket name
+    # create variables for bucket, state store and cluster names
     export KOPS_BUCKET_NAME=[Choose Unique Bucket Name]
     export KOPS_STATE_STORE=s3://$KOPS_BUCKET_NAME
+    export KOPS_CLUSTER_NAME=[Choose Cluster Name]
 
     # use aws cli to create bucket
     aws s3api create-bucket --bucket $KOPS_BUCKET_NAME
@@ -96,7 +97,7 @@ By default, `create cluster` command creates a single master node and two worker
 Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi-node and multi-az configuration:
 
     kops create cluster \
-      --name cluster.kubernetes-aws.io \
+      --name cluster.$KOPS_CLUSTER_NAME \
       --zones us-east-1d,us-east-1e \
       --state s3://kubernetes-aws-io \
       --yes
