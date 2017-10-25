@@ -28,6 +28,11 @@ In this exercise, we will focus on visibility for your services running in a Kub
 install linkerd in your k8s cluster, run a couple of simple microservices and demonstrate how
 linkerd captures top-line service metrics such as success rates, request volumes and latencies.
 
+In this exercise we'll look at a few of the features Istio provides, such as:
+
+. Monitoring the traffic within the service mesh
+. Per request routing
+
 === Create Kubernetes cluster
 
 Review the steps to create a Kubernetes cluster on AWS using Kops in the
@@ -123,7 +128,7 @@ Send a request to v1 of the service. It should reply with 'Hello world'.
     INGRESS_LB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
     curl -H 'Host: www.hello.world' $INGRESS_LB
 
-It should reply with 'Hello world'.
+After a minute or two, it should reply with 'Hello world'.
 ```
 $  INGRESS_LB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
 $  curl -H 'Host: www.hello.world' $INGRESS_LB
