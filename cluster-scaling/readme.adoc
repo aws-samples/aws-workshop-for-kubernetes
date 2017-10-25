@@ -167,7 +167,7 @@ After this loads you can use the `describe-auto-scaling-groups` command again to
   export ASG_NAME=nodes.cluster.k8s.local
   aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
 
-You should see a result of 4:
+You should see a result of 4; this may take a few minutes:
 
   $ export ASG_NAME=nodes.cluster.k8s.local
   $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
