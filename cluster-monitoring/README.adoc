@@ -6,7 +6,7 @@
 
 == Introduction
 
-This chapter will demonstrate how to monitor a Kubernetes cluster using the following:
+This chapter will demonstrate how to monitor a Kubernetes cluster using the following options:
 
 . Kubernetes Dashboard
 . Heapster, InfluxDB and Grafana
