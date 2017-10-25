@@ -51,16 +51,16 @@ https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https
 Kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
     
     # create variables for bucket, state store and cluster names
-    export KOPS_BUCKET_NAME=[Choose Unique Bucket Name]
-    export KOPS_STATE_STORE=s3://$KOPS_BUCKET_NAME
-    export KOPS_CLUSTER_NAME=[Choose Cluster Name]
+    export KOPS_CLUSTER_NAME=example.cluster.com [Choose Cluster Name]
+    export CONFIG_BUCKET_NAME=example-config [Choose Unique Bucket Name]
+    export KOPS_STATE_STORE=s3://$CONFIG_BUCKET_NAME
 
     # use aws cli to create bucket
-    aws s3api create-bucket --bucket $KOPS_BUCKET_NAME
+    aws s3 mb $KOPS_STATE_STORE --region $AWS_DEFAULT_REGION
     
     # enable versioning and export
     aws s3api put-bucket-versioning \
-      --bucket $KOPS_BUCKET_NAME \
+      --bucket $CONFIG_BUCKET_NAME \
       --versioning-configuration \
       Status=Enabled
 
@@ -97,22 +97,22 @@ By default, `create cluster` command creates a single master node and two worker
 Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi-node and multi-az configuration:
 
     kops create cluster \
-      --name cluster.$KOPS_CLUSTER_NAME \
-      --zones us-east-1d,us-east-1e \
-      --state s3://kubernetes-aws-io \
+      --name $KOPS_CLUSTER_NAME \
+      --zones $AWS_AVAILABILITY_ZONES \
+      --state $KOPS_STATE_STORE \
       --yes
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
 
 Alternatively, you may not specify the `--yes` option as part of the `kops create cluster` command. Then you can use `kops edit cluster cluster.k8s.local` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
 
-    kops update cluster cluster.kubernetes-aws.io --yes
+    kops update cluster $KOPS_CLUSTER_NAME --yes
 
 The cluster can be verified as shown:
 
 ```
-$ kops validate cluster --name=cluster.kubernetes-aws.io
-Validating cluster cluster.kubernetes-aws.io
+$ kops validate cluster --name=$KOPS_CLUSTER_NAME
+Validating cluster example.cluster.com
 
 INSTANCE GROUPS
 NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
@@ -125,7 +125,7 @@ ip-172-20-51-232.ec2.internal node  True
 ip-172-20-60-192.ec2.internal master  True
 ip-172-20-91-39.ec2.internal  node  True
 
-Your cluster cluster.kubernetes-aws.io is ready
+Your cluster example.cluster.com is ready
 ```
 
 Verify the client and server version:
@@ -146,12 +146,12 @@ Create a cluster with multi-master, multi-node and multi-az configuration. We ca
 one step by passing the `--yes` flag.
 
     kops create cluster \
-      --name cluster.kubernetes-aws.io \
+      --name $KOPS_CLUSTER_NAME \
       --master-count 3 \
-      --master-zones us-east-1a,us-east-1b,us-east-1c \
+      --master-zones $AWS_AVAILABILITY_ZONES \
       --node-count 5 \
-      --zones us-east-1a,us-east-1b,us-east-1c \
-      --state s3://kubernetes-aws-io \
+      --zones $AWS_AVAILABILITY_ZONES \
+      --state $KOPS_STATE_STORE \
       --yes
 
 A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The AZs for master can be specified using the `--master-zones` option. Kops will spread the nodes across different AZs.
@@ -161,8 +161,8 @@ A multi-master cluster can be created by using the `--master-count` option and u
 Validate the cluster:
 
 ```
-$ kops validate cluster --name=cluster.kubernetes-aws.io
-Validating cluster cluster.kubernetes-aws.io
+$ kops validate cluster --name=$KOPS_CLUSTER_NAME
+Validating cluster example.cluster.com
 
 INSTANCE GROUPS
 NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
