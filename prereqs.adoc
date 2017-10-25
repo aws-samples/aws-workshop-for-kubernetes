@@ -3,11 +3,24 @@
 
 Here are the pre-requisites for the link:readme.adoc[Kubernetes on AWS workshop]:
 
+== Windows 10 Linux Subsystem
+
+This pre-requisite is only if you are using Windows 10.
+
+Install Windows 10 Linux subsystem as explained at https://msdn.microsoft.com/en-us/commandline/wsl/install_guide.
+
+The lab has been tested with Windows 10. A similar Unix shell on other Windows machines may work.
+
 == AWS Account
 
-You will be using an AWS Account while you go through the workshop. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one
+You will be using an AWS Account while you go through the workshop. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one.
 
-== IAM Permissions
+== AWS CLI
+
+Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
+on your machine.
+
+== AWS IAM Permissions
 
 If you already have an AWS Account, you need to create an IAM user and attach these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies].
 
@@ -19,11 +32,6 @@ If you already have an AWS Account, you need to create an IAM user and attach th
 
 Please review this link:https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user[link]
 for additional info on IAM permissions
-
-== AWS CLI
-
-Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
-on your machine.
 
 == AWS Region and Availability Zones
 
