@@ -37,7 +37,7 @@ Each worker running in your Kubernetes cluster MUST have the necessary IAM Polic
 
 Use kops to edit the cluster configuration
 
-    kops edit cluster --name cluster.k8s.local  --state s3://kubernetes-aws-io
+    kops edit cluster --name cluster.k8s.local --state s3://kubernetes-aws-io
 
 Add the `additionalPolicies` section below to the end of the Cluster spec; your spec should look something like this
 
@@ -65,7 +65,7 @@ spec:
         }
       ]
 ```
-The update the cluster
+Then update the cluster,
 
     kops update cluster --name cluster.k8s.local --yes
 
@@ -120,31 +120,37 @@ From the output of the `create-policy` command get the `.Policy.Arn` attribute a
 
 == Deploy Worker Autoscaler
 
-This command will install the `cluster-autoscaler` with a configuration of `min: 2, max: 10, name: k8s-worker-asg`
-
 [NOTE]
 ===============================
-Update the following attributes in file `cluster-scaling/templates/2-10-autoscaler.yaml`:
+Before running the command below, update the following attributes in file `cluster-scaling/templates/2-10-autoscaler.yaml`:
+
  `command  --nodes` to the name of your ASG
  `env value` to the name of your region
 
  You can find the name of your ASG using this command
+
     aws autoscaling describe-auto-scaling-groups
 ===============================
 
-  $ kubectl apply -f cluster-scaling/templates/2-10-autoscaler.yaml
+This command will install the `cluster-autoscaler` with a configuration of `min: 2, max: 10, name: cluster-autoscaler`
+
+  kubectl apply -f cluster-scaling/templates/2-10-autoscaler.yaml
 
 Once this is deployed you can view the logs by running
 
-  $ kubectl logs deployment/cluster-autoscaler --namespace=kube-system
+  kubectl logs deployment/cluster-autoscaler --namespace=kube-system
 
 == Validation
 
 To validate that the `cluster-autoscaler` is properly working you can use the `aws` CLI to request the current `DesiredCapacity` of your ASG with
 
+  export ASG_NAME=nodes.cluster.k8s.local
+  aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
+
+You should see a result of 2:
   $ export ASG_NAME=nodes.cluster.k8s.local
   $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
-  => 2
+  2
 
 Then you can deploy an application which requests more resources than your cluster has available see `cluster-scaling/templates/dummy-resource-offers.yaml` for reference.
 
@@ -153,13 +159,17 @@ Then you can deploy an application which requests more resources than your clust
 Depending on the size of your cluster this might not trigger autoscaling. Increase the `replicas: 10` count to the necessary amount you need to fill your clusters resources.
 ===============================
 
-  $ kubectl apply -f cluster-scaling/templates/dummy-resource-offers.yaml
+  kubectl apply -f cluster-scaling/templates/dummy-resource-offers.yaml
 
 After this loads you can use the `describe-auto-scaling-groups` command again to see the `DesiredCapacity` change.
 
+  export ASG_NAME=nodes.cluster.k8s.local
+  aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
+
+You should see a result of 2:
   $ export ASG_NAME=nodes.cluster.k8s.local
   $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
-  => 4
+  4
 
 If you have deployed Heapster, as described in the link:../cluster-monitoring/README.adoc#heapster-influxdb-and-grafana[Cluster Monitoring] lab, you can use this command to see the resource usage of your nodes: `kubectl top nodes`
 ```
