@@ -45,15 +45,19 @@ host) running in the default Kubernetes namespace.
 
 Check that the linkerd (named as l5d) pods and service is running
 
-  kubectl get all
-  NAME           READY     STATUS    RESTARTS   AGE
-  po/l5d-f9bwg   2/2       Running   0          4m
-  po/l5d-ss4ht   2/2       Running   0          4m
-  NAME             CLUSTER-IP       EXTERNAL-IP        PORT(S)                                        AGE
-  svc/kubernetes   100.64.0.1       <none>             443/TCP                                        7m
-  svc/l5d          100.66.111.236   a3e9a7e509fd3...   4140:31737/TCP,4141:30084/TCP,9990:31699/TCP   4m
+```
+$ kubectl get all
+NAME           READY     STATUS    RESTARTS   AGE
+po/l5d-v3gm9   0/2       Running   0          12s
+po/l5d-xm760   0/2       Running   0          12s
 
-You can go to linkerd's admin page (i.e ELB:9990) to verify installation. It make take a minute or two before the
+$ kubectl get svc
+NAME         TYPE           CLUSTER-IP     EXTERNAL-IP        PORT(S)                                        AGE
+kubernetes   ClusterIP      100.64.0.1     <none>             443/TCP                                        15h
+l5d          LoadBalancer   100.68.65.99   a306c8f52b92c...   4140:30609/TCP,4141:31489/TCP,9990:31710/TCP   24s
+```
+
+You can go to linkerd's admin page (i.e ELB:9990) to verify installation. It may take a minute or two before the
 ELB DNS is available. If you have an issue accessing the load balancer endpoint, it could be because your firewall
 or VPN is preventing access to port 9990.
 
@@ -85,12 +89,50 @@ that are installed in your k8s cluster.
 
   kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
 
-You can open linkerd-viz ELB to view the dashboard
+You can open linkerd-viz ELB to view the dashboard. As with the previous example, it may take a minute or two before the
+ELB DNS is available.
 
   LINKERD_VIZ_ELB=$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].*}")
   open http://$LINKERD_VIZ_ELB
 
 image::linkerd-viz.png[]
+
+=== Per request routing
+
+We'll use the same 'hello-world' application used in the example above, but this time we'll deploy version 2 of the
+'world' microservice, and we'll specify on a per request level whether the request should use v1 or v2 of the 'world'
+microservice.
+
+If you haven't already deployed the 'hello-world' application, deploy it now.
+
+    kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
+    k8s/hello-world.yml
+
+Deploy the linkerd ingress so we can access the application externally.
+
+    kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
+    k8s/linkerd-ingress.yml
+
+Now deploy version2 of the `world` microservice.
+
+    kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
+    k8s/world-v2.yml
+
+Send a request to v1 of the service. It should reply with 'Hello world'.
+
+```
+$  curl -H 'Host: www.hello.world' $INGRESS_LB
+Hello (100.96.1.12) world (100.96.1.14)
+```
+
+Now send a request to v2 of the service by modifying the header in the request. It should reply with 'Hello earth'.
+
+```
+$ curl -H "Host: www.hello.world" -H "l5d-dtab: /host/world => /srv/world-v2;" $INGRESS_LB
+Hello (100.96.1.11) earth (100.96.2.14)
+```
+This demonstrates that v1 and v2 of the `world` service are running in the cluster, and you can specify in the
+request header which version of the service to route individual requests to.
 
 That's it! You can look into linkerd configuration files in https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[linkerd examples]
 to learn more.
@@ -99,11 +141,17 @@ to learn more.
 
 Remove the installed components
 
-  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
-  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
-  k8s/hello-world.yml
-  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
-  k8s-daemonset/k8s/linkerd.yml
+```
+kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
+kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
+k8s/world-v2.yml
+kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
+k8s/hello-world.yml
+kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
+k8s/linkerd-ingress.yml
+kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
+k8s/linkerd.yml
+```
 
 == Using Istio with Kubernetes
 
@@ -341,11 +389,13 @@ all traffic between microservices will now be encrypted.
 
 Remove the installed components
 
-    kubectl delete -f install/kubernetes/addons/servicegraph.yaml
-    kubectl delete -f install/kubernetes/addons/prometheus.yaml
-    kubectl delete -f install/kubernetes/istio-auth.yaml
-    kubectl delete -f install/kubernetes/istio.yaml
-    ./samples/bookinfo/kube/cleanup.sh
+```
+kubectl delete -f install/kubernetes/addons/servicegraph.yaml
+kubectl delete -f install/kubernetes/addons/prometheus.yaml
+kubectl delete -f install/kubernetes/istio-auth.yaml
+kubectl delete -f install/kubernetes/istio.yaml
+./samples/bookinfo/kube/cleanup.sh
+```
 
 Accept the `default` namespace in the cleanup script above.
 Some errors may appear in the output when deleting Istio. These are related to Istio components you have not installed,
