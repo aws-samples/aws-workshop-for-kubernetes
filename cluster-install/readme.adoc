@@ -318,6 +318,8 @@ Your cluster cluster.k8s.local is ready
 
 It is also possible to create a DNS-based cluster where the master and worker nodes are in private subnets. A `--dns-zone` argument is required to specify the domain. If `--dns private` is also specified, a Route53 private hosted zone is created for routing the traffic for the domain within one or more VPCs. The Kubernetes API can therefore only be accessed from within the VPC. This is a current issue with kops (see https://github.com/kubernetes/kops/issues/2032). A possible workaround is to mirror the private Route53 hosted zone with a public hosted zone that exposes only the API server ELB endpoint. This workaround is discussed http://kubecloud.io/setup-ha-k8s-kops/[here].
 
+Although most of the exercises in this workshop should work on a cluster with a private VPC, some commands won't, specifically those that use a proxy to access internally hosted services.
+
 == Turn on an API version for your cluster
 
 Kubernetes resources are created with a specific API version. The exact value is defined by the `apiVersion` attribute in the resource configuration file. Some of the values are `v1`, `extensions/v1beta1` or `batch/v1`. By default, resources with `apiVersion` values X, Y, Z are enabled. If a resource has a version with the word `alpha` in it, then that version needs to be explicitly enabled in the cluster. For example, if you are running a Kubernetes cluster of version 1.7.x, then Cron Job resource can only be created with API version `batch/v2alpha1`. Cron Job resource cannot be created unless `batch/v2alpha1` is explicitly enabled.

@@ -16,7 +16,7 @@ metadata:
   labels:
     app: greeter
 spec:
-  replicas: 6
+  replicas: 10
   template:
     metadata:
       labels:
