@@ -655,14 +655,8 @@ Next, edit the DaemonSet template using the command shown:
 
 Change the `spec.template.spec` to include a `nodeSelector` that matches the changed label:
 
-	spec:
-	  nodeSelector:
-	    app: prometheus-node
-      containers:
-      - image: prom/node-exporter
-		imagePullPolicy: Always
-        name: prometheus
-
+						nodeSelector:
+			        app: prometheus-node
 After the update is performed, we have now configured Prometheus to run on a specific node:
 
 	$ kubectl get ds/prometheus-daemonset
