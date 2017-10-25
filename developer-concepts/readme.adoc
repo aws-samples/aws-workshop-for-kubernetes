@@ -54,7 +54,7 @@ Delete the pod as shown below:
 
 == Deployment
 
-A "`desired state`", such as 4 replicas of a pod, can be described in a Deployment object. The Deployment controller in Kubernetes cluster then ensures the desired and the actual state are matching. Deployment ensures the recreation of a pod when the worker node fails or reboots. It also allows both up- and down-scaling the number of replicas. 
+A "`desired state`", such as 4 replicas of a pod, can be described in a Deployment object. The Deployment controller in Kubernetes cluster then ensures the desired and the actual state are matching. Deployment ensures the recreation of a pod when the worker node fails or reboots. It also allows both up- and down-scaling the number of replicas.
 
 If a pod dies, then a new pod is started to ensure the desired vs actual matches.
 
@@ -146,7 +146,7 @@ A more general update to Deployment can be made by making edits to the pod spec.
 
 First, type the following to open up a text editor:
 
-	kubectl edit deployment/nginx-deployment
+	$ kubectl edit deployment/nginx-deployment
 
 Next, change the image from `nginx:1.12.1` to `nginx:latest`.
 
@@ -217,7 +217,7 @@ In our case, the deployment will rollback to use the `nginx:1.12.1` image. Check
 
 If rolling back to a specific revision then enter:
 
-	kubectl rollout undo deployment/nginx-deployment --to-revision=<version>
+	$ kubectl rollout undo deployment/nginx-deployment --to-revision=<version>
 
 === Delete a Deployment
 
@@ -271,10 +271,7 @@ Get the list of replica sets:
 To track the replica set details type in the following:
 
 ```
-$ kubectl get rs
-NAME               DESIRED   CURRENT   READY     AGE
-nginx-replicaset   3         3         3         40s
-developer-concepts $ kubectl describe rs/nginx-replicaset
+$ kubectl describe rs/nginx-replicaset
 Name:         nginx-replicaset
 Namespace:    default
 Selector:     name=nginx-replica
@@ -331,7 +328,7 @@ Run the following command to delete the ReplicaSet:
 
 == Service
 
-A pod is ephemeral. Each pod is assigned a unique IP address. If a pod that belongs to a replication controller dies, then it is recreated and may be given a different IP address. Further, aAdditional pods may be created using Deployment or Replica Set. This makes it difficult for an application server, such as WildFly, to access a database, such as MySQL, using its IP address.
+A pod is ephemeral. Each pod is assigned a unique IP address. If a pod that belongs to a replication controller dies, then it is recreated and may be given a different IP address. Further, additional pods may be created using Deployment or Replica Set. This makes it difficult for an application server, such as WildFly, to access a database, such as MySQL, using its IP address.
 
 A Service is an abstraction that defines a logical set of pods and a policy by which to access them. The IP address assigned to a service does not change over time, and thus can be relied upon by other pods. Typically, the pods belonging to a service are defined by a label selector. This is similar mechanism to how pods belong to a replica set.
 
@@ -348,19 +345,19 @@ Let's create a Deployment first that will create 3 replicas of a pod:
 	apiVersion: extensions/v1beta1
 	kind: Deployment
 	metadata:
-	  name: echo-deployment 
+	  name: echo-deployment
 	spec:
-	  replicas: 3 
+	  replicas: 3
 	  template:
 	    metadata:
 	      labels:
 	        app: echo-pod
 	    spec:
 	      containers:
-	      - name: echoheaders 
+	      - name: echoheaders
 	        image: gcr.io/google_containers/echoserver:1.4
-	        imagePullPolicy: IfNotPresent 
-	        ports: 
+	        imagePullPolicy: IfNotPresent
+	        ports:
 	        - containerPort: 8080
 
 
@@ -368,7 +365,7 @@ This example creates an echo app that responds with HTTP headers from an Elastic
 
 Type the following to create the deployment:
 
-	kubectl create -f templates/echo-deployment.yaml --record
+	$ kubectl create -f templates/echo-deployment.yaml --record
 
 Use the `kubectl describe deployment` command to confirm `echo-app` has been deployed:
 
@@ -419,7 +416,7 @@ echo-deployment-3396249933-r05nr   1/1       Running   0          1m
 Check the label for a pod:
 
 ```
-kubectl describe pods/echo-deployment-3396249933-8slzp | grep Label
+$ kubectl describe pods/echo-deployment-3396249933-8slzp | grep Label
 Labels:         app=echo-pod
 ```
 
@@ -453,7 +450,7 @@ A service can be published to an external IP using the `type` attribute. This at
 
 . `ClusterIP`: Service exposed on an IP address inside the cluster. This is the default behavior.
 . `NodePort`: Service exposed on each Node's IP address at a defined port.
-. `LoadBalancer`: If deployed in the cloud, exposed externally using a cloud-specific load balancer. 
+. `LoadBalancer`: If deployed in the cloud, exposed externally using a cloud-specific load balancer.
 . `ExternalName`: Service is attached to the `externalName` field. It is mapped to a CNAME with the value.
 
 Let's publish the service load balancer and expose your services, add a `type` field of `LoadBalancer`.
@@ -476,7 +473,7 @@ This template will expose `echo-app` service on an Elastic Load Balancer (ELB):
 
 Run the following command to create the service:
 
-	kubectl create -f templates/service.yaml --record
+	$ kubectl create -f templates/service.yaml --record
 
 Get more details about the service:
 
@@ -485,7 +482,7 @@ $ kubectl get svc
 NAME           TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
 echo-service   LoadBalancer   100.66.161.199   ad0b47976b7fe...   80:30125/TCP   40s
 kubernetes     ClusterIP      100.64.0.1       <none>             443/TCP        1h
-developer-concepts $ kubectl describe service echo-service
+$ kubectl describe service echo-service
 Name:                     echo-service
 Namespace:                default
 Labels:                   <none>
@@ -510,7 +507,7 @@ Events:
 Access the service using the LoadBalancer Ingress:
 
 ```
-curl http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
+$ curl http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
 CLIENT VALUES:
 client_address=172.20.45.253
 command=GET
@@ -538,17 +535,17 @@ Now, the number of pods in the deployment can be scaled up and down. Or the pods
 
 Run the following command to delete the Service:
 
-    kubectl delete -f templates/service.yaml
+    $ kubectl delete -f templates/service.yaml
 
 The backend Deployment needs to be explicitly deleted as well:
 
-    kubectl delete -f templates/echo-deployment.yaml
+    $ kubectl delete -f templates/echo-deployment.yaml
 
 == Daemon Set
 
-Daemon Set ensure that a copy of the pod runs on a selected set of nodes. By default, all nodes in the cluster are selected. A selection critieria may be specified to select a limited number of nodes. 
+Daemon Set ensure that a copy of the pod runs on a selected set of nodes. By default, all nodes in the cluster are selected. A selection critieria may be specified to select a limited number of nodes.
 
-As new nodes are added to the cluster, pods are started on them. As nodes are removed, pods are removed through garbage collection.  
+As new nodes are added to the cluster, pods are started on them. As nodes are removed, pods are removed through garbage collection.
 
 === Create a DaemonSet
 
@@ -573,7 +570,7 @@ The folowing is an example DaemonSet that runs a Prometheus container. Let's beg
 
 Run the following command to create the ReplicaSet and pods:
 
-	kubectl create -f templates/daemonset.yaml --record
+	$ kubectl create -f templates/daemonset.yaml --record
 
 The `--record` flag will track changes made through each revision.
 
@@ -664,7 +661,7 @@ Change the `spec.template.spec` to include a `nodeSelector` that matches the cha
       containers:
       - image: prom/node-exporter
 		imagePullPolicy: Always
-        name: prometheus      
+        name: prometheus
 
 After the update is performed, we have now configured Prometheus to run on a specific node:
 
@@ -713,7 +710,7 @@ It creates an Ubuntu container, sleeps for 20 seconds and that's it!
 
 Create a job using the command:
 
-	$ kubectl apply -f templates/job.yaml 
+	$ kubectl apply -f templates/job.yaml
 	job "wait" created
 
 Look at the job:
@@ -924,6 +921,5 @@ Get logs from one of the pods:
 
 Delete the Cron Job as shown in the following command:
 
-	$ kubectl delete -f templates/cronjob.yaml 
+	$ kubectl delete -f templates/cronjob.yaml
 	cronjob "hello" deleted
-
