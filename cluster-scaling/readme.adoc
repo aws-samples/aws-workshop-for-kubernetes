@@ -116,7 +116,7 @@ Then attach the policy to the role assigned to the Kubernetes worker nodes. To a
 
 From the output of the `create-policy` command get the `.Policy.Arn` attribute and use that to add the policy to the role.
 
-  $ aws iam attach-role-policy --role-name nodes.cluster.k8s.local --policy-arn arn:aws:iam::123456789012:policy/ClusterAutoScaling
+    aws iam attach-role-policy --role-name nodes.cluster.k8s.local --policy-arn arn:aws:iam::123456789012:policy/ClusterAutoScaling
 
 == Deploy Worker Autoscaler
 
@@ -127,7 +127,7 @@ Before running the command below, update the following attributes in file `clust
  `command  --nodes` to the name of your ASG
  `env value` to the name of your region
 
- You can find the name of your ASG using this command
+You can find the name of your ASG using this command
 
     aws autoscaling describe-auto-scaling-groups
 ===============================
@@ -148,6 +148,7 @@ To validate that the `cluster-autoscaler` is properly working you can use the `a
   aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
 
 You should see a result of 2:
+
   $ export ASG_NAME=nodes.cluster.k8s.local
   $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
   2
@@ -166,7 +167,8 @@ After this loads you can use the `describe-auto-scaling-groups` command again to
   export ASG_NAME=nodes.cluster.k8s.local
   aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
 
-You should see a result of 2:
+You should see a result of 4:
+
   $ export ASG_NAME=nodes.cluster.k8s.local
   $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
   4
