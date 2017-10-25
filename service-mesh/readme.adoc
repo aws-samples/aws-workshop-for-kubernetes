@@ -120,13 +120,21 @@ Now deploy version2 of the `world` microservice.
 
 Send a request to v1 of the service. It should reply with 'Hello world'.
 
+    INGRESS_LB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+    curl -H 'Host: www.hello.world' $INGRESS_LB
+
+It should reply with 'Hello world'.
 ```
+$  INGRESS_LB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
 $  curl -H 'Host: www.hello.world' $INGRESS_LB
 Hello (100.96.1.12) world (100.96.1.14)
 ```
 
-Now send a request to v2 of the service by modifying the header in the request. It should reply with 'Hello earth'.
+Now send a request to v2 of the service by modifying the header in the request.
 
+    curl -H "Host: www.hello.world" -H "l5d-dtab: /host/world => /srv/world-v2;" $INGRESS_LB
+
+It should reply with 'Hello earth'.
 ```
 $ curl -H "Host: www.hello.world" -H "l5d-dtab: /host/world => /srv/world-v2;" $INGRESS_LB
 Hello (100.96.1.11) earth (100.96.2.14)
