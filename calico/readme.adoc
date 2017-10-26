@@ -256,19 +256,20 @@ Let's say this is `shell 1`.
   / # 
 +
 . We will now attempt to call the `http-echo` pod from our `busybox` pod by performing an HTTP POST .  As we have no network policies in place, we should see the following command return successfully with a 200 response, along with a log message being output in the `http-echo` shell window:
-
-  / # wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}'
-  Connecting to http-echo.ns-1.svc.cluster.local (100.71.77.153:80)
-    HTTP/1.1 200 OK
-    X-Powered-By: Express
-    Content-Type: application/json; charset=utf-8
-    Content-Length: 533
-    ETag: W/"215-KyoPN1JoGjQlzW9TxpIay22VPF8"
-    Date: Thu, 26 Oct 2017 00:53:21 GMT
-    Connection: close
-    
-  test                 100% |*************************************************************************************************|   533   0:00:00 ETA
 +
+```
+/ # wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}'
+Connecting to http-echo.ns-1.svc.cluster.local (100.71.77.153:80)
+  HTTP/1.1 200 OK
+  X-Powered-By: Express
+  Content-Type: application/json; charset=utf-8
+  Content-Length: 533
+  ETag: W/"215-KyoPN1JoGjQlzW9TxpIay22VPF8"
+  Date: Thu, 26 Oct 2017 00:53:21 GMT
+  Connection: close
+  
+test                 100% |*************************************************************************************************|   533   0:00:00 ETA
+```
 HTTP POST request succeeds.
 
 === Create default network policy
@@ -280,19 +281,21 @@ Let's now create a Network Policy, but we will not configure any rules which by 
 
 When running the following command again in shell 2, we should see it eventually timeout and fail:
 
-  / # wget -S http://http-echo.ns-1.svc.cluster.local/test2 --post-data '{"message":"hello"}'
-  Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
-    HTTP/1.1 200 OK
-    X-Powered-By: Express
-    Content-Type: application/json; charset=utf-8
-    Content-Length: 536
-    ETag: W/"218-ejthHoYRVZ+oS3p9I5V2qGn/CbM"
-    Date: Thu, 26 Oct 2017 02:12:57 GMT
-    Connection: close
-    
-  test2                100% |*************************************************************************************************|   536   0:00:00 ETA
+```
+/ # wget -S http://http-echo.ns-1.svc.cluster.local/test2 --post-data '{"message":"hello"}'
+Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
+  HTTP/1.1 200 OK
+  X-Powered-By: Express
+  Content-Type: application/json; charset=utf-8
+  Content-Length: 536
+  ETag: W/"218-ejthHoYRVZ+oS3p9I5V2qGn/CbM"
+  Date: Thu, 26 Oct 2017 02:12:57 GMT
+  Connection: close
+  
+test2                100% |*************************************************************************************************|   536   0:00:00 ETA
+```
 
-TODO: Issue #
+This is reported as https://github.com/arun-gupta/kubernetes-aws-workshop/issues/106.
 
 === Create network policy with a rule
 
@@ -319,19 +322,21 @@ Run the following to remove the deny all by default rule, and replace with the a
 
 If we repeat the following command in shell 2, the call should still timeout and fail:
 
-  / # wget -S http://http-echo.ns-1.svc.cluster.local/test3 --post-data '{"message":"hello"}'
-  Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
-    HTTP/1.1 200 OK
-    X-Powered-By: Express
-    Content-Type: application/json; charset=utf-8
-    Content-Length: 536
-    ETag: W/"218-m6+Oqv9DaX+AbeOmSAHlBRCHy04"
-    Date: Thu, 26 Oct 2017 02:14:54 GMT
-    Connection: close
-    
-  test3                100% |*************************************************************************************************|   536   0:00:00 ETA
+```
+/ # wget -S http://http-echo.ns-1.svc.cluster.local/test3 --post-data '{"message":"hello"}'
+Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
+  HTTP/1.1 200 OK
+  X-Powered-By: Express
+  Content-Type: application/json; charset=utf-8
+  Content-Length: 536
+  ETag: W/"218-m6+Oqv9DaX+AbeOmSAHlBRCHy04"
+  Date: Thu, 26 Oct 2017 02:14:54 GMT
+  Connection: close
+  
+test3                100% |*************************************************************************************************|   536   0:00:00 ETA
+```
 
-TODO: Issue #
+This is reported as https://github.com/arun-gupta/kubernetes-aws-workshop/issues/106.
 
 Why is this still failing even after creating a rule?  It is failing because we configured the rule so that only pods with the label `app: busybox` are authorized to call pods with the label `app: http-echo`.  Let's go ahead and label our `busybox` pod:
 
@@ -339,17 +344,19 @@ Why is this still failing even after creating a rule?  It is failing because we 
 
 Repeating the test in shell 2 again should now be successful:
 
-  / # wget -S http://http-echo.ns-1.svc.cluster.local/test4 --post-data '{"message":"hello"}'
-  Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
-    HTTP/1.1 200 OK
-    X-Powered-By: Express
-    Content-Type: application/json; charset=utf-8
-    Content-Length: 536
-    ETag: W/"218-xgvU8WZSN+2SEyOX6Q2R/AhLuRM"
-    Date: Thu, 26 Oct 2017 02:15:32 GMT
-    Connection: close
-    
-  test4                100% |*************************************************************************************************|   536   0:00:00 ETA
+```
+/ # wget -S http://http-echo.ns-1.svc.cluster.local/test4 --post-data '{"message":"hello"}'
+Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
+  HTTP/1.1 200 OK
+  X-Powered-By: Express
+  Content-Type: application/json; charset=utf-8
+  Content-Length: 536
+  ETag: W/"218-xgvU8WZSN+2SEyOX6Q2R/AhLuRM"
+  Date: Thu, 26 Oct 2017 02:15:32 GMT
+  Connection: close
+  
+test4                100% |*************************************************************************************************|   536   0:00:00 ETA
+```
 
 == Teardown
 
