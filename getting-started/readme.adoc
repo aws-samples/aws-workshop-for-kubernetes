@@ -183,7 +183,7 @@ Events:
   Normal  Started                51s   kubelet, minikube  Started container
 ```
 
-By default, pods are created in a `default` namespace. In additiopn, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
+By default, pods are created in a `default` namespace. In addition, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
 
 ```
 $ kubectl get pods --namespace kube-system
