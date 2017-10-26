@@ -87,13 +87,13 @@ kubectl create -f kube2iam-ds.yaml
 
 === Configure a Pod IAM Role
 
-We need the IAM Instance Profile ARN assigned to the worker nodes.  We will need this as part of creating pod roles.  We can obtain this by running the following command which will attempt to retrieve the AWS EC2 instanceId (stored as `.spec.externalID`) a worker node, then uses the AWS CLI to query the ARN for the given EC2 instanceId:
+We need the IAM Role ARN assigned to the worker nodes.  We will need this as part of creating pod roles.  We can obtain this by running the following command which will attempt to retrieve the AWS EC2 instanceId (stored as `.spec.externalID`) a worker node, then uses the AWS CLI to query the ARN for the given EC2 instanceId:
 
 ----
-kubectl get no --selector=kubernetes.io/role==node -o jsonpath='{.items[0].spec.externalID}' | xargs aws ec2 describe-instances --instance-id --query 'Reservations[*].Instances[*].IamInstanceProfile.Arn'
+kubectl get no --selector=kubernetes.io/role==node -o jsonpath='{.items[0].spec.externalID}' | xargs aws ec2 describe-instances --instance-id --query 'Reservations[*].Instances[*].IamInstanceProfile.Arn' | sed -e 's/instance-profile/role/g'
 ----
 
-Edit the `Pod-Role-Trust-Policy.json` file, replacing `{{NodeIamInstanceProfileARN}}` with the IAM Instance Profile ARN obtained from the previous step.
+Edit the `Pod-Role-Trust-Policy.json` file, replacing `{{NodeIamRoleARN}}` with the IAM Role ARN obtained from the previous step.
 
 We will first create a role with no permissions.  By configuring the Trusted Policy of the role, we are allowing kube2iam (via the worker node IAM Instance Profile Role) to assume the pod role.  Make note of the role ARN from the response:
 
