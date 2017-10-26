@@ -201,29 +201,31 @@ Now, changing the pod configuration would involve the following steps:
 
 The data from ConfigMap can be used to initialize environment variables in a pod. We'll use `arungupta/print-hello` image to print "`Hello World`" on the console. The number of times this message is printed is defined by an environment variable `COUNT`. This value of this variable is defined in the ConfigMap.
 
+==== Create a pod and use ConfigMap
+
 . Create a ConfigMap:
 
-  $ kubectl create configmap hello-count --from-literal=COUNT=2
-  configmap "hello-count" created
+  $ kubectl create configmap hello-config --from-literal=COUNT=2
+  configmap "hello-config" created
 
 . Get more details about this ConfigMap:
 
-  $ kubectl get configmap/hello-count -o yaml
+  $ kubectl get configmap/hello-config -o yaml
   apiVersion: v1
   data:
     COUNT: "2"
   kind: ConfigMap
   metadata:
-    creationTimestamp: 2017-10-23T09:55:26Z
-    name: hello-count
+    creationTimestamp: 2017-10-26T21:40:10Z
+    name: hello-config
     namespace: default
-    resourceVersion: "3317"
-    selfLink: /api/v1/namespaces/default/configmaps/hello-count
-    uid: 4bbb1a85-b7d8-11e7-8708-0800278e0f7d
+    resourceVersion: "92516"
+    selfLink: /api/v1/namespaces/default/configmaps/hello-config
+    uid: 3dacb22f-ba96-11e7-ab9c-123f969a2ce2
 
 . Use this ConfigMap to create a pod:
 
-  $ kubectl create -f templates/app-pod.yaml
+  $ kubectl apply -f templates/app-pod.yaml
   pod "app-pod" created
 +
 The pod configuration file looks like:
@@ -240,23 +242,72 @@ The pod configuration file looks like:
       - name: COUNT
         valueFrom:
           configMapKeyRef:
-            name: app-config
+            name: hello-config
             key: COUNT
       ports:
       - containerPort: 8080
 
-. Get logs from the pod:
+. Observe logs from the pod:
 
-  kubectl logs <pod-name>
-+
-Check that the message is printed two times.
-+
-. Change the ConfigMap:
+  $ kubectl logs -f app-pod
+  npm info it worked if it ends with ok
+  npm info using npm@3.10.10
+  npm info using node@v6.11.4
+  npm info lifecycle webapp@1.0.0~prestart: webapp@1.0.0
+  npm info lifecycle webapp@1.0.0~start: webapp@1.0.0
 
-  kubectl edit configmap/hello-count
+  > webapp@1.0.0 start /usr/src/app
+  > node server.js
+
+  Running on http://0.0.0.0:8080
+
+. In a new terminal, expose the pod as a Service:
+
+  $ kubectl expose pod app-pod --port=80 --target-port=8080 --name=app
+  service "app" exposed
+
+. Start Kubernetes proxy:
+
+  kubectl proxy
+
+. In a new terminal, access the service as:
+
+  $ curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
+  printed 2 times
++
+The pod logs are refreshed as well:
++
+  Hello world 0
+  Hello world 1
+
+==== Change the ConfigMap and verify pod logs
+
+. Edit the ConfigMap:
+
+  $ kubectl edit configmap/hello-config
 
 . Change the value to `4`
-. Run the pod again. Check the logs again to confirm that the message is now printed 4 times.
+. Terminate the pod:
+
+  $ kubectl delete pod/app-pod
+  pod "app-pod" deleted
+
+. Run the pod again:
+
+  kubectl create -f templates/app-pod.yaml
+  pod "app-pod" created
+
+. Access the service again:
+
+  curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
+  printed 4 times
+
+. Logs from the pod are refreshed:
+
+  Hello world 0
+  Hello world 1
+  Hello world 2
+  Hello world 3
 
 == Secrets
 
