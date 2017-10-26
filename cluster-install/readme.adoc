@@ -37,8 +37,8 @@ is installed. User permissions used in this workshop must have these http://docs
     IAMFullAccess
     AmazonVPCFullAccess
 
-Please review this link for additional info on IAM permissions:
-https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md provide more details about the permissions themselves.
+Please review these links for additional info on IAM permissions:
+https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md
 
 == S3 bucket to store Kubernetes config
 
@@ -322,7 +322,7 @@ Although most of the exercises in this workshop should work on a cluster with a 
 
 == Turn on an API version for your cluster
 
-Kubernetes resources are created with a specific API version. The exact value is defined by the `apiVersion` attribute in the resource configuration file. Some of the values are `v1`, `extensions/v1beta1` or `batch/v1`. By default, resources with `apiVersion` values X, Y, Z are enabled. If a resource has a version with the word `alpha` in it, then that version needs to be explicitly enabled in the cluster. For example, if you are running a Kubernetes cluster of version 1.7.x, then Cron Job resource can only be created with API version `batch/v2alpha1`. Cron Job resource cannot be created unless `batch/v2alpha1` is explicitly enabled.
+Kubernetes resources are created with a specific API version. The exact value is defined by the `apiVersion` attribute in the resource configuration file. Some of the values are `v1`, `extensions/v1beta1` or `batch/v1`. By default, resources with `apiVersion` values X, Y, Z are enabled. If a resource has a version with the word `alpha` in it, then that version needs to be explicitly enabled in the cluster. For example, if you are running a Kubernetes cluster of version 1.7.x, then Cron Job resource cannot be created unless `batch/v2alpha1` is explicitly enabled.
 
 This section shows how turn on an API version for your cluster. It will use `batch/v2alpha1` as an example.
 
