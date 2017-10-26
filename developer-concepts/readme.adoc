@@ -843,7 +843,9 @@ Deleting a job deletes all the pods as well. Delete the job as:
 
 For Kubernetes cluster versions < 1.8, Cron Job is created with API version `batch/v2alpha1`. This version needs to be explicitly enabled in the Kubernetes cluster as explained in link:../cluster-install#turn-on-an-api-version-for-your-cluster[Turn on an API version for your cluster].
 
-`batch/v2alpha1` API version for Cron Job is deprecated for the cluster version >= 1.8. You should switch to `batch/v1beta1`. Keep in mind, once you switch API versions, you need to perform rolling-update of the cluster which generally takes 30 - 45 mins to complete. 
+`batch/v2alpha1` API version for Cron Job is deprecated for the cluster version >= 1.8. You should switch to `batch/v1beta1`.
+
+NOTE: Once you switch API versions, you need to perform rolling-update of the cluster which generally takes 30 - 45 mins to complete 3 master nodes and 5 worker nodes.
 
 === Create Cron Job
 
