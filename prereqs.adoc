@@ -41,7 +41,7 @@ Use `eu-central-1` AWS region for this workshop. Default AWS region used by the 
 
 Different availability zones for this region can be set in the environment variable `AWS_AVAILABILITY_ZONES` using the following command:
 
-    AWS_AVAILABILITY_ZONES="$(aws --region $AWS_DEFAULT_REGION ec2 describe-availability-zones --query AvailabilityZones[].ZoneName --output text | awk -v OFS="," '$1=$1')"
+    AWS_AVAILABILITY_ZONES="$(aws --region $AWS_DEFAULT_REGION ec2 describe-availability-zones --query 'AvailabilityZones[].ZoneName' --output text | awk -v OFS="," '$1=$1')"
 
 Echo the value of the environment variable to confirm:
 

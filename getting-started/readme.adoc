@@ -222,7 +222,7 @@ Where `<pod-name>` is the pod name of your NGINX pod. This will expose the pod a
 
 === View service webpage
 
-This minukube command will display the service for you in a web page:
+This minikube command will display the service for you in a web page:
 
     minkube service web
 
@@ -230,7 +230,7 @@ This opened a browser with an IP address and the port that the service was expos
 
 image::nginx-welcome-page.png[]
 
-This is a convenient feature of minukube. But what if you wanted to find this information yourself?
+This is a convenient feature of minikube. But what if you wanted to find this information yourself?
 
 You can view the IP address of a node in your cluser with these steps, first find all of the nodes in your cluster:
 
@@ -362,7 +362,7 @@ Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters.
 
 Kubernetes dashboard with minikube can be easily viewed using the following command:
 
-    minukube dashboard
+    minikube dashboard
 
 It looks like this:
 
