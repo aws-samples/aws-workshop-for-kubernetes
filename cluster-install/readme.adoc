@@ -19,7 +19,7 @@ There is no need to download a Kubernetes binary distribution for creating a clu
 
 Kops is available on Mac OSX, Linux or the Windows 10 Linux Subsystem. Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
 
-If you already have kops for MacOS, then make sure you have the latest version:
+For MacOS, if Kops is already installed, you can run the following command to upgrade to the latest the latest version:
 
     brew upgrade kops
 
@@ -189,7 +189,7 @@ Your output may differ from the one shown here based up on the type of cluster y
 
 === Create a gossip-based Kubernetes cluster
 
-Kops also has experimental support for a gossip-based cluster. It uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to Kops by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample cluster name.
+Kops also has experimental support for a gossip-based cluster. It uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to Kops by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name.
 
 This is a fairly recent feature, so we recommend you continue to use DNS for production clusters. However, setting up a gossip-based cluster allows you to get started rather quickly.
 
