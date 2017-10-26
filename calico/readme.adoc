@@ -262,7 +262,7 @@ We will now attempt to call the `http-echo` pod from our `busybox` pod by perfor
     
   test                 100% |*************************************************************************************************|   533   0:00:00 ETA
 
-=== Create network policy
+=== Create default network policy
 
 Let's now create a Network Policy, but we will not configure any rules which by default will deny all traffic within the namespace.  Leaving the 2 shells open from the previous steps, run the following in another shell:
 
@@ -274,6 +274,8 @@ When running the following command again in shell 2, we should see it eventually
 ----
 busybox shell>  wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}'
 ----
+
+=== Create network policy with a rule
 
 We will now delete the NetworkPolicy that we just created, and create a new NetworkPolicy with a rule defined.  If you `cat `allow-network-policy.yaml` you will see the following rule defined:
 
