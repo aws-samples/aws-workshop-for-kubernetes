@@ -19,7 +19,11 @@ Out of the box, when deploying Kubernetes on AWS, master nodes require a number 
 
 These policies may be augmented via kops.  For example, to allow all nodes ElasticSearch access, perform the following steps:
 
-Edit your cluster via `kops edit cluster ${CLUSTER_NAME}` and add the following to the `spec`:
+Edit your cluster using the command:
+
+  kops edit cluster cluster.k8s.local
+
+Add the following to the `spec`:
 
   additionalPolicies:
     node: |
@@ -31,9 +35,11 @@ Edit your cluster via `kops edit cluster ${CLUSTER_NAME}` and add the following 
         }
       ]
 
+Note, you need to use spaces and proper indentation instead of tab for this configuration to be recognized.
+
 Update the cluster for changes to take effect:
 
-  kops update cluster ${CLUSTER_NAME} --yes
+  kops update cluster cluster.k8s.local --yes
 
 In a similar fashion, policies may be applied to all masters by setting the `additionalPolicies.master` property as below:
 
@@ -46,6 +52,8 @@ In a similar fashion, policies may be applied to all masters by setting the `add
           "Resource": ["*"]
         }
       ]
+
+Once again, the cluster needs to be udpated for these changes to take effect.
 
 == IAM Container Roles
 
@@ -84,7 +92,9 @@ The following steps describe how to configure kube2iam:
 +
 Note that the `kube2iam-ds.yaml` is assuming that your network configuration is based on `kubenet`, which is also the default kops configuration. If you have changed this as part of another exercise (e.g. switched to Calico) you will need to change the value of the `--host-interface` arg in the configuration file. For example, set to `cal+` if using Calico.
 
-=== Configure IAM Role on a Pod
+=== IAM role for worker
+
+It is necessary to create an IAM role which can assume other roles and assign it to each kubernetes worker.
 
 We need the IAM Role ARN assigned to the worker nodes.  We will need this as part of creating pod roles.  We can obtain this by running the following command:
 
@@ -150,6 +160,8 @@ It shows an output as:
           "Arn": "arn:aws:iam::<account-id>:role/MyPodRole"
       }
   }
+
+=== Configure IAM Role on a Pod
 
 `iam.amazonaws.com/role` annotation on the pod is used to assign an IAM role to a pod. Let's set this annotation on our pod. The `templates/aws-cli-po.yaml` file looks like:
 
