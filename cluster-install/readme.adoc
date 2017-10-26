@@ -97,7 +97,6 @@ Create a Kubernetes cluster using the following command. For the purposes of thi
     kops create cluster \
       --name example.cluster.com \
       --zones $AWS_AVAILABILITY_ZONES \
-      --state $KOPS_STATE_STORE \
       --yes
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
@@ -149,7 +148,6 @@ one step by passing the `--yes` flag.
       --master-zones $AWS_AVAILABILITY_ZONES \
       --node-count 5 \
       --zones $AWS_AVAILABILITY_ZONES \
-      --state $KOPS_STATE_STORE \
       --yes
 
 A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The AZs for master can be specified using the `--master-zones` option. Kops will spread the nodes across different AZs.
@@ -204,7 +202,6 @@ Create a Kubernetes cluster using the following command. This will create a clus
     kops create cluster \
       --name example.cluster.k8s.local \
       --zones $AWS_AVAILABILITY_ZONES \
-      --state $KOPS_STATE_STORE \
       --yes
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
@@ -250,7 +247,6 @@ one step by passing the `--yes` flag.
       --master-zones $AWS_AVAILABILITY_ZONES \
       --node-count 5 \
       --zones $AWS_AVAILABILITY_ZONES \
-      --state $KOPS_STATE_STORE \
       --yes
 
 A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The AZs for master can be specified using the `--master-zones` option. Kops will spread the servers across different AZs.
@@ -301,7 +297,6 @@ Create a gossip-based private cluster with master and worker nodes in private su
       --topology private \
       --name example.cluster.k8s.local \
       --zones $AWS_AVAILABILITY_ZONES \
-      --state $KOPS_STATE_STORE \
       --yes
 
 Validate the cluster:
@@ -414,14 +409,12 @@ Any cluster can be deleted as shown:
 
     kops delete cluster \
       <cluster-name> \
-      --state $KOPS_STATE_STORE \
       --yes
 
 `<cluster-name>` is the name of the cluster. For example, our `example.cluster.k8s.local` cluster can be deleted as:
 
     kops delete cluster \
       example.cluster.k8s.local \
-      --state $KOPS_STATE_STORE \
       --yes
 
 If you created a private VPC, then an additional cleanup of resources is required as shown below:
