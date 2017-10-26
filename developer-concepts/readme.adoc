@@ -6,7 +6,7 @@ Kubernetes has a number of abstractions that map to API objects. These Kubernete
 
 == Pre-requisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster] is used for this chapter.
 
 All configuration files for this chapter are in the `developer-concepts` directory.
 
@@ -841,11 +841,17 @@ Deleting a job deletes all the pods as well. Delete the job as:
 
 === Pre-requisites
 
-For Kubernetes cluster versions < 1.8, Cron Job is created with API version `batch/v2alpha1`. This version needs to be explicitly enabled in the Kubernetes cluster as explained in link:../cluster-install#turn-on-an-api-version-for-your-cluster[Turn on an API version for your cluster].
+For Kubernetes cluster versions < 1.8, Cron Job can be created with API version `batch/v2alpha1`. You can check the cluster version using this command,
 
-`batch/v2alpha1` API version for Cron Job is deprecated for the cluster version >= 1.8. You should switch to `batch/v1beta1`.
+  $ kubectl version
+  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
+  Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
 
-NOTE: Once you switch API versions, you need to perform rolling-update of the cluster which generally takes 30 - 45 mins to complete 3 master nodes and 5 worker nodes.
+Notice that the server version is at v1.7.4. In this case, you need to explicitly enable API version `batch/v2alpha1` in Kubernetes cluster and perform a rolling-update. These steps are explained in link:../cluster-install#turn-on-an-api-version-for-your-cluster[Turn on an API version for your cluster].
+
+NOTE: Once you switch API versions, you need to perform rolling-update of the cluster which generally takes 30 - 45 mins to complete for 3 master nodes and 5 worker nodes cluster.
+
+If you have cluster version >= 1.8, `batch/v2alpha1` API is deprecated for this version but you can switch to `batch/v1beta1` to create Cron Jobs
 
 === Create Cron Job
 
