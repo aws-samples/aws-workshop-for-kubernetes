@@ -234,7 +234,7 @@ The data from ConfigMap can be used to initialize environment variables in a pod
 
 . Use this ConfigMap to create a pod:
 
-  kuebctl create -f templates/app-pod.yaml
+  kubectl create -f templates/app-pod.yaml
 +
 The pod configuration file looks like:
 +
