@@ -224,7 +224,7 @@ Where `<pod-name>` is the pod name of your NGINX pod. This will expose the pod a
 
 This minikube command will display the service for you in a web page:
 
-    minkube service web
+    minikube service web
 
 This opened a browser with an IP address and the port that the service was exposed on. It looks like as shown:
 
