@@ -1,95 +1,265 @@
 = Kubernetes - Enforcing Network Security Policies with Calico
 :toc:
 
-== Introduction
-
 https://www.projectcalico.org[Calico] is an open-source plugin that allows for fine-grained network policy enforcement, ensuring that traffic within your Kubernetes cluster can only flow in the direction that you specify.  As an example, if we take a scenario where Kubernetes namespaces are used opt enforce boundaries between products, or even enforce boundaries between different environments (e.g. development vs production), network policies can be configured to ensure no unauthorized network traffic is allowed beyond its boundary.  Think of it as being similar to applying Security Groups in the AWS world.
 
 This exercise will walk you through configuring Calico and applying a Network Policy.
 
 == Pre-requisites
 
-Although Calico can be installed on a variety of Kubernetes configurations, this exercise assumes that you have a running Kubernetes cluster deployed to AWS via `kops`.
+You can either use an existing cluster as explained at link:../cluster-install#default-gossip-based-cluster[]. 
+
+Alternatively, you can create a new cluster and use kops CLI options to specify the networking mode as shown below:
+
+  kops create cluster \
+    --name cluster2.k8s.local \
+    --master-count 1 \
+    --node-count 2 \
+    --zones ${AWS_AVAILABILITY_ZONES} \
+    --networking calico \
+    --yes
+
+This will create a 1 master node and 3 worker nodes cluster. It uses `--networking calico` which tells the cluster to use calico networking instead of the default networking provided by kubenet. Note, the name here is `cluster2.k8s.local` instead of the usual `cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
+
+View the cluster configuration using the following command:
+
+  kops edit cluster cluster2.k8s.local
+
+This will show the following fragment under `.spec`:
+
+  networking:
+    calico: {}
+
+Rest of the chapter goes with the presumption that you are using an existing cluster.
+
+NOTE: A smaller sized cluster, with 1 master node and 2 worker nodes, is chosen here. This is to minimize the amount of time for rolling update the cluster later. It typically takes 5-6 mins per node for rolling update.
+
+All configuration files for this chapter are in the `calico` directory.
 
 == Installation
 
-Edit the existing kubernetes cluster config, where `${NAME}` is the name of your cluster, and `${KUBERNETES_STATE_STORE_BUCKET}` is the name of the S3 bucket originally created by kops as its state store:
+Edit the Kubernetes cluster configuration using the command:
 
-----
-kops edit cluster ${NAME} --state s3://${KUBERNETES_STATE_STORE_BUCKET}
-----
+  kops edit cluster cluster.k8s.local
+
+By default, Kubernetes uses `kubenet` for networking. This is captured in the configuration file as:
+
+  networking:
+    kubenet: {}
 
 Update the networking configuration to use `calico` by setting the following property:
 
-----
   networking:
     calico: 
       crossSubnet: true
-----
 
-Finally, apply the changes to your cluster:
+View changes that will be applied to the cluster:
 
-----
-# View changes that will be applied
-kops update cluster ${NAME} --state s3://${KUBERNETES_STATE_STORE_BUCKET}
+  kops update cluster cluster.k8s.local
 
-# Apply the changes
-kops update cluster ${NAME} --state s3://${KUBERNETES_STATE_STORE_BUCKET} --yes
+It shows an output as:
 
-# Determine if any of the nodes will require a restart
-kops rolling-update cluster ${NAME} --state s3://${KUBERNETES_STATE_STORE_BUCKET}
+```
+$ kops update cluster cluster.k8s.local
+I1025 15:55:45.512183    3454 apply_cluster.go:420] Gossip DNS: skipping DNS validation
+W1025 15:55:45.534000    3454 firewall.go:202] Opening etcd port on masters for access from the nodes, for calico.  This is unsafe in untrusted environments.
+I1025 15:55:45.536302    3454 executor.go:91] Tasks: 0 done / 72 total; 34 can run
+I1025 15:55:46.365905    3454 executor.go:91] Tasks: 34 done / 72 total; 14 can run
+I1025 15:55:46.841194    3454 executor.go:91] Tasks: 48 done / 72 total; 20 can run
+I1025 15:55:47.760698    3454 executor.go:91] Tasks: 68 done / 72 total; 3 can run
+I1025 15:55:48.379152    3454 executor.go:91] Tasks: 71 done / 72 total; 1 can run
+I1025 15:55:48.511060    3454 executor.go:91] Tasks: 72 done / 72 total; 0 can run
+Will create resources:
+  ManagedFile/cluster.k8s.local-addons-networking.projectcalico.org-k8s-1.6
+    Location              addons/networking.projectcalico.org/k8s-1.6.yaml
 
-# Restart the nodes (warning:  this may take 5-15 minutes depending on the size of your cluster)
-kops rolling-update cluster ${NAME} --state s3://${KUBERNETES_STATE_STORE_BUCKET} --yes
-----
+  ManagedFile/cluster.k8s.local-addons-networking.projectcalico.org-pre-k8s-1.6
+    Location              addons/networking.projectcalico.org/pre-k8s-1.6.yaml
 
+  SecurityGroupRule/node-to-master-protocol-ipip
+    SecurityGroup         name:masters.cluster.k8s.local id:sg-887938fa
+    Protocol              4
+    SourceGroup           name:nodes.cluster.k8s.local id:sg-ec74359e
+
+  SecurityGroupRule/node-to-master-tcp-1-4001
+    SecurityGroup         name:masters.cluster.k8s.local id:sg-887938fa
+    Protocol              tcp
+    FromPort              1
+    ToPort                4001
+    SourceGroup           name:nodes.cluster.k8s.local id:sg-ec74359e
+
+Will modify resources:
+  LaunchConfiguration/master-us-east-1d.masters.cluster.k8s.local
+    UserData            
+                          ...
+                            - _aws
+                            - _kubernetes_master
+                          + - _networking_cni
+                            channels:
+                            - s3://kubernetes-aws-io/cluster.k8s.local/addons/bootstrap-channel.yaml
+                          ...
+                          
+
+  LaunchConfiguration/nodes.cluster.k8s.local
+    UserData            
+                          ...
+                            - _automatic_upgrades
+                            - _aws
+                          + - _networking_cni
+                            channels:
+                            - s3://kubernetes-aws-io/cluster.k8s.local/addons/bootstrap-channel.yaml
+                          ...
+                          
+
+  LoadBalancer/api.cluster.k8s.local
+    Lifecycle              <nil> -> Sync
+
+  LoadBalancerAttachment/api-master-us-east-1d
+    Lifecycle              <nil> -> Sync
+
+  ManagedFile/cluster.k8s.local-addons-bootstrap
+    Contents            
+                          ...
+                                  k8s-addon: storage-aws.addons.k8s.io
+                                version: 1.6.0
+                          +   - id: pre-k8s-1.6
+                          +     kubernetesVersion: <1.6.0
+                          +     manifest: networking.projectcalico.org/pre-k8s-1.6.yaml
+                          +     name: networking.projectcalico.org
+                          +     selector:
+                          +       role.kubernetes.io/networking: "1"
+                          +     version: 2.1.2-kops.1
+                          +   - id: k8s-1.6
+                          +     kubernetesVersion: '>=1.6.0'
+                          +     manifest: networking.projectcalico.org/k8s-1.6.yaml
+                          +     name: networking.projectcalico.org
+                          +     selector:
+                          +       role.kubernetes.io/networking: "1"
+                          +     version: 2.1.2-kops.1
+                          
+
+Must specify --yes to apply changes
+```
+
+Apply the changes using the command:
+
+  kops update cluster cluster.k8s.local --yes
+
+It shows the output:
+
+```
+$ kops update cluster cluster.k8s.local --yes
+I1025 15:56:26.679683    3458 apply_cluster.go:420] Gossip DNS: skipping DNS validation
+W1025 15:56:26.701541    3458 firewall.go:202] Opening etcd port on masters for access from the nodes, for calico.  This is unsafe in untrusted environments.
+I1025 15:56:27.214980    3458 executor.go:91] Tasks: 0 done / 72 total; 34 can run
+I1025 15:56:27.973367    3458 executor.go:91] Tasks: 34 done / 72 total; 14 can run
+I1025 15:56:28.427597    3458 executor.go:91] Tasks: 48 done / 72 total; 20 can run
+I1025 15:56:30.010284    3458 executor.go:91] Tasks: 68 done / 72 total; 3 can run
+I1025 15:56:30.626483    3458 executor.go:91] Tasks: 71 done / 72 total; 1 can run
+I1025 15:56:30.934673    3458 executor.go:91] Tasks: 72 done / 72 total; 0 can run
+I1025 15:56:31.545416    3458 update_cluster.go:247] Exporting kubecfg for cluster
+Kops has set your kubectl context to cluster.k8s.local
+
+Cluster changes have been applied to the cloud.
+
+
+Changes may require instances to restart: kops rolling-update cluster
+```
+
+Determine if any of the nodes will require a restart using the command:
+
+  kops rolling-update cluster cluster.k8s.local
+
+Output from this command is shown:
+
+```
+$ kops rolling-update cluster cluster.k8s.local
+NAME      STATUS    NEEDUPDATE  READY MIN MAX NODES
+master-us-east-1d NeedsUpdate 1   0 1 1 1
+nodes     NeedsUpdate 2   0 2 2 2
+
+Must specify --yes to rolling-update.
+```
+
+The `NEEDUPDATE` column shows that both master and worker nodes need to be updated.
+
+  kops rolling-update cluster cluster.k8s.local --yes
+
+Output from this command is shown:
+
+```
+$ kops rolling-update cluster cluster.k8s.local --yes
+NAME      STATUS    NEEDUPDATE  READY MIN MAX NODES
+master-us-east-1d NeedsUpdate 1   0 1 1 1
+nodes     NeedsUpdate 2   0 2 2 2
+I1025 16:16:31.978851    3733 instancegroups.go:350] Stopping instance "i-0cdcb2e51e5656b44", node "ip-172-20-44-219.ec2.internal", in AWS ASG "master-us-east-1d.masters.cluster.k8s.local".
+I1025 16:21:32.411639    3733 instancegroups.go:350] Stopping instance "i-060b2c9652e2075ac", node "ip-172-20-54-182.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+I1025 16:23:32.973648    3733 instancegroups.go:350] Stopping instance "i-0baffcbc9a758a6c4", node "ip-172-20-94-82.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+I1025 16:25:33.784129    3733 rollingupdate.go:174] Rolling update completed!
+```
 
 == Configuration:  Enforcing Network Isolation
 
-This exercise introduces you to configuring Calico.  We will create a namespace, deploy some test pods into it, and see the before and after effects of configuring a Calico based Network Policy.
+This exercise introduces you to configuring Calico. We will create a namespace, deploy some test pods into it, and see the before and after effects of configuring a Calico based Network Policy.
 
 Create a namespace:
 
-----
-kubectl create ns ns-1
-----
+  $ kubectl create ns ns-1
+  namespace "ns-1" created
 
 Deploy a container into namespace `ns-1` that will expose an http endpoint, and log all requests it receives.
 
-----
-# Creates a Deployment, ReplicaSet and Pod
-kubectl run --namespace=ns-1 http-echo --image=solsson/http-echo --env="PORT=80" --port=80
+Creates a Deployment, ReplicaSet and Pod using the command:
 
-# Label the pod (we will use labels as part of defining network policies)
-kubectl label po --selector=run=http-echo --namespace=ns-1 app=http-echo
+  $ kubectl run --namespace=ns-1 http-echo --image=solsson/http-echo --env="PORT=80" --port=80
+  deployment "http-echo" created
 
-# Creates a Service to expose the pod
-kubectl expose --namespace=ns-1 deployment http-echo --port=80
-----
+Label the pod (we will use labels as part of defining network policies):
+
+  $ kubectl label po --selector=run=http-echo --namespace=ns-1 app=http-echo
+  pod "http-echo-1790350443-z2v7n" labeled
+
+Creates a Service to expose the pod:
+
+  $ kubectl expose --namespace=ns-1 deployment http-echo --port=80
+  service "http-echo" exposed
 
 Monitor the logs of the deployed container by querying the name of the pod defined with the label `run-http-echo`, then passing it to the `kubectl logs` command:
 
-----
-kubectl get po --selector=run=http-echo --namespace=ns-1 -o jsonpath='{.items[*].metadata.name}' | xargs kubectl logs -f --namespace=ns-1
-----
+  $ kubectl get po --selector=run=http-echo --namespace=ns-1 -o jsonpath='{.items[*].metadata.name}' | xargs kubectl logs -f --namespace=ns-1
+  npm info it worked if it ends with ok
+  npm info using npm@5.0.3
+  npm info using node@v8.1.3
+  npm info lifecycle @solsson/http-echo@1.0.1~prestart: @solsson/http-echo@1.0.1
+  npm info lifecycle @solsson/http-echo@1.0.1~start: @solsson/http-echo@1.0.1
+
+  > @solsson/http-echo@1.0.1 start /app
+  > node index.js
 
 In another shell, deploy a second container:
 
-----
-kubectl run --namespace=ns-1 -i --tty busybox --image=busybox --restart=Never -- sh
-----
+  $ kubectl run --namespace=ns-1 -i --tty busybox --image=busybox --restart=Never -- sh
+  If you don't see a command prompt, try pressing enter.
+  / # 
 
 We will now attempt to call the `http-echo` pod from our `busybox` pod by performing an HTTP POST .  As we have no network policies in place, we should see the following command return successfully with a 200 response, along with a log message being output in the `http-echo` shell window:
 
-----
-busybox shell>  wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}'
-----
+  / # wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}'
+  Connecting to http-echo.ns-1.svc.cluster.local (100.71.77.153:80)
+    HTTP/1.1 200 OK
+    X-Powered-By: Express
+    Content-Type: application/json; charset=utf-8
+    Content-Length: 533
+    ETag: W/"215-KyoPN1JoGjQlzW9TxpIay22VPF8"
+    Date: Thu, 26 Oct 2017 00:53:21 GMT
+    Connection: close
+    
+  test                 100% |*************************************************************************************************|   533   0:00:00 ETA
 
 Let's now create a Network Policy, but we will not configure any rules which by default will deny all traffic within the namespace.  Leaving the 2 shells open from the previous steps, run the following in another shell:
 
-----
-kubectl create -f deny-all-by-default-network-policy.yaml --namespace=ns-1
-----
+  $ kubectl create -f templates/deny-all-by-default-network-policy.yaml --namespace=ns-1
+  networkpolicy "deny-all-by-default" created
 
 When running the following command again in shell 2, we should see it eventually timeout and fail:
 
