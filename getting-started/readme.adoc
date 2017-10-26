@@ -50,9 +50,10 @@ Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh
 +
     curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
 +
-. Install Kubectl CLI:
+. Install or Upgrade Kubectl CLI:
 +
-    curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
+    chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
 == Start Kubernetes cluster
 
@@ -161,9 +162,9 @@ Containers:
       /var/run/secrets/kubernetes.io/serviceaccount from default-token-c5xdg (ro)
 Conditions:
   Type           Status
-  Initialized    True 
-  Ready          True 
-  PodScheduled   True 
+  Initialized    True
+  Ready          True
+  PodScheduled   True
 Volumes:
   default-token-c5xdg:
     Type:        Secret (a volume populated by a Secret)
@@ -381,4 +382,3 @@ The cluster can be shutdown using the following command:
 == Create a multi-node cluster on AWS
 
 Though some of the exercises that follow would work on Minikube, let's create a multi-node Kubernetes cluster on AWS as explained in link:../cluster-install[Install Kubernetes cluster using Kops].
-
