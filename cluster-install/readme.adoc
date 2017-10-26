@@ -9,16 +9,16 @@ https://github.com/kubernetes/kops[Kops], short for Kubernetes Operations, is a 
 
 There is no need to download a Kubernetes binary distribution for creating a cluster using kops. However, you do need to download the kops CLI. It then takes care of downloading the right Kubernetes binary in the cloud, and provisions the cluster.
   
-  = MacOSX
+  MacOS
     brew update && brew install kops
-  = Linux
+  Linux
     wget https://github.com/kubernetes/kops/releases/download/1.7.1/kops-linux-amd64
     sudo chmod +x kops-linux-amd64
     sudo mv kops-linux-amd64 /usr/local/bin/kops
 
-Kops is only available on Mac OSX and Linux. Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
+Kops is available on Mac OSX, Linux or the Windows 10 Linux Subsystem. Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
 
-If you already have kops, then make sure you have the latest version:
+If you already have kops for MacOS, then make sure you have the latest version:
 
     brew upgrade kops
 
