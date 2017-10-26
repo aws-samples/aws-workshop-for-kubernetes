@@ -1,0 +1,190 @@
+= Kubernetes Cluster Scaling
+:toc:
+:imagesdir: ../images
+
+This tutorial will walk you through how to setup cluster scaling using `cluster-autoscaler` to enable worker node autoscaling based on multiple metrics within Kubernetes.
+
+== Pre-Requisites
+
+=== Autoscaling group size
+
+Check the size of your worker node autoscaling group and make sure the MaxSize is greater than 2. You can do this in the AWS Console, or use the CLI command below
+
+    aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.<cluster-name>
+
+For example
+```
+$ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.cluster.k8s.local
+{
+    "AutoScalingGroups": [
+        {
+            "AutoScalingGroupARN": "arn:aws:autoscaling:us-east-1:123456789012:autoScalingGroup:xxx:autoScalingGroupName/nodes.cluster.k8s.local",
+            .
+            .
+            "MaxSize": 10,
+}
+```
+If the ASG MaxSize is 2 (which means you can't scale beyond 2 worker nodes) update it using kops
+
+    kops edit ig nodes
+    kops update cluster --name cluster.k8s.local --state s3://kubernetes-aws-io --yes
+
+=== IAM permissions
+
+Each worker running in your Kubernetes cluster MUST have the necessary IAM Policy attached. If you previously set up your cluster using `kops` you can modify the existing permissions on your worker IAM Role or you can manually create a new policy and attach it to the IAM Role. Both methods are shown below.
+
+=== Using Kops to update the IAM policy
+
+Use kops to edit the cluster configuration
+
+    kops edit cluster --name cluster.k8s.local --state s3://kubernetes-aws-io
+
+Add the `additionalPolicies` section below to the end of the Cluster spec; your spec should look something like this
+
+```
+spec:
+.
+.
+  topology:
+    dns:
+      type: Public
+    masters: public
+    nodes: public
+  additionalPolicies:
+    node: |
+      [
+        {
+          "Effect": "Allow",
+          "Action": [
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribeAutoScalingInstances",
+                "autoscaling:SetDesiredCapacity",
+                "autoscaling:TerminateInstanceInAutoScalingGroup"
+          ],
+          "Resource": ["*"]
+        }
+      ]
+```
+Then update the cluster,
+
+    kops update cluster --name cluster.k8s.local --yes
+
+=== Manually attaching the IAM policy to the role
+
+The policy below must be attached to the role assigned to the Kubernetes worker nodes. The role definition exists in the file templates/asg-policy.json
+
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:DescribeAutoScalingInstances",
+          "autoscaling:SetDesiredCapacity",
+          "autoscaling:TerminateInstanceInAutoScalingGroup"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }
+
+To configure these permissions, you need to create the policy using the command below.
+
+    aws iam create-policy --policy-document file://cluster-scaling/templates/asg-policy.json --policy-name ClusterAutoScaling
+
+You will see a response similar to this:
+
+```
+  $ aws iam create-policy --policy-document file://cluster-scaling/templates/asg-policy.json --policy-name ClusterAutoScaling
+  => {
+    "Policy": {
+        "PolicyName": "ClusterAutoScaling",
+        "PolicyId": "ANPAJVCFZ6I4OL6BGFGD2",
+        "Arn": "arn:aws:iam::123456789012:policy/ClusterAutoScaling",
+        "Path": "/",
+        "DefaultVersionId": "v1",
+        "AttachmentCount": 0,
+        "IsAttachable": true,
+        "CreateDate": "2017-10-05T20:35:54.964Z",
+        "UpdateDate": "2017-10-05T20:35:54.964Z"
+    }
+  }
+```
+
+Then attach the policy to the role assigned to the Kubernetes worker nodes. To attach the policy to the IAM Role, you first need to get the name of the role; if you set up your cluster using `kops`, this will be `nodes.[DOMAIN]` such as `nodes.cluster.k8s.local`
+
+From the output of the `create-policy` command get the `.Policy.Arn` attribute and use that to add the policy to the role.
+
+    aws iam attach-role-policy --role-name nodes.cluster.k8s.local --policy-arn arn:aws:iam::123456789012:policy/ClusterAutoScaling
+
+== Deploy Worker Autoscaler
+
+[NOTE]
+===============================
+Before running the command below, update the following attributes in file `cluster-scaling/templates/2-10-autoscaler.yaml`:
+
+ `command  --nodes` to the name of your ASG
+ `env value` to the name of your region
+
+You can find the name of your ASG using this command
+
+    aws autoscaling describe-auto-scaling-groups
+===============================
+
+This command will install the `cluster-autoscaler` with a configuration of `min: 2, max: 10, name: cluster-autoscaler`
+
+  kubectl apply -f cluster-scaling/templates/2-10-autoscaler.yaml
+
+Once this is deployed you can view the logs by running
+
+  kubectl logs deployment/cluster-autoscaler --namespace=kube-system
+
+== Validation
+
+To validate that the `cluster-autoscaler` is properly working you can use the `aws` CLI to request the current `DesiredCapacity` of your ASG with
+
+  export ASG_NAME=nodes.cluster.k8s.local
+  aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
+
+You should see a result of 2:
+
+  $ export ASG_NAME=nodes.cluster.k8s.local
+  $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
+  2
+
+Then you can deploy an application which requests more resources than your cluster has available see `cluster-scaling/templates/dummy-resource-offers.yaml` for reference.
+
+[NOTE]
+===============================
+Depending on the size of your cluster this might not trigger autoscaling. Increase the `replicas: 10` count to the necessary amount you need to fill your clusters resources.
+===============================
+
+  kubectl apply -f cluster-scaling/templates/dummy-resource-offers.yaml
+
+After this loads you can use the `describe-auto-scaling-groups` command again to see the `DesiredCapacity` change.
+
+  export ASG_NAME=nodes.cluster.k8s.local
+  aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
+
+You should see a result of 4; this may take a few minutes:
+
+  $ export ASG_NAME=nodes.cluster.k8s.local
+  $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME | jq ".AutoScalingGroups[0].DesiredCapacity"
+  4
+
+If you have deployed Heapster, as described in the link:../cluster-monitoring/README.adoc#heapster-influxdb-and-grafana[Cluster Monitoring] lab, you can use this command to see the resource usage of your nodes: `kubectl top nodes`
+```
+$ kubectl top nodes
+NAME                            CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%
+ip-172-20-32-243.ec2.internal   83m          8%        1872Mi          51%
+ip-172-20-59-20.ec2.internal    35m          1%        1781Mi          46%
+ip-172-20-71-215.ec2.internal   34m          1%        1721Mi          44%
+ip-172-20-34-217.ec2.internal   21m          1%        1075Mi          27%
+ip-172-20-38-124.ec2.internal   20m          1%        1069Mi          27%
+ip-172-20-77-116.ec2.internal   21m          1%        1070Mi          27%
+```
+
+== Conclusion
+
+In this post we demonstrated how use `cluster-autoscaler` to dynamically scale your Kubernetes cluster based on the resource offers for the worker nodes.

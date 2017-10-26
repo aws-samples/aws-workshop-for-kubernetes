@@ -1,0 +1,73 @@
+= Upgrading Kubernetes cluster
+:toc:
+
+Upgrading Kubernetes cluster on AWS is easy with Kops. In this exercise we will demonstrate upgrading
+Kubernetes cluster using two methods.
+
+== Inplace Upgrade
+
+Upgrading cluster using Inplace is easy with Kops. In this exercise we will setup k8s cluster
+with 1.6.10 version and perform automatic rolling upgrade to 1.7.2 using kops.
+
+=== Create Cluster
+
+Review steps to create prereqs (S3 bucket, Route53 hosted zone) from
+link:../cluster-install/README.adoc[cluster-install] documentation. Ensure that you have a multi-AZ deployed cluster so that your pods and services don't see downtime during cluster upgrades.
+
+  # create cluster
+  kops create cluster \
+    --name cluster01.kubernetes-aws.io \
+    --state s3://kubernetes-aws-config \
+    --master-count 2 \
+    --master-zones us-east-1a, us-east-1b --node-count 5 \
+    --zones us-east-1, us-east-1b, us-east-1c
+  # if you don't own domain, you can create cluster using Route53 private hosted zone
+  # and VPC option
+  kops create cluster \
+    --dns private --name mycluster.k8s-aws.internal --master-count 2 \
+    --zones us-east-1a, us-east-1b \
+    --node-count 5 \
+    --zones us-east-1, us-east-1b, us-east-1c \
+    --state s3://dalbhanj-kubernetes-aws-io \
+    --vpc $VPCID \
+    --network-cidr 10.1.0.0/16 \
+    --ssh-public-key $mypubkey \
+    --kubernetes-version=1.6.10
+  # edit cluster configuration if necessary (for ex, subnet configuration)
+  kops edit cluster mycluster.k8s-aws.internal
+  # update configuration and apply changes
+  kops update cluster mycluster.k8s-aws.internal --yes
+
+=== Upgrade Cluster
+
+If you want to go to known stable version, you can do so by editing cluster properties and
+performing manual update.
+
+  kops edit cluster mycluster.k8s-aws.internal
+  # set kubernetesVersion to target version (v1.7.0) and apply
+  kops update cluster mycluster.k8s-aws.internal --yes
+  kops rolling-update cluster mycluster.k8s-aws.internal --yes
+
+To update kubernetes to the latest version, you can run the following commands
+
+  kops upgrade cluster mycluster.k8s-aws.internal --yes
+  kops update cluster mycluster.k8s-aws.internal --yes
+  kops rolling-update cluster mycluster.k8s-aws.internal --yes
+  NAME			STATUS		NEEDUPDATE	READY	MIN	MAX	NODES
+  master-us-east-1a	NeedsUpdate	1		0	1	1	1
+  nodes			NeedsUpdate	2		0	2	2	2
+  I0918 15:36:03.081822   34670 instancegroups.go:350] Stopping instance "i-0d6ed4025b9a3bae0", node "ip-10-25-1-199.ec2.internal", in AWS ASG "master-us-east-1a.masters.mycluster.k8s-aws.internal".
+  I0918 15:41:03.264081   34670 instancegroups.go:350] Stopping instance "i-07ca9915a489fee94", node "ip-10-25-2-52.ec2.internal", in AWS ASG "nodes.mycluster.k8s-aws.internal".
+  I0918 15:43:03.543180   34670 instancegroups.go:350] Stopping instance "i-0910095940404cabe", node "ip-10-25-1-171.ec2.internal", in AWS ASG "nodes.mycluster.k8s-aws.internal".
+  I0918 15:45:03.705226   34670 rollingupdate.go:174] Rolling update completed!
+
+NOTE: rolling-update does not perform real rolling update. There will be downtime. There is
+experimental support in https://github.com/kubernetes/kops/issues/37[Issue #37] that drains and
+validates nodes but I haven't tried it yet.
+
+== Blue/green Upgrade
+
+Upgrading cluster using blue/green method is considered more conservative in nature and takes High
+Availability for your application into account. You would setup two k8s cluster, one with 1.6.10
+version and second with 1.7.2 and migrate your pod deployments and services into new cluster.
+
