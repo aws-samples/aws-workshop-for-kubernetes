@@ -14,7 +14,7 @@ Minikube runs a single-node Kubernetes cluster inside a VM on your laptop. This 
 
 Complete installation instructions are available at https://github.com/kubernetes/minikube. Here are quick instructions:
 
-=== Setup on Mac OSX
+=== Setup on macOS
 
 Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh/[homebrew].
 
@@ -232,7 +232,7 @@ image::nginx-welcome-page.png[]
 
 This is a convenient feature of minikube. But what if you wanted to find this information yourself?
 
-You can view the IP address of a node in your cluser with these steps, first find all of the nodes in your cluster:
+You can view the IP address of a node in your cluster with these steps, first find all of the nodes in your cluster:
 
     kubectl get nodes
 
