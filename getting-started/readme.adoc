@@ -14,7 +14,7 @@ Minikube runs a single-node Kubernetes cluster inside a VM on your laptop. This 
 
 Complete installation instructions are available at https://github.com/kubernetes/minikube. Here are quick instructions:
 
-=== Setup on Mac OSX
+=== Setup on macOS
 
 Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh/[homebrew].
 
@@ -183,7 +183,7 @@ Events:
   Normal  Started                51s   kubelet, minikube  Started container
 ```
 
-By default, pods are created in a `default` namespace. In additiopn, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
+By default, pods are created in a `default` namespace. In addition, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
 
 ```
 $ kubectl get pods --namespace kube-system
@@ -224,7 +224,7 @@ Where `<pod-name>` is the pod name of your NGINX pod. This will expose the pod a
 
 This minikube command will display the service for you in a web page:
 
-    minkube service web
+    minikube service web
 
 This opened a browser with an IP address and the port that the service was exposed on. It looks like as shown:
 
@@ -232,7 +232,7 @@ image::nginx-welcome-page.png[]
 
 This is a convenient feature of minikube. But what if you wanted to find this information yourself?
 
-You can view the IP address of a node in your cluser with these steps, first find all of the nodes in your cluster:
+You can view the IP address of a node in your cluster with these steps, first find all of the nodes in your cluster:
 
     kubectl get nodes
 
@@ -350,12 +350,6 @@ The value of 'NodePort' attribute shows the port on which the service is deploye
 
 The host and the port are the exact same values where minikube opened the service page in the browser.
 
-=== Delete resources
-
-Delete the Kubernetes resources created so far:
-
-    kubectl delete svc/web deployment/nginx
-
 === Kubernetes dashboard
 
 Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters. It provides an overview of applications running on the cluster, as well as the ability to create or modify individual Kubernetes resources and workloads, such as replica sets, jobs, services, and pods. The dashboard can be used to manage the cluster as well.
@@ -369,6 +363,14 @@ It looks like this:
 image::minikube-dashboard.png[]
 
 Look around the dashboard and become familiar with some of the Kubernetes terminology. This will be explained in the subsequent chapters.
+
+
+=== Delete resources
+
+Delete the Kubernetes resources created so far:
+
+    kubectl delete svc/web deployment/nginx
+
 
 === Shutdown cluster
 
