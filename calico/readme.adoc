@@ -11,6 +11,7 @@ You can either use an existing cluster as explained at link:../cluster-install#d
 
 Alternatively, you can create a new cluster and use kops CLI options to specify the networking mode as shown below:
 
+  export KOPS_STATE_STORE=s3://prefix-example-com-state-store
   kops create cluster \
     --name cluster2.k8s.local \
     --master-count 1 \
@@ -258,7 +259,7 @@ Let's say this is `shell 1`.
 . We will now attempt to call the `http-echo` pod from our `busybox` pod by performing an HTTP POST .  As we have no network policies in place, we should see the following command return successfully with a 200 response, along with a log message being output in the `http-echo` shell window:
 +
 ```
-/ # wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}'
+/ # wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}' -O test
 Connecting to http-echo.ns-1.svc.cluster.local (100.71.77.153:80)
   HTTP/1.1 200 OK
   X-Powered-By: Express
@@ -274,28 +275,18 @@ HTTP POST request succeeds.
 
 === Create default network policy
 
-Let's now create a Network Policy, but we will not configure any rules which by default will deny all traffic within the namespace.  Leaving the 2 shells open from the previous steps, run the following in another shell:
+Let's now create a Network Policy, but we will not configure any rules which by default will deny all traffic within the namespace.  Leaving the 2 shells open from the previous steps, run the following in another shell, say `shell 3`:
 
   $ kubectl create -f templates/deny-all-by-default-network-policy.yaml --namespace=ns-1
   networkpolicy "deny-all-by-default" created
 
-When running the following command again in shell 2, we should see it eventually timeout and fail:
+When running the following command again in shell 2, we should see it eventually timeout and fail (note that rather than waiting for it to time out, you can press CTRL-C to quit after about 10 seconds once satisfied that no response will be returned):
 
 ```
-/ # wget -S http://http-echo.ns-1.svc.cluster.local/test2 --post-data '{"message":"hello"}'
+/ # wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}' -O test
 Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
-  HTTP/1.1 200 OK
-  X-Powered-By: Express
-  Content-Type: application/json; charset=utf-8
-  Content-Length: 536
-  ETag: W/"218-ejthHoYRVZ+oS3p9I5V2qGn/CbM"
-  Date: Thu, 26 Oct 2017 02:12:57 GMT
-  Connection: close
-  
-test2                100% |*************************************************************************************************|   536   0:00:00 ETA
+wget: can't connect to remote host (100.64.61.223): Connection timed out
 ```
-
-This is reported as https://github.com/arun-gupta/kubernetes-aws-workshop/issues/106.
 
 === Create network policy with a rule
 
@@ -313,39 +304,30 @@ We will now delete the NetworkPolicy that we just created, and create a new Netw
 
 The rule above is stating that for every pod that has the label `app: http-echo` defined, allow access to it from pods that have the label `app: busybox` defined.
 
-Run the following to remove the deny all by default rule, and replace with the above allow rule:
+Run the following in `shell 3` to remove the deny all by default rule, and replace with the above allow rule:
 
   $ kubectl delete netpol deny-all-by-default --namespace=ns-1
   networkpolicy "deny-all-by-default" deleted
   calico $ kubectl create -f templates/allow-network-policy.yaml --namespace=ns-1
   networkpolicy "allow" created
 
-If we repeat the following command in shell 2, the call should still timeout and fail:
+If we repeat the following command in `shell 2`, the call should still timeout and fail (again, you can press CTRL-C to quit after 10 seconds rather than waiting for the full timeout to occur):
 
 ```
-/ # wget -S http://http-echo.ns-1.svc.cluster.local/test3 --post-data '{"message":"hello"}'
+/ # wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}' -O test
 Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
-  HTTP/1.1 200 OK
-  X-Powered-By: Express
-  Content-Type: application/json; charset=utf-8
-  Content-Length: 536
-  ETag: W/"218-m6+Oqv9DaX+AbeOmSAHlBRCHy04"
-  Date: Thu, 26 Oct 2017 02:14:54 GMT
-  Connection: close
-  
-test3                100% |*************************************************************************************************|   536   0:00:00 ETA
+wget: can't connect to remote host (100.64.61.223): Connection timed out
 ```
 
-This is reported as https://github.com/arun-gupta/kubernetes-aws-workshop/issues/106.
+Why is this still failing even after creating a rule?  It is failing because we configured the rule so that only pods with the label `app: busybox` are authorized to call pods with the label `app: http-echo`.  Let's go ahead and label our `busybox` pod on `shell 3`:
 
-Why is this still failing even after creating a rule?  It is failing because we configured the rule so that only pods with the label `app: busybox` are authorized to call pods with the label `app: http-echo`.  Let's go ahead and label our `busybox` pod:
+  / # kubectl label po --selector=run=busybox --namespace=ns-1 app=busybox
+  pod "busybox" labeled
 
-  kubectl label po --selector=run=busybox --namespace=ns-1 app=busybox
-
-Repeating the test in shell 2 again should now be successful:
+Repeating the test in `shell 2` again should now be successful:
 
 ```
-/ # wget -S http://http-echo.ns-1.svc.cluster.local/test4 --post-data '{"message":"hello"}'
+/ # wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}' -O test
 Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
   HTTP/1.1 200 OK
   X-Powered-By: Express
@@ -355,14 +337,15 @@ Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
   Date: Thu, 26 Oct 2017 02:15:32 GMT
   Connection: close
   
-test4                100% |*************************************************************************************************|   536   0:00:00 ETA
+test                100% |*************************************************************************************************|   534   0:00:00 ETA
 ```
 
 == Teardown
 
 Remove all the resources and the namespace using the command:
 
-  kubectl delete ns ns-1
+  \ # kubectl delete ns ns-1
+  namespace "ns-1" deleted
 
 == Advanced Topics
 
