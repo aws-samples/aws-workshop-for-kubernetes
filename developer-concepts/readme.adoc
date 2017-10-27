@@ -6,7 +6,7 @@ Kubernetes has a number of abstractions that map to API objects. These Kubernete
 
 == Pre-requisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster] is used for this chapter.
 
 All configuration files for this chapter are in the `developer-concepts` directory.
 
@@ -651,7 +651,7 @@ Rename one of the node labels as follows:
 
 Next, edit the DaemonSet template using the command shown:
 
-	kubectl edit ds/prometheus-daemonset
+	$ kubectl edit ds/prometheus-daemonset
 
 Change the `spec.template.spec` to include a `nodeSelector` that matches the changed label:
 ```
@@ -669,7 +669,7 @@ After the update is performed, we have now configured Prometheus to run on a spe
 
 Run the following command to delete the DaemonSet:
 
-	kubectl delete -f templates/daemonset.yaml
+	$ kubectl delete -f templates/daemonset.yaml
 
 == Job
 
@@ -738,9 +738,13 @@ The completed pod is not shown in the `kubectl get pods` command. Instead it can
 	NAME         READY     STATUS      RESTARTS   AGE
 	wait-lk49x   0/1       Completed   0          1m
 
+To delete the job, you can run this command
+
+	$ kubectl delete -f templates/job.yaml
+
 === Parallel Job
 
-Non-parallel job runs one only one pod per job. This API is used to run multiple pods in parallel for the job. The number of pods to complete is defined by `.spec.completions` attribute in the configuration file. The number of pods to run in parallel is defined by `.spec.parallelism` attribute in the configuration file. The default value for both of these attributes is 1.
+Non-parallel job runs only one pod per job. This API is used to run multiple pods in parallel for the job. The number of pods to complete is defined by `.spec.completions` attribute in the configuration file. The number of pods to run in parallel is defined by `.spec.parallelism` attribute in the configuration file. The default value for both of these attributes is 1.
 
 The job is complete when there is one successful pod for each value in the range in 1 to `.spec.completions`. For that reason, it is also called as _fixed completion count_ job.
 
@@ -767,7 +771,7 @@ This job specification is similar to the non-parallel job specification. It has 
 
 Create a parallel job using the command:
 
-	kubectl apply -f templates/job-parallel.yaml
+	$ kubectl apply -f templates/job-parallel.yaml
 
 Watch the status of the job as shown:
 
@@ -812,7 +816,7 @@ In another terminal window, watch the status of pods created:
 	wait-ngrgl   0/1       Completed   0         21s
 	wait-6l22s   0/1       Completed   0         21s
 
-After all the pods have completed, `kubectl get pods` will not show the lis of completed pods. The command to show the list of pods is shown below:
+After all the pods have completed, `kubectl get pods` will not show the list of completed pods. The command to show the list of pods is shown below:
 
 	$ kubectl get pods -a
 	NAME         READY     STATUS      RESTARTS   AGE
@@ -837,9 +841,17 @@ Deleting a job deletes all the pods as well. Delete the job as:
 
 === Pre-requisites
 
-For Kubernetes cluster versions < 1.8, Cron Job is created with API version `batch/v2alpha1`. This version needs to be explicitly enabled in the Kubernetes cluster as explained in link:../cluster-install#turn-on-an-api-version-for-your-cluster[Turn on an API version for your cluster].
+For Kubernetes cluster versions < 1.8, Cron Job can be created with API version `batch/v2alpha1`. You can check the cluster version using this command,
 
-`batch/v2alpha1` API version for Cron Job is deprecated for the cluster version >= 1.8. You should switch to `batch/v1beta1`. This version is enabled by default in the API server.
+  $ kubectl version
+  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
+  Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+
+Notice that the server version is at v1.7.4. In this case, you need to explicitly enable API version `batch/v2alpha1` in Kubernetes cluster and perform a rolling-update. These steps are explained in link:../cluster-install#turn-on-an-api-version-for-your-cluster[Turn on an API version for your cluster].
+
+NOTE: Once you switch API versions, you need to perform rolling-update of the cluster which generally takes 30 - 45 mins to complete for 3 master nodes and 5 worker nodes cluster.
+
+If you have cluster version >= 1.8, `batch/v2alpha1` API is deprecated for this version but you can switch to `batch/v1beta1` to create Cron Jobs
 
 === Create Cron Job
 
@@ -873,7 +885,7 @@ This job prints the current timestamp and the message "`Hello World`" every minu
 
 Create the Cron Job as shown in the command:
 
-	$ kubectl create -f template/cronjob.yaml --validate=false
+	$ kubectl create -f templates/cronjob.yaml --validate=false
 
 `--validate=false` is required because kubectl CLI version is 1.8. Without this option, you'll get the error:
 
