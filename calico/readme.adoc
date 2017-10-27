@@ -284,7 +284,7 @@ Let's now create a Network Policy, but we will not configure any rules which by 
   $ kubectl create -f templates/deny-all-by-default-network-policy.yaml --namespace=ns-1
   networkpolicy "deny-all-by-default" created
 
-When running the following command again in shell 2, we should see it eventually timeout and fail (note that rather than waiting for it to time out, you can press CTRL-C to quit after about 10 seconds once satisfied that no response will be returned):
+When running the following command again in shell 2, we should see it eventually timeout and fail (note that rather than waiting for it to time out, you can press `Ctrl` + `C` to quit after about 10 seconds once satisfied that no response will be returned):
 
 ```
 / # wget -S http://http-echo.ns-1.svc.cluster.local/test --post-data '{"message":"hello"}' -O test
