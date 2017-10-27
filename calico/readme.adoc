@@ -11,7 +11,6 @@ You can either use an existing cluster as explained at link:../cluster-install#d
 
 Alternatively, you can create a new cluster and use kops CLI options to specify the networking mode as shown below:
 
-  export KOPS_STATE_STORE=s3://prefix-example-com-state-store
   kops create cluster \
     --name cluster2.k8s.local \
     --master-count 1 \
@@ -20,7 +19,7 @@ Alternatively, you can create a new cluster and use kops CLI options to specify 
     --networking calico \
     --yes
 
-This will create a 1 master node and 3 worker nodes cluster. It uses `--networking calico` which tells the cluster to use calico networking instead of the default networking provided by kubenet. Note, the name here is `cluster2.k8s.local` instead of the usual `cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
+This will create a 1 master node and 2 worker nodes cluster. It uses `--networking calico` which tells the cluster to use calico networking instead of the default networking provided by kubenet. Note, the name here is `cluster2.k8s.local` instead of the usual `cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
 
 View the cluster configuration using the following command:
 
@@ -196,7 +195,7 @@ I1025 16:23:32.973648    3733 instancegroups.go:350] Stopping instance "i-0baffc
 I1025 16:25:33.784129    3733 rollingupdate.go:174] Rolling update completed!
 ```
 
-== Configuration: Enforcing Network Isolation
+== Enforcing network isolation
 
 Let's configure Calico.
 
@@ -308,7 +307,7 @@ Run the following in `shell 3` to remove the deny all by default rule, and repla
 
   $ kubectl delete netpol deny-all-by-default --namespace=ns-1
   networkpolicy "deny-all-by-default" deleted
-  calico $ kubectl create -f templates/allow-network-policy.yaml --namespace=ns-1
+  $ kubectl create -f templates/allow-network-policy.yaml --namespace=ns-1
   networkpolicy "allow" created
 
 If we repeat the following command in `shell 2`, the call should still timeout and fail (again, you can press CTRL-C to quit after 10 seconds rather than waiting for the full timeout to occur):
