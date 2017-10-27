@@ -226,11 +226,16 @@ We will create a namespace, deploy some test pods into it, and see the before an
 Monitor the logs of the deployed container by querying the name of the pod defined with the label `run-http-echo`, then passing it to the `kubectl logs` command:
 +
 ```
-$ kubectl get po \
+kubectl get po \
   --selector=run=http-echo \
   --namespace=ns-1 \
   -o jsonpath='{.items[*].metadata.name}' | \
   xargs kubectl logs -f --namespace=ns-1
+```
++
+It shows the output:
++
+```
 npm info it worked if it ends with ok
 npm info using npm@5.0.3
 npm info using node@v8.1.3
