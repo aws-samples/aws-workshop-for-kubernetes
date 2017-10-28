@@ -31,7 +31,7 @@ as you move through the workshop.
 | link:helm[Deploy applications using Helm charts]
 | link:cluster-logging[Logging with Kubernetes cluster]
 | link:cluster-monitoring[Monitoring with Kubernetes cluster]
-| link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
+| link:cluster-upgrade#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
 | Upgrading Kubernetes cluster - blue/green upgrade
 | link:cluster-scaling[Cluster scaling]
 | link:app-scaling[Pod Autoscaling]
