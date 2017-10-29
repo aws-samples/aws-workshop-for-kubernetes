@@ -80,4 +80,25 @@ Notice that, eventually, the value in the `REPLICAS` column will increase as the
 
 In the terminal window that is running the load generator, hit `Ctrl`+`C` to terminate the process. Again, run the `kubectl get hpa -w` command in your other terminal window, and you will see the number of replicas begin to decrease as the CPU load returns to 0%. It shows the output:
 
+NOTE: It takes a few minutes for the number of replicas to scale down.
+
+```
+$ kubectl get hpa -w
+NAME      REFERENCE           TARGETS     MINPODS   MAXPODS   REPLICAS   AGE
+webapp    Deployment/webapp   51% / 10%   1         10        4          10m
+webapp    Deployment/webapp   51% / 10%   1         10        4         10m
+webapp    Deployment/webapp   27% / 10%   1         10        4         11m
+webapp    Deployment/webapp   27% / 10%   1         10        8         11m
+webapp    Deployment/webapp   0% / 10%   1         10        8         12m
+webapp    Deployment/webapp   0% / 10%   1         10        8         12m
+webapp    Deployment/webapp   0% / 10%   1         10        8         13m
+webapp    Deployment/webapp   0% / 10%   1         10        8         13m
+webapp    Deployment/webapp   0% / 10%   1         10        8         14m
+webapp    Deployment/webapp   0% / 10%   1         10        8         14m
+webapp    Deployment/webapp   0% / 10%   1         10        8         15m
+webapp    Deployment/webapp   0% / 10%   1         10        8         15m
+webapp    Deployment/webapp   0% / 10%   1         10        8         16m
+webapp    Deployment/webapp   0% / 10%   1         10        1         16m
+webapp    Deployment/webapp   0% / 10%   1         10        1         17m
+```
 
