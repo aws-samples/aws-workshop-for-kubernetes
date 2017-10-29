@@ -12,24 +12,37 @@ Kubernetes currently has beta support for custom metrics from multiple sources, 
 
 HPA can automatically scale pods deployed in a replication controller, deployment, or a replica set. For additional information on how HPA works, check out the Kubernetes https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/[community documentation].
 
-== Prerequisistes
+== Pre-requisites
 
-. link:../cluster-install/README.adoc[Deploy a Kubernetes cluster] and verify that it works
-. Deploy Heapster using the steps described in the link:../cluster-monitoring/README.adoc[Cluster Monitoring] lab.
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
 
-== Deploy an Application
+Deploy Heapster using the steps described in the link:../cluster-monitoring#installation[Cluster Monitoring] lab. You can deploy Heapster using the configuration file `cluster-monitoring/heapster/templates/heapster.yaml`:
+
+    $ kubectl create -f heapster/templates/heapster.yaml
+    serviceaccount "heapster" created
+    deployment "heapster" created
+    service "heapster" created
+
+== Deploy an application
 
 In this step, we deploy a simple Go web application and constrain the CPU resources just for the purposes of this test.
 
     $ kubectl run webapp --image=trevorrobertsjr/webapp --requests=cpu=50m --expose --port=8080
+    service "webapp" created
+    deployment "webapp" created
 
-== Horizontal Pod Autoscaler Configuration
+It also publishes the service at port 8080.
+
+== Horizontal Pod Autoscaler configuration
 
 Now that our application is running, we create a Horizonal Pod Autoscaler for our webapp deployment.
 
     $ kubectl autoscale deployment webapp --cpu-percent=10 --min=1 --max=10
+    deployment "webapp" autoscaled
 
-== Generate Load
+This command will mainain between 1 and 10 replicas of the pod. The autoscaler will increase or decrease the number of replicas to maintain average CPU utilization of 10% across all the pods.
+
+== Generate load
 
 The simplest method to do this would be to access the application in an infinite loop similar to the example in the Kubernetes Horizonal Pod Autoscaler documentation:
 
@@ -53,16 +66,18 @@ You will see output similar to the following over successive queries of the hpa 
 
     $ kubectl get hpa -w
     NAME      REFERENCE           TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
-    webapp    Deployment/webapp   0% / 10%   1         10        1          2m
-    webapp    Deployment/webapp   140% / 10%   1         10        1         3m
-    webapp    Deployment/webapp   140% / 10%   1         10        4         3m
-    webapp    Deployment/webapp   90% / 10%   1         10        4         4m
+    webapp    Deployment/webapp   0% / 10%   1         10        1          6m
+    webapp    Deployment/webapp   62% / 10%   1         10        1         7m
+    webapp    Deployment/webapp   62% / 10%   1         10        4         7m
+    webapp    Deployment/webapp   112% / 10%   1         10        4         8m
+    webapp    Deployment/webapp   112% / 10%   1         10        4         8m
+    webapp    Deployment/webapp   53% / 10%   1         10        4         9m
 
 
 Notice that, eventually, the value in the `REPLICAS` column will increase as the load generator continues to run.
 
-In the terminal window that is running the load generator, hit `Ctrl`+`C`. Again, run the `kubectl get hpa -w` command in your other terminal window, and you will see the number of replicas begin to decrease as the CPU load returns to 0%
+== Stop load
 
-== Conclusion
+In the terminal window that is running the load generator, hit `Ctrl`+`C` to terminate the process. Again, run the `kubectl get hpa -w` command in your other terminal window, and you will see the number of replicas begin to decrease as the CPU load returns to 0%. It shows the output:
 
-In this post, we demonstrated how the Horizontal Pod Autoscaling feature can dynamically scale applications up and down due to average CPU utilization. Heapster is the resource monitoring tool that Kubernetes integrates with to enable HPA, and Heapster can be used with a variety of backends (or "`sink`"), including Elasticsearch, to store its data.
+
