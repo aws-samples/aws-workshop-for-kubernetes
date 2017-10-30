@@ -31,12 +31,12 @@
 
 . Publish service:
 
-  kubectl expose deployment/app-v1 --target-port=8080 --name=app-v1
-  kubectl expose deployment/app-v2 --target-port=8081 --name=app-v2
+  kubectl expose deployment/app-v1 --target-port=8080 --port=8080 --name=app-v1
+  kubectl expose deployment/app-v2 --target-port=8080 --port=8081 --name=app-v2
 
 . Access v1 application (on minikube):
 
-  curl http://localhost:8081
+  curl http://localhost:8080
   Hello World!
 +
 For a Kubernetes cluster running on AWS, you need to run proxy and access the application using http://localhost:8001/api/v1/proxy/namespaces/default/services/app-v1/.

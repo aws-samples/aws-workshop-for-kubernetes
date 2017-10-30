@@ -6,11 +6,10 @@
 
 This chapter explains different ways by which an application deployed in a Kubernetes cluster can be upgraded.
 
-- Kubectl CLI
 - Deployment
 - Helm
 
-The application is upgraded from using the image `arungupta/app-upgrade:v1` to using the image `arungupta/app-upgrade:v2`. The v1 image prints "`Hello World!`". The v2 image prints "`Howdy World!`". The source code for these images is in the link:images[] directory.
+The application initially uses the image `arungupta/app-upgrade:v1`. Then it is upgrade to use the image `arungupta/app-upgrade:v2`. The v1 image prints "`Hello World!`". The v2 image prints "`Howdy World!`". The source code for these images is in the link:images[] directory.
 
 == Pre-requisites
 
@@ -18,9 +17,110 @@ A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-inst
 
 All configuration files for this chapter are in the `app-upgrade` directory.
 
-== Kubectl CLI
-
 == Deployment
+
+Learn more about Deployment in link:../developer-concepts#deployment[Deployment].
+
+Deployments create Replica Set for managing pods. The number of replicas in the Replica Set can be scaled up and down to meet the demands of your application. Updating an application deployed using Deployment requires to update the configuration of Deployment. This modification creates a new Replica Set, which is scaled up while the previous Replica Set is scaled down. This enables no downtime for your application.
+
+Note: There is a `kubectl rolling-update` command but it is applicable only to Replica Set. The update from this command was driven on the client-side. It is strongly recommended to do rolling update using Deployment as the updates are now on the server-side.
+
+=== Deploy v1 application
+
+The following example will create a Deployment with 5 replicas of `arungupta/app-upgrade:v1` image:
+
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: app-v1
+    spec:
+      replicas: 5
+      template:
+        metadata:
+          labels:
+            name: app
+        spec:
+          containers:
+          - name: app-v1
+            image: arungupta/app-upgrade:v1
+            ports:
+            - containerPort: 8080
+
+Run the following command to create Deployment:
+
+    $ kubectl create -f templates/app-v1.yaml
+    deployment "app-v1" created
+
+Check the status of Deployment:
+
+    $ kubectl get deployments
+    NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    app-v1    5         5         5            5           14m
+
+Expose the Deployment as a service:
+
+    $ kubectl expose deployment/app-v1 --port=8080 --name=app --type=LoadBalancer
+    service "app" exposed
+
+Get the list of service:
+
+    $ kubectl get svc
+    NAME         TYPE           CLUSTER-IP     EXTERNAL-IP        PORT(S)          AGE
+    app          LoadBalancer   100.67.73.55   a4450c991bd95...   8080:30832/TCP   4m
+    kubernetes   ClusterIP      100.64.0.1     <none>             443/TCP          49m
+
+Get more details about the service:
+
+    $ kubectl describe svc/app
+    Name:                     app
+    Namespace:                default
+    Labels:                   name=app
+    Annotations:              <none>
+    Selector:                 name=app
+    Type:                     LoadBalancer
+    IP:                       100.67.73.55
+    LoadBalancer Ingress:     a4450c991bd9511e791f402037f18a54-1822074621.eu-central-1.elb.amazonaws.com
+    Port:                     <unset>  8080/TCP
+    TargetPort:               8080/TCP
+    NodePort:                 <unset>  30832/TCP
+    Endpoints:                100.96.1.3:8080,100.96.2.2:8080,100.96.3.3:8080 + 2 more...
+    Session Affinity:         None
+    External Traffic Policy:  Cluster
+    Events:
+      Type    Reason                Age   From                Message
+      ----    ------                ----  ----                -------
+      Normal  CreatingLoadBalancer  5m    service-controller  Creating load balancer
+      Normal  CreatedLoadBalancer   5m    service-controller  Created load balancer
+
+
+Access the service:
+
+    $ curl http://a4450c991bd9511e791f402037f18a54-1822074621.eu-central-1.elb.amazonaws.com:8080
+    Hello World!
+
+The output `Hello World!` indicates v1 of the application is deployed.
+
+=== Update to v2 application
+
+Updating an application requires to replace all the existing pods with new pods that use a different version of the image. `.spec.strategy` in the Deployment configuration can be used to define strategy used to replace the old pods with the new ones. This key can take two values:
+
+. `Recreate`
+. `RollingUpdate`
+
+Let's look at these two deployment strategies.
+
+==== Recreate
+
+All existing pods are killed before the new ones are created
+
+==== Rolling update
+
+Pods are updated in a rolling update fashion. This is the default value.
++
+Two optional properties can be used to define how rolling update is performed. `.spec.strategy.rollingUpdate.maxSurge` specifies the maximum number of pods that can be created over the desired number of pods. The value can be an absolute number or percentage. Default value is `25%`. `.spec.strategy.rollingUpdate.maxUnavailable` specifies the maximum number of pods that can be unavailable during the update process.
+
+
+=== Rollback
 
 == Helm
 
