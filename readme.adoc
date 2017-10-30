@@ -29,6 +29,7 @@ as you move through the workshop.
 | link:config-secrets[Configuration and Secrets Management]
 | link:microservices[Service discovery with microservices]
 | link:helm[Deploy applications using Helm charts]
+| link:app-update[Updating applications]
 | link:cluster-logging[Logging with Kubernetes cluster]
 | link:cluster-monitoring[Monitoring with Kubernetes cluster]
 | link:cluster-upgrade#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
