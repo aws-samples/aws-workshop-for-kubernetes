@@ -4,11 +4,7 @@
 :linkcss:
 :imagesdir: ../images
 
-This chapter explains how an application deployed in a Kubernetes cluster can be updated using Deployment.
-
-The application initially uses the image `arungupta/app-upgrade:v1`. Then it is upgrade to use the image `arungupta/app-upgrade:v2`. The v1 image prints "`Hello World!`". The v2 image prints "`Howdy World!`". The source code for these images is in the link:images[] directory.
-
-Learn more about Deployment in link:../developer-concepts#deployment[Deployment].
+This chapter explains how an application deployed in a Kubernetes cluster can be updated using link:../developer-concepts#deployment[Deployment].
 
 Deployment create Replica Set for managing pods. The number of replicas in the Replica Set can be scaled up and down to meet the demands of your application. Updating an application deployed using Deployment requires to update the configuration of Deployment. This modification creates a new Replica Set, which is scaled up while the previous Replica Set is scaled down. This enables no downtime for your application.
 
@@ -20,6 +16,8 @@ Updating an application requires to replace all the existing pods with new pods 
 . `RollingUpdate` (default)
 
 Let's look at these two deployment strategies.
+
+For our usecase, the application initially uses the image `arungupta/app-upgrade:v1`. Then the Deployment is updated to use the image `arungupta/app-upgrade:v2`. The v1 image prints "`Hello World!`". The v2 image prints "`Howdy World!`". The source code for these images is in the link:images[] directory.
 
 == Pre-requisites
 
