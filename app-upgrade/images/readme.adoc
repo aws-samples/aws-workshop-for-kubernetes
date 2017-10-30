@@ -1,0 +1,23 @@
+= Docker images for Kubernetes Application Upgrade
+
+== Docker Container
+
+. Build Docker images:
+
+  docker image build -t arungupta/app-upgrade:v1 app-v1
+  docker image build -t arungupta/app-upgrade:v2 app-v2
+
+. Run Docker container:
+
+  docker container run -d -p 8080:8080 arungupta/app-upgrade:v1
+  docker container run -d -p 8081:8080 arungupta/app-upgrade:v2
+
+. Access v1 application:
+
+  curl http://localhost:8080
+  Hello World!
+
+. Access v2 application:
+
+  $ curl http://localhost:8081
+  Howdy World!

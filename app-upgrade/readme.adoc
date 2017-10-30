@@ -1,0 +1,26 @@
+= Kubernetes Application Upgrade
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+This chapter explains different ways by which an application deployed in a Kubernetes cluster can be upgraded.
+
+- Kubectl CLI
+- Deployment
+- Helm
+
+The application is upgraded from using the image `arungupta/app-upgrade:v1` to using the image `arungupta/app-upgrade:v2`. The v1 image prints "`Hello World!`". The v2 image prints "`Howdy World!`". The source code for these images is in the link:images[] directory.
+
+== Pre-requisites
+
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter. A smaller cluster may be used.
+
+All configuration files for this chapter are in the `app-upgrade` directory.
+
+== Kubectl CLI
+
+== Deployment
+
+== Helm
+
