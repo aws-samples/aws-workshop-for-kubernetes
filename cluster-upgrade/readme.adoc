@@ -4,10 +4,10 @@
 Upgrading Kubernetes cluster on AWS is easy with Kops. In this exercise we will demonstrate upgrading
 Kubernetes cluster using two methods.
 
-== Inplace Upgrade
+== In-place Upgrade
 
-Upgrading cluster using Inplace is easy with Kops. In this exercise we will setup k8s cluster
-with 1.6.10 version and perform automatic rolling upgrade to 1.7.2 using kops.
+Upgrading cluster using in-place is easy with Kops. This exercise will setup a Kubernetes cluster
+with 1.6.10 version and perform an automatic rolling upgrade to 1.7.2 using kops.
 
 === Create cluster
 
