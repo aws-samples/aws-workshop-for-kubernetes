@@ -31,7 +31,7 @@ This example creates a two instance Amazon Elasticsearch cluster named `kubernet
       InstanceType=m4.large.elasticsearch,InstanceCount=2 \
       --ebs-options EBSEnabled=true,VolumeType=standard,VolumeSize=100 \
       --access-policies '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["es:*"],"Resource":"*"}]}' \
-      --region us-east-1
+      --region ${AWS_DEFAULT_REGION}
 
 It takes a little while for the cluster to be created and arrive at an `active` state. The AWS Console should show the following status when the cluster is ready:
 
@@ -219,10 +219,12 @@ image::logging-cloudwatch-kibana-default.png[]
 
 Begin using the capabilites to search and visuzalize your Kubernetes cluster metrics.
 
-= Conclusion
+== Delete resources
 
-In this post we demonstrated how to leverage AWS managed services to collect, search and visualize your kubernetes metrics. This can be used as reference to being to build your own logging solution for Kubernetes on top of AWS.
+Delete the resources created during this chapter:
 
-== Delete cluster
-
-TBD
+```
+kubectl delete ns logging
+aws es delete-elasticsearch-domain -domain-name kubernetes-logs --region ${AWS_DEFAULT_REGION}
+aws logs delete-log-group --log-group-name kubernetes-logs
+```
