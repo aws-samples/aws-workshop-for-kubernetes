@@ -4,12 +4,22 @@
 :linkcss:
 :imagesdir: ../images
 
-This chapter explains different ways by which an application deployed in a Kubernetes cluster can be upgraded.
-
-- Deployment
-- Helm
+This chapter explains how an application deployed in a Kubernetes cluster can be updated using Deployment.
 
 The application initially uses the image `arungupta/app-upgrade:v1`. Then it is upgrade to use the image `arungupta/app-upgrade:v2`. The v1 image prints "`Hello World!`". The v2 image prints "`Howdy World!`". The source code for these images is in the link:images[] directory.
+
+Learn more about Deployment in link:../developer-concepts#deployment[Deployment].
+
+Deployment create Replica Set for managing pods. The number of replicas in the Replica Set can be scaled up and down to meet the demands of your application. Updating an application deployed using Deployment requires to update the configuration of Deployment. This modification creates a new Replica Set, which is scaled up while the previous Replica Set is scaled down. This enables no downtime for your application.
+
+Note: There is a `kubectl rolling-update` command but it is applicable only to Replica Set. The update from this command was driven on the client-side. It is strongly recommended to do rolling update using Deployment as the updates are now on the server-side.
+
+Updating an application requires to replace all the existing pods with new pods that use a different version of the image. `.spec.strategy` in the Deployment configuration can be used to define strategy used to replace the old pods with the new ones. This key can take two values:
+
+. `Recreate`
+. `RollingUpdate` (default)
+
+Let's look at these two deployment strategies.
 
 == Pre-requisites
 
@@ -17,110 +27,290 @@ A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-inst
 
 All configuration files for this chapter are in the `app-upgrade` directory.
 
-== Deployment
+== Recreate strategy
 
-Learn more about Deployment in link:../developer-concepts#deployment[Deployment].
-
-Deployments create Replica Set for managing pods. The number of replicas in the Replica Set can be scaled up and down to meet the demands of your application. Updating an application deployed using Deployment requires to update the configuration of Deployment. This modification creates a new Replica Set, which is scaled up while the previous Replica Set is scaled down. This enables no downtime for your application.
-
-Note: There is a `kubectl rolling-update` command but it is applicable only to Replica Set. The update from this command was driven on the client-side. It is strongly recommended to do rolling update using Deployment as the updates are now on the server-side.
-
-=== Deploy v1 application
-
-The following example will create a Deployment with 5 replicas of `arungupta/app-upgrade:v1` image:
+All existing pods are killed before the new ones are created. The configuration file looks like:
 
     apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:
-      name: app-v1
+      name: app-recreate
     spec:
       replicas: 5
+      strategy:
+        type: Recreate
       template:
         metadata:
           labels:
-            name: app
+            name: app-recreate
         spec:
           containers:
-          - name: app-v1
+          - name: app-recreate
             image: arungupta/app-upgrade:v1
             ports:
             - containerPort: 8080
 
-Run the following command to create Deployment:
+. Create deployment:
 
-    $ kubectl create -f templates/app-v1.yaml
-    deployment "app-v1" created
+    $ kubectl create -f templates/app-recreate.yaml
+    deployment "app-v1-recreate" created
 
-Check the status of Deployment:
+. Expose service:
 
-    $ kubectl get deployments
-    NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-    app-v1    5         5         5            5           14m
+    $ kubectl expose deployment/app-recreate --port=8080 --name=app-recreate --type=LoadBalancer
+    service "app-recreate" exposed
 
-Expose the Deployment as a service:
+. Get service detail:
 
-    $ kubectl expose deployment/app-v1 --port=8080 --name=app --type=LoadBalancer
-    service "app" exposed
-
-Get the list of service:
-
-    $ kubectl get svc
-    NAME         TYPE           CLUSTER-IP     EXTERNAL-IP        PORT(S)          AGE
-    app          LoadBalancer   100.67.73.55   a4450c991bd95...   8080:30832/TCP   4m
-    kubernetes   ClusterIP      100.64.0.1     <none>             443/TCP          49m
-
-Get more details about the service:
-
-    $ kubectl describe svc/app
-    Name:                     app
+    $ kubectl describe svc/app-recreate
+    Name:                     app-recreate
     Namespace:                default
-    Labels:                   name=app
+    Labels:                   name=app-recreate
     Annotations:              <none>
-    Selector:                 name=app
+    Selector:                 name=app-recreate
     Type:                     LoadBalancer
-    IP:                       100.67.73.55
-    LoadBalancer Ingress:     a4450c991bd9511e791f402037f18a54-1822074621.eu-central-1.elb.amazonaws.com
+    IP:                       100.64.37.53
+    LoadBalancer Ingress:     a14450238bd9e11e791f402037f18a54-2050313885.eu-central-1.elb.amazonaws.com
     Port:                     <unset>  8080/TCP
     TargetPort:               8080/TCP
-    NodePort:                 <unset>  30832/TCP
-    Endpoints:                100.96.1.3:8080,100.96.2.2:8080,100.96.3.3:8080 + 2 more...
+    NodePort:                 <unset>  31065/TCP
+    Endpoints:                100.96.1.9:8080,100.96.2.8:8080,100.96.3.9:8080 + 2 more...
     Session Affinity:         None
     External Traffic Policy:  Cluster
     Events:
       Type    Reason                Age   From                Message
       ----    ------                ----  ----                -------
-      Normal  CreatingLoadBalancer  5m    service-controller  Creating load balancer
-      Normal  CreatedLoadBalancer   5m    service-controller  Created load balancer
+      Normal  CreatingLoadBalancer  12s   service-controller  Creating load balancer
+      Normal  CreatedLoadBalancer   11s   service-controller  Created load balancer
 
+. Acccess service:
 
-Access the service:
-
-    $ curl http://a4450c991bd9511e791f402037f18a54-1822074621.eu-central-1.elb.amazonaws.com:8080
+    $ curl http://a14450238bd9e11e791f402037f18a54-2050313885.eu-central-1.elb.amazonaws.com:8080
     Hello World!
-
-The output `Hello World!` indicates v1 of the application is deployed.
-
-=== Update to v2 application
-
-Updating an application requires to replace all the existing pods with new pods that use a different version of the image. `.spec.strategy` in the Deployment configuration can be used to define strategy used to replace the old pods with the new ones. This key can take two values:
-
-. `Recreate`
-. `RollingUpdate`
-
-Let's look at these two deployment strategies.
-
-==== Recreate
-
-All existing pods are killed before the new ones are created
-
-==== Rolling update
-
-Pods are updated in a rolling update fashion. This is the default value.
 +
-Two optional properties can be used to define how rolling update is performed. `.spec.strategy.rollingUpdate.maxSurge` specifies the maximum number of pods that can be created over the desired number of pods. The value can be an absolute number or percentage. Default value is `25%`. `.spec.strategy.rollingUpdate.maxUnavailable` specifies the maximum number of pods that can be unavailable during the update process.
+The output shows that `v1` version of the image is being used.
++
+. In a different terminal, watch the status of the pods:
 
+    $ kubectl get -w pods
+    app-v1-recreate-486400321-4rwzb   1/1       Running   0          9m
+    app-v1-recreate-486400321-fqh5l   1/1       Running   0          9m
+    app-v1-recreate-486400321-jm02h   1/1       Running   0          9m
+    app-v1-recreate-486400321-rl79n   1/1       Running   0          9m
+    app-v1-recreate-486400321-z89nm   1/1       Running   0          9m
 
-=== Rollback
+. Update image of the deployment:
 
-== Helm
+    $ kubectl set image deployment/app-recreate app-recreate=arungupta/app-upgrade:v2
+    deployment "app-recreate" image updated
+
+. Status of the pods is updated. It shows that all the pods are terminated first, and then the new ones are created:
+
+    $ kubectl get -w pods
+    NAME                              READY     STATUS    RESTARTS   AGE
+    app-v1-recreate-486400321-4rwzb   1/1       Running   0          9m
+    app-v1-recreate-486400321-fqh5l   1/1       Running   0          9m
+    app-v1-recreate-486400321-jm02h   1/1       Running   0          9m
+    app-v1-recreate-486400321-rl79n   1/1       Running   0          9m
+    app-v1-recreate-486400321-z89nm   1/1       Running   0          9m
+    app-v1-recreate-486400321-rl79n   1/1       Terminating   0         10m
+    app-v1-recreate-486400321-jm02h   1/1       Terminating   0         10m
+    app-v1-recreate-486400321-fqh5l   1/1       Terminating   0         10m
+    app-v1-recreate-486400321-z89nm   1/1       Terminating   0         10m
+    app-v1-recreate-486400321-4rwzb   1/1       Terminating   0         10m
+    app-v1-recreate-486400321-rl79n   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-4rwzb   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-fqh5l   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-z89nm   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-jm02h   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-fqh5l   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-fqh5l   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-z89nm   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-z89nm   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-rl79n   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-rl79n   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-jm02h   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-jm02h   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-4rwzb   0/1       Terminating   0         10m
+    app-v1-recreate-486400321-4rwzb   0/1       Terminating   0         10m
+    app-v1-recreate-2362379170-fp3j2   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-xxqqw   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-hkpt7   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-jzh5d   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-k26sf   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-xxqqw   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-fp3j2   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-hkpt7   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-jzh5d   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-k26sf   0/1       Pending   0         0s
+    app-v1-recreate-2362379170-xxqqw   0/1       ContainerCreating   0         0s
+    app-v1-recreate-2362379170-fp3j2   0/1       ContainerCreating   0         1s
+    app-v1-recreate-2362379170-hkpt7   0/1       ContainerCreating   0         1s
+    app-v1-recreate-2362379170-jzh5d   0/1       ContainerCreating   0         1s
+    app-v1-recreate-2362379170-k26sf   0/1       ContainerCreating   0         1s
+    app-v1-recreate-2362379170-fp3j2   1/1       Running   0         3s
+    app-v1-recreate-2362379170-k26sf   1/1       Running   0         3s
+    app-v1-recreate-2362379170-xxqqw   1/1       Running   0         3s
+    app-v1-recreate-2362379170-hkpt7   1/1       Running   0         4s
+    app-v1-recreate-2362379170-jzh5d   1/1       Running   0         4s
++
+The output shows that all pods are terminatd first and then the new ones are created.
++
+. Access the application again:
+
+    $ curl http://a14450238bd9e11e791f402037f18a54-2050313885.eu-central-1.elb.amazonaws.com:8080
+    Howdy World!
++
+The output now shows `v2` version of the image is being used.
++
+. Delete resources:
+
+    kubectl delete deployment/app-recreate svc/app-recreate
+
+== Rolling update strategy
+
+Pods are updated in a rolling update fashion.
+
+Two optional properties can be used to define how rolling update is performed:
+
+. `.spec.strategy.rollingUpdate.maxSurge` specifies the maximum number of pods that can be created over the desired number of pods. The value can be an absolute number or percentage. Default value is `25%`. 
+. `.spec.strategy.rollingUpdate.maxUnavailable` specifies the maximum number of pods that can be unavailable during the update process.
+
+The configuration file looks like:
+
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: app-rolling
+    spec:
+      replicas: 5
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 1
+      template:
+        metadata:
+          labels:
+            name: app-rolling
+        spec:
+          containers:
+          - name: app-rolling
+            image: arungupta/app-upgrade:v1
+            ports:
+            - containerPort: 8080
+
+In this case, 1 more pod can be created over the maximum number of pods and only 1 pod can be unavailable during the update process.
+
+. Create deployment:
+
+    $ kubectl create -f templates/app-rolling.yaml
+    deployment "app-rolling" created
+
+. Expose service:
+
+    $ kubectl expose deployment/app-rolling --port=8080 --name=app-rolling --type=LoadBalancer
+    service "app-rolling" exposed
+
+. Get service detail:
+
+    $ kubectl describe svc/app-rolling
+    Name:                     app-rolling
+    Namespace:                default
+    Labels:                   name=app-rolling
+    Annotations:              <none>
+    Selector:                 name=app-rolling
+    Type:                     LoadBalancer
+    IP:                       100.70.178.68
+    LoadBalancer Ingress:     a2ea9ce7dbd9f11e791f402037f18a54-1449990061.eu-central-1.elb.amazonaws.com
+    Port:                     <unset>  8080/TCP
+    TargetPort:               8080/TCP
+    NodePort:                 <unset>  30529/TCP
+    Endpoints:                100.96.1.11:8080,100.96.2.10:8080,100.96.3.11:8080 + 2 more...
+    Session Affinity:         None
+    External Traffic Policy:  Cluster
+    Events:
+      Type    Reason                Age   From                Message
+      ----    ------                ----  ----                -------
+      Normal  CreatingLoadBalancer  25s   service-controller  Creating load balancer
+      Normal  CreatedLoadBalancer   23s   service-controller  Created load balancer
+
+. Acccess service:
+
+    $ curl http://a2ea9ce7dbd9f11e791f402037f18a54-1449990061.eu-central-1.elb.amazonaws.com:8080
+    Hello World!
++
+The output shows that `v1` version of the image is being used.
++
+. In a different terminal, watch the status of the pods:
+
+    $ kubectl get -w pods
+    NAME                           READY     STATUS    RESTARTS   AGE
+    app-rolling-1683885671-d7vpf   1/1       Running   0          2m
+    app-rolling-1683885671-dt31h   1/1       Running   0          2m
+    app-rolling-1683885671-k8xn9   1/1       Running   0          2m
+    app-rolling-1683885671-sdjk3   1/1       Running   0          2m
+    app-rolling-1683885671-x1npp   1/1       Running   0          2m
+
+. Update image of the deployment:
+
+    $ kubectl set image deployment/app-rolling app-rolling=arungupta/app-upgrade:v2
+    deployment "app-rolling" image updated
+
+. Status of the pods is updated. It shows that all the pods are terminated first, and then the new ones are created:
+
+    $ kubectl get -w pods
+    NAME                           READY     STATUS    RESTARTS   AGE
+    app-rolling-1683885671-d7vpf   1/1       Running   0          2m
+    app-rolling-1683885671-dt31h   1/1       Running   0          2m
+    app-rolling-1683885671-k8xn9   1/1       Running   0          2m
+    app-rolling-1683885671-sdjk3   1/1       Running   0          2m
+    app-rolling-1683885671-x1npp   1/1       Running   0          2m
+    app-rolling-4154020364-ddn16   0/1       Pending   0         0s
+    app-rolling-4154020364-ddn16   0/1       Pending   0         1s
+    app-rolling-4154020364-ddn16   0/1       ContainerCreating   0         1s
+    app-rolling-1683885671-sdjk3   1/1       Terminating   0         5m
+    app-rolling-4154020364-j0nnk   0/1       Pending   0         1s
+    app-rolling-4154020364-j0nnk   0/1       Pending   0         1s
+    app-rolling-4154020364-j0nnk   0/1       ContainerCreating   0         1s
+    app-rolling-1683885671-sdjk3   0/1       Terminating   0         5m
+    app-rolling-4154020364-ddn16   1/1       Running   0         2s
+    app-rolling-1683885671-dt31h   1/1       Terminating   0         5m
+    app-rolling-4154020364-j0nnk   1/1       Running   0         3s
+    app-rolling-4154020364-wlvfz   0/1       Pending   0         1s
+    app-rolling-4154020364-wlvfz   0/1       Pending   0         1s
+    app-rolling-1683885671-x1npp   1/1       Terminating   0         5m
+    app-rolling-4154020364-wlvfz   0/1       ContainerCreating   0         1s
+    app-rolling-4154020364-qr1lz   0/1       Pending   0         1s
+    app-rolling-4154020364-qr1lz   0/1       Pending   0         1s
+    app-rolling-1683885671-dt31h   0/1       Terminating   0         5m
+    app-rolling-4154020364-qr1lz   0/1       ContainerCreating   0         1s
+    app-rolling-1683885671-x1npp   0/1       Terminating   0         5m
+    app-rolling-4154020364-wlvfz   1/1       Running   0         2s
+    app-rolling-1683885671-d7vpf   1/1       Terminating   0         5m
+    app-rolling-4154020364-vlb4b   0/1       Pending   0         2s
+    app-rolling-4154020364-vlb4b   0/1       Pending   0         2s
+    app-rolling-4154020364-vlb4b   0/1       ContainerCreating   0         2s
+    app-rolling-1683885671-d7vpf   0/1       Terminating   0         5m
+    app-rolling-1683885671-x1npp   0/1       Terminating   0         5m
+    app-rolling-1683885671-x1npp   0/1       Terminating   0         5m
+    app-rolling-4154020364-qr1lz   1/1       Running   0         3s
+    app-rolling-1683885671-k8xn9   1/1       Terminating   0         5m
+    app-rolling-1683885671-k8xn9   0/1       Terminating   0         5m
+    app-rolling-4154020364-vlb4b   1/1       Running   0         2s
++
+The output shows how a new pod is created, then an old one is terminated, then a new pod is created and so on.
++
+. Access the application again:
+
+    $ curl http://a2ea9ce7dbd9f11e791f402037f18a54-1449990061.eu-central-1.elb.amazonaws.com:8080
+    Howdy World!
++
+The output now shows `v2` version of the image is being used.
++
+. Delete resources:
+
+    kubectl delete deployment/app-rolling svc/app-rolling
+
+== Rollback
 
