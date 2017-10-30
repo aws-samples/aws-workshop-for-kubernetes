@@ -4,7 +4,7 @@
 :linkcss:
 :imagesdir: ../images
 
-This chapter explains how an application deployed in a Kubernetes cluster can be updated using link:../developer-concepts#deployment[Deployment].
+This chapter explains how an application deployed in a Kubernetes cluster can be updated using link:../developer-concepts#deployment[Deployment]. It also explains Canary Deployment of an application.
 
 Deployment create Replica Set for managing pods. The number of replicas in the Replica Set can be scaled up and down to meet the demands of your application. Updating an application deployed using Deployment requires to update the configuration of Deployment. This modification creates a new Replica Set, which is scaled up while the previous Replica Set is scaled down. This enables no downtime for your application.
 
@@ -18,7 +18,9 @@ A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-inst
 
 All configuration files for this chapter are in the `app-upgrade` directory.
 
-== Update an application
+== Update and Rollback
+
+=== Update to a new revision
 
 Updating an application requires to replace all the existing pods with new pods that use a different version of the image. `.spec.strategy` in the Deployment configuration can be used to define strategy used to replace the old pods with the new ones. This key can take two values:
 
@@ -27,7 +29,7 @@ Updating an application requires to replace all the existing pods with new pods 
 
 Let's look at these two deployment strategies.
 
-=== Recreate strategy
+==== Recreate strategy
 
 All existing pods are killed before the new ones are created. The configuration file looks like:
 
@@ -57,7 +59,7 @@ All existing pods are killed before the new ones are created. The configuration 
 +
 `--record` ensures that the command initiating this deployment is recorded. This is useful when the application has gone through a few updates and you need to correlate a version with the command.
 +
-. Get history of deployments:
+. Get the history of deployments:
 
     $ kubectl rollout history deployment/app-recreate
     deployments "app-recreate"
@@ -165,7 +167,7 @@ The output shows that `v1` version of the image is being used.
 +
 The output shows that all pods are terminatd first and then the new ones are created.
 +
-. Get history of deployments:
+. Get the history of deployments:
 
     $ kubectl rollout history deployment/app-recreate
     deployments "app-recreate"
@@ -180,7 +182,7 @@ The output shows that all pods are terminatd first and then the new ones are cre
 +
 The output now shows `v2` version of the image is being used.
 
-=== Rolling update strategy
+==== Rolling update strategy
 
 Pods are updated in a rolling update fashion.
 
@@ -217,12 +219,21 @@ In this case, 1 more pod can be created over the maximum number of pods and only
 
 . Create deployment:
 
-    $ kubectl create -f templates/app-rolling.yaml
+    $ kubectl create -f templates/app-rolling.yaml --record
     deployment "app-rolling" created
++
+Once again, `--record` ensures that the command initiating this deployment is recorded. This is useful when the application has gone through a few updates and you need to correlate a version with the command.
++
+. Get the history of deployments:
+
+    $ kubectl rollout history deployment/app-rolling
+    deployments "app-rolling"
+    REVISION  CHANGE-CAUSE
+    1         kubectl create --filename=templates/app-rolling.yaml --record=true
 
 . Expose service:
 
-    $ kubectl expose deployment/app-rolling --port=8080 --name=app-rolling --type=LoadBalancer
+    $ kubectl expose deployment/app-rolling --port=80 --name=app-rolling --type=LoadBalancer
     service "app-rolling" exposed
 
 . Get service detail:
@@ -234,23 +245,23 @@ In this case, 1 more pod can be created over the maximum number of pods and only
     Annotations:              <none>
     Selector:                 name=app-rolling
     Type:                     LoadBalancer
-    IP:                       100.70.178.68
-    LoadBalancer Ingress:     a2ea9ce7dbd9f11e791f402037f18a54-1449990061.eu-central-1.elb.amazonaws.com
-    Port:                     <unset>  8080/TCP
-    TargetPort:               8080/TCP
-    NodePort:                 <unset>  30529/TCP
-    Endpoints:                100.96.1.11:8080,100.96.2.10:8080,100.96.3.11:8080 + 2 more...
+    IP:                       100.71.164.130
+    LoadBalancer Ingress:     abe27b4c7bdaa11e791f402037f18a54-647142678.eu-central-1.elb.amazonaws.com
+    Port:                     <unset>  80/TCP
+    TargetPort:               80/TCP
+    NodePort:                 <unset>  31521/TCP
+    Endpoints:                100.96.1.16:80,100.96.2.15:80,100.96.3.15:80 + 2 more...
     Session Affinity:         None
     External Traffic Policy:  Cluster
     Events:
       Type    Reason                Age   From                Message
       ----    ------                ----  ----                -------
-      Normal  CreatingLoadBalancer  25s   service-controller  Creating load balancer
-      Normal  CreatedLoadBalancer   23s   service-controller  Created load balancer
+      Normal  CreatingLoadBalancer  1m    service-controller  Creating load balancer
+      Normal  CreatedLoadBalancer   1m    service-controller  Created load balancer
 
 . Acccess service:
 
-    $ curl http://a2ea9ce7dbd9f11e791f402037f18a54-1449990061.eu-central-1.elb.amazonaws.com:8080
+    $ curl http://abe27b4c7bdaa11e791f402037f18a54-647142678.eu-central-1.elb.amazonaws.com
     Hello World!
 +
 The output shows that `v1` version of the image is being used.
@@ -270,7 +281,7 @@ The output shows that `v1` version of the image is being used.
     $ kubectl set image deployment/app-rolling app-rolling=arungupta/app-upgrade:v2
     deployment "app-rolling" image updated
 
-. Status of the pods is updated. It shows that all the pods are terminated first, and then the new ones are created:
+. Status of the pods is updated:
 
     $ kubectl get -w pods
     NAME                           READY     STATUS    RESTARTS   AGE
@@ -312,21 +323,48 @@ The output shows that `v1` version of the image is being used.
     app-rolling-1683885671-k8xn9   0/1       Terminating   0         5m
     app-rolling-4154020364-vlb4b   1/1       Running   0         2s
 +
-The output shows how a new pod is created, then an old one is terminated, then a new pod is created and so on.
+The output shows that a new pod is created, then an old one is terminated, then a new pod is created and so on.
 +
+. Get the history of deployments:
+
+    $ kubectl rollout history deployment/app-rolling
+    deployments "app-rolling"
+    REVISION  CHANGE-CAUSE
+    1         kubectl create --filename=templates/app-rolling.yaml --record=true
+    2         kubectl set image deployment/app-rolling app-rolling=arungupta/app-upgrade:v2
+
 . Access the application again:
 
-    $ curl http://a2ea9ce7dbd9f11e791f402037f18a54-1449990061.eu-central-1.elb.amazonaws.com:8080
+    $ curl http://abe27b4c7bdaa11e791f402037f18a54-647142678.eu-central-1.elb.amazonaws.com
     Howdy World!
 +
 The output now shows `v2` version of the image is being used.
 
-== Rollback
+=== Rollback to a previous revision
 
-More details about 
+As discussed above, details about how a Deployment was rolled out can be obtained using `kubectl rollout history` command. In order to rollback, lets get the complete history of Deployment:
 
-== Delete resources
+    $ kubectl rollout history deployment/app-rolling
+    deployments "app-rolling"
+    REVISION  CHANGE-CAUSE
+    1         kubectl create --filename=templates/app-rolling.yaml --record=true
+    2         kubectl set image deployment/app-rolling app-rolling=arungupta/app-upgrade:v2
+
+Roll back to a previous version using the command:
+
+    $ kubectl rollout undo deployment/app-rolling --to-revision=1
+    deployment "app-rolling" rolled back
+
+Now access the service again:
+
+    $ curl http://abe27b4c7bdaa11e791f402037f18a54-647142678.eu-central-1.elb.amazonaws.com
+    Hello World!
+
+The output shows that `v1` version of the image is now being used.
+
+=== Delete resources
 
 Delete resources created in this chapter:
 
     kubectl delete deployment/app-recreate svc/app-recreate deployment/app-rolling svc/app-rolling
+
