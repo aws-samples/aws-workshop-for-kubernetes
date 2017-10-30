@@ -22,30 +22,29 @@ on your machine.
 
 == AWS IAM Permissions
 
-If you already have an AWS Account, you need to create an IAM user here: https://console.aws.amazon.com/iam/home?#/users$new
-Just give it a useful name (e.g. `workshop`) and make sure you check the `Programmatic access` box:
+If you already have an AWS Account, you need to create an IAM user to use during the workshop. Make sure you have run `aws configure` with your personal `Access Key ID` and `Secret Access Key`.
+After that run the follwing commands in you commandline to create the needed group and user:
 
-image::images/add-iam-user.png[]
+```
+aws iam create-group --group-name k8s-workshop
 
-In the next screen select `Attach existing policies directly` and search for `AmazonEC2FullAccess AmazonRoute53FullAccess AmazonS3FullAccess IAMFullAccess AmazonVPCFullAccess` - it will now show the roles needed: http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies]
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name k8s-workshop
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name k8s-workshop
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name k8s-workshop
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name k8s-workshop
+aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name k8s-workshop
 
-image::images/add-policies-to-iam-user.png[]
+aws iam create-user --user-name k8s-workshop
 
-Check all five and hit next.
+aws iam add-user-to-group --user-name k8s-workshop --group-name k8s-workshop
+
+aws iam create-access-key --user-name k8s-workshop
+```
+
+Now run `aws configure` again and use the `Access Key ID` and `Secret Access Key` from the newly created user.
 
 Please review this link:https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user[link]
 for additional info on IAM permissions
-
-== Configure the AWS CLI
-
-In order to use the AWS CLI, you can configure it with `aws configure` on your commandline:
-```
-aws configure
-AWS Access Key ID [None]: YOUR_IAM_ACCESS_KEY_ID
-AWS Secret Access Key [None]: YOUR_IAM_SECRET_ACCESS_KEY
-Default region name [None]: eu-central-1
-Default output format [None]:
-```
 
 == AWS Availability Zones
 
