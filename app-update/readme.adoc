@@ -1,4 +1,4 @@
-= Kubernetes Application Upgrade
+= Kubernetes Application Update
 :toc:
 :icons:
 :linkcss:
