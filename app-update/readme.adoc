@@ -368,3 +368,139 @@ Delete resources created in this chapter:
 
     kubectl delete deployment/app-recreate svc/app-recreate deployment/app-rolling svc/app-rolling
 
+== Canary deployment
+
+Canary deployment allows to deploy a new version of the application in production by slowly rolling out the change to a small subset of users before rolling it out to everybody.
+
+This can be achieved in Kubernetes using Service, Deployment and Labels.
+
+=== Deployment and Service definition
+
+Let's look at version `v1` of the Deployment:
+
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: app-v1
+    spec:
+      replicas: 2
+      template:
+        metadata:
+          labels:
+            name: app
+            version: v1
+        spec:
+          containers:
+          - name: app
+            image: arungupta/app-upgrade:v1
+            ports:
+            - containerPort: 8080
+
+It uses `arungupta/app-upgrade:v1` image. It has two labels `name: app` and `version: v1`.
+
+Let's look at version `v2` of the Deployment:
+
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: app-v2
+    spec:
+      replicas: 2
+      template:
+        metadata:
+          labels:
+            name: app
+            version: v2
+        spec:
+          containers:
+          - name: app
+            image: arungupta/app-upgrade:v2
+            ports:
+            - containerPort: 8080
+
+It uses a different image, i.e. `arungupta/app-upgrade:v2`. It has one label, `name: app`, that matches the `v1` version of the Deployment. It has another label that is similar to `v2` but uses a different value, i.e. `version: v2`. This label allows to independently scale this Deployment, without overriding `v1` version of the Deployment.
+
+Finally, let's look at the service definition that uses these Deployments:
+
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: app-service
+    spec:
+      selector:
+        name: app
+      ports:
+      - name: app
+        port: 80
+      type: LoadBalancer
+
+The Service uses labels that are common to both versions of the application. This allows the pods from both Deployment to be part of the Service.
+
+Let's verify.
+
+=== Create canary
+
+. Deploy `v1` version of Deployment:
+
+    $ kubectl apply -f templates/app-v1.yaml 
+    deployment "app-v1" created
+
+. Deploy `v2` version of Deployment:
+
+    $ kubectl apply -f templates/app-v2.yaml 
+    deployment "app-v2" created
+
+. Deploy Service:
+
+    $ kubectl apply -f templates/app-service.yaml 
+    service "app-service" created
+
+. Check the list of pods for this service:
+
+    $ kubectl get pods -l name=app
+    NAME                      READY     STATUS    RESTARTS   AGE
+    app-v1-3101668686-4mhcj   1/1       Running   0          2m
+    app-v1-3101668686-ncbfv   1/1       Running   0          2m
+    app-v2-2627414310-89j1v   1/1       Running   0          2m
+    app-v2-2627414310-bgg1t   1/1       Running   0          2m
++
+Note that we are explicitly specifying the label `name=app` in the query to only pick the pods that are specified in the service definition at `templates/app-service.yaml`. There are two pods from `v1` version and 2 pods from `v2` version. Accessing this service will have 50% response from `v1` version and the other 50% from `v2` version.
+
+=== Scale canary
+
+The number of pods to be included from `v1` version and `v2` version can now be indepently scaled using the two Deployments.
+
+. Increase the number of replicas for `v2` Deployment:
+
+    $ kubectl scale deploy/app-v2 --replicas=4
+    deployment "app-v2" scaled
+
+. Check the pods that are part of the Service:
+
+    $ kubectl get pods -l name=app
+    NAME                      READY     STATUS    RESTARTS   AGE
+    app-v1-3101668686-4mhcj   1/1       Running   0          6m
+    app-v1-3101668686-ncbfv   1/1       Running   0          6m
+    app-v2-2627414310-89j1v   1/1       Running   0          6m
+    app-v2-2627414310-8jpzd   1/1       Running   0          7s
+    app-v2-2627414310-b17v8   1/1       Running   0          7s
+    app-v2-2627414310-bgg1t   1/1       Running   0          6m
++
+You can see that 4 pods are now coming from `v2` version of the application and 2 pods are coming from `v1` version of the application. So, two-thirds traffic from the user will now be served from the new application.
++
+. Reduce the number of replicas for `v1` version to 0:
+
+    $ kubectl scale deploy/app-v1 --replicas=0
+    deployment "app-v1" scaled
+
+. Check the pods that are part of the Service:
+
+    $ kubectl get pods -l name=app
+    NAME                      READY     STATUS    RESTARTS   AGE
+    app-v2-2627414310-89j1v   1/1       Running   0          8m
+    app-v2-2627414310-8jpzd   1/1       Running   0          1m
+    app-v2-2627414310-b17v8   1/1       Running   0          1m
+    app-v2-2627414310-bgg1t   1/1       Running   0          8m
++
+Now all pods are served `v2` version of the Deployment.
+
