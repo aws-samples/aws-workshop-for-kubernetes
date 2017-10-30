@@ -22,26 +22,36 @@ on your machine.
 
 == AWS IAM Permissions
 
-If you already have an AWS Account, you need to create an IAM user and attach these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies].
+If you already have an AWS Account, you need to create an IAM user here: https://console.aws.amazon.com/iam/home?#/users$new
+Just give it a useful name (e.g. `workshop`) and make sure you check the `Programmatic access` box:
 
-    AmazonEC2FullAccess
-    AmazonRoute53FullAccess
-    AmazonS3FullAccess
-    IAMFullAccess
-    AmazonVPCFullAccess
+image::images/add-iam-user.png[]
+
+In the next screen select `Attach existing policies directly` and search for `AmazonEC2FullAccess AmazonRoute53FullAccess AmazonS3FullAccess IAMFullAccess AmazonVPCFullAccess` - it will now show the roles needed: http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies]
+
+image::images/add-policies-to-iam-user.png[]
+
+Check all five and hit next.
 
 Please review this link:https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user[link]
 for additional info on IAM permissions
 
-== AWS Region and Availability Zones
+== Configure the AWS CLI
 
-Use `eu-central-1` AWS region for this workshop. Default AWS region used by the AWS CLI can be set using this command:
+In order to use the AWS CLI, you can configure it with `aws configure` on your commandline:
+```
+aws configure
+AWS Access Key ID [None]: YOUR_IAM_ACCESS_KEY_ID
+AWS Secret Access Key [None]: YOUR_IAM_SECRET_ACCESS_KEY
+Default region name [None]: eu-central-1
+Default output format [None]:
+```
 
-    export AWS_DEFAULT_REGION=eu-central-1
+== AWS Availability Zones
 
 Different availability zones for this region can be set in the environment variable `AWS_AVAILABILITY_ZONES` using the following command:
 
-    AWS_AVAILABILITY_ZONES="$(aws --region $AWS_DEFAULT_REGION ec2 describe-availability-zones --query 'AvailabilityZones[].ZoneName' --output text | awk -v OFS="," '$1=$1')"
+    AWS_AVAILABILITY_ZONES="$(aws ec2 describe-availability-zones --query 'AvailabilityZones[].ZoneName' --output text | awk -v OFS="," '$1=$1')"
 
 Echo the value of the environment variable to confirm:
 
