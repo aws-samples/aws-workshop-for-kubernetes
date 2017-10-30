@@ -10,13 +10,6 @@ Deployment create Replica Set for managing pods. The number of replicas in the R
 
 Note: There is a `kubectl rolling-update` command but it is applicable only to Replica Set. The update from this command was driven on the client-side. It is strongly recommended to do rolling update using Deployment as the updates are now on the server-side.
 
-Updating an application requires to replace all the existing pods with new pods that use a different version of the image. `.spec.strategy` in the Deployment configuration can be used to define strategy used to replace the old pods with the new ones. This key can take two values:
-
-. `Recreate`
-. `RollingUpdate` (default)
-
-Let's look at these two deployment strategies.
-
 For our usecase, the application initially uses the image `arungupta/app-upgrade:v1`. Then the Deployment is updated to use the image `arungupta/app-upgrade:v2`. The v1 image prints "`Hello World!`". The v2 image prints "`Howdy World!`". The source code for these images is in the link:images[] directory.
 
 == Pre-requisites
@@ -25,7 +18,16 @@ A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-inst
 
 All configuration files for this chapter are in the `app-upgrade` directory.
 
-== Recreate strategy
+== Update an application
+
+Updating an application requires to replace all the existing pods with new pods that use a different version of the image. `.spec.strategy` in the Deployment configuration can be used to define strategy used to replace the old pods with the new ones. This key can take two values:
+
+. `Recreate`
+. `RollingUpdate` (default)
+
+Let's look at these two deployment strategies.
+
+=== Recreate strategy
 
 All existing pods are killed before the new ones are created. The configuration file looks like:
 
@@ -50,12 +52,21 @@ All existing pods are killed before the new ones are created. The configuration 
 
 . Create deployment:
 
-    $ kubectl create -f templates/app-recreate.yaml
+    $ kubectl create -f templates/app-recreate.yaml --record
     deployment "app-v1-recreate" created
++
+`--record` ensures that the command initiating this deployment is recorded. This is useful when the application has gone through a few updates and you need to correlate a version with the command.
++
+. Get history of deployments:
+
+    $ kubectl rollout history deployment/app-recreate
+    deployments "app-recreate"
+    REVISION  CHANGE-CAUSE
+    1         kubectl create --filename=templates/app-recreate.yaml --record=true
 
 . Expose service:
 
-    $ kubectl expose deployment/app-recreate --port=8080 --name=app-recreate --type=LoadBalancer
+    $ kubectl expose deployment/app-recreate --port=80 --name=app-recreate --type=LoadBalancer
     service "app-recreate" exposed
 
 . Get service detail:
@@ -67,23 +78,23 @@ All existing pods are killed before the new ones are created. The configuration 
     Annotations:              <none>
     Selector:                 name=app-recreate
     Type:                     LoadBalancer
-    IP:                       100.64.37.53
-    LoadBalancer Ingress:     a14450238bd9e11e791f402037f18a54-2050313885.eu-central-1.elb.amazonaws.com
-    Port:                     <unset>  8080/TCP
-    TargetPort:               8080/TCP
-    NodePort:                 <unset>  31065/TCP
-    Endpoints:                100.96.1.9:8080,100.96.2.8:8080,100.96.3.9:8080 + 2 more...
+    IP:                       100.65.43.233
+    LoadBalancer Ingress:     af2dc1f99bda211e791f402037f18a54-1616925381.eu-central-1.elb.amazonaws.com
+    Port:                     <unset>  80/TCP
+    TargetPort:               80/TCP
+    NodePort:                 <unset>  30158/TCP
+    Endpoints:                100.96.1.14:80,100.96.2.13:80,100.96.3.13:80 + 2 more...
     Session Affinity:         None
     External Traffic Policy:  Cluster
     Events:
       Type    Reason                Age   From                Message
       ----    ------                ----  ----                -------
-      Normal  CreatingLoadBalancer  12s   service-controller  Creating load balancer
-      Normal  CreatedLoadBalancer   11s   service-controller  Created load balancer
+      Normal  CreatingLoadBalancer  24s   service-controller  Creating load balancer
+      Normal  CreatedLoadBalancer   23s   service-controller  Created load balancer
 
 . Acccess service:
 
-    $ curl http://a14450238bd9e11e791f402037f18a54-2050313885.eu-central-1.elb.amazonaws.com:8080
+    $ curl http://af2dc1f99bda211e791f402037f18a54-1616925381.eu-central-1.elb.amazonaws.com
     Hello World!
 +
 The output shows that `v1` version of the image is being used.
@@ -154,18 +165,22 @@ The output shows that `v1` version of the image is being used.
 +
 The output shows that all pods are terminatd first and then the new ones are created.
 +
+. Get history of deployments:
+
+    $ kubectl rollout history deployment/app-recreate
+    deployments "app-recreate"
+    REVISION  CHANGE-CAUSE
+    1         kubectl create --filename=templates/app-recreate.yaml --record=true
+    2         kubectl set image deployment/app-recreate app-recreate=arungupta/app-upgrade:v2
+
 . Access the application again:
 
-    $ curl http://a14450238bd9e11e791f402037f18a54-2050313885.eu-central-1.elb.amazonaws.com:8080
+    $ curl http://af2dc1f99bda211e791f402037f18a54-1616925381.eu-central-1.elb.amazonaws.com
     Howdy World!
 +
 The output now shows `v2` version of the image is being used.
-+
-. Delete resources:
 
-    kubectl delete deployment/app-recreate svc/app-recreate
-
-== Rolling update strategy
+=== Rolling update strategy
 
 Pods are updated in a rolling update fashion.
 
@@ -305,10 +320,13 @@ The output shows how a new pod is created, then an old one is terminated, then a
     Howdy World!
 +
 The output now shows `v2` version of the image is being used.
-+
-. Delete resources:
-
-    kubectl delete deployment/app-rolling svc/app-rolling
 
 == Rollback
 
+More details about 
+
+== Delete resources
+
+Delete resources created in this chapter:
+
+    kubectl delete deployment/app-recreate svc/app-recreate deployment/app-rolling svc/app-rolling
