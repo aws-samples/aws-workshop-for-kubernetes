@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: app-v2
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        name: app
+        version: v2
+    spec:
+      containers:
+      - name: app
+        image: arungupta/app-upgrade:v2
+        ports:
+        - containerPort: 8080
