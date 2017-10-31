@@ -35,7 +35,7 @@ as you move through the workshop.
 | link:cluster-upgrade#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
 | Upgrading Kubernetes cluster - blue/green upgrade
 | link:cluster-scaling[Cluster scaling]
-| link:app-scaling[Pod Autoscaling]
+| link:app-scaling[Application autoscaling]
 |===
 
 [cols="1*"]
