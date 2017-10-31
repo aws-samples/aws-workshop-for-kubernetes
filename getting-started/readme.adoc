@@ -67,12 +67,14 @@ The first start of minikube will download the ISO file and then start the cluste
 
 ```
 $ minikube start
-Starting local Kubernetes v1.7.5 cluster...
+Starting local Kubernetes v1.8.0 cluster...
 Starting VM...
 Downloading Minikube ISO
- 139.09 MB / 139.09 MB [============================================] 100.00% 0s
+ 140.01 MB / 140.01 MB [============================================] 100.00% 0s
 Getting VM IP address...
 Moving files into cluster...
+Downloading localkube binary
+ 148.56 MB / 148.56 MB [============================================] 100.00% 0s
 Setting up certs...
 Connecting to cluster...
 Setting up kubeconfig...
@@ -111,8 +113,8 @@ This command will show all the nodes available in your kubernetes cluster:
 
 It shows the output as:
 
-    NAME       STATUS    ROLES     AGE       VERSION
-    minikube   Ready     <none>    7d        v1.7.5
+  NAME       STATUS    ROLES     AGE       VERSION
+  minikube   Ready     <none>    46m       v1.8.0
 
 === Create your first pod
 
@@ -196,7 +198,7 @@ kubernetes-dashboard-5jt9q    1/1       Running   0          1m
 
 === Get logs from the pod
 
-Logs from the pod can be obtained:
+Logs from the pod can be obtained (a fresh nginx does not have logs - check again later once you have accessed the service):
 
     kubectl logs <pod-name>
 
@@ -219,7 +221,8 @@ Where `<pod-name>` is the pod name of your NGINX pod. This will expose the pod a
 
     $ kubectl get svc
     NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)        AGE
-    web          NodePort    10.0.0.14    <none>        80:30934/TCP   3s
+    kubernetes   ClusterIP   10.0.0.1     <none>        443/TCP        50m
+    web          NodePort    10.0.0.138   <none>        80:32406/TCP   3s
 
 === View service webpage
 
@@ -320,34 +323,16 @@ Events:
 
 IP address information can be obtained by looking at the `InternalIP` field:
 
-    kubectl describe node minikube | grep InternalIP
+    $ kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'
 
 This gives us the IP address where the service is hosted. Now, we need to get the port that the service is exposed on. This can be found using the following command:
 
-    kubectl describe service web
+    $ kubectl get service web -o jsonpath='{.spec.ports[*].nodePort}'
 
-It shows the output:
-
+We can combine these two commands with curl to access the service from the cli:
 ```
-$ kubectl describe service web
-Name:                     web
-Namespace:                default
-Labels:                   pod-template-hash=4217019353
-                          run=nginx
-Annotations:              <none>
-Selector:                 pod-template-hash=4217019353,run=nginx
-Type:                     NodePort
-IP:                       10.0.0.14
-Port:                     <unset>  80/TCP
-TargetPort:               80/TCP
-NodePort:                 <unset>  30934/TCP
-Endpoints:                172.17.0.6:80
-Session Affinity:         None
-External Traffic Policy:  Cluster
-Events:                   <none>
+$ curl $(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'):$(kubectl get service web -o jsonpath='{.spec.ports[*].nodePort}')
 ```
-
-The value of 'NodePort' attribute shows the port on which the service is deployed.
 
 The host and the port are the exact same values where minikube opened the service page in the browser.
 
@@ -367,7 +352,7 @@ Get a summary of available contexts:
 
   $ kubectl config get-contexts
   CURRENT   NAME                CLUSTER             AUTHINFO            NAMESPACE
-  *         minikube            minikube            minikube            
+  *         minikube            minikube            minikube
 
 The output shows dfferent contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
 
