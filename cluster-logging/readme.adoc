@@ -30,8 +30,7 @@ This example creates a two instance Amazon Elasticsearch cluster named `kubernet
       --elasticsearch-cluster-config \
       InstanceType=m4.large.elasticsearch,InstanceCount=2 \
       --ebs-options EBSEnabled=true,VolumeType=standard,VolumeSize=100 \
-      --access-policies '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["es:*"],"Resource":"*"}]}' \
-      --region ${AWS_DEFAULT_REGION}
+      --access-policies '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["es:*"],"Resource":"*"}]}'
 
 It takes a little while for the cluster to be created and arrive at an `active` state. The AWS Console should show the following status when the cluster is ready:
 
