@@ -17,8 +17,7 @@ We will look into two well-known service mesh integrations:
 
 == Using Linkerd with Kubernetes
 
-https://linkerd.io/[Linkerd] is a layer 5/7 proxy that routes and load balances traffic over HTTP, Thrift, Mux, HTTP/2 and gRPC.
-Its based on Finagle (built by Twitter), and in January 2017 linkerd became a member of the link:https://www.cncf.io/[CNCF], alongside Kubernetes.
+https://linkerd.io/[Linkerd] is a layer 5/7 proxy that routes and load balances traffic over HTTP, Thrift, Mux, HTTP/2 and gRPC. Its based on Finagle (built by Twitter), and in January 2017 linkerd became a member of the link:https://www.cncf.io/[CNCF], alongside Kubernetes.
 
 https://linkerd.io/[Linkerd] adds visibility, control, and reliability to your application with
 a wide array of powerful techniques: circuit-breaking, latency-aware load balancing, eventually
@@ -36,9 +35,7 @@ In this exercise we'll look at a few of the features linkerd provides, such as:
 === Create Kubernetes cluster
 
 Review the steps to create a Kubernetes cluster on AWS using Kops in the
-link:../cluster-install/README.adoc#create-kubernetes-cluster[cluster install] documentation. Validate the cluster before installing linkerd.
-
-  kops validate cluster
+link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[cluster install] documentation.
 
 === Install linkerd
 
@@ -47,20 +44,59 @@ host) running in the default Kubernetes namespace.
 
   kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
   k8s-daemonset/k8s/linkerd.yml
+  configmap "l5d-config" created
+  daemonset "l5d" created
+  service "l5d" created
 
-Check that the linkerd (named as l5d) pods and service is running
+Check that the linkerd (named as `l5d`) pods are running:
 
-```
-$ kubectl get all
-NAME           READY     STATUS    RESTARTS   AGE
-po/l5d-v3gm9   0/2       Running   0          12s
-po/l5d-xm760   0/2       Running   0          12s
+  $ kubectl get pods
+  NAME        READY     STATUS    RESTARTS   AGE
+  l5d-4kg47   2/2       Running   0          55s
+  l5d-d0wvv   2/2       Running   0          55s
+  l5d-gfpc7   2/2       Running   0          55s
+  l5d-w0d95   2/2       Running   0          55s
+  l5d-xppqs   2/2       Running   0          55s
 
-$ kubectl get svc
-NAME         TYPE           CLUSTER-IP     EXTERNAL-IP        PORT(S)                                        AGE
-kubernetes   ClusterIP      100.64.0.1     <none>             443/TCP                                        15h
-l5d          LoadBalancer   100.68.65.99   a306c8f52b92c...   4140:30609/TCP,4141:31489/TCP,9990:31710/TCP   24s
-```
+This is the output shown from a 5 worker node cluster.
+
+Check that the linkerd service is running:
+
+  $ kubectl get svc
+  NAME         TYPE           CLUSTER-IP     EXTERNAL-IP        PORT(S)                                        AGE
+  kubernetes   ClusterIP      100.64.0.1     <none>             443/TCP                                        15h
+  l5d          LoadBalancer   100.68.65.99   a306c8f52b92c...   4140:30609/TCP,4141:31489/TCP,9990:31710/TCP   24s
+
+Get more details about linkerd service:
+
+  $ kubectl describe svc/l5d
+  Name:                     l5d
+  Namespace:                default
+  Labels:                   <none>
+  Annotations:              kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"l5d","namespace":"default"},"spec":{"ports":[{"name":"outgoing","port":4140},{...
+  Selector:                 app=l5d
+  Type:                     LoadBalancer
+  IP:                       100.70.56.141
+  LoadBalancer Ingress:     abf44db7dbe1211e7a7d00220684043f-1319890531.eu-central-1.elb.amazonaws.com
+  Port:                     outgoing  4140/TCP
+  TargetPort:               4140/TCP
+  NodePort:                 outgoing  30108/TCP
+  Endpoints:                100.96.3.2:4140,100.96.4.2:4140,100.96.5.4:4140 + 2 more...
+  Port:                     incoming  4141/TCP
+  TargetPort:               4141/TCP
+  NodePort:                 incoming  31209/TCP
+  Endpoints:                100.96.3.2:4141,100.96.4.2:4141,100.96.5.4:4141 + 2 more...
+  Port:                     admin  9990/TCP
+  TargetPort:               9990/TCP
+  NodePort:                 admin  32117/TCP
+  Endpoints:                100.96.3.2:9990,100.96.4.2:9990,100.96.5.4:9990 + 2 more...
+  Session Affinity:         None
+  External Traffic Policy:  Cluster
+  Events:
+    Type    Reason                Age   From                Message
+    ----    ------                ----  ----                -------
+    Normal  CreatingLoadBalancer  3m    service-controller  Creating load balancer
+    Normal  CreatedLoadBalancer   3m    service-controller  Created load balancer
 
 You can go to linkerd's admin page (i.e ELB:9990) to verify installation. It may take a minute or two before the
 ELB DNS is available. If you have an issue accessing the load balancer endpoint, it could be because your firewall
@@ -69,111 +105,118 @@ or VPN is preventing access to port 9990.
   LINKERD_ELB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
   open http://$LINKERD_ELB:9990
 
+The default dashboard looks like as shown:
+
+image::linkerd-default-dashboard.png[]
+
 === Install sample microservices apps
 
 The https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[Github repo for
-linkerd examples] has two microservices apps called "hello" and "world". They both communicate
+linkerd examples] has two microservices apps called "`hello`" and "`world`". They both communicate
 with each other to complete the request. Run this command to install these apps in the default
 namespace.
 
-  kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
-  k8s/hello-world.yml
+  $ kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+  k8s-daemonset/k8s/hello-world.yml
+  replicationcontroller "hello" created
+  service "hello" created
+  replicationcontroller "world-v1" created
+  service "world-v1" created
 
-Generate some traffic by running this command and linkerd will show the number of requests being
-served, connections and bunch of rich data
+Generate some traffic by running this command:
 
   http_proxy=$LINKERD_ELB:4140 curl -s http://hello
+
+Linkerd will show the number of requests being served, connections and a bunch of rich data:
 
 image::linkerd.png[]
 
 === Install linkerd-viz
 
-linkerd-viz is a monitoring application based on https://prometheus.io/[Prometheus] and
-http://grafana.org/[Grafana]. It can automatically find linkerd instances and services
+https://github.com/linkerd/linkerd-viz[linkerd-viz] is a monitoring application based on https://prometheus.io/[Prometheus] and http://grafana.org/[Grafana]. It can automatically find linkerd instances and services
 that are installed in your k8s cluster.
 
-  kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
+  $ kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
+  replicationcontroller "linkerd-viz" created
+  service "linkerd-viz" created
 
-You can open linkerd-viz ELB to view the dashboard. As with the previous example, it may take a minute or two before the
-ELB DNS is available.
+You can open linkerd-viz ELB to view the dashboard:
 
   LINKERD_VIZ_ELB=$(kubectl get svc linkerd-viz -o jsonpath="{.status.loadBalancer.ingress[0].*}")
   open http://$LINKERD_VIZ_ELB
+
+As with the previous example, it may take a minute or two before the ELB DNS is available.
 
 image::linkerd-viz.png[]
 
 === Per request routing
 
-We'll use the same 'hello-world' application used in the example above, but this time we'll deploy version 2 of the
-'world' microservice, and we'll specify on a per request level whether the request should use v1 or v2 of the 'world'
-microservice.
+We'll use the same "`hello-world`" application used in the example above, but this time we'll deploy version 2 of the
+"`world`" microservice, and we'll specify on a per request level whether the request should use v1 or v2 of the "`"world`" microservice.
 
-If you haven't already deployed the 'hello-world' application, deploy it now.
+If you haven't already deployed the "`hello-world`" application, deploy it now.
 
-    kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
-    k8s/hello-world.yml
+    kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+    k8s-daemonset/k8s/hello-world.yml
 
 Deploy the linkerd ingress so we can access the application externally.
 
-    kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
-    k8s/linkerd-ingress.yml
+    $ kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+    k8s-daemonset/k8s/linkerd-ingress.yml
+    configmap "l5d-config" configured
+    daemonset "l5d" configured
+    service "l5d" configured
 
-Now deploy version2 of the `world` microservice.
+Now deploy version2 of the "`world`" microservice.
 
-    kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
-    k8s/world-v2.yml
+    $ kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+    k8s-daemonset/k8s/world-v2.yml
+    replicationcontroller "world-v2" created
+    service "world-v2" created
 
 Send a request to v1 of the service. It should reply with 'Hello world'.
 
     INGRESS_LB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
     curl -H 'Host: www.hello.world' $INGRESS_LB
 
-After a minute or two, it should reply with 'Hello world'.
-```
-$  INGRESS_LB=$(kubectl get svc l5d -o jsonpath="{.status.loadBalancer.ingress[0].*}")
-$  curl -H 'Host: www.hello.world' $INGRESS_LB
-Hello (100.96.1.12) world (100.96.1.14)
-```
+After a minute or two, it should reply with `Hello world` as shown:
+
+  Hello (100.96.1.12) world (100.96.1.14)
 
 Now send a request to v2 of the service by modifying the header in the request.
 
     curl -H "Host: www.hello.world" -H "l5d-dtab: /host/world => /srv/world-v2;" $INGRESS_LB
 
-It should reply with 'Hello earth'.
-```
-$ curl -H "Host: www.hello.world" -H "l5d-dtab: /host/world => /srv/world-v2;" $INGRESS_LB
-Hello (100.96.1.11) earth (100.96.2.14)
-```
+It should reply with 'Hello earth' as shown:
+
+  Hello (100.96.1.11) earth (100.96.2.14)
+
 This demonstrates that v1 and v2 of the `world` service are running in the cluster, and you can specify in the
 request header which version of the service to route individual requests to.
 
-That's it! You can look into linkerd configuration files in https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[linkerd examples]
-to learn more.
+That's it!
+
+You can look into linkerd configuration files in https://github.com/linkerd/linkerd-examples/tree/master/k8s-daemonset/k8s[linkerd examples] to learn more.
 
 === Cleanup
 
-Remove the installed components
+Remove the installed components:
 
-```
-kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
-kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
-k8s/world-v2.yml
-kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
-k8s/hello-world.yml
-kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
-k8s/linkerd-ingress.yml
-kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/\
-k8s/linkerd.yml
-```
+  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
+  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+  k8s-daemonset/k8s/world-v2.yml
+  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+  k8s-daemonset/k8s/hello-world.yml
+  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+  k8s-daemonset/k8s/linkerd-ingress.yml
+  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+  k8s-daemonset/k8s/linkerd.yml
 
 == Using Istio with Kubernetes
 
-https://istio.io[Istio] is a layer 4/7 proxy that routes and load balances traffic over HTTP, WebSocket, HTTP/2, gRPC and
-supports application protocols such as MongoDB and Redis. Istio uses the Envoy proxy to manage all inbound/outbound traffic
-in the service mesh. Envoy was built by https://www.lyft.com/[Lyft], and in Sept 2017 Envoy became a member of the link:https://www.cncf.io/[CNCF], alongside Kubernetes.
-Istio is a joint collaboration between Google, IBM and Lyft.
+https://istio.io[Istio] is a layer 4/7 proxy that routes and load balances traffic over HTTP, WebSocket, HTTP/2, gRPC and supports application protocols such as MongoDB and Redis. Istio uses the Envoy proxy to manage all inbound/outbound traffic in the service mesh. Envoy was built by https://www.lyft.com/[Lyft], and in Sept 2017 Envoy became a member of the link:https://www.cncf.io/[CNCF], alongside Kubernetes. Istio is a joint collaboration between Google, IBM and Lyft.
 
-https://istio.io[Istio] has a wide variety of traffic management features that live outside the application code, such
+Istio has a wide variety of traffic management features that live outside the application code, such
 as A/B testing, phased/canary rollouts, failure recovery, circuit breaker, layer 7 routing and policy enforcement
 (all provided by the Envoy proxy). Istio also supports ACLs, rate limits, quotas, authentication, request tracing and
 telemetry collection using its Mixer component. The goal of the Istio project is to support traffic management and
@@ -189,9 +232,7 @@ In this exercise we'll look at a few of the features Istio provides, such as:
 === Create Kubernetes cluster
 
 Review the steps to create a Kubernetes cluster on AWS using Kops in the
-link:../cluster-install/README.adoc#create-kubernetes-cluster[cluster install] documentation. Validate the cluster before installing linkerd.
-
-  kops validate cluster
+link:../cluster-install#default-gossip-based-cluster[cluster install] documentation.
 
 === Install Istio
 
@@ -200,21 +241,17 @@ you'll need to download Istio. Istio can also automatically inject the sidecar; 
 https://istio.io/docs/setup/kubernetes/quick-start.html[Istio quick start]
 
     curl -L https://git.io/getLatestIstio | sh -
-    cd istio-0.2.7
+    cd istio-0.2.10
     export PATH=$PWD/bin:$PATH
 
-You should now be able to run the istioctl CLI
+You should now be able to run the `istioctl` CLI
 
-    istioctl version
-
-```
-$ istioctl version
-Version: 0.2.9
-GitRevision: 48ce32e6909d120a8ecee58b6b7a84094da36b7c
-GitBranch: master
-User: root@881c9704f303
-GolangVersion: go1.8
-```
+  $ istioctl version
+  Version: 0.2.10
+  GitRevision: f27f2803f59994367c1cca47467c362b1702d605
+  GitBranch: release-0.2
+  User: sebastienvas@ee792364cfc2
+  GolangVersion: go1.8
 
 Install Istio using `kubectl`. This will install Istio into its own namespace, `istio-system`. Change to the
 directory where you downloaded Istio in the step above.
@@ -262,8 +299,7 @@ the manual method of injecting the Envoy sidecar into the application, we need t
     kubectl apply -f <(istioctl kube-inject -f samples/bookinfo/kube/bookinfo.yaml)
 
 This will deploy the BookInfo application, which consists of 4 microservices, each written using a different language,
-which collaborate to show book product information, book details and book reviews. Each microservice is deployed in its
-own pod, with the Envoy proxy injected into the pod; Envoy will now take over all network communications between
+which collaborate to show book product information, book details and book reviews. Each microservice is deployed in its own pod, with the Envoy proxy injected into the pod; Envoy will now take over all network communications between
 the pods.
 
 Let's check that all components were installed
