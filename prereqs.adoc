@@ -22,8 +22,9 @@ on your machine.
 
 == AWS IAM Permissions
 
-If you already have an AWS Account, you need to create an IAM user to use during the workshop. Make sure you have run `aws configure` with your personal `Access Key ID` and `Secret Access Key`.
-After that run the follwing commands in you commandline to create the needed group and user:
+If you already have an AWS Account, you need to create an IAM user to use during the workshop. Make sure you have run `aws configure` with your personal `Access Key ID` and `Secret Access Key`. This will also make sure the default AWS region is set.
+
+Run the follwing commands on CLI to create the needed group and user:
 
 ```
 aws iam create-group --group-name k8s-workshop
@@ -57,7 +58,7 @@ Echo the value of the environment variable to confirm:
     echo $AWS_AVAILABILITY_ZONES
     eu-central-1a,eu-central-1b,eu-central-1c
 
-Several parts of the workshop require the region or availability zones to be explicitly specified as a CLI option. The environment variable `$AWS_DEFAULT_REGION` is used to set the region. The environment variable `$AWS_AVAILABILITY_ZONES` is used to set the availability zones.
+Several parts of the workshop require the region or availability zones to be explicitly specified as a CLI option. The region is picked based upon the value set in `aws configure` command. The environment variable `$AWS_AVAILABILITY_ZONES` is used to set the availability zones.
 
 == Clone the repo
 
