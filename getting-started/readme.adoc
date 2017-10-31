@@ -367,22 +367,18 @@ Get a summary of available contexts:
 
   $ kubectl config get-contexts
   CURRENT   NAME                CLUSTER             AUTHINFO            NAMESPACE
-            cluster.k8s.local   cluster.k8s.local   cluster.k8s.local   
   *         minikube            minikube            minikube            
 
-The output shows that there are two clusters. `NAME` column shows the context name. `*` indicates the current context.
+The output shows dfferent contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
 
 View the current context:
 
   $ kubectl config current-context
   minikube
 
-Change the context to a different context.
+If multiple clusters exist, then you can change the context:
 
-  $ kubectl config use-context cluster.k8s.local
-  Switched to context "cluster.k8s.local".
-
-In this case, the context is switched to a cluster that will be created in a later chapter.
+  $ kubectl config use-context <cluster-name>
 
 === Kubernetes dashboard
 
