@@ -1,4 +1,4 @@
-= Kubernetes App Scaling
+= Kubernetes App Auto-scaling
 :toc:
 :icons:
 :linkcss:
