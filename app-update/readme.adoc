@@ -372,9 +372,18 @@ Delete resources created in this chapter:
 
 Canary deployment allows to deploy a new version of the application in production by slowly rolling out the change to a small subset of users before rolling it out to everybody.
 
-This can be achieved in Kubernetes using Service, Deployment and Labels.
+There are multiple ways to achieve this in Kubernetes:
 
-=== Deployment and Service definition
+. Using Service, Deployment and Labels
+. Using Ingress Controller
+. Using DNS Controller
+. https://istio.io/blog/canary-deployments-using-istio.html[Using Istio] or https://buoyant.io/2016/11/04/a-service-mesh-for-kubernetes-part-iv-continuous-deployment-via-traffic-shifting/[Linkerd]
+
+At this time, only one means of Canary deployment is explained. Details on other methods will be added later.
+
+=== Deployment, Service and Labels
+
+==== Deployment and Service definition
 
 Let's look at version `v1` of the Deployment:
 
@@ -438,7 +447,7 @@ The Service uses labels that are common to both versions of the application. Thi
 
 Let's verify.
 
-=== Create canary
+==== Create canary
 
 . Deploy `v1` version of Deployment:
 
@@ -466,7 +475,7 @@ Let's verify.
 +
 Note that we are explicitly specifying the label `name=app` in the query to only pick the pods that are specified in the service definition at `templates/app-service.yaml`. There are two pods from `v1` version and 2 pods from `v2` version. Accessing this service will have 50% response from `v1` version and the other 50% from `v2` version.
 
-=== Scale canary
+==== Scale canary
 
 The number of pods to be included from `v1` version and `v2` version can now be indepently scaled using the two Deployments.
 
