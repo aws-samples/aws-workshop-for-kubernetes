@@ -219,7 +219,7 @@ image::logging-cloudwatch-es-subscribe-filter-created.png[]
 
 == Kibana dashboard
 
-In https://us-east-1.console.aws.amazon.com/es/home?#kubernetes-logs:dashboard[Amazon Elasticsearch console], select the Elasticsearch cluster.
+In https://console.aws.amazon.com/es/home?#kubernetes-logs:dashboard[Amazon Elasticsearch console], select the Elasticsearch cluster.
 
 image::logging-cloudwatch-es-overview.png[]
 
@@ -235,6 +235,6 @@ Delete the resources created during this chapter:
 
 ```
 kubectl delete ns logging
-aws es delete-elasticsearch-domain -domain-name kubernetes-logs --region ${AWS_DEFAULT_REGION}
+aws es delete-elasticsearch-domain --domain-name kubernetes-logs
 aws logs delete-log-group --log-group-name kubernetes-logs
 ```
