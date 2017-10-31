@@ -8,7 +8,7 @@ This chapter explains how an application deployed in a Kubernetes cluster can be
 
 Deployment create Replica Set for managing pods. The number of replicas in the Replica Set can be scaled up and down to meet the demands of your application. Updating an application deployed using Deployment requires to update the configuration of Deployment. This modification creates a new Replica Set, which is scaled up while the previous Replica Set is scaled down. This enables no downtime for your application.
 
-Note: There is a `kubectl rolling-update` command but it is applicable only to Replica Set. The update from this command was driven on the client-side. It is strongly recommended to do rolling update using Deployment as the updates are now on the server-side.
+NOTE: There is a `kubectl rolling-update` command but it is applicable only to Replica Set. The update from this command was driven on the client-side. It is strongly recommended to do rolling update using Deployment as the updates are now on the server-side.
 
 For our usecase, the application initially uses the image `arungupta/app-upgrade:v1`. Then the Deployment is updated to use the image `arungupta/app-upgrade:v2`. The v1 image prints "`Hello World!`". The v2 image prints "`Howdy World!`". The source code for these images is in the link:images[] directory.
 
