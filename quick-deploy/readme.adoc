@@ -13,8 +13,8 @@ Create a Kubernetes cluster using the following command:
 	cd quickdeploy
 	aws cloudformation create-stack --stack-name k8s --template-body file://k8s-create-no-alb.yaml 
 
-https://github.com/arun-gupta/kubernetes-aws-workshop/issues/134
+This is giving the issue: https://github.com/arun-gupta/kubernetes-aws-workshop/issues/134
 
 == Terraform
 
-https://github.com/arun-gupta/kubernetes-aws-workshop/issues/135
+The template and instructions need to be added: https://github.com/arun-gupta/kubernetes-aws-workshop/issues/135
