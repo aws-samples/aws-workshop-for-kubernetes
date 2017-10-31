@@ -57,7 +57,7 @@ Echo the value of the environment variable to confirm:
     echo $AWS_AVAILABILITY_ZONES
     eu-central-1a,eu-central-1b,eu-central-1c
 
-Several parts of the workshop require the region or availability zones to be explicitly specified as a CLI option. The environment variable `$AWS_DEFAULT_REGION` is used to set the region. The environment variable `$AWS_AVAILABILITY_ZONES` is used to set the availability zones.
+Several parts of the workshop require the region or availability zones to be explicitly specified as a CLI option. The environment variable `$AWS_AVAILABILITY_ZONES` is used to set the availability zones.
 
 == Clone the repo
 
