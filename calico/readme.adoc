@@ -181,6 +181,8 @@ Must specify --yes to rolling-update.
 
 The `STATUS` column shows that both master and worker nodes need to be updated.
 
+Perform the rolling update using the command shown:
+
   kops rolling-update cluster cluster.k8s.local --yes
 
 Output from this command is shown:
