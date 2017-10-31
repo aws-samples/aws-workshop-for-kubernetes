@@ -57,7 +57,7 @@ NOTE: The bucket name must be unique otherwise you will encounter an error on de
     export KOPS_STATE_STORE=s3://${S3_BUCKET}
 
     # use aws cli to create bucket
-    aws s3 mb $KOPS_STATE_STORE --region $AWS_DEFAULT_REGION
+    aws s3 mb $KOPS_STATE_STORE
     
     # enable versioning and export
     aws s3api put-bucket-versioning \
@@ -425,6 +425,6 @@ If you created a private VPC, then an additional cleanup of resources is require
     # Find Route53 hosted zone ID from the console or via CLI and delete hosted zone
     aws route53 delete-hosted-zone --id Z1234567890ABC
     # Delete VPC if you created earlier
-    aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID --region $AWS_DEFAULT_REGION
+    aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID
     aws ec2 delete-internet-gateway --internet-gateway-id $IGW
     aws ec2 delete-vpc --vpc-id $VPCID
