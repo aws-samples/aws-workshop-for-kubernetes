@@ -513,5 +513,5 @@ You can see that 4 pods are now coming from `v2` version of the application and 
     app-v2-2627414310-b17v8   1/1       Running   0          1m
     app-v2-2627414310-bgg1t   1/1       Running   0          8m
 +
-Now all pods are served `v2` version of the Deployment.
+Now all pods are serving `v2` version of the Deployment.
 
