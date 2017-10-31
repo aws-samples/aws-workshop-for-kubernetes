@@ -1,0 +1,20 @@
+= Create Kubernetes cluster using CloudFormation and Terraform
+
+This chapter explains how to create a Kubernetes cluster using CloudFormation and Terraform.
+
+== CloudFormation
+
+https://aws.amazon.com/cloudformation/[AWS CloudFormation] gives developers and systems administrators an easy way to create and manage a collection of related AWS resources, provisioning and updating them in an orderly and predictable fashion.
+
+A CloudFormation template is available in the link:cloudformation[] directory.
+
+Create a Kubernetes cluster using the following command:
+
+	cd quickdeploy
+	aws cloudformation create-stack --stack-name k8s --template-body file://k8s-create-no-alb.yaml 
+
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/134
+
+== Terraform
+
+https://github.com/arun-gupta/kubernetes-aws-workshop/issues/135
