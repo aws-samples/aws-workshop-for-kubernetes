@@ -8,7 +8,7 @@ https://github.com/kubernetes/kops[Kops], short for Kubernetes Operations, is a 
 == Install kops
 
 There is no need to download a Kubernetes binary distribution for creating a cluster using kops. However, you do need to download the kops CLI. It then takes care of downloading the right Kubernetes binary in the cloud, and provisions the cluster.
-  
+
 ==== MacOS:
     brew update && brew install kops
 
@@ -51,14 +51,14 @@ https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https
 Kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
 
 NOTE: The bucket name must be unique otherwise you will encounter an error on deployment. For demonstration purposes only, we will use an example bucket name of `example-state-store`.
-    
+
     # create variables for bucket, state store and cluster names
     export S3_BUCKET=example-state-store
     export KOPS_STATE_STORE=s3://${S3_BUCKET}
 
     # use aws cli to create bucket
-    aws s3 mb $KOPS_STATE_STORE --region $AWS_DEFAULT_REGION
-    
+    aws s3 mb $KOPS_STATE_STORE
+
     # enable versioning and export
     aws s3api put-bucket-versioning \
       --bucket $S3_BUCKET \
@@ -425,6 +425,6 @@ If you created a private VPC, then an additional cleanup of resources is require
     # Find Route53 hosted zone ID from the console or via CLI and delete hosted zone
     aws route53 delete-hosted-zone --id Z1234567890ABC
     # Delete VPC if you created earlier
-    aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID --region $AWS_DEFAULT_REGION
+    aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID
     aws ec2 delete-internet-gateway --internet-gateway-id $IGW
     aws ec2 delete-vpc --vpc-id $VPCID
