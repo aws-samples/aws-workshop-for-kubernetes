@@ -103,7 +103,6 @@ We need the IAM Role ARN assigned to the worker nodes.  We will need this as par
     -o jsonpath='{.items[0].spec.externalID}' | \
     xargs aws ec2 describe-instances \
     --instance-id \
-    --region us-east-1 \
     --query 'Reservations[*].Instances[*].IamInstanceProfile.Arn' | \
     sed -e 's/instance-profile/role/g'
 
