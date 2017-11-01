@@ -8,12 +8,27 @@ https://aws.amazon.com/cloudformation/[AWS CloudFormation] gives developers and 
 
 A CloudFormation template is available in the link:cloudformation[] directory.
 
-Create a Kubernetes cluster using the following command:
+In the example below, create a Kubernetes cluster with cloudformation using the aws cli. Note that a valid EC2 KeyName registered to your account must be supplied to execute successfully.
 
 	cd quickdeploy
-	aws cloudformation create-stack --stack-name k8s --template-body file://k8s-create-no-alb.yaml 
+	aws cloudformation create-stack \
+		--stack-name k8s \
+		--template-body file://cloudformation/k8s-create-no-alb.yaml \
+		--capabilities CAPABILITY_IAM \
+		--parameters \
+			ParameterKey=KeyName,ParameterValue=demo-key-2 \
+			ParameterKey=MasterInstanceType,ParameterValue=c4.xlarge \
+			ParameterKey=NetworkProvider,ParameterValue=calico \
+			ParameterKey=NodeInstanceType,ParameterValue=c4.large \
+			ParameterKey=Nodes,ParameterValue=3
 
-This is giving the issue: https://github.com/arun-gupta/kubernetes-aws-workshop/issues/134
+The following is an explanation of the input parameters:
+
+	KeyName: This must be a valid EC2 KeyPair for ssh access. # Required
+	MasterInstanceType: EC2 instance type of master. # Defaulted to c4.xlarge
+	NetworkProvider: Container networking provider. # Defaulted to none
+	NodeInstanceType: EC2 instance type of nodes. # Defaulted to c4.large
+	Nodes: Number of k8s nodes. # Defaulted to 3 
 
 == Terraform
 
