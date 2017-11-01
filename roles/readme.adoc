@@ -217,6 +217,8 @@ Recreate the pod, log into it, then try to access S3 again.  We should now be au
 
   $ kubectl create -f templates/aws-cli-po.yaml
   pod "aws-cli" created
+                       
+
   $ kubectl exec -it aws-cli /bin/bash
   bash-4.3# aws s3 ls
 
