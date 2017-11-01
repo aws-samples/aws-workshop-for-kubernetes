@@ -17,8 +17,7 @@ You will be using an AWS Account while you go through the workshop. link:http://
 
 == AWS CLI
 
-Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
-on your machine.
+Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-bundle.html[AWS CLI] on your machine.
 
 == AWS IAM Permissions
 
