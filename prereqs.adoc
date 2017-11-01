@@ -24,7 +24,7 @@ on your machine.
 
 If you already have an AWS Account, you need to create an IAM user to use during the workshop. Make sure you have run `aws configure` with your personal `Access Key ID` and `Secret Access Key`. This will also make sure the default AWS region is set.
 
-Run the follwing commands on CLI to create the needed group and user:
+Run the following commands on CLI to create the needed group and user:
 
 ```
 aws iam create-group --group-name k8s-workshop
