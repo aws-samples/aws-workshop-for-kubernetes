@@ -26,8 +26,29 @@ Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/aw
 
 == AWS IAM Permissions
 
-If you already have an AWS Account, you need to create an IAM user to use during the workshop. Make sure you have run `aws configure` with your personal `Access Key ID`, `Secret Access Key`, and your default region (see link:http://docs.aws.amazon.com/general/latest/gr/rande.html[this page] for a list of available regions).
-To obtain your personal access keys, go to https://console.aws.amazon.com/iam/home#/security_credential, click on `Access Keys` -> `Create New Access Key`. In the resulting popup click on `Show Access Key` to see your credentials once. Finally copy and pass them to the `aws configure` command. 
+If you already have an AWS Account, you need to create an IAM user to use during the workshop.
+If you have not created an IAM admin user and group yet, please do so in the next subchapter - otherwise you can skip this section.
+
+=== Create admin user and group (optional)
+Please go to https://console.aws.amazon.com/iam/home#/users and click on `Add user`. As a username choose `Administrator`, select the `Programmatic access` checkbox and hit `Next: Permissions`.
+
+In the next dialog select `Create group`, choose `Administrators`, select the `AdministratorAccess` policy and click `Create group`.
+
+Finally click `Next: Review` and `Create user` in the final dialog.
+
+Now you see your newly admin user and group together with the `Access key ID`. To see the `Secret access key` once, click on `Show` next to the stars.
+
+To login from the console run `aws configure` and enter the required values. It will look like this:
+
+```
+aws configure
+AWS Access Key ID [None]: *****
+AWS Secret Access Key [None]: *****
+Default region name [None]: eu-central-1
+Default output format [None]:
+```
+
+=== Create IAM user for workshop
 
 Run the following commands on CLI to create the needed group and user:
 
