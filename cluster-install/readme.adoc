@@ -409,7 +409,7 @@ Let's verify that the attributes are now successfully passed to the API server. 
   kube-system   kube-apiserver-ip-172-20-62-108.ec2.internal            1/1       Running   6          16m
   kube-system   kube-apiserver-ip-172-20-79-64.ec2.internal             1/1       Running   2          12m
 
-The output shows three pods, one each for API server, corresponding to the three master nodes.
+The output shows three pods, one each for API server, corresponding to the three master nodes. This output is from a cluster with three master nodes. The output may be different if your cluster was created with different number of masters. 
 
 Search for the `--runtime-config` option as shown:
 
