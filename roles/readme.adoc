@@ -211,11 +211,12 @@ Terminate the pod:
 
 Let's update the role to grant S3 permissions:
 
-  aws iam attach-role-policy --role-name MyPodRole --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+  $ aws iam attach-role-policy --role-name MyPodRole --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 
 Recreate the pod, log into it, then try to access S3 again.  We should now be authorized!
 
-  $ kubectl create -f aws-cli-po.yaml
+  $ kubectl create -f templates/aws-cli-po.yaml
+  pod "aws-cli" created
   $ kubectl exec -it aws-cli /bin/bash
   bash-4.3# aws s3 ls
 
