@@ -596,5 +596,15 @@ Outputs:
   GeneratedToken:
     Description: Kubernetes Token to Join Nodes
     Value: !Sub "${KubernetesToken.Token}"
+  KubeConfig:
+    Value: !Join 
+      - ''
+      - - 'scp -i '
+        - !Ref KeyName
+        - .pem ubuntu@
+        - !GetAtt 
+          - Master
+          - PublicIp
+        - ':.kube/config ./kubeconfig'
 
 
