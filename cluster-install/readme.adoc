@@ -105,7 +105,9 @@ Alternatively, you may not specify the `--yes` option as part of the `kops creat
 
     kops update cluster example.cluster.k8s.local --yes
 
-The cluster can be verified as shown:
+Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
+
+Wait for 10-15 minutes and then the cluster can be validated as shown:
 
 ```
 $ kops validate cluster
@@ -144,7 +146,7 @@ A multi-master cluster can be created by using the `--master-count` option and u
 
 `--zones` is used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
-Validate the cluster:
+As mentioned above, wait for 10-15 minutes for the cluster to be created. Validate the cluster:
 
 ```
 $ kops validate cluster
@@ -190,7 +192,9 @@ Create a gossip-based private cluster with master and worker nodes in private su
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
-Validate the cluster:
+Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
+
+Wait for 10-15 minutes and then the cluster can be validated as shown:
 
 ```
 $ kops validate cluster
@@ -244,7 +248,9 @@ Alternatively, you may not specify the `--yes` option as part of the `kops creat
 
     kops update cluster example.cluster.com --yes
 
-The cluster can be verified as shown:
+Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes. 
+
+Wait for 10-15 minutes and then the cluster can be validated as shown:
 
 ```
 $ kops validate cluster --name=example.cluster.com
@@ -293,7 +299,7 @@ A multi-master cluster can be created by using the `--master-count` option and u
 
 `--zones` is used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
-Validate the cluster:
+As mentioned above, wait for 10-15 minutes for the cluster to be created. Validate the cluster:
 
 ```
 $ kops validate cluster --name=example.cluster.com
