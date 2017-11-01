@@ -27,7 +27,8 @@ Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/aw
 == AWS IAM Permissions
 
 If you already have an AWS Account, you need to create an IAM user to use during the workshop.
-If you have not created an IAM admin user and group yet, please do so in the next subchapter - otherwise you can skip this section.
+If you have not created an IAM admin user and group yet, please do so in the following section.
+If you already have admin user then skip to <<Create IAM user for workshop, Create IAM user for workshop>>
 
 === Create admin user and group (optional)
 Please go to https://console.aws.amazon.com/iam/home#/users and click on `Add user`. As a username choose `Administrator`, select the `Programmatic access` checkbox and hit `Next: Permissions`.
