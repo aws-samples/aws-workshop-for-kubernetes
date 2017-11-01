@@ -41,7 +41,9 @@ Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh
 . Download kubectl CLI:
 +
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo \
-    gleapis.com/kubernetes-release/release/stable.txt)/bin/windows/amd64/kubectl
+    gleapis.com/kubernetes-release/release/stable.txt)/bin/windows/amd64/kubectl.exe
+
+Latest instructions are also available at https://kubernetes.io/docs/tasks/tools/install-kubectl/#before-you-begin.
 
 === Setup on Linux
 
