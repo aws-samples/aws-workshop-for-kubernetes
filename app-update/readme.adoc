@@ -55,7 +55,7 @@ All existing pods are killed before the new ones are created. The configuration 
 . Create deployment:
 
     $ kubectl create -f templates/app-recreate.yaml --record
-    deployment "app-v1-recreate" created
+    deployment "app-recreate" created
 +
 `--record` ensures that the command initiating this deployment is recorded. This is useful when the application has gone through a few updates and you need to correlate a version with the command.
 +
@@ -68,7 +68,7 @@ All existing pods are killed before the new ones are created. The configuration 
 
 . Expose service:
 
-    $ kubectl expose deployment/app-recreate --port=80 --name=app-recreate --type=LoadBalancer
+    $ kubectl expose deployment/app-recreate --port=80 --target-port=8080 --name=app-recreate --type=LoadBalancer
     service "app-recreate" exposed
 
 . Get service detail:
