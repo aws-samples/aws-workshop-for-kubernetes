@@ -55,10 +55,10 @@ https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https
 
 Kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
 
-NOTE: The bucket name must be unique otherwise you will encounter an error on deployment. For demonstration purposes only, we will use an example bucket name of `example-state-store`.
+NOTE: The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `example-state-store-` and add a randomly generated string to the end.
 
     # create variables for bucket, state store and cluster names
-    export S3_BUCKET=example-state-store
+    export S3_BUCKET=example-state-store-$(cat /dev/random | LC_CTYPE=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
     export KOPS_STATE_STORE=s3://${S3_BUCKET}
 
     # use aws cli to create bucket
@@ -80,8 +80,8 @@ The Kops CLI can be used to create a highly available cluster, with multiple mas
 
 When setting up a cluster you have two options on how the nodes in the cluster communicate:
 
-. *Using DNS* - Creating a Kubernetes that uses DNS for node discovery requires a top-level domain or a subdomain and setting up Route 53 hosted zones. This allows the various Kubernetes components to find and communicate with each other. This is also needed for kubectl to be able to talk directly with the master.
-. *Using the gossip protocol* - Kops has experimental support for a gossip-based cluster. This does not require a top-level domain, subdomain or a Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup.
+. <<Create a DNS-based Kubernetes cluster, Using DNS>> - Creating a Kubernetes that uses DNS for node discovery requires a top-level domain or a subdomain and setting up Route 53 hosted zones. This allows the various Kubernetes components to find and communicate with each other. This is also needed for kubectl to be able to talk directly with the master.
+. <<Create a gossip-based Kubernetes cluster, Using the gossip protocol>> - Kops has experimental support for a gossip-based cluster. This does not require a top-level domain, subdomain or a Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup.
 
 You'll need to choose one of the two options. Instructions for both options are provided below, and the examples in the workshop should work with either option. Creating a gossip-based cluster requires less setup and will be used in this workshop, unless otherwise specified.
 
@@ -291,7 +291,7 @@ Verify the client and server version:
   Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
   Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
 
-It shows that Kubectl CLI version if 1.8.1 and the server version is 1.7.4.
+It shows that Kubectl CLI version is 1.8.1 and the server version is 1.7.4.
 
 ==== Multi-master, multi-node, multi-az DNS-based cluster
 
@@ -419,7 +419,7 @@ Let's verify that the attributes are now successfully passed to the API server. 
   kube-system   kube-apiserver-ip-172-20-62-108.ec2.internal            1/1       Running   6          16m
   kube-system   kube-apiserver-ip-172-20-79-64.ec2.internal             1/1       Running   2          12m
 
-The output shows three pods, one each for API server, corresponding to the three master nodes. This output is from a cluster with three master nodes. The output may be different if your cluster was created with different number of masters. 
+The output shows three pods, one each for API server, corresponding to the three master nodes. This output is from a cluster with three master nodes. The output may be different if your cluster was created with different number of masters.
 
 Search for the `--runtime-config` option as shown:
 
