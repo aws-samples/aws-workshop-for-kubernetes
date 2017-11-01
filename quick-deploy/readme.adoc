@@ -8,7 +8,7 @@ https://aws.amazon.com/cloudformation/[AWS CloudFormation] gives developers and 
 
 A CloudFormation template is available in the link:cloudformation[] directory.
 
-Create a Kubernetes cluster using the following example commands:
+In the example below, create a Kubernetes cluster with cloudformation using the aws cli. Note that a valid EC2 KeyName registered to your account must be supplied to execute successfully.
 
 	cd quickdeploy
 	aws cloudformation create-stack \
