@@ -1,0 +1,56 @@
+= Add Ingress Controllers to Kubernetes cluster
+
+This chapter explains how to apply both Nginx and ALB Ingress Controllers to a Kubernetes cluster. These controllers allow you to set rules that control the routing of external traffic to the services in your Kubernetes cluster. 
+
+== Nginx Ingress Controller
+
+Perform the following steps to install an Nginx ingress controller for your Kubernetes cluster. It will be exposed using the AWS Elastic Load Balancer.
+
+First, apply the initial setup commands:
+
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/namespace.yaml | kubectl apply -f -
+
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/default-backend.yaml | kubectl apply -f -
+
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/configmap.yaml | kubectl apply -f -
+
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/tcp-services-configmap.yaml | kubectl apply -f -
+
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/udp-services-configmap.yaml | kubectl apply -f -
+
+RBAC roles, or Role Based Access Control, are methods for controlling access to resources based on roles and permissions of individual users. RBAC must be enabled on the api server with the flag, `--authorization-mode=RBAC`. A `Role` can be used to restrict access to a single namespace. Alternatively, a `ClusterRole` can apply access permissions to a particular namespace or across all namespaces. In addition, `RoleBinding` binds the permissions granted by a role to a single user or set of users. `ClusterRoleBinding` can grant these permissions cluster wide and across all namespaces.
+
+To configure the Nginx Ingress Controller with RBAC roles use the following command:
+
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/without-rbac.yaml | kubectl apply -f -
+
+To configure with RBAC:
+
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/rbac.yaml | kubectl apply -f -
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/with-rbac.yaml | kubectl apply -f 
+
+The AWS ELB allows you to apply both L4 and L7 network protocols for ingress behind `Type=LoadBalancer`. Layer 4 uses TCP as the listener protocol for ports 80 and 443. Layer 7 uses HTTP for port 80 and terminates TLS at the ELB.
+
+To configure Layer 4:
+
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/aws/service-l4.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/aws/patch-configmap-l4.yaml
+
+To configure Layer 7:
+
+	kubectl apply -f provider/aws/service-l7.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/aws/patch-configmap-l7.yaml
+
+Note: The line of the file provider/aws/service-l7.yaml must be replaced from a dummy id to a valid one of the form "arn:aws:acm:us-west-2:XXXXXXXX:certificate/XXXXXX-XXXXXXX-XXXXXXX-XXXXXXXX".
+
+If RBAC is enabled, apply the following:
+
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/patch-service-with-rbac.yaml
+
+If not, apply this command:
+
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/patch-service-without-rbac.yaml
+
+== ALB Ingress Controller
+
+Instructions for ALB ingress conroller need to be added: https://github.com/arun-gupta/kubernetes-aws-workshop/issues/16
