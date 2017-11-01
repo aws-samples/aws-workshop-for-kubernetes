@@ -504,7 +504,7 @@ Events:
   Normal  CreatedLoadBalancer   56s   service-controller  Created load balancer
 ```
 
-Access the service using the LoadBalancer Ingress:
+The output shows `LoadBalancer Ingress` as the addres of an Elastic Load Balancer (ELB). It takes about 2-3 minutes for the ELB to be provisioned and be available. Wait for a couple of minutes, and then access the service:
 
 ```
 $ curl http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
