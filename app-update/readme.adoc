@@ -68,7 +68,7 @@ All existing pods are killed before the new ones are created. The configuration 
 
 . Expose service:
 
-    $ kubectl expose deployment/app-recreate --port=80 --name=app-recreate --type=LoadBalancer
+    $ kubectl expose deployment/app-recreate --port=80 --target-port=8080 --name=app-recreate --type=LoadBalancer
     service "app-recreate" exposed
 
 . Get service detail:
