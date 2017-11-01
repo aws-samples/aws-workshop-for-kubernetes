@@ -9,13 +9,9 @@ Perform the following steps to install an Nginx ingress controller for your Kube
 First, apply the initial setup commands:
 
 	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/namespace.yaml | kubectl apply -f -
-
 	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/default-backend.yaml | kubectl apply -f -
-
 	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/configmap.yaml | kubectl apply -f -
-
 	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/tcp-services-configmap.yaml | kubectl apply -f -
-
 	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/udp-services-configmap.yaml | kubectl apply -f -
 
 RBAC roles, or Role Based Access Control, are methods for controlling access to resources based on roles and permissions of individual users. RBAC must be enabled on the api server with the flag, `--authorization-mode=RBAC`. A `Role` can be used to restrict access to a single namespace. Alternatively, a `ClusterRole` can apply access permissions to a particular namespace or across all namespaces. In addition, `RoleBinding` binds the permissions granted by a role to a single user or set of users. `ClusterRoleBinding` can grant these permissions cluster wide and across all namespaces.
