@@ -15,6 +15,11 @@ The lab has been tested with Windows 10. A similar Unix shell on other Windows m
 
 You will be using an AWS Account while you go through the workshop. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one.
 
+Please ensure you followed all sign up steps. If you don't do this, then you likely run into the following error while completing the step to set the AWS Availability Zones:
+```
+An error occurred (OptInRequired) when calling the DescribeAvailabilityZones operation: You are not subscribed to this service. Please go to http://aws.amazon.com to subscribe
+```
+
 == AWS CLI
 
 Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-bundle.html[AWS CLI] on your machine.
