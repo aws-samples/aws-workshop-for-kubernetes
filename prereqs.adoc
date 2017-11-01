@@ -22,7 +22,7 @@ on your machine.
 
 == AWS IAM Permissions
 
-If you already have an AWS Account, you need to create an IAM user to use during the workshop. Make sure you have run `aws configure` with your personal `Access Key ID` and `Secret Access Key`. This will also make sure the default AWS region is set.
+If you already have an AWS Account, you need to create an IAM user to use during the workshop. Make sure you have run `aws configure` with your personal `Access Key ID`, `Secret Access Key`, and your default region (see link:http://docs.aws.amazon.com/general/latest/gr/rande.html[this page] for a list of available regions). 
 
 Run the following commands on CLI to create the needed group and user:
 
