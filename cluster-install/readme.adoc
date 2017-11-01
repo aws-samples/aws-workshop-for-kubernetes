@@ -8,7 +8,7 @@ https://github.com/kubernetes/kops[Kops], short for Kubernetes Operations, is a 
 == Install kops
 
 There is no need to download a Kubernetes binary distribution for creating a cluster using kops. However, you do need to download the kops CLI. It then takes care of downloading the right Kubernetes binary in the cloud, and provisions the cluster.
-  
+
 ==== MacOS:
     brew update && brew install kops
 
@@ -32,6 +32,11 @@ Latest and early versions of kops can be downloaded from https://github.com/kube
 
 In addition, you also need kubectl CLI to manage the resources on Kubernetes cluster. Instructions to install kubectl CLI are covered in link:../getting-started#setup-local-development-environment[].
 
+=== Configuration kops
+
+Kops uses a public SSH key while creating a cluster. The location of this file defaults to `~/.ssh/id_rsa.pub`. Please generate an SSH key if you don't have one. You can use the `--ssh-public-key` option to specify a custom location. More details about kops security can be found in the https://github.com/kubernetes/kops/blob/master/docs/security.md[kops docs].
+
+
 == IAM user permission
 
 Make sure the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
@@ -51,14 +56,14 @@ https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https
 Kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
 
 NOTE: The bucket name must be unique otherwise you will encounter an error on deployment. For demonstration purposes only, we will use an example bucket name of `example-state-store`.
-    
+
     # create variables for bucket, state store and cluster names
     export S3_BUCKET=example-state-store
     export KOPS_STATE_STORE=s3://${S3_BUCKET}
 
     # use aws cli to create bucket
     aws s3 mb $KOPS_STATE_STORE
-    
+
     # enable versioning and export
     aws s3api put-bucket-versioning \
       --bucket $S3_BUCKET \
@@ -248,7 +253,7 @@ Alternatively, you may not specify the `--yes` option as part of the `kops creat
 
     kops update cluster example.cluster.com --yes
 
-Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes. 
+Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
 
 Wait for 10-15 minutes and then the cluster can be validated as shown:
 
@@ -346,7 +351,7 @@ Get a summary of available contexts:
 
   $ kubectl config get-contexts
   CURRENT   NAME                CLUSTER             AUTHINFO            NAMESPACE
-            cluster.k8s.local   cluster.k8s.local   cluster.k8s.local   
+            cluster.k8s.local   cluster.k8s.local   cluster.k8s.local
   *         minikube            minikube            minikube
 
 The output shows dfferent contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
