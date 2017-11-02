@@ -225,7 +225,7 @@ You can find the name of nodes ASG using this command
       "nodes.cluster.k8s.local"
   ]
 
-The last value in this output is the name of the nodes ASG. If the default cluster name of `cluster.k8s.local` was used to create the cluster, then there is no need to make any changes to the configuration file.
+The last value in this output is the name of the nodes ASG. If the default cluster name of `example.cluster.k8s.local` was used to create the cluster, then there is no need to make any changes to the configuration file.
 
 Now, install the `cluster-autoscaler` with a configuration of `min: 2, max: 10, name: cluster-autoscaler`
 
