@@ -3,14 +3,6 @@
 
 Here are the pre-requisites for the link:readme.adoc[Kubernetes on AWS workshop]:
 
-== Windows 10 Linux Subsystem
-
-This pre-requisite is only if you are using Windows 10.
-
-Install Windows 10 Linux subsystem as explained at https://msdn.microsoft.com/en-us/commandline/wsl/install_guide.
-
-The lab has been tested with Windows 10. A similar Unix shell on other Windows machines may work.
-
 == AWS Account
 
 You will be using an AWS Account while you go through the workshop. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one.
@@ -23,6 +15,32 @@ An error occurred (OptInRequired) when calling the DescribeAvailabilityZones ope
 == AWS CLI
 
 Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-bundle.html[AWS CLI] on your machine.
+
+=== Setup on macOS
+
+Provision and install AWS CLI on a Mac OS via https://brew.sh/[homebrew].
+
+. Install homebrew and cask
+
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+. Install AWS CLI
+
+    brew install awscli
+
+=== Setup on Windows
+
+The Windows 10 Linux subsystem is required if you are using Windows 10.
+
+Install Windows 10 Linux subsystem as explained at https://msdn.microsoft.com/en-us/commandline/wsl/install_guide.
+
+The lab has been tested with Windows 10. A similar Unix shell on other Windows machines may work.
+
+. http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-windows.html
+
+=== Setup on Linux
+
+. http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-linux.html
 
 == AWS IAM Permissions
 
