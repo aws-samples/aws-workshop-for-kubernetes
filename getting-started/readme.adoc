@@ -18,10 +18,6 @@ Complete installation instructions are available at https://github.com/kubernete
 
 Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh/[homebrew].
 
-. Install homebrew and cask
-
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
 . Install VirtualBox
 
     brew cask install virtualbox
