@@ -19,7 +19,7 @@ Alternatively, you can create a new cluster and use kops CLI options to specify 
     --networking calico \
     --yes
 
-This will create a 1 master node and 2 worker nodes cluster. It uses `--networking calico` which tells the cluster to use calico networking instead of the default networking provided by kubenet. Note, the name here is `cluster2.k8s.local` instead of the usual `cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
+This will create a 1 master node and 2 worker nodes cluster. It uses `--networking calico` which tells the cluster to use calico networking instead of the default networking provided by kubenet. Note, the name here is `cluster2.k8s.local` instead of the usual `example.cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
 
 View the cluster configuration using the following command:
 
