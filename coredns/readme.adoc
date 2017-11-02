@@ -1,8 +1,7 @@
-= Using CoreDNS for Service Discovery (WIP)
-
+= Using CoreDNS for Service Discovery - WIP
 :toc:
 
-This tutorial will show you how to update an existing Kubernetes cluster to use https://coredns.io/[coredns] instead of the default https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns[kube-dns] for service discovery.
+This tutorial will show you how to update an existing Kubernetes cluster to use https://coredns.io/[CoreDNS] instead of the default https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns[kube-dns] for service discovery.
 
 == Pre-requisites
 
@@ -67,22 +66,28 @@ Lets look at the `resolv.conf`:
 
 As expected, the nameserver IP corresponds to the IP of the `kube-dns` service. Additionally, the search domains also reflect the expected kubernetes schema (get more https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/[here]).
 
-== Deploying coredns
+== Deploy CoreDNS
 
-The `coredns` deployment relies on information which is specific to you cluster: CIDR of kubernetes services and cluster domain. For minikube, you can deploy `coredns` from a pre-generated yaml: `kubectl create -f coredns-minikube.yaml`
+The CoreDNS deployment relies on information that is specific to you cluster: CIDR of the kubernetes services and cluster domain.
+
+For minikube, `coredns` can be deployed:
+
+	kubectl create -f coredns-minikube.yaml
 
 Wait until the `coredns` pod is running:
-```
-kubectl get po -l k8s-app=coredns -n kube-system
-NAME                       READY     STATUS    RESTARTS   AGE
-coredns-3986650266-gw79f   1/1       Running   0          17s
-```
 
-== Switching to coredns
+	kubectl get po -l k8s-app=coredns -n kube-system
+	NAME                       READY     STATUS    RESTARTS   AGE
+	coredns-3986650266-gw79f   1/1       Running   0          17s
 
-The only thing left is updating the `kube-dns` service to use our coredns pod: `kubectl apply -f coredns-service.yaml`
+== Switching to CoreDNS
+
+The only thing left is updating the `kube-dns` service to use our CoreDNS pod:
+
+	kubectl apply -f coredns-service.yaml
 
 When you describe the `kube-dns` service now, it should look something like this:
+
 ```
 kubectl describe svc kube-dns -n kube-system
 Name:			kube-dns
@@ -104,12 +109,11 @@ Session Affinity:	None
 Events:			<none>
 ```
 
-If all went correct, the IP of our coredns pod should match the endpoint IPs in the `kube-dns` service:
-```
-kubectl get po -l k8s-app=coredns -n kube-system -o wide
-NAME                       READY     STATUS    RESTARTS   AGE       IP            NODE
-coredns-3986650266-gw79f   1/1       Running   0          20m       172.17.0.10   minikube
-```
+If all went correct, the IP of our CoreDNS pod should match the endpoint IPs in the `kube-dns` service:
+
+	kubectl get po -l k8s-app=coredns -n kube-system -o wide
+	NAME                       READY     STATUS    RESTARTS   AGE       IP            NODE
+	coredns-3986650266-gw79f   1/1       Running   0          20m       172.17.0.10   minikube
 
 Awesome, this fits nicely!
 
@@ -119,5 +123,5 @@ To be completely sure, you can re-execute the commands from the <<Status Quo>> s
 
 As a very last step we can delete the original `kube-dns` deployment: `kubectl delete deployment kube-dns -n kube-system`
 
-This will delete the pod and only our coredns implementation will still be available.
+This will delete the pod, and the CoreDNS implementation will still be available.
 
