@@ -14,7 +14,7 @@ For our usecase, the application initially uses the image `arungupta/app-upgrade
 
 == Pre-requisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter. A smaller cluster may be used.
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter. A smaller cluster may be used.
 
 All configuration files for this chapter are in the `app-upgrade` directory.
 
@@ -514,4 +514,14 @@ You can see that 4 pods are now coming from `v2` version of the application and 
     app-v2-2627414310-bgg1t   1/1       Running   0          8m
 +
 Now all pods are serving `v2` version of the Deployment.
+
+=== Ingress Controller
+
+Achieving right percentage of traffic using Deployment and Service requires spinning-up as many pods as necessary. For example, if the version `v1` has 4 replicas of a pod. Then, in order to direct 5% traffic to the version `v2`, 1 pod replica of `v2` version would require 16 more replicas of `v1` version. This is not an optimal usage of resource. Weighted traffic switching with Kubernetes Ingress can be used to solve this problem.
+
+https://github.com/zalando-incubator/kube-ingress-aws-controller[Kubernetes Ingress Controller for AWS], by Zalando, is an ingress controller for Kubernetes.
+
+    $ kubectl apply -f templates/ingress-controller.yaml 
+    deployment "app-ingress-controller" created
+
 
