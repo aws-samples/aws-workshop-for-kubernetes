@@ -1,7 +1,9 @@
 = Using CoreDNS for Service Discovery - WIP
 :toc:
 
-This tutorial will show you how to update an existing Kubernetes cluster to use https://coredns.io/[CoreDNS] instead of the default https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns[kube-dns] for service discovery.
+https://coredns.io/[CoreDNS] implements the https://github.com/kubernetes/dns/blob/master/docs/specification.md[spec] defined for Kubernetes DNS-Based service discovery. And thus it can run in place of the standard https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns[Kube-DNS] that comes default as part of Kubernetes.
+
+This tutorial will show you how to update an existing Kubernetes cluster to use CoreDNS instead of the default Kube-DNS for service discovery.
 
 == Pre-requisites
 
@@ -72,21 +74,26 @@ The CoreDNS deployment relies on information that is specific to you cluster: CI
 
 For minikube, `coredns` can be deployed:
 
-	kubectl create -f coredns-minikube.yaml
+	$ kubectl create -f templates/coredns-minikube.yaml
+	serviceaccount "coredns" created
+	clusterrole "system:coredns" created
+	clusterrolebinding "system:coredns" created
+	configmap "coredns" created
+	deployment "coredns" created
 
-Wait until the `coredns` pod is running:
+Wait until CoreDNS pod is running:
 
-	kubectl get po -l k8s-app=coredns -n kube-system
+	$ kubectl get po -l k8s-app=coredns -n kube-system
 	NAME                       READY     STATUS    RESTARTS   AGE
-	coredns-3986650266-gw79f   1/1       Running   0          17s
+	coredns-3986650266-4x4sp   1/1       Running   0          13s
 
 == Switching to CoreDNS
 
-The only thing left is updating the `kube-dns` service to use our CoreDNS pod:
+We need to update the Kube-DNS service to use our CoreDNS pod:
 
-	kubectl apply -f coredns-service.yaml
+	$ kubectl apply -f templates/coredns-service.yaml
 
-When you describe the `kube-dns` service now, it should look something like this:
+Now, when you describe the `kube-dns` service now, it should look something like this:
 
 ```
 kubectl describe svc kube-dns -n kube-system
