@@ -1,4 +1,5 @@
 = Service Discovery for Microservices with Kubernetes
+:imagesdir: ../images
 :toc:
 
 This chapter shows an example of how different microservices within an application can use service discovery to locate each other in the infrastructure rather than via hardcoded IP addresses.
@@ -31,7 +32,7 @@ The `webapp` service needs to be configured with the environment variables below
 . `GREETER_SERVICE_PORT`
 . `GREETER_SERVICE_PATH`
 
-The configuration file with three different services is defined at link:app.yml[app.yml]. 
+The configuration file with three different services is defined at link:templates/app.yml[app.yml]. 
 
 The replica set for the `webapp` service has the following environment variables:
 
@@ -79,63 +80,55 @@ image::k8s-services.png[]
 == Deploy application
 
 . Deploy the application:
-+
-```
-kubectl create -f app.yml
-```
-+
+
+    kubectl create -f templates/app.yml
+
 . Get the list of services:
-+
-```
-kubectl get svc
-NAME              CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
-greeter-service   100.64.44.23     <none>             8080/TCP       13s
-kubernetes        100.64.0.1       <none>             443/TCP        23m
-name-service      100.66.113.58    <none>             8080/TCP       13s
-webapp-service    100.71.126.195   a5427e1288472...   80:31234/TCP   12s
-```
-+
+
+  kubectl get svc
+  NAME              CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
+  greeter-service   100.64.44.23     <none>             8080/TCP       13s
+  kubernetes        100.64.0.1       <none>             443/TCP        23m
+  name-service      100.66.113.58    <none>             8080/TCP       13s
+  webapp-service    100.71.126.195   a5427e1288472...   80:31234/TCP   12s
+
 . Get more details about the service:
-+
-```
-kubectl describe svc/webapp-service
-Name:			webapp-service
-Namespace:		default
-Labels:			<none>
-Annotations:		<none>
-Selector:		app=webapp-pod
-Type:			LoadBalancer
-IP:			100.71.126.195
-LoadBalancer Ingress:	a5427e128847211e782280a896fc2bfc-283874069.us-east-1.elb.amazonaws.com
-Port:			web	80/TCP
-NodePort:		web	31234/TCP
-Endpoints:		100.96.2.12:80
-Session Affinity:	None
-Events:
-  FirstSeen	LastSeen	Count	From			SubObjectPath	Type		Reason			Message
-  ---------	--------	-----	----			-------------	--------	------			-------
-  30s		30s		1	service-controller			Normal		CreatingLoadBalancer	Creating load balancer
-  29s		29s		1	service-controller			Normal		CreatedLoadBalancer	Created load balancer
-```
-+
+
+  kubectl describe svc/webapp-service
+  Name:			webapp-service
+  Namespace:		default
+  Labels:			<none>
+  Annotations:		<none>
+  Selector:		app=webapp-pod
+  Type:			LoadBalancer
+  IP:			100.71.126.195
+  LoadBalancer Ingress:	a5427e128847211e782280a896fc2bfc-283874069.us-east-1.elb.amazonaws.com
+  Port:			web	80/TCP
+  NodePort:		web	31234/TCP
+  Endpoints:		100.96.2.12:80
+  Session Affinity:	None
+  Events:
+    FirstSeen	LastSeen	Count	From			SubObjectPath	Type		Reason			Message
+    ---------	--------	-----	----			-------------	--------	------			-------
+    30s		30s		1	service-controller			Normal		CreatingLoadBalancer	Creating load balancer
+    29s		29s		1	service-controller			Normal		CreatedLoadBalancer	Created load balancer
+
 Wait for ~3 mins for the load balancer to accept request.
 
 == Access application
 
 Access the application using the following URLs with `curl` or in browser:
 
-```
-http://<host>
-http://<host>0?greet=ho
-http://<host>?id=1
-http://<host>?greet=ho&id=1
-```
+  http://<host>
+  http://<host>0?greet=ho
+  http://<host>?id=1
+  http://<host>?greet=ho&id=1
 
 `<host>` is the value of the ingress load balancer's address.
 
 == Delete application
 
-```
-kubectl delete -f app.yml
-```
+Delete the application as shown:
+
+  kubectl delete -f templates/app.yml
 
