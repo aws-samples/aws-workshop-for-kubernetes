@@ -1,9 +1,11 @@
 = Using CoreDNS for Service Discovery - WIP
 :toc:
 
-https://coredns.io/[CoreDNS] implements the https://github.com/kubernetes/dns/blob/master/docs/specification.md[spec] defined for Kubernetes DNS-Based service discovery. And thus it can run in place of the standard https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns[Kube-DNS] that comes default as part of Kubernetes.
+https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns[kube-dns] is a Kubernetes cluster add-on that is launched as part of cluster creation. It schedules a DNS Pod and Service on the cluster, and configures the kubelets to tell other pods and containers to use the DNS service IP's to resolve DNS names.
 
-This tutorial will show you how to update an existing Kubernetes cluster to use CoreDNS instead of the default Kube-DNS for service discovery.
+https://coredns.io/[CoreDNS] implements the https://github.com/kubernetes/dns/blob/master/docs/specification.md[spec] defined for Kubernetes DNS-based service discovery. This allows kube-dns to be replaced by CoreDNS.
+
+This chapter will explain how to update an existing Kubernetes cluster to use CoreDNS instead of the default kube-dns.
 
 == Pre-requisites
 
