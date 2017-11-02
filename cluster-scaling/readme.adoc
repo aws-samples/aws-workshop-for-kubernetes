@@ -37,14 +37,14 @@ If the value of `MaxSize` is 2 (which means you can't scale beyond 2 worker node
 
 It opens up the cluster configuration file as shown:
 
-Using cluster from kubectl context: cluster.k8s.local
+Using cluster from kubectl context: example.cluster.k8s.local
 
   apiVersion: kops/v1alpha2
   kind: InstanceGroup
   metadata:
     creationTimestamp: 2017-10-29T01:02:55Z
     labels:
-      kops.k8s.io/cluster: cluster.k8s.local
+      kops.k8s.io/cluster: example.cluster.k8s.local
     name: nodes
   spec:
     image: kope.io/k8s-1.6-debian-jessie-amd64-hvm-ebs-2017-07-28
@@ -61,12 +61,12 @@ Change the value of `maxSize` to `10`. Save the configuration file and exit out 
 
 Update cluster configuration:
 
-    kops update cluster --name cluster.k8s.local --yes
+    kops update cluster --name example.cluster.k8s.local --yes
 
 It shows output as:
 
 ```
-$ kops update cluster --name cluster.k8s.local --yes
+$ kops update cluster --name example.cluster.k8s.local --yes
 I1029 14:09:37.853640   15831 apply_cluster.go:420] Gossip DNS: skipping DNS validation
 I1029 14:09:38.925971   15831 executor.go:91] Tasks: 0 done / 81 total; 36 can run
 I1029 14:09:40.200162   15831 executor.go:91] Tasks: 36 done / 81 total; 15 can run
@@ -75,7 +75,7 @@ I1029 14:09:43.034786   15831 executor.go:91] Tasks: 73 done / 81 total; 5 can r
 I1029 14:09:43.868003   15831 executor.go:91] Tasks: 78 done / 81 total; 3 can run
 I1029 14:09:44.655604   15831 executor.go:91] Tasks: 81 done / 81 total; 0 can run
 I1029 14:09:44.991551   15831 update_cluster.go:247] Exporting kubecfg for cluster
-Kops has set your kubectl context to cluster.k8s.local
+Kops has set your kubectl context to example.cluster.k8s.local
 
 Cluster changes have been applied to the cloud.
 
@@ -87,7 +87,7 @@ Check that there is no need to do a rolling update of the cluster:
 
 ```
 $ kops rolling-update cluster
-Using cluster from kubectl context: cluster.k8s.local
+Using cluster from kubectl context: example.cluster.k8s.local
 
 NAME                  STATUS  NEEDUPDATE  READY MIN MAX NODES
 master-eu-central-1a  Ready   0           1     1   1   1
@@ -106,7 +106,7 @@ Each worker running in your Kubernetes cluster MUST have the necessary IAM Polic
 
 Use kops to edit the cluster configuration
 
-    kops edit cluster --name cluster.k8s.local
+    kops edit cluster --name example.cluster.k8s.local
 
 This opens up an editor showing the configuration of the cluster. Add the `additionalPolicies` section below to the end of the Cluster spec; your spec should look something like this
 
@@ -140,7 +140,7 @@ Note, the first few lines are shown for continuity.
 Update the cluster:
 
 ```
-$ kops update cluster --name cluster.k8s.local --yes
+$ kops update cluster --name example.cluster.k8s.local --yes
 I1029 15:25:24.068325   21411 apply_cluster.go:420] Gossip DNS: skipping DNS validation
 I1029 15:25:25.002684   21411 executor.go:91] Tasks: 0 done / 81 total; 36 can run
 I1029 15:25:26.359336   21411 executor.go:91] Tasks: 36 done / 81 total; 15 can run
@@ -149,7 +149,7 @@ I1029 15:25:29.512767   21411 executor.go:91] Tasks: 73 done / 81 total; 5 can r
 I1029 15:25:30.338608   21411 executor.go:91] Tasks: 78 done / 81 total; 3 can run
 I1029 15:25:31.189236   21411 executor.go:91] Tasks: 81 done / 81 total; 0 can run
 I1029 15:25:31.586799   21411 update_cluster.go:247] Exporting kubecfg for cluster
-Kops has set your kubectl context to cluster.k8s.local
+Kops has set your kubectl context to example.cluster.k8s.local
 
 Cluster changes have been applied to the cloud.
 

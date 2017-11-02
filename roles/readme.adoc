@@ -21,7 +21,7 @@ These policies may be augmented via kops.  For example, to allow all nodes Elast
 
 Edit your cluster using the command:
 
-  kops edit cluster cluster.k8s.local
+  kops edit cluster example.cluster.k8s.local
 
 Add the following to the `spec`:
 
@@ -39,7 +39,7 @@ Note, you need to use spaces and proper indentation instead of tab for this conf
 
 Update the cluster for changes to take effect:
 
-  kops update cluster cluster.k8s.local --yes
+  kops update cluster example.cluster.k8s.local --yes
 
 In a similar fashion, policies may be applied to all masters by setting the `additionalPolicies.master` property as below:
 
@@ -67,7 +67,7 @@ The following steps describe how to configure kube2iam:
 
 . Edit your cluster using the command:
 
-  kops edit cluster cluster.k8s.local
+  kops edit cluster example.cluster.k8s.local
 
 . Update the `spec` to allow STS to assume roles:
 
@@ -83,7 +83,7 @@ The following steps describe how to configure kube2iam:
 
 . Update the cluster for changes to take effect:
 
-  kops update cluster cluster.k8s.local --yes
+  kops update cluster example.cluster.k8s.local --yes
 
 . Deploy kube2iam as a DaemonSet:
 +

@@ -40,7 +40,7 @@ All configuration files for this chapter are in the `calico` directory.
 
 Edit the Kubernetes cluster configuration using the command:
 
-  kops edit cluster cluster.k8s.local
+  kops edit cluster example.cluster.k8s.local
 
 By default, Kubernetes uses `kubenet` for networking. This is captured in the configuration file as:
 
@@ -55,7 +55,7 @@ Update the networking configuration to use `calico` by setting the following pro
 
 View changes that will be applied to the cluster:
 
-  kops update cluster cluster.k8s.local
+  kops update cluster example.cluster.k8s.local
 
 It shows output as:
 
@@ -142,7 +142,7 @@ Must specify --yes to apply changes
 
 Apply the changes using the command:
 
-  kops update cluster cluster.k8s.local --yes
+  kops update cluster example.cluster.k8s.local --yes
 
 It shows the output:
 
@@ -156,7 +156,7 @@ I1025 15:56:30.010284    3458 executor.go:91] Tasks: 68 done / 72 total; 3 can r
 I1025 15:56:30.626483    3458 executor.go:91] Tasks: 71 done / 72 total; 1 can run
 I1025 15:56:30.934673    3458 executor.go:91] Tasks: 72 done / 72 total; 0 can run
 I1025 15:56:31.545416    3458 update_cluster.go:247] Exporting kubecfg for cluster
-Kops has set your kubectl context to cluster.k8s.local
+Kops has set your kubectl context to example.cluster.k8s.local
 
 Cluster changes have been applied to the cloud.
 
@@ -166,12 +166,12 @@ Changes may require instances to restart: kops rolling-update cluster
 
 Determine if any of the nodes will require a restart using the command:
 
-  kops rolling-update cluster cluster.k8s.local
+  kops rolling-update cluster example.cluster.k8s.local
 
 Output from this command is shown:
 
 ```
-$ kops rolling-update cluster cluster.k8s.local
+$ kops rolling-update cluster example.cluster.k8s.local
 NAME              STATUS      NEEDUPDATE  READY MIN MAX NODES
 master-us-east-1d NeedsUpdate 1           0     1   1   1
 nodes             NeedsUpdate 2           0     2   2   2
@@ -183,7 +183,7 @@ The `STATUS` column shows that both master and worker nodes need to be updated.
 
 Perform the rolling update using the command shown:
 
-  kops rolling-update cluster cluster.k8s.local --yes
+  kops rolling-update cluster example.cluster.k8s.local --yes
 
 Output from this command is shown:
 
