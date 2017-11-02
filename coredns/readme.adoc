@@ -12,57 +12,64 @@ All configuration files for this chapter are in the `coredns` directory.
 
 == Status Quo
 
-In every fresh Kubernetes cluster we will find a service named kube-dns that forwards all dns requests to a pod responsible for handling dns requests.
+Each Kubernetes cluster has a service named `kube-dns` that forwards all DNS requests to the pod responsible for handling DNS requests. This service can be seen as:
 
-This is what it looks like in a fresh `minikube`:
+	$ kubectl get svc -n kube-system
+	NAME       TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)         AGE
+	kube-dns   ClusterIP   100.64.0.10   <none>        53/UDP,53/TCP   8m
 
-```
-kubectl describe svc kube-dns -n kube-system
-Name:			kube-dns
-Namespace:		kube-system
-Labels:			addonmanager.kubernetes.io/mode=Reconcile
-			k8s-app=kube-dns
-			kubernetes.io/name=KubeDNS
-Annotations:		kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"addonmanager.kubernetes.io/mode":"Reconcile","k8s-app":"kube-dns","kubernet...
-Selector:		k8s-app=kube-dns
-Type:			ClusterIP
-IP:			10.0.0.10
-Port:			dns	53/UDP
-Endpoints:		172.17.0.7:53
-Port:			dns-tcp	53/TCP
-Endpoints:		172.17.0.7:53
-Session Affinity:	None
-Events:			<none>
-```
+More details about the service can be found:
 
-To validate that the current dns setup is working we first have to deploy a `busybox` pod: `kubectl create -f busybox.yaml`.
+	$ kubectl describe svc kube-dns -n kube-system
+	Name:              kube-dns
+	Namespace:         kube-system
+	Labels:            k8s-addon=kube-dns.addons.k8s.io
+	                   k8s-app=kube-dns
+	                   kubernetes.io/cluster-service=true
+	                   kubernetes.io/name=KubeDNS
+	Annotations:       kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"k8s-addon":"kube-dns.addons.k8s.io","k8s-app":"kube-dns","kubernetes.io/clu...
+	Selector:          k8s-app=kube-dns
+	Type:              ClusterIP
+	IP:                100.64.0.10
+	Port:              dns  53/UDP
+	TargetPort:        53/UDP
+	Endpoints:         100.96.3.2:53,100.96.4.2:53
+	Port:              dns-tcp  53/TCP
+	TargetPort:        53/TCP
+	Endpoints:         100.96.3.2:53,100.96.4.2:53
+	Session Affinity:  None
+	Events:            <none>
+
+To validate that the current DNS setup is working we first have to deploy a `busybox` pod: 
+
+	$ kubectl create -f templates/busybox.yaml
+	pod "busybox" created
 
 Lets resolve the `kubernetes` service in the `default` namespace:
+
 ```
-kubectl exec -ti busybox -- nslookup kubernetes.default
-Server:    10.0.0.10
-Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
+$ kubectl exec -ti busybox -- nslookup kubernetes.default
+Server:    100.64.0.10
+Address 1: 100.64.0.10 kube-dns.kube-system.svc.cluster.local
 
 Name:      kubernetes.default
-Address 1: 10.0.0.1 kubernetes.default.svc.cluster.local
+Address 1: 100.64.0.1 kubernetes.default.svc.cluster.local
 ```
-From here we can see, that the `kube-dns` service answered our request and the `kubernetes` service can be found at `10.0.0.1` - this looks perfect!
 
-As a last step lets look at the `resolv.conf`:
-```
-kubectl exec busybox cat /etc/resolv.conf
-nameserver 10.0.0.10
-search default.svc.cluster.local svc.cluster.local cluster.local
-options ndots:5
-```
-As expected, we see that the nameserver IP corresponds to the IP of the `kube-dns` service. Additionally the search domains also reflect the expected kubernetes schema (get more  link:https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/[here])
+The output shows that the `kube-dns` service answered the request and the `kubernetes` service can be found at `100.64.01`.
 
-Now that we validated the current setup, lets deploy coredns.
+Lets look at the `resolv.conf`:
+
+	$ kubectl exec busybox cat /etc/resolv.conf
+	nameserver 100.64.0.10
+	search default.svc.cluster.local svc.cluster.local cluster.local eu-central-1.compute.internal
+	options ndots:5
+
+As expected, the nameserver IP corresponds to the IP of the `kube-dns` service. Additionally, the search domains also reflect the expected kubernetes schema (get more https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/[here]).
 
 == Deploying coredns
 
-The `coredns` deployment relies on information which is specific to you cluster: CIDR of kubernetes services and cluster domain.
-For minikube, you can deploy `coredns` from a pre-generated yaml: `kubectl create -f coredns-minikube.yaml`
+The `coredns` deployment relies on information which is specific to you cluster: CIDR of kubernetes services and cluster domain. For minikube, you can deploy `coredns` from a pre-generated yaml: `kubectl create -f coredns-minikube.yaml`
 
 Wait until the `coredns` pod is running:
 ```
