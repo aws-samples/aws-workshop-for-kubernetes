@@ -360,16 +360,17 @@ This allows you to deploy your applications to different environments by just ch
 Get a summary of available contexts:
 
   $ kubectl config get-contexts
-  CURRENT   NAME                CLUSTER             AUTHINFO            NAMESPACE
-            cluster.k8s.local   cluster.k8s.local   cluster.k8s.local
-  *         minikube            minikube            minikube
+  kubectl config get-contexts
+  CURRENT   NAME                          CLUSTER                     AUTHINFO                    NAMESPACE
+  *         example.cluster.k8s.local     example.cluster.k8s.local   example.cluster.k8s.local   
+            minikube                      minikube                    minikube
 
 The output shows dfferent contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
 
 View the current context:
 
   $ kubectl config current-context
-  cluster.k8s.local
+  example.cluster.k8s.local
 
 If multiple clusters exist, then you can change the context:
 
