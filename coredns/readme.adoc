@@ -97,28 +97,26 @@ We need to update the Kube-DNS service to use our CoreDNS pod:
 
 Now, when you describe the `kube-dns` service now, it should look something like this:
 
-```
-kubectl describe svc kube-dns -n kube-system
-Name:			kube-dns
-Namespace:		kube-system
-Labels:			k8s-app=coredns
-			kubernetes.io/cluster-service=true
-			kubernetes.io/name=CoreDNS
-Annotations:		kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"k8s-app":"coredns","kubernetes.io/cluster-service":"true","kubernetes.io/na...
-Selector:		k8s-app=coredns
-Type:			ClusterIP
-IP:			10.0.0.10
-Port:			dns	53/UDP
-Endpoints:		172.17.0.10:53
-Port:			dns-tcp	53/TCP
-Endpoints:		172.17.0.10:53
-Port:			metrics	9153/TCP
-Endpoints:		172.17.0.10:9153
-Session Affinity:	None
-Events:			<none>
-```
+	kubectl describe svc kube-dns -n kube-system
+	Name:			kube-dns
+	Namespace:		kube-system
+	Labels:			k8s-app=coredns
+				kubernetes.io/cluster-service=true
+				kubernetes.io/name=CoreDNS
+	Annotations:		kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"k8s-app":"coredns","kubernetes.io/cluster-service":"true","kubernetes.io/na...
+	Selector:		k8s-app=coredns
+	Type:			ClusterIP
+	IP:			10.0.0.10
+	Port:			dns	53/UDP
+	Endpoints:		172.17.0.10:53
+	Port:			dns-tcp	53/TCP
+	Endpoints:		172.17.0.10:53
+	Port:			metrics	9153/TCP
+	Endpoints:		172.17.0.10:9153
+	Session Affinity:	None
+	Events:			<none>
 
-If all went correct, the IP of our CoreDNS pod should match the endpoint IPs in the `kube-dns` service:
+If all went correct, the IP of our CoreDNS pod should match the endpoint IPs in the kube-dns service:
 
 	kubectl get po -l k8s-app=coredns -n kube-system -o wide
 	NAME                       READY     STATUS    RESTARTS   AGE       IP            NODE
@@ -130,7 +128,9 @@ To be completely sure, you can re-execute the commands from the <<Status Quo>> s
 
 == Delete kube-dns deployment (optional)
 
-As a very last step we can delete the original `kube-dns` deployment: `kubectl delete deployment kube-dns -n kube-system`
+As a very last step we can delete the original kube-dns deployment:
+
+	kubectl delete deployment kube-dns -n kube-system
 
 This will delete the pod, and the CoreDNS implementation will still be available.
 
