@@ -34,7 +34,7 @@ Rest of the chapter goes with the presumption that you are using an existing clu
 
 NOTE: A smaller sized cluster, with 1 master node and 2 worker nodes, is chosen here. This is to minimize the amount of time for rolling update the cluster later. It typically takes 5-6 mins per node for rolling update.
 
-All configuration files for this chapter are in the `templates` directory.
+All configuration files for this chapter are in the `calico` directory.
 
 == Installation
 
