@@ -17,7 +17,7 @@ A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-inst
 
 All configuration files for this chapter are in the `coredns` directory.
 
-== Status Quo
+== Verify Kube-DNS
 
 Each Kubernetes cluster has a service named `kube-dns` that forwards all DNS requests to the pod responsible for handling DNS requests. This service can be seen as:
 
@@ -47,6 +47,25 @@ More details about the service can be found:
 	Session Affinity:  None
 	Events:            <none>
 
+Let's look at the list of Deployments:
+
+	$ kubectl get deployments -n kube-system -l k8s-app=kube-dns
+	NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+	kube-dns   2         2         2            2           8m
+
+The output shows that 2 replicas of Kube-DNS pods are running.
+
+Let's get more details about the pods:
+
+	$ kubectl get pods -n kube-system -l k8s-app=kube-dns 
+	NAME                        READY     STATUS    RESTARTS   AGE
+	kube-dns-1311260920-d8bkh   3/3       Running   0          8m
+	kube-dns-1311260920-v06zv   3/3       Running   0          7m
+
+Get logs from one of the pods:
+
+	kubectl logs -n kube-system kube-dns-1311260920-d8bkh --container kubedns
+
 To validate that the current DNS setup is working we first have to deploy a `busybox` pod:
 
 	$ kubectl create -f templates/busybox.yaml
@@ -65,6 +84,26 @@ Address 1: 100.64.0.1 kubernetes.default.svc.cluster.local
 
 The output shows that the `kube-dns` service answered the request and the `kubernetes` service can be found at `100.64.01`.
 
+Let's look at the logs from one of the pods:
+
+	$ kubectl logs -n kube-system kube-dns-1311260920-v06zv --container sidecar
+	ERROR: logging before flag.Parse: I1103 01:55:35.006798       1 main.go:48] Version v1.14.4-2-g5584e04
+	ERROR: logging before flag.Parse: I1103 01:55:35.006838       1 server.go:45] Starting server (options {DnsMasqPort:53 DnsMasqAddr:127.0.0.1 DnsMasqPollIntervalMs:5000 Probes:[{Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:1} {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:1}] PrometheusAddr:0.0.0.0 PrometheusPort:10054 PrometheusPath:/metrics PrometheusNamespace:kubedns})
+	ERROR: logging before flag.Parse: I1103 01:55:35.006926       1 dnsprobe.go:75] Starting dnsProbe {Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:1}
+	ERROR: logging before flag.Parse: I1103 01:55:35.007006       1 dnsprobe.go:75] Starting dnsProbe {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:1}
+
+It shows that `kubernetes.default.svc.cluster.local` was resolved.
+
+And, now logs from the other pod:
+
+	coredns $ kubectl logs -n kube-system kube-dns-1311260920-d8bkh --container sidecar
+	ERROR: logging before flag.Parse: I1103 01:55:33.917264       1 main.go:48] Version v1.14.4-2-g5584e04
+	ERROR: logging before flag.Parse: I1103 01:55:33.917308       1 server.go:45] Starting server (options {DnsMasqPort:53 DnsMasqAddr:127.0.0.1 DnsMasqPollIntervalMs:5000 Probes:[{Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:1} {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:1}] PrometheusAddr:0.0.0.0 PrometheusPort:10054 PrometheusPath:/metrics PrometheusNamespace:kubedns})
+	ERROR: logging before flag.Parse: I1103 01:55:33.917386       1 dnsprobe.go:75] Starting dnsProbe {Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:1}
+	ERROR: logging before flag.Parse: I1103 01:55:33.917455       1 dnsprobe.go:75] Starting dnsProbe {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:1}
+
+And this shows a similar output.
+
 Lets look at the `resolv.conf`:
 
 	$ kubectl exec busybox cat /etc/resolv.conf
@@ -76,9 +115,9 @@ As expected, the nameserver IP corresponds to the IP of the `kube-dns` service. 
 
 == Deploy CoreDNS
 
-The CoreDNS deployment relies on information that is specific to you cluster: CIDR of the kubernetes services and cluster domain.
+The CoreDNS deployment relies on information that is specific to you cluster: CIDR of the kubernetes services and cluster domain. CIDR is different based upon whether your cluster was created with kops or minikube.
 
-For kops, `coredns` can be deployed:
+For kops, CoreDNS can be deployed using the following command:
 
 	$ kubectl create -f templates/coredns-kops.yaml
 	serviceaccount "coredns" created
@@ -93,25 +132,30 @@ If you look at the list of deployments:
 
 	$ kubectl get deployment -n kube-system
 	NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-	coredns               1         1         1            1           5m
-	dns-controller        1         1         1            1           11m
-	kube-dns              2         2         2            2           11m
-	kube-dns-autoscaler   1         1         1            1           11m
+	coredns               2         2         2            2           1m
+	dns-controller        1         1         1            1           23m
+	kube-dns              2         2         2            2           23m
+	kube-dns-autoscaler   1         1         1            1           23m
 
-Wait for the CoreDNS pod to start:
+Note that two replicas of coredns pods are running.
+
+Wait for the pods to start:
 
 	$ kubectl get pods -n kube-system -l k8s-app=coredns
 	NAME                       READY     STATUS    RESTARTS   AGE
-	coredns-3986650266-2rt2s   1/1       Running   0          39s
+	coredns-3986650266-1pxb6   1/1       Running   0          1m
+	coredns-3986650266-rmfgm   1/1       Running   0          1m
 
 Logs from the pod can be seen:
 
-	$ kubectl logs coredns-3986650266-2rt2s -n kube-system -f
+	$ kubectl logs coredns-3986650266-1pxb6 -n kube-system -f
 	2017/11/03 01:32:33 [INFO] CoreDNS-0.9.9
 	2017/11/03 01:32:33 [INFO] linux/amd64, go1.9.1, 4d6e9c38
 	.:53
 	CoreDNS-0.9.9
 	linux/amd64, go1.9.1, 4d6e9c38
+
+The other pod logs shows a similar output as well.
 
 == Switch to CoreDNS
 
@@ -120,7 +164,7 @@ We need to update the Kube-DNS service to use our CoreDNS pod:
 	$ kubectl apply -f templates/coredns-service.yaml
 	service "kube-dns" configured
 
-Now, when you describe the `kube-dns` service now, it should look something like this:
+Now, when you describe the `kube-dns` service, it should look something like this:
 
 	$ kubectl describe svc kube-dns -n kube-system
 	Name:              kube-dns
@@ -134,25 +178,26 @@ Now, when you describe the `kube-dns` service now, it should look something like
 	IP:                100.64.0.10
 	Port:              dns  53/UDP
 	TargetPort:        53/UDP
-	Endpoints:         100.96.6.2:53
+	Endpoints:         100.96.6.2:53,100.96.7.2:53
 	Port:              dns-tcp  53/TCP
 	TargetPort:        53/TCP
-	Endpoints:         100.96.6.2:53
+	Endpoints:         100.96.6.2:53,100.96.7.2:53
 	Port:              metrics  9153/TCP
 	TargetPort:        9153/TCP
-	Endpoints:         100.96.6.2:9153
+	Endpoints:         100.96.6.2:9153,100.96.7.2:9153
 	Session Affinity:  None
 	Events:            <none>
 
-If all went correct, the IP of our CoreDNS pod should match the endpoint IPs in the kube-dns service:
+The IP address of our CoreDNS pod should match the endpoint IPs in the kube-dns service:
 
 	$ kubectl get po -l k8s-app=coredns -n kube-system -o wide
 	NAME                       READY     STATUS    RESTARTS   AGE       IP           NODE
-	coredns-3986650266-2rt2s   1/1       Running   0          2m        100.96.7.2   ip-172-20-84-184.us-west-1.compute.internal
+	coredns-3986650266-1pxb6   1/1       Running   0          3m        100.96.6.2   ip-172-20-35-120.us-west-1.compute.internal
+	coredns-3986650266-rmfgm   1/1       Running   0          3m        100.96.7.2   ip-172-20-83-89.us-west-1.compute.internal
 
 Awesome, this fits nicely!
 
-To confirm, let's run `nslookup` command from the <<Status Quo>> section:
+To confirm, let's run the `nslookup` command again:
 
 ```
 $ kubectl exec -ti busybox -- nslookup kubernetes.default
@@ -163,22 +208,47 @@ Name:      kubernetes.default
 Address 1: 100.64.0.1
 ```
 
-The logs are updated to show the following output:
+This is giving the same output as earlier, so that is good!
 
-	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "PTR IN 10.0.64.100.in-addr.arpa. udp 42 false 512" NXDOMAIN qr,rd,ra 101 1.664671ms
-	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "AAAA IN kubernetes.default. udp 36 false 512" NXDOMAIN qr,rd,ra 112 1.584983ms
-	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "AAAA IN kubernetes.default.default.svc.cluster.local. udp 62 false 512" NXDOMAIN qr,aa,rd,ra 115 127.264µs
-	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "AAAA IN kubernetes.default.svc.cluster.local. udp 54 false 512" NOERROR qr,aa,rd,ra 107 106.537µs
-	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "A IN kubernetes.default. udp 36 false 512" NXDOMAIN qr,rd,ra 112 523.381µs
-	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "A IN kubernetes.default.default.svc.cluster.local. udp 62 false 512" NXDOMAIN qr,aa,rd,ra 115 129.74µs
-	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "A IN kubernetes.default.svc.cluster.local. udp 54 false 512" NOERROR qr,aa,rd,ra 70 101.123µs
-	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "PTR IN 1.0.64.100.in-addr.arpa. udp 41 false 512" NXDOMAIN qr,rd,ra 100 1.500864ms
+The logs are from the two pods are updated:
 
-The output shows that A records for `kubernetes.default.svc.cluster.local` are served by this instance.
+	$ kubectl logs coredns-3986650266-rmfgm -n kube-system -f
+	2017/11/03 02:15:44 [INFO] CoreDNS-0.9.9
+	2017/11/03 02:15:44 [INFO] linux/amd64, go1.9.1, 4d6e9c38
+	.:53
+	CoreDNS-0.9.9
+	linux/amd64, go1.9.1, 4d6e9c38
+	100.96.5.3 - [03/Nov/2017:02:20:05 +0000] "PTR IN 10.0.64.100.in-addr.arpa. udp 42 false 512" NXDOMAIN qr,rd,ra 101 1.812126ms
+	100.96.5.3 - [03/Nov/2017:02:20:05 +0000] "AAAA IN kubernetes.default. udp 36 false 512" NXDOMAIN qr,rd,ra 112 55.755859ms
+	100.96.5.3 - [03/Nov/2017:02:20:05 +0000] "AAAA IN kubernetes.default.svc.cluster.local. udp 54 false 512" NOERROR qr,aa,rd,ra 107 143.14µs
+	100.96.5.3 - [03/Nov/2017:02:20:05 +0000] "A IN kubernetes.default. udp 36 false 512" NXDOMAIN qr,rd,ra 112 625.301µs
+	100.96.5.3 - [03/Nov/2017:02:20:05 +0000] "PTR IN 1.0.64.100.in-addr.arpa. udp 41 false 512" NXDOMAIN qr,rd,ra 100 1.434604ms
 
-== Delete kube-dns deployment (optional)
+And the second pod:
 
-Kube-DNS pod is no longer required and thus can be deleted:
+	$ kubectl logs coredns-3986650266-1pxb6 -n kube-system -f
+	.:53
+	CoreDNS-0.9.9
+	linux/amd64, go1.9.1, 4d6e9c38
+	2017/11/03 02:15:43 [INFO] CoreDNS-0.9.9
+	2017/11/03 02:15:43 [INFO] linux/amd64, go1.9.1, 4d6e9c38
+	100.96.5.3 - [03/Nov/2017:02:20:05 +0000] "AAAA IN kubernetes.default.default.svc.cluster.local. udp 62 false 512" NXDOMAIN qr,aa,rd,ra 115 203.42µs
+	100.96.5.3 - [03/Nov/2017:02:20:05 +0000] "A IN kubernetes.default.default.svc.cluster.local. udp 62 false 512" NXDOMAIN qr,aa,rd,ra 115 151.898µs
+	100.96.5.3 - [03/Nov/2017:02:20:05 +0000] "A IN kubernetes.default.svc.cluster.local. udp 54 false 512" NOERROR qr,aa,rd,ra 70 129.637µs
+
+The output shows that A records for `kubernetes.default.svc.cluster.local` is load balanced across two pod replicas.
+
+== Revert back to Kube-DNS
+
+You can revert back to use Kube-DNS instead of CoreDNS using the following command:
+
+	$ kubectl apply -f templates/kubedns-kops.yaml
+
+We just changed the selector labels from `k8s-app: coredns` to `k8s-app: kube-dns`.
+
+== Delete Kube-DNS (optional)
+
+If you no longer need Kube-DNS, then the Deployment can be deleted:
 
 	kubectl delete deployment kube-dns -n kube-system
 
