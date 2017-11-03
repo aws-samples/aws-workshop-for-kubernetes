@@ -1,7 +1,6 @@
+apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
-apiVersion: extensions/v1beta1
 metadata:
   name: deny-all-by-default
 spec:
-  podSelector:
-    matchLabels: {}
+  podSelector: {}

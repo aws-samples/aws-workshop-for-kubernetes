@@ -7,23 +7,23 @@ This exercise will walk you through configuring Calico and applying a Network Po
 
 == Pre-requisites
 
-You can either use an existing cluster as explained at link:../cluster-install#default-gossip-based-cluster[]. 
+You can either use an existing cluster as explained at link:../cluster-install#default-gossip-based-cluster[].
 
 Alternatively, you can create a new cluster and use kops CLI options to specify the networking mode as shown below:
 
   kops create cluster \
-    --name cluster2.k8s.local \
+    --name example2.cluster.k8s.local \
     --master-count 1 \
     --node-count 2 \
     --zones ${AWS_AVAILABILITY_ZONES} \
     --networking calico \
     --yes
 
-This will create a 1 master node and 2 worker nodes cluster. It uses `--networking calico` which tells the cluster to use calico networking instead of the default networking provided by kubenet. Note, the name here is `cluster2.k8s.local` instead of the usual `example.cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
+This will create a 1 master node and 2 worker nodes cluster. It uses `--networking calico` which tells the cluster to use calico networking instead of the default networking provided by kubenet. Note, the name here is `example2.cluster.k8s.local` instead of the usual `example.cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
 
 View the cluster configuration using the following command:
 
-  kops edit cluster cluster2.k8s.local
+  kops edit cluster example2.cluster.k8s.local
 
 This will show the following fragment under `.spec`:
 
@@ -34,7 +34,7 @@ Rest of the chapter goes with the presumption that you are using an existing clu
 
 NOTE: A smaller sized cluster, with 1 master node and 2 worker nodes, is chosen here. This is to minimize the amount of time for rolling update the cluster later. It typically takes 5-6 mins per node for rolling update.
 
-All configuration files for this chapter are in the `calico` directory.
+All configuration files for this chapter are in the `templates` directory.
 
 == Installation
 
@@ -50,7 +50,7 @@ By default, Kubernetes uses `kubenet` for networking. This is captured in the co
 Update the networking configuration to use `calico` by setting the following property:
 
   networking:
-    calico: 
+    calico:
       crossSubnet: true
 
 View changes that will be applied to the cluster:
@@ -89,7 +89,7 @@ Will create resources:
 
 Will modify resources:
   LaunchConfiguration/master-us-east-1d.masters.cluster.k8s.local
-    UserData            
+    UserData
                           ...
                             - _aws
                             - _kubernetes_master
@@ -97,10 +97,10 @@ Will modify resources:
                             channels:
                             - s3://kubernetes-aws-io/cluster.k8s.local/addons/bootstrap-channel.yaml
                           ...
-                          
+
 
   LaunchConfiguration/nodes.cluster.k8s.local
-    UserData            
+    UserData
                           ...
                             - _automatic_upgrades
                             - _aws
@@ -108,7 +108,7 @@ Will modify resources:
                             channels:
                             - s3://kubernetes-aws-io/cluster.k8s.local/addons/bootstrap-channel.yaml
                           ...
-                          
+
 
   LoadBalancer/api.cluster.k8s.local
     Lifecycle              <nil> -> Sync
@@ -117,7 +117,7 @@ Will modify resources:
     Lifecycle              <nil> -> Sync
 
   ManagedFile/cluster.k8s.local-addons-bootstrap
-    Contents            
+    Contents
                           ...
                                   k8s-addon: storage-aws.addons.k8s.io
                                 version: 1.6.0
@@ -135,7 +135,7 @@ Will modify resources:
                           +     selector:
                           +       role.kubernetes.io/networking: "1"
                           +     version: 2.1.2-kops.1
-                          
+
 
 Must specify --yes to apply changes
 ```
@@ -260,7 +260,7 @@ Let's say this is `shell 1`.
     --restart=Never \
     -- sh
   If you don't see a command prompt, try pressing enter.
-  / # 
+  / #
 +
 . We will now attempt to call the `http-echo` pod from our `busybox` pod by performing an HTTP POST .  As we have no network policies in place, we should see the following command return successfully with a 200 response, along with a log message being output in the `http-echo` shell window:
 +
@@ -274,10 +274,38 @@ Connecting to http-echo.ns-1.svc.cluster.local (100.71.77.153:80)
   ETag: W/"215-KyoPN1JoGjQlzW9TxpIay22VPF8"
   Date: Thu, 26 Oct 2017 00:53:21 GMT
   Connection: close
-  
+
 test                 100% |*************************************************************************************************|   533   0:00:00 ETA
 ```
 HTTP POST request succeeds.
+
+=== Update calico to 2.4.1 in kops 1.7.x
+kops 1.7.x comes with calico 1.2.1 out-of-the-box which does not support the latest network-policy updates for kubernetes 1.7.
+In order to make this work, we need to update calico via:
+
+```
+$ kubectl apply -f templates/calico-update.yaml
+configmap "calico-config" configured
+clusterrole "calico" configured
+serviceaccount "calico" configured
+clusterrolebinding "calico" configured
+daemonset "calico-node" configured
+deployment "calico-policy-controller" configured
+clusterrole "k8s-ec2-srcdst" configured
+serviceaccount "k8s-ec2-srcdst" configured
+clusterrolebinding "k8s-ec2-srcdst" configured
+deployment "k8s-ec2-srcdst" created
+```
+
+After this, wait for the calido pods to be updated via:
+```
+$ kubectl rollout status ds/calico-node -n kube-system
+Waiting for rollout to finish: 0 out of 3 new pods have been updated...
+Waiting for rollout to finish: 1 out of 3 new pods have been updated...
+Waiting for rollout to finish: 2 out of 3 new pods have been updated...
+Waiting for rollout to finish: 2 of 3 updated pods are available...
+daemon set "calico-node" successfully rolled out
+```
 
 === Create default network policy
 
@@ -342,7 +370,7 @@ Connecting to http-echo.ns-1.svc.cluster.local (100.64.161.56:80)
   ETag: W/"218-xgvU8WZSN+2SEyOX6Q2R/AhLuRM"
   Date: Thu, 26 Oct 2017 02:15:32 GMT
   Connection: close
-  
+
 test                100% |*************************************************************************************************|   534   0:00:00 ETA
 ```
 
@@ -358,4 +386,3 @@ Remove all the resources and the namespace using the command:
 === Preventing Outbound access
 
 The Kubernetes Network Policies allow you to isolate inbound traffic only.  To filter outbound traffic, you need to configure Calico directly using the `calicoctl` tool.  Refer to the section https://docs.projectcalico.org/v2.6/getting-started/kubernetes/tutorials/advanced-policy[Prevent outgoing connections from pods] for further information.
-
