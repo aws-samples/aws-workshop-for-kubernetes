@@ -104,6 +104,8 @@ Create a Kubernetes cluster using the following command. This will create a clus
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
+You can find the command for creating the `AWS_AVAILABILITY_ZONES` environment variable on the [Getting Started](getting-started/readme.adoc) page.
+
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
 
 Alternatively, you may not specify the `--yes` option as part of the `kops create cluster` command. Then you can use `kops edit cluster example.cluster.k8s.local` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
