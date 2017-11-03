@@ -120,7 +120,7 @@ Wait for ~3 mins for the load balancer to accept request.
 Access the application using the following URLs with `curl` or in browser:
 
   http://<host>
-  http://<host>0?greet=ho
+  http://<host>?greet=ho
   http://<host>?id=1
   http://<host>?greet=ho&id=1
 
