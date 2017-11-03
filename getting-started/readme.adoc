@@ -33,6 +33,10 @@ If `minikube` has already been installed earlier, then you can update the instal
 . Install Kubectl CLI
 
     brew install kubernetes-cli
++
+If you already have Kubectl CLI installed, then you just need to update it:
++
+    brew upgrade kubernetes-cli
 
 === Setup on Windows
 
