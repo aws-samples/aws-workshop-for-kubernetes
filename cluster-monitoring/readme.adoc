@@ -12,6 +12,10 @@ This chapter will demonstrate how to monitor a Kubernetes cluster using the foll
 . Heapster, InfluxDB and Grafana
 . Prometheus, Node exporter and Grafana
 
+http://prometheus.io/[Prometheus] is an open-source systems monitoring and alerting toolkit. Prometheus collects metrics from monitored targets by scraping metrics from HTTP endpoints on these targets.
+
+Heapster is limited to Kuberenetes container metrics, it is not general use. Heapster can be used as Prometheus scrape target.
+
 == Pre-requisites
 
 A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
@@ -125,7 +129,15 @@ Heapster, InfluxDB and Grafana are http://kubernetes.io/docs/admin/addons/[Kuber
 
 Execute this command to install Heapster, InfluxDB and Grafana:
 
-    kubectl create -f heapster/templates/
+  $ kubectl create -f heapster/templates/
+  deployment "monitoring-grafana" created
+  service "monitoring-grafana" created
+  clusterrolebinding "heapster" created
+  serviceaccount "heapster" created
+  deployment "heapster" created
+  service "heapster" created
+  deployment "monitoring-influxdb" created
+  service "monitoring-influxdb" created
 
 Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance running in the cluster. Grafana dashboard, accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1, now shows the information about the cluster. 
 
