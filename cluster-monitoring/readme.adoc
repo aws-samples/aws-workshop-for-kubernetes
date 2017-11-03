@@ -189,45 +189,53 @@ The Prometheus configuration file is defined as a ConfigMap in the file `templat
 
 We need to provide the location of the etcd server in our cluster in this configuration file. In our case, etcd is running inside the Kubernetes cluster. Find the IP address of etcd pods using this command:
 
-  $ kubectl get pods --namespace=kube-system | grep etcd
-  etcd-server-events-ip-172-20-102-165.eu-central-1.compute.internal        1/1       Running   0          3m
-  etcd-server-events-ip-172-20-59-49.eu-central-1.compute.internal          1/1       Running   0          2m
-  etcd-server-events-ip-172-20-87-29.eu-central-1.compute.internal          1/1       Running   0          3m
-  etcd-server-ip-172-20-102-165.eu-central-1.compute.internal               1/1       Running   0          3m
-  etcd-server-ip-172-20-59-49.eu-central-1.compute.internal                 1/1       Running   0          2m
-  etcd-server-ip-172-20-87-29.eu-central-1.compute.internal                 1/1       Running   0          3m
+  $ kubectl get pods --namespace=kube-system | grep etcd-server-ip
+  etcd-server-ip-172-20-111-7.ec2.internal               1/1       Running   0          2h
+  etcd-server-ip-172-20-48-45.ec2.internal               1/1       Running   0          2h
+  etcd-server-ip-172-20-77-67.ec2.internal               1/1       Running   0          2h
 
-Note down the name of the pod that starts with `etcd-server-ip`. There is one etcd server per master. So if you are using a three master cluster, as is the case here, then you'll see three entries starting with `etcd-server-ip`. Pick any of them.
+There is one etcd server per master. So if you are using a three master cluster, as is the case here, then you'll see three entries starting with `etcd-server-ip`. Pick any pod.
 
 Get more details about this pod:
 
-  kubectl describe pod/etcd-server-ip-172-20-102-165.eu-central-1.compute.internal --namespace=kube-system 
+  kubectl describe pod/etcd-server-ip-172-20-111-7.ec2.internal --namespace=kube-system 
 
 The output looks like this:
 
 ```
-Name:         etcd-server-ip-172-20-102-165.eu-central-1.compute.internal
+Name:         etcd-server-ip-172-20-111-7.ec2.internal
 Namespace:    kube-system
-Node:         ip-172-20-102-165.eu-central-1.compute.internal/172.20.102.165
-Start Time:   Fri, 03 Nov 2017 08:53:24 +0100
+Node:         ip-172-20-111-7.ec2.internal/172.20.111.7
+Start Time:   Fri, 03 Nov 2017 14:08:05 -0700
 Labels:       k8s-app=etcd-server
-Annotations:  kubernetes.io/config.hash=ca13c974790baaedca8c01a8eb4a3518
-              kubernetes.io/config.mirror=ca13c974790baaedca8c01a8eb4a3518
-              kubernetes.io/config.seen=2017-11-03T07:53:19.754732296Z
+Annotations:  kubernetes.io/config.hash=079fd5412e50b130fb994d547d5f8926
+              kubernetes.io/config.mirror=079fd5412e50b130fb994d547d5f8926
+              kubernetes.io/config.seen=2017-11-03T21:08:00.804876902Z
               kubernetes.io/config.source=file
 Status:       Running
-IP:           172.20.102.165
+IP:           172.20.111.7
 Containers:
   etcd-container:
+    Container ID:  docker://9ffdd4ff0183ae44bbe09188c294a67fe2c470824f57ed7a5db1d9f7a8404527
+    Image:         gcr.io/google_containers/etcd:2.2.1
+    Image ID:      docker-pullable://gcr.io/google_containers/etcd@sha256:19544a655157fb089b62d4dac02bbd095f82ca245dd5e31dd1684d175b109947
+    Ports:         2380/TCP, 4001/TCP
 
 . . .
 
+      ETCD_LISTEN_PEER_URLS:             http://0.0.0.0:2380
+      ETCD_LISTEN_CLIENT_URLS:           http://0.0.0.0:4001
+      ETCD_ADVERTISE_CLIENT_URLS:        http://etcd-c.internal.example.cluster.k8s.local:4001
+
+. . .
+
+QoS Class:       Burstable
 Node-Selectors:  <none>
 Tolerations:     :NoExecute
 Events:          <none>
 ```
 
-Note down the IP address from this output.
+From this output, note down the IP address and port on which etcd server is listening. This value is `172.20.111.7` and `4001` in our case.
 
 Update the file `templates/prometheus/prometheus-configmap.yaml`, and replace `<IP>` with the IP address of the `etcd` server in your cluster. The updated fragment will look like as shown:
 
@@ -235,10 +243,8 @@ Update the file `templates/prometheus/prometheus-configmap.yaml`, and replace `<
 - job_name: 'etcd'
   target_groups:
   - targets:
-    - 172.20.43.222:4001
+    - 172.20.111.7:4001
 ```
-
-etcd clusters deployed with the most recent version of kops use port 4001, if you have a newer version of etcd it will be listening on port 2379.
 
 Once you save the etcd information then you can deploy the ConfigMap:
 
