@@ -1,6 +1,7 @@
 = Kubernetes on AWS Workshop
 
-This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services. 
+This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services.
+
 It explains how to deploy, scale, and configure applications on this cluster.
 
 This workshop is designed for attendees on Development and Operations teams who would like to get started with Kubernetes on Amazon Web Services (AWS).
@@ -11,6 +12,7 @@ It also shows deep integration with several AWS technologies.
 
 The proposed agenda is to go through the described format to ramp up your knowledge on Kubernetes by following
 the workshop guides. 
+
 You are also encouraged to take a detour and explore advanced topics if you feel comfortable
 as you move through the workshop.
 
@@ -36,7 +38,7 @@ as you move through the workshop.
 | link:cluster-monitoring[Monitoring within a Kubernetes cluster]
 | link:cluster-upgrade#inplace-upgrade[Upgrading a Kubernetes cluster: In-place Upgrade]
 | Upgrading a Kubernetes cluster: Blue/Green Upgrade
-| link:cluster-scaling[Cluster Ccaling]
+| link:cluster-scaling[Cluster Scaling]
 | link:app-scaling[Application Autoscaling]
 |===
 
@@ -51,6 +53,6 @@ as you move through the workshop.
 | CI/CD pipeline
 | ALB ingress controller
 | Nginx ingress controller
-| link:service-mesh[Service mesh integration using Linkerd and Istio]
+| link:service-mesh[Service Mesh Integration using Linkerd and Istio]
 |===
 
