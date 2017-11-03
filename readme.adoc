@@ -1,54 +1,60 @@
 = Kubernetes on AWS Workshop
 
-This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services. It also explains how to deploy, scale and configure applications on this cluster.
+image::images/kubernetes-aws-smile.png[kubernetes and aws logos, 400]
 
-This workshop is targeted for attendees in both Developer and Operations teams who would like to get started with Kubernetes on Amazon Web Services (AWS).
+This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services.
 
-It will provide instructions to create, manage and scale a Kubernetes cluster on AWS. Deep integration with several AWS technologies will be shown.
+It explains how to deploy, scale, and configure applications on this cluster.
 
-It will also explain how to deploy applications, scale them, run stateless and stateful containers, perform service discovery between different microservices and other similar concepts.
+This workshop is designed for attendees on Development and Operations teams who would like to get started with Kubernetes on Amazon Web Services (AWS).
+
+This workshop provides instructions to create, manage, and scale a Kubernetes cluster on AWS, as well as how to deploy applications, scale them, run stateless and stateful containers, perform service discovery between different microservices, and other similar concepts.
+
+It also shows deep integration with several AWS technologies.
 
 The proposed agenda is to go through the described format to ramp up your knowledge on Kubernetes by following
-the workshop guides. You are also encouraged to take a detour and learn advanced topics if you feel comfortable
+the workshop guides. 
+
+You are also encouraged to take a detour and explore advanced topics if you feel comfortable
 as you move through the workshop.
 
 [cols="1*"]
 |===
-|Beginners
+|Beginner (100 level)
 
-|link:prereqs.adoc[Pre-requisites]
+|link:prereqs.adoc[Prerequisites]
 |link:getting-started[Setup Development Environment and First Steps]
-|link:cluster-install[Create Kubernetes cluster using Kops]
+|link:cluster-install[Create a Kubernetes cluster using kops]
 |link:developer-concepts[Kubernetes Developer Concepts]
 |===
 
 [cols="1*"]
 |===
-|Mid-level (200 - 300)
+|Intermediate (200 - 300 level)
 
 | link:config-secrets[Configuration and Secrets Management]
-| link:microservices[Service discovery with microservices]
-| link:helm[Deploy applications using Helm charts]
-| link:app-update[Updating applications & Canary deployment]
-| link:cluster-logging[Logging with Kubernetes cluster]
-| link:cluster-monitoring[Monitoring with Kubernetes cluster]
-| link:cluster-upgrade#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
-| Upgrading Kubernetes cluster - blue/green upgrade
-| link:cluster-scaling[Cluster scaling]
-| link:app-scaling[Application autoscaling]
+| link:microservices[Service Discovery with Microservices]
+| link:helm[Deploy Applications using Helm Charts]
+| link:app-update[Updating Applications & Canary Deployment]
+| link:cluster-logging[Logging within a Kubernetes cluster]
+| link:cluster-monitoring[Monitoring within a Kubernetes cluster]
+| link:cluster-upgrade#inplace-upgrade[Upgrading a Kubernetes cluster: In-place Upgrade]
+| Upgrading a Kubernetes cluster: Blue/Green Upgrade
+| link:cluster-scaling[Cluster Scaling]
+| link:app-scaling[Application Autoscaling]
 |===
 
 [cols="1*"]
 |===
-|Advanced (300+)
+|Advanced (300 - 400+ level)
 
 | link:statefulsets[StatefulSets with EBS]
 | link:calico[Network policies with Calico]
 | link:coredns[Using CoreDNS for Service Discovery]
 | link:roles[Managing IAM roles with kube2iam]
-| CI/CD pipeline
-| ALB ingress controller
-| Nginx ingress controller
-| link:service-mesh[Service mesh integration using Linkerd and Istio]
+| CI/CD Pipeline
+| ALB Ingress Controller
+| Nginx Ingress Controller
+| link:service-mesh[Service Mesh Integration using Linkerd and Istio]
 |===
 
