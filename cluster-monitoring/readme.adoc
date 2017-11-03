@@ -129,7 +129,7 @@ Heapster, InfluxDB and Grafana are http://kubernetes.io/docs/admin/addons/[Kuber
 
 Execute this command to install Heapster, InfluxDB and Grafana:
 
-  $ kubectl create -f heapster/templates/
+  $ kubectl create -f templates/heapster/
   deployment "monitoring-grafana" created
   service "monitoring-grafana" created
   clusterrolebinding "heapster" created
@@ -173,7 +173,7 @@ image::monitoring-pods-after.png[]
 
 Remove all the installed components:
 
-    kubectl delete -f heapster/templates/
+    kubectl delete -f templates/heapster/
 
 == Prometheus, Node exporter and Grafana
 
@@ -185,7 +185,7 @@ https://github.com/prometheus/node_exporter[Node exporter] is a Prometheus expor
 
 === Installation
 
-The Prometheus configuration file is defined as a ConfigMap in the file `prometheus/templates/prometheus-configmap.yaml`.
+The Prometheus configuration file is defined as a ConfigMap in the file `templates/prometheus/prometheus-configmap.yaml`.
 
 We need to provide the location of the etcd server in our cluster in this configuration file. In our case, etcd is running inside the Kubernetes cluster. Find the IP address of etcd pods using this command:
 
@@ -229,7 +229,7 @@ Events:          <none>
 
 Note down the IP address from this output.
 
-Update the file `prometheus/templates/prometheus-configmap.yaml`, and replace `<IP>` with the IP address of the `etcd` server in your cluster. The updated fragment will look like as shown:
+Update the file `templates/prometheus/prometheus-configmap.yaml`, and replace `<IP>` with the IP address of the `etcd` server in your cluster. The updated fragment will look like as shown:
 
 ```
 - job_name: 'etcd'
@@ -242,24 +242,24 @@ etcd clusters deployed with the most recent version of kops use port 4001, if yo
 
 Once you save the etcd information then you can deploy the ConfigMap:
 
-  $ kubectl create -f prometheus/templates/prometheus-configmap.yaml
+  $ kubectl create -f templates/prometheus/prometheus-configmap.yaml
   configmap "prometheus" created
 
 Next, deploy Prometheus into your cluster:
 
-  $ kubectl create -f prometheus/templates/prometheus-deployment.yaml
+  $ kubectl create -f templates/prometheus/prometheus-deployment.yaml
   service "prometheus" created
   deployment "prometheus" created
 
 Next, we will deploy the node exporter DaemonSet which will read system level metrics from each node and export them to Prometheus. Node exporter is defined as a DaemonSet, and so there is a single instance running on each node of the cluster:
 
-  $ kubectl create -f prometheus/templates/node-exporter.yaml
+  $ kubectl create -f templates/prometheus/node-exporter.yaml
   service "node-exporter" created
   daemonset "node-exporter" created
 
 Finally, deploy the Grafana dashboard:
 
-  $ kubectl create -f prometheus/templates/grafana.yml
+  $ kubectl create -f templates/prometheus/grafana.yml
   service "grafana" created
   deployment "grafana" created
 
@@ -315,5 +315,5 @@ image::prometheus-grafana-dashboard-initial.png[]
 
 Remove all the installed components:
 
-    kubectl delete -f prometheus/templates/
+    kubectl delete -f templates/prometheus/
 
