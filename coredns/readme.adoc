@@ -1,11 +1,15 @@
-= Using CoreDNS for Service Discovery - WIP
+= Using CoreDNS for Service Discovery
 :toc:
 
-https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns[kube-dns] is a Kubernetes cluster add-on that is launched as part of cluster creation. It schedules a DNS Pod and Service on the cluster, and configures the kubelets to tell other pods and containers to use the DNS service IP's to resolve DNS names.
+https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns[Kube-DNS] is a Kubernetes cluster add-on that is launched as part of the cluster creation. It schedules a DNS Pod and Service on the cluster, and configures the kubelets to tell other pods and containers to use the DNS service IP's to resolve DNS names. This DNS server utilizes the libraries from SkyDNS to serve DNS requests for Kubernetes Pods and Services.
 
-https://coredns.io/[CoreDNS] implements the https://github.com/kubernetes/dns/blob/master/docs/specification.md[spec] defined for Kubernetes DNS-based service discovery. This allows kube-dns to be replaced by CoreDNS.
+There is no tight binding between `kubelet` and Kube-DNS as it runs as another service in Kubernetes. You just need to pass the DNS service IP address and domain into `kubelet`, and Kubernetes doesn’t really care who is actually servicing the requests at that IP. In addition, https://coredns.io/[CoreDNS] implements the https://github.com/kubernetes/dns/blob/master/docs/specification.md[spec] defined for Kubernetes DNS-based service discovery. This allows Kube-DNS to be replaced by CoreDNS.
 
-This chapter will explain how to update an existing Kubernetes cluster to use CoreDNS instead of the default kube-dns.
+Read https://community.infoblox.com/t5/Community-Blog/CoreDNS-for-Kubernetes-Service-Discovery/ba-p/8187[CoreDNS for Kubernetes Service Discovery] and https://coredns.io/2017/03/01/coredns-for-kubernetes-service-discovery-take-2/[CoreDNS for Kubernetes Service Discovery, Take 2] for more details.
+
+CoreDNS integrates with Kubernetes via the https://coredns.io/plugins/kubernetes/[Kubernetes plugin].
+
+This chapter will explain how to update an existing Kubernetes cluster to use CoreDNS instead of the default Kube-DNS.
 
 == Pre-requisites
 
@@ -85,53 +89,97 @@ For kops, `coredns` can be deployed:
 
 NOTE: If you use minikube, run `kubectl create -f templates/coredns-kops.yaml` instead and replace the `clusterIP` in `templates/coredns-service.yaml` with the result from `kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}`.
 
-Wait until CoreDNS pod is running:
+If you look at the list of deployments:
 
-	$ kubectl get po -l k8s-app=coredns -n kube-system
+	$ kubectl get deployment -n kube-system
+	NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+	coredns               1         1         1            1           5m
+	dns-controller        1         1         1            1           11m
+	kube-dns              2         2         2            2           11m
+	kube-dns-autoscaler   1         1         1            1           11m
+
+Wait for the CoreDNS pod to start:
+
+	$ kubectl get pods -n kube-system -l k8s-app=coredns
 	NAME                       READY     STATUS    RESTARTS   AGE
-	coredns-3986650266-4x4sp   1/1       Running   0          13s
+	coredns-3986650266-2rt2s   1/1       Running   0          39s
 
-== Switching to CoreDNS
+Logs from the pod can be seen:
+
+	$ kubectl logs coredns-3986650266-2rt2s -n kube-system -f
+	2017/11/03 01:32:33 [INFO] CoreDNS-0.9.9
+	2017/11/03 01:32:33 [INFO] linux/amd64, go1.9.1, 4d6e9c38
+	.:53
+	CoreDNS-0.9.9
+	linux/amd64, go1.9.1, 4d6e9c38
+
+== Switch to CoreDNS
 
 We need to update the Kube-DNS service to use our CoreDNS pod:
 
 	$ kubectl apply -f templates/coredns-service.yaml
+	service "kube-dns" configured
 
 Now, when you describe the `kube-dns` service now, it should look something like this:
 
-	kubectl describe svc kube-dns -n kube-system
-	Name:			kube-dns
-	Namespace:		kube-system
-	Labels:			k8s-app=coredns
-				kubernetes.io/cluster-service=true
-				kubernetes.io/name=CoreDNS
-	Annotations:		kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"k8s-app":"coredns","kubernetes.io/cluster-service":"true","kubernetes.io/na...
-	Selector:		k8s-app=coredns
-	Type:			ClusterIP
-	IP:			10.0.0.10
-	Port:			dns	53/UDP
-	Endpoints:		172.17.0.10:53
-	Port:			dns-tcp	53/TCP
-	Endpoints:		172.17.0.10:53
-	Port:			metrics	9153/TCP
-	Endpoints:		172.17.0.10:9153
-	Session Affinity:	None
-	Events:			<none>
+	$ kubectl describe svc kube-dns -n kube-system
+	Name:              kube-dns
+	Namespace:         kube-system
+	Labels:            k8s-app=coredns
+	                   kubernetes.io/cluster-service=true
+	                   kubernetes.io/name=CoreDNS
+	Annotations:       kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"k8s-app":"coredns","kubernetes.io/cluster-service":"true","kubernetes.io/na...
+	Selector:          k8s-app=coredns
+	Type:              ClusterIP
+	IP:                100.64.0.10
+	Port:              dns  53/UDP
+	TargetPort:        53/UDP
+	Endpoints:         100.96.6.2:53
+	Port:              dns-tcp  53/TCP
+	TargetPort:        53/TCP
+	Endpoints:         100.96.6.2:53
+	Port:              metrics  9153/TCP
+	TargetPort:        9153/TCP
+	Endpoints:         100.96.6.2:9153
+	Session Affinity:  None
+	Events:            <none>
 
 If all went correct, the IP of our CoreDNS pod should match the endpoint IPs in the kube-dns service:
 
-	kubectl get po -l k8s-app=coredns -n kube-system -o wide
-	NAME                       READY     STATUS    RESTARTS   AGE       IP            NODE
-	coredns-3986650266-gw79f   1/1       Running   0          20m       172.17.0.10   ip-172-20-102-248.eu-central-1.compute.internal
+	$ kubectl get po -l k8s-app=coredns -n kube-system -o wide
+	NAME                       READY     STATUS    RESTARTS   AGE       IP           NODE
+	coredns-3986650266-2rt2s   1/1       Running   0          2m        100.96.7.2   ip-172-20-84-184.us-west-1.compute.internal
 
 Awesome, this fits nicely!
 
-To be completely sure, you can re-execute the commands from the <<Status Quo>> section which validate the setup.
+To confirm, let's run `nslookup` command from the <<Status Quo>> section:
+
+```
+$ kubectl exec -ti busybox -- nslookup kubernetes.default
+Server:    100.64.0.10
+Address 1: 100.64.0.10
+
+Name:      kubernetes.default
+Address 1: 100.64.0.1
+```
+
+The logs are updated to show the following output:
+
+	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "PTR IN 10.0.64.100.in-addr.arpa. udp 42 false 512" NXDOMAIN qr,rd,ra 101 1.664671ms
+	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "AAAA IN kubernetes.default. udp 36 false 512" NXDOMAIN qr,rd,ra 112 1.584983ms
+	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "AAAA IN kubernetes.default.default.svc.cluster.local. udp 62 false 512" NXDOMAIN qr,aa,rd,ra 115 127.264µs
+	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "AAAA IN kubernetes.default.svc.cluster.local. udp 54 false 512" NOERROR qr,aa,rd,ra 107 106.537µs
+	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "A IN kubernetes.default. udp 36 false 512" NXDOMAIN qr,rd,ra 112 523.381µs
+	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "A IN kubernetes.default.default.svc.cluster.local. udp 62 false 512" NXDOMAIN qr,aa,rd,ra 115 129.74µs
+	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "A IN kubernetes.default.svc.cluster.local. udp 54 false 512" NOERROR qr,aa,rd,ra 70 101.123µs
+	100.96.5.3 - [03/Nov/2017:01:35:35 +0000] "PTR IN 1.0.64.100.in-addr.arpa. udp 41 false 512" NXDOMAIN qr,rd,ra 100 1.500864ms
+
+The output shows that A records for `kubernetes.default.svc.cluster.local` are served by this instance.
 
 == Delete kube-dns deployment (optional)
 
-As a very last step we can delete the original kube-dns deployment:
+Kube-DNS pod is no longer required and thus can be deleted:
 
 	kubectl delete deployment kube-dns -n kube-system
 
-This will delete the pod, and the CoreDNS implementation will still be available.
+This will delete the pod, and the CoreDNS pod will continue to serve all the DNS requests.
