@@ -193,7 +193,7 @@ You should see the same values that were specified in `./templates/redis-configm
 Now, changing the pod configuration would involve the following steps:
 
 . Edit `redis-configmap.yaml`
-. Update the ConfigMap using the command: `kubectl apply -f templates/redis-config.yaml`
+. Update the ConfigMap using the command: `kubectl apply -f templates/redis-configmap.yaml`
 . Wrap the pod in a Deployment
 . Terminate the pod, Deployment will restart the pod and pick up new configuration
 
