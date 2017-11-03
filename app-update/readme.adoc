@@ -233,7 +233,7 @@ Once again, `--record` ensures that the command initiating this deployment is re
 
 . Expose service:
 
-    $ kubectl expose deployment/app-rolling --port=80 --name=app-rolling --type=LoadBalancer
+    $ kubectl expose deployment/app-rolling --port=80 --target-port=8080 --name=app-rolling --type=LoadBalancer
     service "app-rolling" exposed
 
 . Get service detail:
