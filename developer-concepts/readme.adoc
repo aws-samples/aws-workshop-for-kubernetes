@@ -774,21 +774,25 @@ Here is the job specification:
 	apiVersion: batch/v2alpha1
 	kind: CronJob
 	metadata:
-	  name: hello
+		name: hello
 	spec:
-	  schedule: "*/1 * * * *"
-	  jobTemplate:
-	    spec:
-	      template:
-	        spec:
-	          containers:
-	          - name: hello
-	            image: busybox
-	            args:
-	            - /bin/sh
-	            - -c
-	            - date; echo Hello World!
-	          restartPolicy: OnFailure
+		schedule: "*/1 * * * *"
+		jobTemplate:
+			spec:
+				template:
+					metadata:
+						labels:
+							app: hello-cronpod
+					spec:
+						containers:
+						- name: hello
+							image: busybox
+							args:
+							- /bin/sh
+							- -c
+							- date; echo Hello World!
+						restartPolicy: OnFailure
+
 
 This job prints the current timestamp and the message "`Hello World`" every minute.
 
