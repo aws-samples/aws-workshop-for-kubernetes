@@ -233,6 +233,8 @@ The pod configuration file looks like:
   apiVersion: v1
   kind: Pod
   metadata:
+    labels:
+      name: app-pod
     name: app-pod
   spec:
     containers:
