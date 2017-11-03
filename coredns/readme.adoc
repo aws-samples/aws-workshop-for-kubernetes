@@ -43,7 +43,7 @@ More details about the service can be found:
 	Session Affinity:  None
 	Events:            <none>
 
-To validate that the current DNS setup is working we first have to deploy a `busybox` pod: 
+To validate that the current DNS setup is working we first have to deploy a `busybox` pod:
 
 	$ kubectl create -f templates/busybox.yaml
 	pod "busybox" created
@@ -74,14 +74,16 @@ As expected, the nameserver IP corresponds to the IP of the `kube-dns` service. 
 
 The CoreDNS deployment relies on information that is specific to you cluster: CIDR of the kubernetes services and cluster domain.
 
-For minikube, `coredns` can be deployed:
+For kops, `coredns` can be deployed:
 
-	$ kubectl create -f templates/coredns-minikube.yaml
+	$ kubectl create -f templates/coredns-kops.yaml
 	serviceaccount "coredns" created
 	clusterrole "system:coredns" created
 	clusterrolebinding "system:coredns" created
 	configmap "coredns" created
 	deployment "coredns" created
+
+NOTE: If you use minikube, run `kubectl create -f templates/coredns-kops.yaml` instead and replace the `clusterIP` in `templates/coredns-service.yaml` with the result from `kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}`.
 
 Wait until CoreDNS pod is running:
 
@@ -120,7 +122,7 @@ If all went correct, the IP of our CoreDNS pod should match the endpoint IPs in 
 
 	kubectl get po -l k8s-app=coredns -n kube-system -o wide
 	NAME                       READY     STATUS    RESTARTS   AGE       IP            NODE
-	coredns-3986650266-gw79f   1/1       Running   0          20m       172.17.0.10   minikube
+	coredns-3986650266-gw79f   1/1       Running   0          20m       172.17.0.10   ip-172-20-102-248.eu-central-1.compute.internal
 
 Awesome, this fits nicely!
 
@@ -133,4 +135,3 @@ As a very last step we can delete the original kube-dns deployment:
 	kubectl delete deployment kube-dns -n kube-system
 
 This will delete the pod, and the CoreDNS implementation will still be available.
-
