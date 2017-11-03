@@ -30,6 +30,11 @@ If `minikube` has already been installed earlier, then you can update the instal
 +
     brew cask reinstall minikube
 +
+Verify the version:
++
+    $ minikube version
+    minikube version: v0.23.0
++
 . Install Kubectl CLI
 
     brew install kubernetes-cli
@@ -42,6 +47,12 @@ If you already have Kubectl CLI installed, then you just need to update it:
 
 . Download and install https://www.virtualbox.org/wiki/Downloads[VirtualBox].
 . Download the https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe[minikube-windows-amd64.exe] file, and rename it to `minikube.exe`.
++
+Verify the version:
++
+    $ minikube version
+    minikube version: v0.23.0
++
 . Download kubectl CLI:
 +
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo \
@@ -55,6 +66,11 @@ Latest instructions are also available at https://kubernetes.io/docs/tasks/tools
 . Install minikube:
 +
     curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
++
+Verify the version:
++
+    $ minikube version
+    minikube version: v0.23.0
 +
 . Install or Upgrade Kubectl CLI:
 +
