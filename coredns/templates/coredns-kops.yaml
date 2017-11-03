@@ -65,7 +65,7 @@ metadata:
     kubernetes.io/cluster-service: "true"
     kubernetes.io/name: "CoreDNS"
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       k8s-app: coredns
