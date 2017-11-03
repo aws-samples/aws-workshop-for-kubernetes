@@ -345,11 +345,11 @@ Events:
 
 IP address information can be obtained by looking at the `InternalIP` field:
 
-    $ kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'
+    $ echo $(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
 
 This gives us the IP address where the service is hosted. Now, we need to get the port that the service is exposed on. This can be found using the following command:
 
-    $ kubectl get service web -o jsonpath='{.spec.ports[*].nodePort}'
+    $ echo $(kubectl get service web -o jsonpath='{.spec.ports[*].nodePort}')
 
 We can combine these two commands with curl to access the service from the cli:
 ```
