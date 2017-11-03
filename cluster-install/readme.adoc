@@ -9,19 +9,21 @@ https://github.com/kubernetes/kops[Kops], short for Kubernetes Operations, is a 
 
 There is no need to download a Kubernetes binary distribution for creating a cluster using kops. However, you do need to download the kops CLI. It then takes care of downloading the right Kubernetes binary in the cloud, and provisions the cluster.
 
-==== MacOS:
+==== macOS
+
     brew update && brew install kops
 
+If Kops is already installed, then it can be upgraded to the latest version using the following command:
+
+    brew upgrade kops
+
 ==== Linux:
+
     wget https://github.com/kubernetes/kops/releases/download/1.7.1/kops-linux-amd64
     sudo chmod +x kops-linux-amd64
     sudo mv kops-linux-amd64 /usr/local/bin/kops
 
 Kops is available on Mac OSX, Linux or the Windows 10 Linux Subsystem. Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
-
-For MacOS, if Kops is already installed, you can run the following command to upgrade to the latest the latest version:
-
-    brew upgrade kops
 
 Check kops version:
 
@@ -30,11 +32,13 @@ Check kops version:
 
 Latest and early versions of kops can be downloaded from https://github.com/kubernetes/kops/releases.
 
-In addition, you also need kubectl CLI to manage the resources on Kubernetes cluster. Instructions to install kubectl CLI are covered in link:../getting-started#setup-local-development-environment[].
+In addition, if not already installed, you also need kubectl CLI to manage the resources on Kubernetes cluster. This is explained link:../getting-started#download-and-install[].
 
-=== Configuration kops
+=== Configure kops
 
-Kops uses a public SSH key while creating a cluster. The location of this file defaults to `~/.ssh/id_rsa.pub`. Please generate an SSH key if you don't have one. You can use the `--ssh-public-key` option to specify a custom location. More details about kops security can be found in the https://github.com/kubernetes/kops/blob/master/docs/security.md[kops docs].
+Kops uses a public SSH key while creating a cluster. The location of this file defaults to `~/.ssh/id_rsa.pub`. Please generate an SSH key using `ssh-keygen` command.
+
+Alternatively, you can use the `--ssh-public-key` option to specify a custom location. More details about kops security can be found in the https://github.com/kubernetes/kops/blob/master/docs/security.md[kops docs].
 
 
 == IAM user permission
