@@ -780,6 +780,9 @@ Here is the job specification:
 	  jobTemplate:
 	    spec:
 	      template:
+	        metadata:
+	          labels:
+	            app: hello-cronpod
 	        spec:
 	          containers:
 	          - name: hello
