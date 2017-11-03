@@ -1,6 +1,6 @@
 = Kubernetes on AWS Workshop
 
-image::images/kubernetes-aws-smile.png[kubernetes and aws logos]
+image::images/kubernetes-aws-smile.png[kubernetes and aws logos, 400]
 
 This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services.
 
