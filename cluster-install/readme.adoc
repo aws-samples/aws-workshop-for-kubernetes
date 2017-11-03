@@ -104,7 +104,7 @@ Create a Kubernetes cluster using the following command. This will create a clus
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
-You can find the command for creating the `AWS_AVAILABILITY_ZONES` environment variable at link:../prereqs#aws-availability-zones[].
+You can find the command for creating the `AWS_AVAILABILITY_ZONES` environment variable at link:../prereqs.adoc#aws-availability-zones[].
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
 
