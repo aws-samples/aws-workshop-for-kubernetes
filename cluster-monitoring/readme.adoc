@@ -129,7 +129,7 @@ Heapster, InfluxDB and Grafana are http://kubernetes.io/docs/admin/addons/[Kuber
 
 Execute this command to install Heapster, InfluxDB and Grafana:
 
-  $ kubectl create -f templates/heapster/
+  $ kubectl apply -f templates/heapster/
   deployment "monitoring-grafana" created
   service "monitoring-grafana" created
   clusterrolebinding "heapster" created
@@ -248,24 +248,24 @@ Update the file `templates/prometheus/prometheus-configmap.yaml`, and replace `<
 
 Once you save the etcd information then you can deploy the ConfigMap:
 
-  $ kubectl create -f templates/prometheus/prometheus-configmap.yaml
+  $ kubectl apply -f templates/prometheus/prometheus-configmap.yaml
   configmap "prometheus" created
 
 Next, deploy Prometheus into your cluster:
 
-  $ kubectl create -f templates/prometheus/prometheus-deployment.yaml
+  $ kubectl apply -f templates/prometheus/prometheus-deployment.yaml
   service "prometheus" created
   deployment "prometheus" created
 
 Next, we will deploy the node exporter DaemonSet which will read system level metrics from each node and export them to Prometheus. Node exporter is defined as a DaemonSet, and so there is a single instance running on each node of the cluster:
 
-  $ kubectl create -f templates/prometheus/node-exporter.yaml
+  $ kubectl apply -f templates/prometheus/node-exporter.yaml
   service "node-exporter" created
   daemonset "node-exporter" created
 
 Finally, deploy the Grafana dashboard:
 
-  $ kubectl create -f templates/prometheus/grafana.yml
+  $ kubectl apply -f templates/prometheus/grafana.yml
   service "grafana" created
   deployment "grafana" created
 
