@@ -128,7 +128,7 @@ Access the application using the following URLs with `curl` or via a browser:
 
 `<host>` is the value of the ingress load balancer's address:
 
-  $ kubectl describe svc/webapp-service | grep Ingress | cut -c 27-
+  $ kubectl get svc/webapp-service -o jsonpath={.status.loadBalancer.ingress[0].hostname}
   a5427e128847211e782280a896fc2bfc-283874069.us-east-1.elb.amazonaws.com
   
 === Delete Application
