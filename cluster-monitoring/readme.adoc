@@ -317,6 +317,40 @@ Grafana dashboard is now accessible at http://localhost:8001/api/v1/proxy/namesp
 
 image::prometheus-grafana-dashboard-initial.png[]
 
+Let's set up a dashboard which will show us some details about the cluster.
+
+Click on top Grafana icon, and then select on Data Sources. Click on `+Add data source` to add a new data source. Specify the values as shown:
+
+Click on `Add` to add the data source:
+
+image::prometheus-grafana-add-data-source.png[]
+
+Click on `Save & Test` to make sure that data source is working correctly:
+
+image::prometheus-grafana-add-data-source-green.png[]
+
+The green bar indicates that the data source is recognized.
+
+Click on the Grafana icon again, select `Dashboards`, click on `Import`:
+
+image::prometheus-grafana-import.png[]
+
+We will use a pre-created https://grafana.com/dashboards/162[Kubernetes cluster monitoring] dashboard. A much larger set of dashboards are available at https://grafana.com/dashboards. Each such dashboard is assigned a unique number and can then be imported in any Grafana installation. The number in this case is `162`.
+
+Copy that number in our Grafana UI, and click on `Load`:
+
+image::prometheus-grafana-import-number.png[]
+
+Select the `prometheus` source here, and click on `Save & Open`:
+
+image::prometheus-grafana-import-save-open.png[]
+
+The dashboard opens up in Grafana UI and looks like as shown:
+
+image::prometheus-grafana-monitoring-dashboard.png[]
+
+Multiple other dashboards are available at https://grafana.com/dashboards/, and can be imported in a similar fashion. Alternatively, you can create your own custom dashboars as explained in http://docs.grafana.org/guides/getting_started/[Getting Started].
+
 === Cleanup
 
 Remove all the installed components:
