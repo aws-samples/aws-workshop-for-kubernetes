@@ -139,7 +139,7 @@ Execute this command to install Heapster, InfluxDB and Grafana:
   deployment "monitoring-influxdb" created
   service "monitoring-influxdb" created
 
-Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance running in the cluster. Grafana dashboard, accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1, now shows the information about the cluster. 
+Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance running in the cluster. Grafana dashboard, accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1, now shows the information about the cluster.
 
 NOTE: Grafana dashboard will not be available if Kubernetes proxy is not running. If proxy is not running, it can be started with the command `kubectl proxy`.
 
@@ -179,181 +179,122 @@ Remove all the installed components:
 
 http://prometheus.io/[Prometheus] is an open-source systems monitoring and alerting toolkit. Prometheus collects metrics from monitored targets by scraping metrics from HTTP endpoints on these targets.
 
-Different targets to scrape are defined in a Prometheus configuration file. Targets may be statically configured via the `static_configs` parameter in the configuration file or dynamically discovered using one of the supported service-discovery mechanisms (Consul, DNS, Etcd, etc.).
+Prometheus will be managed by the https://github.com/coreos/prometheus-operator/[Kubernetes Operator] - This operator uses https://kubernetes.io/docs/concepts/api-extension/custom-resources/[Custom Resources] to extend the Kubernetes API and add custom resources such as `Prometheus`, `ServiceMonitor` and `Alertmanager`.
+
+Prometheus is able to dynamically scrape new targets by adding a https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/running-exporters.md[ServiceMonitor] - we have included a couple of them to scrape `kube-controller-manager`, `kube-scheduler`, `kube-state-metrics`, `kubelet` and `node-exporter`.
 
 https://github.com/prometheus/node_exporter[Node exporter] is a Prometheus exporter for hardware and OS metrics exposed by *NIX kernels.
+https://github.com/kubernetes/kube-state-metrics[kube-state-metrics] is a simple service that listens to the Kubernetes API server and generates metrics about the state of the objects.
 
 === Installation
 
-The Prometheus configuration file is defined as a ConfigMap in the file `templates/prometheus/prometheus-configmap.yaml`.
-
-We need to provide the location of the etcd server in our cluster in this configuration file. In our case, etcd is running inside the Kubernetes cluster. Find the IP address of etcd pods using this command:
-
-  $ kubectl get pods --namespace=kube-system | grep etcd-server-ip
-  etcd-server-ip-172-20-111-7.ec2.internal               1/1       Running   0          2h
-  etcd-server-ip-172-20-48-45.ec2.internal               1/1       Running   0          2h
-  etcd-server-ip-172-20-77-67.ec2.internal               1/1       Running   0          2h
-
-There is one etcd server per master. So if you are using a three master cluster, as is the case here, then you'll see three entries starting with `etcd-server-ip`. Pick any pod.
-
-Get more details about this pod:
-
-  kubectl describe pod/etcd-server-ip-172-20-111-7.ec2.internal --namespace=kube-system 
-
-The output looks like this:
+First we need to deploy the Prometheus Operator which will listen for the new Custom Resources:
 
 ```
-Name:         etcd-server-ip-172-20-111-7.ec2.internal
-Namespace:    kube-system
-Node:         ip-172-20-111-7.ec2.internal/172.20.111.7
-Start Time:   Fri, 03 Nov 2017 14:08:05 -0700
-Labels:       k8s-app=etcd-server
-Annotations:  kubernetes.io/config.hash=079fd5412e50b130fb994d547d5f8926
-              kubernetes.io/config.mirror=079fd5412e50b130fb994d547d5f8926
-              kubernetes.io/config.seen=2017-11-03T21:08:00.804876902Z
-              kubernetes.io/config.source=file
-Status:       Running
-IP:           172.20.111.7
-Containers:
-  etcd-container:
-    Container ID:  docker://9ffdd4ff0183ae44bbe09188c294a67fe2c470824f57ed7a5db1d9f7a8404527
-    Image:         gcr.io/google_containers/etcd:2.2.1
-    Image ID:      docker-pullable://gcr.io/google_containers/etcd@sha256:19544a655157fb089b62d4dac02bbd095f82ca245dd5e31dd1684d175b109947
-    Ports:         2380/TCP, 4001/TCP
-
-. . .
-
-      ETCD_LISTEN_PEER_URLS:             http://0.0.0.0:2380
-      ETCD_LISTEN_CLIENT_URLS:           http://0.0.0.0:4001
-      ETCD_ADVERTISE_CLIENT_URLS:        http://etcd-c.internal.example.cluster.k8s.local:4001
-
-. . .
-
-QoS Class:       Burstable
-Node-Selectors:  <none>
-Tolerations:     :NoExecute
-Events:          <none>
+$ kubectl apply -f templates/prometheus/prometheus-bundle.yaml
+namespace "monitoring" created
+clusterrolebinding "prometheus-operator" created
+clusterrole "prometheus-operator" created
+serviceaccount "prometheus-operator" created
+deployment "prometheus-operator" created
 ```
 
-From this output, note down the IP address and port on which etcd server is listening. This value is `172.20.111.7` and `4001` in our case.
-
-Update the file `templates/prometheus/prometheus-configmap.yaml`, and replace `<IP>` with the IP address of the `etcd` server in your cluster. The updated fragment will look like as shown:
-
+Next we need to wait until the Prometheus Operator has started:
 ```
-- job_name: 'etcd'
-  target_groups:
-  - targets:
-    - 172.20.111.7:4001
+$ kubectl rollout status deployment/prometheus-operator -n monitoring
+...
+deployment "prometheus-operator" successfully rolled out
 ```
 
-Once you save the etcd information then you can deploy the ConfigMap:
+As a final step we need to deploy the Prometheus Custom Resource, Service Monitors, Cluster Roles and Bindings (RBAC):
 
-  $ kubectl create -f templates/prometheus/prometheus-configmap.yaml
-  configmap "prometheus" created
+```
+$ kubectl apply -f templates/prometheus/prometheus.yaml
+serviceaccount "kube-state-metrics" created
+clusterrole "kube-state-metrics" created
+clusterrolebinding "kube-state-metrics" created
+service "kube-scheduler-prometheus-discovery" created
+service "kube-controller-manager-prometheus-discovery" created
+daemonset "node-exporter" created
+service "node-exporter" created
+deployment "kube-state-metrics" created
+service "kube-state-metrics" created
+prometheus "prometheus" created
+servicemonitor "prometheus-operator" created
+servicemonitor "kube-apiserver" created
+servicemonitor "kubelet" created
+servicemonitor "kube-controller-manager" created
+servicemonitor "kube-scheduler" created
+servicemonitor "kube-state-metrics" created
+servicemonitor "node-exporter" created
+alertmanager "main" created
+secret "alertmanager-main" created
+```
 
-Next, deploy Prometheus into your cluster:
+Lets wait for prometheus to come up:
 
-  $ kubectl create -f templates/prometheus/prometheus-deployment.yaml
-  service "prometheus" created
-  deployment "prometheus" created
-
-Next, we will deploy the node exporter DaemonSet which will read system level metrics from each node and export them to Prometheus. Node exporter is defined as a DaemonSet, and so there is a single instance running on each node of the cluster:
-
-  $ kubectl create -f templates/prometheus/node-exporter.yaml
-  service "node-exporter" created
-  daemonset "node-exporter" created
-
-Finally, deploy the Grafana dashboard:
-
-  $ kubectl create -f templates/prometheus/grafana.yml
-  service "grafana" created
-  deployment "grafana" created
+```
+$ kubectl get po -l prometheus=prometheus -n monitoring
+NAME                      READY     STATUS    RESTARTS   AGE
+prometheus-prometheus-0   2/2       Running   0          1m
+prometheus-prometheus-1   2/2       Running   0          1m
+```
 
 === Prometheus Dashboard
 
-Prometheus is now scraping metrics from the etcd server, the Kubernetes API server and the node exporter. Metrics exported by different sources are listed below:
+Prometheus is now scraping metrics from the different scraping targets and we forward the dashboard via:
 
-- etcd: https://coreos.com/etcd/docs/latest/metrics
-- Kubernetes API server: https://github.com/kubernetes/kube-state-metrics
-- Node exporter: https://github.com/prometheus/node_exporter
+```
+$ kubectl port-forward $(kubectl get po -l prometheus=prometheus -n monitoring -o jsonpath={.items[0].metadata.name}) 9090 -n monitoring
+Forwarding from 127.0.0.1:9090 -> 9090
+```
 
-Let's look at these these metrics in the Prometheus dashboard. There are a few way to access the Prometheus dashboard?
+Now open the browser at http://localhost:9090/targets and all targets should be shown as `UP` (it might take a couple of minutes until data collectors are up and running for the first time).
 
-You can use port forwarding. First find the pod name:
+=== Grafana Installation
 
-    $ kubectl get pods -l app=prometheus
-    NAME                         READY     STATUS    RESTARTS   AGE
-    prometheus-570506388-8z5hq   1/1       Running   0          1m
+To install grafana we need to run:
 
-Then forward the traffic on that pod:
+```
+$ kubectl apply -f templates/prometheus/grafana-bundle.yaml
+secret "grafana-credentials" created
+service "grafana" created
+configmap "grafana-dashboards-0" created
+deployment "grafana" created
+```
 
-    $ kubectl port-forward prometheus-570506388-8z5hq 8080:9090 &
+Lets wait for grafana to come up:
 
-and enter http://127.0.0.1:8080/graph in your browser. Remember to replace the pod name in the `port-forward` command above.
+```
+$ kubectl rollout status deployment/grafana -n monitoring
+...
+deployment "grafana" successfully rolled out
+```
 
-Prometheus dashboard looks like:
+=== Grafana Dashboard
 
-image::prometheus-dashboard-initial.png[]
+Lets forward the grafana dashboard to a local port:
 
-A wide set of metrics are available and can be seen in the dashboard. Here is a snapshot of metrics from etcd:
+```
+$ kubectl port-forward $(kubectl get pod -l app=grafana -o jsonpath={.items[0].metadata.name} -n monitoring) 3000 -n monitoring
+Forwarding from 127.0.0.1:3000 -> 3000
+```
 
-image::prometheus-dashboard-etcd.png[]
+Grafana dashboard is now accessible at http://localhost:3000/.
 
-Here is a snapshot of metrics from the Kubernetes API server:
+You can access various metrics dashboards:
 
-image::prometheus-dashboard-kubelet.png[]
-
-Here is a snapshot of metrics from the node exporter:
-
-image::prometheus-dashboard-node-exporter.png[]
-
-=== Grafana dashboard
-
-Start Kubernetes proxy, if not already running, using the command:
-
-  kubectl proxy
-
-Grafana dashboard is now accessible at http://localhost:8001/api/v1/proxy/namespaces/default/services/grafana/ and looks like as shown:
-
-image::prometheus-grafana-dashboard-initial.png[]
-
-Let's set up a dashboard which will show us some details about the cluster.
-
-Click on top Grafana icon, and then select on Data Sources. Click on `+Add data source` to add a new data source. Specify the values as shown:
-
-Click on `Add` to add the data source:
-
-image::prometheus-grafana-add-data-source.png[]
-
-Click on `Save & Test` to make sure that data source is working correctly:
-
-image::prometheus-grafana-add-data-source-green.png[]
-
-The green bar indicates that the data source is recognized.
-
-Click on the Grafana icon again, select `Dashboards`, click on `Import`:
-
-image::prometheus-grafana-import.png[]
-
-We will use a pre-created https://grafana.com/dashboards/162[Kubernetes cluster monitoring] dashboard. A much larger set of dashboards are available at https://grafana.com/dashboards. Each such dashboard is assigned a unique number and can then be imported in any Grafana installation. The number in this case is `162`.
-
-Copy that number in our Grafana UI, and click on `Load`:
-
-image::prometheus-grafana-import-number.png[]
-
-Select the `prometheus` source here, and click on `Save & Open`:
-
-image::prometheus-grafana-import-save-open.png[]
-
-The dashboard opens up in Grafana UI and looks like as shown:
-
-image::prometheus-grafana-monitoring-dashboard.png[]
-
-Multiple other dashboards are available at https://grafana.com/dashboards/, and can be imported in a similar fashion. Alternatively, you can create your own custom dashboars as explained in http://docs.grafana.org/guides/getting_started/[Getting Started].
+* http://localhost:3000/dashboard/db/deployment&orgId=1
+* http://localhost:3000/dashboard/db/kubernetes-capacity-planning?orgId=1
+* http://localhost:3000/dashboard/db/kubernetes-cluster-health?refresh=10s&orgId=1
+* http://localhost:3000/dashboard/db/kubernetes-cluster-status?orgId=1
+* http://localhost:3000/dashboard/db/kubernetes-control-plane-status?orgId=1
+* http://localhost:3000/dashboard/db/kubernetes-resource-requests?orgId=1
+* http://localhost:3000/dashboard/db/nodes?orgId=1
+* http://localhost:3000/dashboard/db/pods?orgId=1
 
 === Cleanup
 
 Remove all the installed components:
 
-    kubectl delete -f templates/prometheus/
-
+    kubectl delete -f templates/prometheus/prometheus-bundle.yaml
