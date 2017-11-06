@@ -162,7 +162,7 @@ one step by passing the `--yes` flag.
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
-A multi-master cluster can be created by using the `--master-count` option and specifying an odd number value. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, `--master-zones` option can be used to explicitly specify the zones for master.
+A multi-master cluster can be created by using the `--master-count` option and specifying the number of master nodes. An odd value is recommended. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, `--master-zones` option can be used to explicitly specify the zones for the master nodes.
 
 `--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
@@ -314,7 +314,7 @@ one step by passing the `--yes` flag.
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
-A multi-master cluster can be created by using the `--master-count` option and using an odd number value. By default, master nodes are spread across the AZs specified using `--zones`. Alternatively, `--master-zones` option can be used to explicitly specify the zones for master.
+A multi-master cluster can be created by using the `--master-count` option and specifying the number of master nodes. An odd value is recommended. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, `--master-zones` option can be used to explicitly specify the zones for the master nodes.
 
 `--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
