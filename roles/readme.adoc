@@ -16,7 +16,7 @@ This chapter uses a cluster with 3 master nodes and 5 worker nodes as described 
 
 All configuration files for this chapter are in the `roles` directory.
 
-== IAM Master and Node Roles
+== IAM Roles for Master Nodes
 
 Out of the box, when deploying Kubernetes on AWS, master nodes require a number of EC2, Elastic Load Balancer (ELB), EC2 Container Registry (ECR), Route53, and Key Management Service (KMS) policies applied. The worker nodes require a number of EC2, ECR, and Route53 policies applied.  If using `kops` to install, these will be automatically configured for you (see link:https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md[here] for a full list).
 
@@ -95,7 +95,7 @@ The following steps describe how to configure kube2iam:
 +
 Note that the `kube2iam-ds.yaml` is assuming that your network configuration is based on `kubenet`, which is also the default kops configuration. If you have changed this as part of another exercise (e.g. switched to Calico) you will need to change the value of the `--host-interface` arg in the configuration file. For example, set to `cal+` if using Calico.
 
-=== IAM role for worker nodes
+=== IAM Roles for Worker Nodes
 
 It is necessary to create an IAM role which can assume other roles and assign it to each kubernetes worker.
 
