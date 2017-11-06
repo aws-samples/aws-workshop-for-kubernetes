@@ -158,14 +158,13 @@ one step by passing the `--yes` flag.
     kops create cluster \
       --name example.cluster.k8s.local \
       --master-count 3 \
-      --master-zones $AWS_AVAILABILITY_ZONES \
       --node-count 5 \
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
-A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The AZs for master can be specified using the `--master-zones` option. Kops will spread the servers across different AZs.
+A multi-master cluster can be created by using the `--master-count` option and specifying an odd number value. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, `--master-zones` option can be used to explicitly specify the zones for master.
 
-`--zones` is used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
+`--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
 As mentioned above, wait for 10-15 minutes for the cluster to be created. Validate the cluster:
 
@@ -311,14 +310,13 @@ one step by passing the `--yes` flag.
     kops create cluster \
       --name example.cluster.com \
       --master-count 3 \
-      --master-zones $AWS_AVAILABILITY_ZONES \
       --node-count 5 \
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
-A multi-master cluster can be created by using the `--master-count` option and using an odd number value. The AZs for master can be specified using the `--master-zones` option. Kops will spread the nodes across different AZs.
+A multi-master cluster can be created by using the `--master-count` option and using an odd number value. By default, master nodes are spread across the AZs specified using `--zones`. Alternatively, `--master-zones` option can be used to explicitly specify the zones for master.
 
-`--zones` is used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
+`--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
 As mentioned above, wait for 10-15 minutes for the cluster to be created. Validate the cluster:
 
