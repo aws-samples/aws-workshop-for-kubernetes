@@ -57,7 +57,7 @@ If the containers in the pod generate logs, then they can be seen using the comm
 	127.0.0.1 - - [03/Nov/2017:17:33:32 +0000] "GET /favicon.ico HTTP/1.1" 404 571 "http://localhost:8080/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36" "-"
 	2017/11/03 17:33:32 [error] 5#5: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8080", referrer: "http://localhost:8080/"
 
-=== Resource request
+=== Memory and CPU resource request
 
 A Container in a Pod can be assigned memory and CPU _request_ and _limit_. Request is the minimum amount of memory/CPU needed to run a container. Limit is the maximum amount of memory/CPU that a container will allowed to use. The memory/CPU request/limit for the Pod is the sum of the memory/CPU requests/limits for all the Containers in the Pod.
 
@@ -103,10 +103,10 @@ Let's assign a memory request and limit to a Pod using the configuration file sh
 	    image: nginx:latest
 	    resources:
 	      limits:
-	        memory: "2Mi"
+	        memory: "200Mi"
 	        cpu: 2
 	      requests:
-	        memory: "1Mi"
+	        memory: "100Mi"
 	        cpu: 1
 	    ports:
 	    - containerPort: 80
@@ -165,10 +165,12 @@ Watch the status of the Pod:
 	wildfly-pod   1/1       Running   3         1m
 	wildfly-pod   0/1       OOMKilled   3         1m
 
-It shows that the container could not be started because the maximum amount of memory allocated to the container is too little.
+`OOMKilled` shows that the container was terminated because it ran out of memory. 
 
 In `templates/pod-resources2.yaml`, change the value of `spec.containers[].resources.limits.memory` to `300Mi`. Delete the existing Pod, and create a new one:
 
+	$ kubectl delete -f templates/pod-resources2.yaml
+	pod "wildfly-pod" deleted
 	$ kubectl apply -f templates/pod-resources2.yaml
 	pod "wildfly-pod" created
 	$ kubectl get -w pod/wildfly-pod
@@ -183,28 +185,22 @@ Get more details about the resources allocated to the Pod:
 	$ kubectl get pod/wildfly-pod -o jsonpath={.spec.containers[].resources}
 	map[limits:map[cpu:2 memory:300Mi] requests:map[cpu:1 memory:100Mi]]
 
-=== Quality of service
-
-Kubernetes assigns one of the QoS classes to the Pod:
-
-. `Guaranteed`
-. `Burstable`
-. `BestEffort`
-
-QoS class is used by Kubernetes for scheduling and evicting Pods.
-
-When every Container in a Pod is given a memory and CPU request and limit, and they exactly match, then a Pod is scheduled with `Guaranteed` QoS. This is the higest priority.
-
-A Pod is given `Burstable` QoS class if the Pod does not meet the `Guaranteed` QoS and at least one Container has a memory or CPU request.
-
-When no memory or CPU request or limit is assigned to any Container in the Pod, then a Pod is scheduled with `BestEffort` QoS. This the lowest priority.
-
 === Delete a Pod
 
-Delete the pod as shown below:
+Get all the Pods that are running:
 
-	$ kubectl delete -f templates/pod.yaml
+	$ kubectl get pods
+	NAME          READY     STATUS    RESTARTS   AGE
+	nginx-pod     1/1       Running   0          2h
+	nginx-pod2    1/1       Running   0          20m
+	wildfly-pod   1/1       Running   0          6m
+
+Delete the Pods as shown below:
+
+	$ kubectl delete $(kubectl get pods -o=name)
 	pod "nginx-pod" deleted
+	pod "nginx-pod2" deleted
+	pod "wildfly-pod" deleted
 
 == Deployment
 
