@@ -63,6 +63,64 @@ Delete the pod as shown below:
 
 	$ kubectl delete -f templates/pod.yaml
 
+=== Resource request
+
+A Container in a Pod can be assigned memory and CPU _request_ and _limit_. Request is the minimum amount of memory/CPU needed to run a container. Limit is the maximum amount of memory/CPU that a container will allowed to use. The memory/CPU request/limit for the Pod is the sum of the memory/CPU requests/limits for all the Containers in the Pod.
+
+A Pod can be scheduled on a Node if the Pod's memory and CPU request can be met. Memory and CPU limits are not taken into consideration for scheduling. 
+
+Pod can continue to operate on the node if Containers in the Pod does not exceed the memory request. If Containers in the Pod exceeds the memory request then they become target of eviction whenever the node runs out of memory. If Containers in the Pod exceeds the memory limit then they are terminated. If the Pod can be restarted, then kubelet will restart it, just like any other type of runtime failure. A Container might or might not be allowed to exceed its CPU limit for extended periods of time. However, it will not be killed for excessive usage.
+
+Memory and CPU request/limit can be specified using the following:
+
+[options="header", width="75%", cols="1,3"]
+|====
+| Type | Field
+| Memory request | `spec.containers[].resources.requests.memory`
+| Memory limit | `spec.containers[].resources.limits.memory`
+| CPU request | `spec.containers[].resources.requests.cpu`
+| CPU limit | `spec.containers[].resources.limits.cpu`
+|====
+
+Memory resources are requested in bytes. You can specify them in integer or decimals with one of the suffixes `E`, `P`, `T`, `G`, `M`, `K`. It can also be expressed with power-of-two equivalents `Ei`, `Pi`, `Ti`, `Gi`, `Mi`, `Ki`.
+
+CPU can be requested in _cpu units_. 1 cpu unit is equivalent 1 AWS vCPU. It can also be requested in fractional units, such as 0.5 or in _millicpu_ such as 500m.
+
+===== Default memory and CPU
+
+By default, a container in a pod is allocated no memory request/limit and 100m CPU request and no limit. This can be verified using the previously started pod:
+
+	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
+	map[requests:map[cpu:100m]]
+
+Limits can be seen using the following command:
+
+	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].limits}
+
+This command shows an empty output.
+
+===== Assign memory and CPU
+
+Let's assign a memory request and limit to a Pod:
+
+
+=== Quality of service
+
+Kubernetes assigns one of the QoS classes to the Pod:
+
+. `Guaranteed`
+. `Burstable`
+. `BestEffort`
+
+QoS class is used by Kubernetes for scheduling and evicting Pods.
+
+When every Container in a Pod is given a memory and CPU request and limit, and they exactly match, then a Pod is scheduled with `Guaranteed` QoS. This is the higest priority.
+
+A Pod is given `Burstable` QoS class if the Pod does not meet the `Guaranteed` QoS and at least one Container has a memory or CPU request.
+
+When no memory or CPU request or limit is assigned to any Container in the Pod, then a Pod is scheduled with `BestEffort` QoS. This the lowest priority.
+
+
 == Deployment
 
 A "`desired state`", such as 4 replicas of a pod, can be described in a Deployment object. The Deployment controller in Kubernetes cluster then ensures the desired and the actual state are matching. Deployment ensures the recreation of a pod when the worker node fails or reboots. If a pod dies, then a new pod is started to ensure the desired vs actual matches. It also allows both up- and down-scaling the number of replicas. This is achieved using ReplicaSet. The Deployment manages the ReplicaSets and provides updates to those pods.
