@@ -1,27 +1,30 @@
-= Kubernetes Applying IAM Roles
+= IAM Roles with Kubernetes
 :toc:
+:imagesdir: ../images
 
-Out of the box, Kubernetes supports 2 types of roles: a master IAM role and a node IAM role.
+AWS uses Identity and Access Management (IAM) roles to manage authentication and authorization for AWS Services.  An IAM role is an IAM entity that defines a set of permissions for making AWS service requests. For more information about IAM, please see link:https://aws.amazon.com/iam/details/[here].
+
+Out of the box, Kubernetes supports two types of roles: a master IAM role and a node IAM role.
 
 In addition, the 3rd party plugin https://github.com/jtblin/kube2iam[kube2iam] can be configured to apply IAM roles at the pod level.
 
-This excerise will walk you through configuring both concepts.
+This exercise will walk you through configuring both concepts.
 
-== Pre-requisites
+== Prerequisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
 
 All configuration files for this chapter are in the `roles` directory.
 
-== IAM Master / Node Roles
+== IAM Roles for Master Nodes
 
-Out of the box, when deploying Kubernetes on AWS, master nodes require a number of EC2, Elastic Load Balancer (ELB), EC2 Container Registry (ECR), Route53 and KMS policies applied. The worker nodes require a number of EC2, ECR and Route53 policies applied.  If using `kops` to install, these will be auotmatically configured for you (see https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md[here] for a full list).
+Out of the box, when deploying Kubernetes on AWS, master nodes require a number of EC2, Elastic Load Balancer (ELB), EC2 Container Registry (ECR), Route53, and Key Management Service (KMS) policies applied. The worker nodes require a number of EC2, ECR, and Route53 policies applied.  If using `kops` to install, these will be automatically configured for you (see link:https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md[here] for a full list).
 
-These policies may be augmented via kops.  For example, to allow all nodes ElasticSearch access, perform the following steps:
+These policies may be augmented via `kops`.  For example, to allow all nodes ElasticSearch access, perform the following steps:
 
 Edit your cluster using the command:
 
-  kops edit cluster example.cluster.k8s.local
+  $ kops edit cluster example.cluster.k8s.local
 
 Add the following to the `spec`:
 
@@ -39,7 +42,7 @@ Note, you need to use spaces and proper indentation instead of tab for this conf
 
 Update the cluster for changes to take effect:
 
-  kops update cluster example.cluster.k8s.local --yes
+  $ kops update cluster example.cluster.k8s.local --yes
 
 In a similar fashion, policies may be applied to all masters by setting the `additionalPolicies.master` property as below:
 
@@ -57,9 +60,9 @@ Once again, the cluster needs to be updated for these changes to take effect.
 
 == IAM Container Roles
 
-https://github.com/jtblin/kube2iam[Kube2iam] provides different AWS IAM roles for pods running on Kubernetes based on annotations.
+link:https://github.com/jtblin/kube2iam[Kube2iam] provides different AWS IAM roles for pods running on Kubernetes based on annotations.
 
-Kube2iam works by intercepting traffic from the containers to the EC2 Metadata API, calling the AWS Security Token Service (STS) API to obtain temporary credentials using the pod configured role, then using these temporary credentials to perform the original request.
+Kube2iam works by intercepting traffic from the containers to the EC2 Metadata API, calling the link:https://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html[AWS Security Token Service (STS)] API to obtain temporary credentials using the pod configured role, then using these temporary credentials to perform the original request.
 
 === Install kube2iam
 
@@ -67,7 +70,7 @@ The following steps describe how to configure kube2iam:
 
 . Edit your cluster using the command:
 
-  kops edit cluster example.cluster.k8s.local
+  $ kops edit cluster example.cluster.k8s.local
 
 . Update the `spec` to allow STS to assume roles:
 
@@ -92,13 +95,13 @@ The following steps describe how to configure kube2iam:
 +
 Note that the `kube2iam-ds.yaml` is assuming that your network configuration is based on `kubenet`, which is also the default kops configuration. If you have changed this as part of another exercise (e.g. switched to Calico) you will need to change the value of the `--host-interface` arg in the configuration file. For example, set to `cal+` if using Calico.
 
-=== IAM role for worker
+=== IAM Roles for Worker Nodes
 
 It is necessary to create an IAM role which can assume other roles and assign it to each kubernetes worker.
 
-We need the IAM Role ARN assigned to the worker nodes.  We will need this as part of creating pod roles.  We can obtain this by running the following command:
+We need the link:https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html[Amazon Resource Name (ARN)] of the IAM Role assigned to the worker nodes.  We will need this as part of creating pod roles.  We can obtain this by running the following command:
 
-  kubectl get no \
+  $ kubectl get no \
     --selector=kubernetes.io/role==node \
     -o jsonpath='{.items[0].spec.externalID}' | \
     xargs aws ec2 describe-instances \
@@ -122,7 +125,7 @@ Edit the `templates/pod-role-trust-policy.json` file, replace `{{NodeIamRoleARN}
 
 We will first create a role with no permissions.  By configuring the Trusted Policy of the role, we are allowing kube2iam (via the worker node IAM Instance Profile Role) to assume the pod role.  Make note of the role ARN from the response:
 
-  aws iam create-role \
+  $ aws iam create-role \
     --role-name MyPodRole \
     --assume-role-policy-document \
     file://templates/pod-role-trust-policy.json
@@ -195,7 +198,6 @@ Log into the `aws-cli` pod that we have just deployed:
 We will use the AWS CLI to attempt to access S3.  Recall that the `MyPodRole` IAM role that we created has no permissions, therefore the following should fail:
 
   bash-4.3# aws s3 ls
-
   An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
 
 Exit the pod:

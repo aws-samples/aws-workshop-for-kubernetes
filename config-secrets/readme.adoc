@@ -12,11 +12,11 @@ Kubernetes has resource types that allows to decouple application code from conf
 
 ConfigMap is similar to Secrets, but provides a means of working with strings that don’t contain sensitive information.
 
-This section will explain how to use ConfigMap and Secrets.
+This section will explain how to use ConfigMap and Secrets. Make sure you change to that directory before giving any commands in this chapter.
 
-== Pre-requisites
+== Prerequisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
 
 All configuration files for this chapter are in the `config-secrets` directory.
 

@@ -30,6 +30,15 @@ If `minikube` has already been installed earlier, then you can update the instal
 +
     brew cask reinstall minikube
 +
+If you receive this error after `brew cask install minikube`:
++
+    ==> Installing Cask minikube
+    Error: It seems there is already a Binary at '/usr/local/bin/minikube'; not linking.
++
+Run this command:
++
+    $ sudo cp ~/Library/Caches/Homebrew/Cask/minikube--0.23.0 /usr/local/bin/minikube
++
 Verify the version:
 +
     $ minikube version
@@ -74,7 +83,7 @@ Verify the version:
 +
 . Install or Upgrade Kubectl CLI:
 +
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
 == Start Kubernetes cluster

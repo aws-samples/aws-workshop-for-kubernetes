@@ -5,9 +5,9 @@ https://www.projectcalico.org[Calico] is an open-source plugin that allows for f
 
 This exercise will walk you through configuring Calico and applying a Network Policy.
 
-== Pre-requisites
+== Prerequisites
 
-You can either use an existing cluster as explained at link:../cluster-install#default-gossip-based-cluster[].
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
 
 Alternatively, you can create a new cluster and use kops CLI options to specify the networking mode as shown below:
 
@@ -34,7 +34,7 @@ Rest of the chapter goes with the presumption that you are using an existing clu
 
 NOTE: A smaller sized cluster, with 1 master node and 2 worker nodes, is chosen here. This is to minimize the amount of time for rolling update the cluster later. It typically takes 5-6 mins per node for rolling update.
 
-All configuration files for this chapter are in the `calico` directory.
+All configuration files for this chapter are in the `calico` directory. Make sure you change to that directory before giving any commands in this chapter.
 
 == Installation
 

@@ -1,16 +1,18 @@
 = Service Discovery for Microservices with Kubernetes
+:icons:
+:linkcss:
 :imagesdir: ../images
 :toc:
 
 This chapter shows an example of how different microservices within an application can use service discovery to locate each other in the infrastructure rather than via hardcoded IP addresses.
 
-== Pre-requisites
+== Prerequisites
 
-A 3 master nodes and 5 worker nodes cluster as explained in the link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[cluster-install] chapter.
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
 
-All configuration files for this chapter are in the `microservices` directory.
+All configuration files for this chapter are in the `microservices` directory. Make sure you change to that directory before giving any commands in this chapter.
 
-== Application architecture
+=== Application Architecture
 
 The sample application uses three services:
 
@@ -57,9 +59,9 @@ spec:
       value: /
 ----
 
-The environment variables point to the `name` and `greeter` service defined in the application configuration.
+The environment variables point to the `name` and `greeter` service as defined in the application configuration.
 
-An ingress load balancer for `webapp` service is is created by using the following fragment:
+An ingress load balancer for `webapp` service is created by using the following fragment:
 
 [source, yml]
 ----
@@ -77,15 +79,15 @@ Overall, the services communicate with each other as shown below:
 [.thumb]
 image::k8s-services.png[]
 
-== Deploy application
+=== Deploy Application
 
 . Deploy the application:
 
-    kubectl create -f templates/app.yml
+  $ kubectl create -f templates/app.yml
 
 . Get the list of services:
 
-  kubectl get svc
+  $ kubectl get svc
   NAME              CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
   greeter-service   100.64.44.23     <none>             8080/TCP       13s
   kubernetes        100.64.0.1       <none>             443/TCP        23m
@@ -94,7 +96,7 @@ image::k8s-services.png[]
 
 . Get more details about the service:
 
-  kubectl describe svc/webapp-service
+  $ kubectl describe svc/webapp-service
   Name:			webapp-service
   Namespace:		default
   Labels:			<none>
@@ -115,20 +117,23 @@ image::k8s-services.png[]
 
 Wait for ~3 mins for the load balancer to accept request.
 
-== Access application
+=== Access Application
 
-Access the application using the following URLs with `curl` or in browser:
+Access the application using the following URLs with `curl` or via a browser:
 
   http://<host>
   http://<host>?greet=ho
   http://<host>?id=1
   http://<host>?greet=ho&id=1
 
-`<host>` is the value of the ingress load balancer's address.
+`<host>` is the value of the ingress load balancer's address:
 
-== Delete application
+  $ kubectl get svc/webapp-service -o jsonpath={.status.loadBalancer.ingress[0].hostname}
+  a5427e128847211e782280a896fc2bfc-283874069.us-east-1.elb.amazonaws.com
+  
+=== Delete Application
 
-Delete the application as shown:
+Delete the application with this command:
 
-  kubectl delete -f templates/app.yml
+  $ kubectl delete -f templates/app.yml
 

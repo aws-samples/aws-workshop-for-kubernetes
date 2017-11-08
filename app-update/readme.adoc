@@ -12,11 +12,11 @@ NOTE: There is a `kubectl rolling-update` command but it is applicable only to R
 
 For our usecase, the application initially uses the image `arungupta/app-upgrade:v1`. Then the Deployment is updated to use the image `arungupta/app-upgrade:v2`. The v1 image prints "`Hello World!`". The v2 image prints "`Howdy World!`". The source code for these images is in the link:images[] directory.
 
-== Pre-requisites
+== Prerequisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter. A smaller cluster may be used.
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
 
-All configuration files for this chapter are in the `app-udpate` directory.
+All configuration files for this chapter are in the `app-udpate` directory. Make sure you change to that directory before giving any commands in this chapter.
 
 == Update and Rollback
 
@@ -233,7 +233,7 @@ Once again, `--record` ensures that the command initiating this deployment is re
 
 . Expose service:
 
-    $ kubectl expose deployment/app-rolling --port=80 --name=app-rolling --type=LoadBalancer
+    $ kubectl expose deployment/app-rolling --port=80 --target-port=8080 --name=app-rolling --type=LoadBalancer
     service "app-rolling" exposed
 
 . Get service detail:
@@ -449,7 +449,7 @@ The Service uses labels that are common to both versions of the application. Thi
 
 Let's verify.
 
-==== Create canary
+==== Create Canary Deployment
 
 . Deploy `v1` version of Deployment:
 
@@ -477,7 +477,7 @@ Let's verify.
 +
 Note that we are explicitly specifying the label `name=app` in the query to only pick the pods that are specified in the service definition at `templates/app-service.yaml`. There are two pods from `v1` version and 2 pods from `v2` version. Accessing this service will have 50% response from `v1` version and the other 50% from `v2` version.
 
-==== Scale canary
+==== Scale Canary Deployment
 
 The number of pods to be included from `v1` version and `v2` version can now be indepently scaled using the two Deployments.
 
@@ -515,9 +515,15 @@ You can see that 4 pods are now coming from `v2` version of the application and 
 +
 Now all pods are serving `v2` version of the Deployment.
 
-=== Ingress Controller
+==== Delete Canary Deployment
 
-Achieving right percentage of traffic using Deployment and Service requires spinning-up as many pods as necessary. For example, if the version `v1` has 4 replicas of a pod. Then, in order to direct 5% traffic to the version `v2`, 1 pod replica of `v2` version would require 16 more replicas of `v1` version. This is not an optimal usage of resource. Weighted traffic switching with Kubernetes Ingress can be used to solve this problem.
+Run this command to delete all resource created above:
+
+    $ kubectl delete svc/app-service deployment/app-v1 deployment/app-v2
+
+=== Ingress Controller (Not Yet Implemented)
+
+Achieving the right percentage of traffic using Deployments and Services requires spinning-up as many pods as necessary. For example, if the version `v1` has 4 replicas of a pod. Then, in order to direct 5% traffic to the version `v2`, 1 pod replica of `v2` version would require 16 more replicas of `v1` version. This is not an optimal usage of resource. Weighted traffic switching with Kubernetes Ingress can be used to solve this problem.
 
 https://github.com/zalando-incubator/kube-ingress-aws-controller[Kubernetes Ingress Controller for AWS], by Zalando, is an ingress controller for Kubernetes.
 

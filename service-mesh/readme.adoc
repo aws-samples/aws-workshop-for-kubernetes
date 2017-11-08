@@ -34,8 +34,7 @@ In this exercise we'll look at a few of the features linkerd provides, such as:
 
 === Create Kubernetes cluster
 
-Review the steps to create a Kubernetes cluster on AWS using Kops in the
-link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[cluster install] documentation.
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
 
 === Install linkerd
 
@@ -231,8 +230,7 @@ In this exercise we'll look at a few of the features Istio provides, such as:
 
 === Create Kubernetes cluster
 
-Review the steps to create a Kubernetes cluster on AWS using Kops in the
-link:../cluster-install#default-gossip-based-cluster[cluster install] documentation.
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
 
 === Install Istio
 
