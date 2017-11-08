@@ -59,7 +59,7 @@ If the containers in the pod generate logs, then they can be seen using the comm
 
 === Memory and CPU resource request
 
-A Container in a Pod can be assigned memory and CPU _request_ and _limit_. Request is the minimum amount of memory/CPU needed to run a container. Limit is the maximum amount of memory/CPU that a container will allowed to use. The memory/CPU request/limit for the Pod is the sum of the memory/CPU requests/limits for all the Containers in the Pod.
+A Container in a Pod can be assigned memory and CPU _request_ and _limit_. Request is the minimum amount of memory/CPU that Kubernetes will give to the container. Limit is the maximum amount of memory/CPU that a container will be allowed to use. The memory/CPU request/limit for the Pod is the sum of the memory/CPU requests/limits for all the Containers in the Pod. Request defaults to limit if not specified. Default value of the limit is the node capacity.
 
 A Pod can be scheduled on a node if the Pod's memory and CPU request can be met. Memory and CPU limits are not taken into consideration for scheduling. 
 
@@ -185,20 +185,176 @@ Get more details about the resources allocated to the Pod:
 	$ kubectl get pod/wildfly-pod -o jsonpath={.spec.containers[].resources}
 	map[limits:map[cpu:2 memory:300Mi] requests:map[cpu:1 memory:100Mi]]
 
+=== Quality of service
+
+Kubernetes opportunistically scavenge the difference between request and limit if they are not used by the Containers. This allows Kubernetes to oversubscribe nodes, which increases utilization, while at the same time maintaining resource guarantees for the containers that need guarantees.
+
+Kubernetes assigns one of the QoS classes to the Pod:
+
+. `Guaranteed`
+. `Burstable`
+. `BestEffort`
+
+QoS class is used by Kubernetes for scheduling and evicting Pods.
+
+When every Container in a Pod is given a memory and CPU limit, and optionally non-zero request, and they exactly match, then a Pod is scheduled with `Guaranteed` QoS. This is the higest priority. 
+
+A Pod is given `Burstable` QoS class if the Pod does not meet the `Guaranteed` QoS and at least one Container has a memory or CPU request. This is intermediate priority.
+
+When no memory and CPU request or limit is assigned to any Container in the Pod, then a Pod is scheduled with `BestEffort` QoS. This the lowest and the default priority.
+
+Pods that need to stay up can request `Guaranteed` QoS. Pods with less stringent requirement can use a weaker or no QoS.
+
+==== Guaranteed
+
+Here is an example of Pod with `Guaranteed` QoS:
+
+	apiVersion: v1
+	kind: Pod
+	metadata:
+	  name: nginx-pod-guaranteed
+	  labels:
+	    name: nginx-pod
+	spec:
+	  containers:
+	  - name: nginx
+	    image: nginx:latest
+	    resources:
+	      limits:
+	        memory: "200Mi"
+	        cpu: 1
+	    ports:
+	    - containerPort: 80
+
+Note that no request values are specified here, and will default to limit.
+
+Create this Pod:
+
+	$ kubectl apply -f templates/pod-guaranteed.yaml
+	pod "nginx-pod-guaranteed" created
+
+Check the resources:
+
+	$ kubectl get pod/nginx-pod-guaranteed -o jsonpath={.spec.containers[].resources}
+	map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:200Mi]]
+
+Check the QoS:
+
+	$ kubectl get pod/nginx-pod-guaranteed -o jsonpath={.status.qosClass}
+	Guaranteed
+
+Another Pod with explicit value for limit and request is shown:
+
+	apiVersion: v1
+	kind: Pod
+	metadata:
+	  name: nginx-pod-guaranteed2
+	  labels:
+	    name: nginx-pod
+	spec:
+	  containers:
+	  - name: nginx
+	    image: nginx:latest
+	    resources:
+	      limits:
+	        memory: "200Mi"
+	        cpu: 1
+	      requests:
+	        memory: "200Mi"
+	        cpu: 1
+	    ports:
+	    - containerPort: 80
+
+Create this Pod:
+
+	$ kubectl apply -f templates/pod-guaranteed2.yaml
+	pod "nginx-pod-guaranteed2" created
+
+Check the resources:
+
+	$ kubectl get pod/nginx-pod-guaranteed2 -o jsonpath={.spec.containers[].resources}
+	map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:200Mi]]
+
+Check the QoS:
+
+	$ kubectl get pod/nginx-pod-guaranteed2 -o jsonpath={.status.qosClass}
+	Guaranteed
+
+==== Burstable
+
+Here is an example of Pod with `Burstable` QoS:
+
+	apiVersion: v1
+	kind: Pod
+	metadata:
+	  name: nginx-pod-burstable
+	  labels:
+	    name: nginx-pod
+	spec:
+	  containers:
+	  - name: nginx
+	    image: nginx:latest
+	    resources:
+	      limits:
+	        memory: "200Mi"
+	        cpu: 1
+	      requests:
+	        memory: "100Mi"
+	        cpu: 1
+	    ports:
+	    - containerPort: 80
+
+Note that both request and limit values are specified here.
+
+Create this Pod:
+
+	$ kubectl apply -f templates/pod-burstable.yaml
+	pod "nginx-pod-burstable" created
+
+Check the resources:
+
+	$ kubectl get pod/nginx-pod-burstable -o jsonpath={.spec.containers[].resources}
+	map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:100Mi]]
+
+Check the QoS:
+
+	$ kubectl get pod/nginx-pod-burstable -o jsonpath={.status.qosClass}
+	Burstable
+
+==== BestEffort
+
+Check the resources:
+
+	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
+	map[requests:map[cpu:100m]]
+
+Check the QoS:
+
+	$ kubectl get pod/nginx-pod -o jsonpath={.status.qosClass}
+	Burstable
+
+This should be `BestEffort` and filed as https://github.com/kubernetes/kubernetes/issues/55278[kubernetes#55278].
+
 === Delete a Pod
 
 Get all the Pods that are running:
 
 	$ kubectl get pods
-	NAME          READY     STATUS    RESTARTS   AGE
-	nginx-pod     1/1       Running   0          2h
-	nginx-pod2    1/1       Running   0          20m
-	wildfly-pod   1/1       Running   0          6m
+	NAME                    READY     STATUS    RESTARTS   AGE
+	nginx-pod               1/1       Running   0          6m
+	nginx-pod-burstable     1/1       Running   0          9m
+	nginx-pod-guaranteed    1/1       Running   0          23m
+	nginx-pod-guaranteed2   1/1       Running   0          12m
+	nginx-pod2              1/1       Running   0          6m
+	wildfly-pod             1/1       Running   0          6m
 
 Delete the Pods as shown below:
 
 	$ kubectl delete $(kubectl get pods -o=name)
 	pod "nginx-pod" deleted
+	pod "nginx-pod-burstable" deleted
+	pod "nginx-pod-guaranteed" deleted
+	pod "nginx-pod-guaranteed2" deleted
 	pod "nginx-pod2" deleted
 	pod "wildfly-pod" deleted
 
