@@ -14,34 +14,51 @@ Minikube runs a single-node Kubernetes cluster inside a VM on your laptop. This 
 
 Complete installation instructions are available at https://github.com/kubernetes/minikube. Here are quick instructions:
 
-=== Setup on Mac OSX
+=== Setup on macOS
 
 Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh/[homebrew].
 
-. Install homebrew and cask
-+
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-+
 . Install VirtualBox
-+
+
     brew cask install virtualbox
-+
+
 . Install minikube
-+
+
     brew cask install minikube
 +
-. Install Kubectl CLI
+If `minikube` has already been installed earlier, then you can update the install using the following command:
 +
+    brew cask reinstall minikube
++
+Verify the version:
++
+    $ minikube version
+    minikube version: v0.23.0
++
+. Install Kubectl CLI
+
     brew install kubernetes-cli
++
+If you already have Kubectl CLI installed, then you just need to update it:
++
+    brew upgrade kubernetes-cli
 
 === Setup on Windows
 
 . Download and install https://www.virtualbox.org/wiki/Downloads[VirtualBox].
 . Download the https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe[minikube-windows-amd64.exe] file, and rename it to `minikube.exe`.
++
+Verify the version:
++
+    $ minikube version
+    minikube version: v0.23.0
++
 . Download kubectl CLI:
 +
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.goo \
-    gleapis.com/kubernetes-release/release/stable.txt)/bin/windows/amd64/kubectl
+    gleapis.com/kubernetes-release/release/stable.txt)/bin/windows/amd64/kubectl.exe
+
+Latest instructions are also available at https://kubernetes.io/docs/tasks/tools/install-kubectl/#before-you-begin.
 
 === Setup on Linux
 
@@ -49,6 +66,11 @@ Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh
 . Install minikube:
 +
     curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
++
+Verify the version:
++
+    $ minikube version
+    minikube version: v0.23.0
 +
 . Install or Upgrade Kubectl CLI:
 +
@@ -67,12 +89,14 @@ The first start of minikube will download the ISO file and then start the cluste
 
 ```
 $ minikube start
-Starting local Kubernetes v1.7.5 cluster...
+Starting local Kubernetes v1.8.0 cluster...
 Starting VM...
 Downloading Minikube ISO
- 139.09 MB / 139.09 MB [============================================] 100.00% 0s
+ 140.01 MB / 140.01 MB [============================================] 100.00% 0s
 Getting VM IP address...
 Moving files into cluster...
+Downloading localkube binary
+ 148.56 MB / 148.56 MB [============================================] 100.00% 0s
 Setting up certs...
 Connecting to cluster...
 Setting up kubeconfig...
@@ -111,8 +135,8 @@ This command will show all the nodes available in your kubernetes cluster:
 
 It shows the output as:
 
-    NAME       STATUS    ROLES     AGE       VERSION
-    minikube   Ready     <none>    7d        v1.7.5
+  NAME       STATUS    ROLES     AGE       VERSION
+  minikube   Ready     <none>    46m       v1.8.0
 
 === Create your first pod
 
@@ -184,7 +208,7 @@ Events:
   Normal  Started                51s   kubelet, minikube  Started container
 ```
 
-By default, pods are created in a `default` namespace. In additiopn, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
+By default, pods are created in a `default` namespace. In addition, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
 
 ```
 $ kubectl get pods --namespace kube-system
@@ -196,7 +220,7 @@ kubernetes-dashboard-5jt9q    1/1       Running   0          1m
 
 === Get logs from the pod
 
-Logs from the pod can be obtained:
+Logs from the pod can be obtained (a fresh nginx does not have logs - check again later once you have accessed the service):
 
     kubectl logs <pod-name>
 
@@ -219,13 +243,14 @@ Where `<pod-name>` is the pod name of your NGINX pod. This will expose the pod a
 
     $ kubectl get svc
     NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)        AGE
-    web          NodePort    10.0.0.14    <none>        80:30934/TCP   3s
+    kubernetes   ClusterIP   10.0.0.1     <none>        443/TCP        50m
+    web          NodePort    10.0.0.138   <none>        80:32406/TCP   3s
 
 === View service webpage
 
 This minikube command will display the service for you in a web page:
 
-    minkube service web
+    minikube service web
 
 This opened a browser with an IP address and the port that the service was exposed on. It looks like as shown:
 
@@ -233,7 +258,7 @@ image::nginx-welcome-page.png[]
 
 This is a convenient feature of minikube. But what if you wanted to find this information yourself?
 
-You can view the IP address of a node in your cluser with these steps, first find all of the nodes in your cluster:
+You can view the IP address of a node in your cluster with these steps, first find all of the nodes in your cluster:
 
     kubectl get nodes
 
@@ -320,42 +345,18 @@ Events:
 
 IP address information can be obtained by looking at the `InternalIP` field:
 
-    kubectl describe node minikube | grep InternalIP
+    $ echo $(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
 
 This gives us the IP address where the service is hosted. Now, we need to get the port that the service is exposed on. This can be found using the following command:
 
-    kubectl describe service web
+    $ echo $(kubectl get service web -o jsonpath='{.spec.ports[*].nodePort}')
 
-It shows the output:
-
+We can combine these two commands with curl to access the service from the cli:
 ```
-$ kubectl describe service web
-Name:                     web
-Namespace:                default
-Labels:                   pod-template-hash=4217019353
-                          run=nginx
-Annotations:              <none>
-Selector:                 pod-template-hash=4217019353,run=nginx
-Type:                     NodePort
-IP:                       10.0.0.14
-Port:                     <unset>  80/TCP
-TargetPort:               80/TCP
-NodePort:                 <unset>  30934/TCP
-Endpoints:                172.17.0.6:80
-Session Affinity:         None
-External Traffic Policy:  Cluster
-Events:                   <none>
+$ curl $(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'):$(kubectl get service web -o jsonpath='{.spec.ports[*].nodePort}')
 ```
-
-The value of 'NodePort' attribute shows the port on which the service is deployed.
 
 The host and the port are the exact same values where minikube opened the service page in the browser.
-
-=== Delete resources
-
-Delete the Kubernetes resources created so far:
-
-    kubectl delete svc/web deployment/nginx
 
 === Kubernetes dashboard
 
@@ -370,6 +371,14 @@ It looks like this:
 image::minikube-dashboard.png[]
 
 Look around the dashboard and become familiar with some of the Kubernetes terminology. This will be explained in the subsequent chapters.
+
+
+=== Delete resources
+
+Delete the Kubernetes resources created so far:
+
+    kubectl delete svc/web deployment/nginx
+
 
 === Shutdown cluster
 

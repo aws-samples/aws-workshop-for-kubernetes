@@ -21,7 +21,7 @@ These policies may be augmented via kops.  For example, to allow all nodes Elast
 
 Edit your cluster using the command:
 
-  kops edit cluster cluster.k8s.local
+  kops edit cluster example.cluster.k8s.local
 
 Add the following to the `spec`:
 
@@ -39,7 +39,7 @@ Note, you need to use spaces and proper indentation instead of tab for this conf
 
 Update the cluster for changes to take effect:
 
-  kops update cluster cluster.k8s.local --yes
+  kops update cluster example.cluster.k8s.local --yes
 
 In a similar fashion, policies may be applied to all masters by setting the `additionalPolicies.master` property as below:
 
@@ -53,7 +53,7 @@ In a similar fashion, policies may be applied to all masters by setting the `add
         }
       ]
 
-Once again, the cluster needs to be udpated for these changes to take effect.
+Once again, the cluster needs to be updated for these changes to take effect.
 
 == IAM Container Roles
 
@@ -67,7 +67,7 @@ The following steps describe how to configure kube2iam:
 
 . Edit your cluster using the command:
 
-  kops edit cluster cluster.k8s.local
+  kops edit cluster example.cluster.k8s.local
 
 . Update the `spec` to allow STS to assume roles:
 
@@ -83,7 +83,7 @@ The following steps describe how to configure kube2iam:
 
 . Update the cluster for changes to take effect:
 
-  kops update cluster cluster.k8s.local --yes
+  kops update cluster example.cluster.k8s.local --yes
 
 . Deploy kube2iam as a DaemonSet:
 +
@@ -103,7 +103,6 @@ We need the IAM Role ARN assigned to the worker nodes.  We will need this as par
     -o jsonpath='{.items[0].spec.externalID}' | \
     xargs aws ec2 describe-instances \
     --instance-id \
-    --region us-east-1 \
     --query 'Reservations[*].Instances[*].IamInstanceProfile.Arn' | \
     sed -e 's/instance-profile/role/g'
 
@@ -113,7 +112,7 @@ It shows an output like:
 
   [
       [
-          "arn:aws:iam::<account-id>:role/nodes.cluster.k8s.local"
+          "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
       ]
   ]
 
@@ -133,30 +132,30 @@ It shows an output as:
   {
       "Role": {
           "AssumeRolePolicyDocument": {
-              "Version": "2012-10-17", 
+              "Version": "2012-10-17",
               "Statement": [
                   {
-                      "Action": "sts:AssumeRole", 
+                      "Action": "sts:AssumeRole",
                       "Principal": {
                           "Service": "ec2.amazonaws.com"
-                      }, 
-                      "Effect": "Allow", 
+                      },
+                      "Effect": "Allow",
                       "Sid": ""
-                  }, 
+                  },
                   {
-                      "Action": "sts:AssumeRole", 
+                      "Action": "sts:AssumeRole",
                       "Principal": {
                           "AWS": "arn:aws:iam::<account-id>:role/nodes.cluster.k8s.local"
-                      }, 
-                      "Effect": "Allow", 
+                      },
+                      "Effect": "Allow",
                       "Sid": ""
                   }
               ]
-          }, 
-          "RoleId": "AROAJANTQ2EP23B2BE2YQ", 
-          "CreateDate": "2017-10-25T01:59:51.585Z", 
-          "RoleName": "MyPodRole", 
-          "Path": "/", 
+          },
+          "RoleId": "AROAJANTQ2EP23B2BE2YQ",
+          "CreateDate": "2017-10-25T01:59:51.585Z",
+          "RoleName": "MyPodRole",
+          "Path": "/",
           "Arn": "arn:aws:iam::<account-id>:role/MyPodRole"
       }
   }
@@ -195,7 +194,7 @@ Log into the `aws-cli` pod that we have just deployed:
 
 We will use the AWS CLI to attempt to access S3.  Recall that the `MyPodRole` IAM role that we created has no permissions, therefore the following should fail:
 
-  bash-4.3# aws s3 ls                                                                                                                              
+  bash-4.3# aws s3 ls
 
   An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
 
@@ -212,11 +211,13 @@ Terminate the pod:
 
 Let's update the role to grant S3 permissions:
 
-  aws iam attach-role-policy --role-name MyPodRole --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+  $ aws iam attach-role-policy --role-name MyPodRole --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 
 Recreate the pod, log into it, then try to access S3 again.  We should now be authorized!
 
-  $ kubectl create -f aws-cli-po.yaml
+  $ kubectl create -f templates/aws-cli-po.yaml
+  pod "aws-cli" created
+
   $ kubectl exec -it aws-cli /bin/bash
   bash-4.3# aws s3 ls
 
@@ -226,12 +227,9 @@ The output should show the list of S3 buckets.
 
 As kube2iam caches STS tokens for 15 minutes, if you make any changes to a role and need it to take effect immediately, you will need to restart the pod.
 
-To govern what roles a pod can assume, you can use the `iam.amazonaws.com/allowed-roles` namespace annotation.  For example, the following will only allow pods to assume our MyPodRole:
+To govern what roles a pod can assume, you can use the `iam.amazonaws.com/allowed-roles` namespace annotation. Edit the `templates/namespace-role-annotation.yaml` file, replace `{{NodeIamRoleARN}}` with the IAM Role ARN obtained from the previous step and run the following command:
 
-  apiVersion: v1
-  kind: Namespace
-  metadata:
-    annotations:
-      iam.amazonaws.com/allowed-roles: |
-        ["arn:aws:iam::<account-id>:role/MyPodRole"]
-    name: default
+    $ kubectl apply -f templates/namespace-role-annotation.yaml
+    namespace "default" configured
+
+From now on, pods in the default namespace will only be able to optain the `MyPodRole`.

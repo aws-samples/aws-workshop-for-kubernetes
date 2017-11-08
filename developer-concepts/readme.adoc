@@ -1,6 +1,6 @@
-:toc:
-
 = Kubernetes Developer Concepts
+:toc:
+:imagesdir: ../images
 
 Kubernetes has a number of abstractions that map to API objects. These Kubernetes API Objects can be used to describe your cluster's desired state which will include info such as applications and workloads running, replicas, container images, networking resources and more. This section explains the key concepts relevant from an application developer perspecitve.
 
@@ -42,9 +42,20 @@ Get the list of pod:
 	NAME        READY     STATUS    RESTARTS   AGE
 	nginx-pod   1/1       Running   0          22s
 
+Verify that the pod came up fine:
+
+	kubectl -n default port-forward $(kubectl -n default get pod -l name=nginx-pod -o jsonpath='{.items[0].metadata.name}') 8080:80 & open http://localhost:8080/
+
+This opens up a browser window and shows the NGINX main page:
+
+image::nginx-pod-default-page.png[]
+
 If the containers in the pod generate logs, then they can be seen using the command shown:
 
 	$ kubectl logs nginx-pod
+	127.0.0.1 - - [03/Nov/2017:17:33:30 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36" "-"
+	127.0.0.1 - - [03/Nov/2017:17:33:32 +0000] "GET /favicon.ico HTTP/1.1" 404 571 "http://localhost:8080/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36" "-"
+	2017/11/03 17:33:32 [error] 5#5: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8080", referrer: "http://localhost:8080/"
 
 === Delete a Pod
 
@@ -54,9 +65,7 @@ Delete the pod as shown below:
 
 == Deployment
 
-A "`desired state`", such as 4 replicas of a pod, can be described in a Deployment object. The Deployment controller in Kubernetes cluster then ensures the desired and the actual state are matching. Deployment ensures the recreation of a pod when the worker node fails or reboots. It also allows both up- and down-scaling the number of replicas.
-
-If a pod dies, then a new pod is started to ensure the desired vs actual matches.
+A "`desired state`", such as 4 replicas of a pod, can be described in a Deployment object. The Deployment controller in Kubernetes cluster then ensures the desired and the actual state are matching. Deployment ensures the recreation of a pod when the worker node fails or reboots. If a pod dies, then a new pod is started to ensure the desired vs actual matches. It also allows both up- and down-scaling the number of replicas. This is achieved using ReplicaSet. The Deployment manages the ReplicaSets and provides updates to those pods.
 
 === Create a Deployment
 
@@ -225,106 +234,6 @@ Run the following command to delete the Deployment:
 
 	$ kubectl delete -f templates/deployment.yaml
 	deployment "nginx-deployment" deleted
-
-== Replica Set
-
-A RepllicaSet specifies a number of pod replicas that can be run at any given time. The Deployment manages the ReplicaSets and provides updates to those pods. ReplicaSets can be used in lieu of Deployments if you require custom orchestration or do not need updates.
-
-For replica set, matching of pods is done according to a set of values. The supported operators are `in`, `notin` and `exists` (only for the key). For example, replication controller can select pods such as "`environment = dev`". Replica set can select pods such as "`environment in ["dev", "test"]`".
-
-=== Create a Replica Set
-
-The folowing is an example ReplicaSet with an NGINX base image. Let's begin with the template:
-
-	apiVersion: extensions/v1beta1
-	kind: ReplicaSet
-	metadata:
-	  name: nginx-replicaset
-	spec:
-	  replicas: 3
-	  template:
-	    metadata:
-	      labels:
-	        name: nginx-replica
-	    spec:
-	      containers:
-	      - name: nginx-replica
-	        image: nginx:1.12.1
-	        imagePullPolicy: IfNotPresent
-	        ports:
-	        - containerPort: 80
-	        - containerPort: 443
-
-Run the following command to create the ReplicaSet and pods:
-
-	$ kubectl create -f templates/replicaset.yaml --record
-	replicaset "nginx-replicaset" created
-
-The `--record` flag will track changes made through each revision.
-
-Get the list of replica sets:
-
-	$ kubectl get rs
-	NAME               DESIRED   CURRENT   READY     AGE
-	nginx-replicaset   3         3         3         40s
-
-To track the replica set details type in the following:
-
-```
-$ kubectl describe rs/nginx-replicaset
-Name:         nginx-replicaset
-Namespace:    default
-Selector:     name=nginx-replica
-Labels:       name=nginx-replica
-Annotations:  kubernetes.io/change-cause=kubectl create --filename=templates/replicaset.yaml --record=true
-Replicas:     3 current / 3 desired
-Pods Status:  3 Running / 0 Waiting / 0 Succeeded / 0 Failed
-Pod Template:
-  Labels:  name=nginx-replica
-  Containers:
-   nginx-replica:
-    Image:        nginx:1.12.1
-    Ports:        80/TCP, 443/TCP
-    Environment:  <none>
-    Mounts:       <none>
-  Volumes:        <none>
-Events:
-  Type    Reason            Age   From                   Message
-  ----    ------            ----  ----                   -------
-  Normal  SuccessfulCreate  1m    replicaset-controller  Created pod: nginx-replicaset-p46sn
-  Normal  SuccessfulCreate  1m    replicaset-controller  Created pod: nginx-replicaset-dhzfn
-  Normal  SuccessfulCreate  1m    replicaset-controller  Created pod: nginx-replicaset-18290
-```
-
-=== Scale a Replica Set
-
-Number of replicas in a Replica Set can be scaled up using the following command:
-
-	$ kubectl scale --replicas=5 rs/nginx-replicaset
-	replicaset "nginx-replicaset" scaled
-
-Get the list of replica set:
-
-	$ kubectl get rs
-	NAME               DESIRED   CURRENT   READY     AGE
-	nginx-replicaset   5         5         5         2m
-
-Get the list of pods:
-
-	$ kubectl get pods
-	NAME                     READY     STATUS    RESTARTS   AGE
-	nginx-replicaset-18290   1/1       Running   0          8m
-	nginx-replicaset-dhzfn   1/1       Running   0          8m
-	nginx-replicaset-p46sn   1/1       Running   0          8m
-	nginx-replicaset-qwttl   1/1       Running   0          5m
-	nginx-replicaset-xgvwx   1/1       Running   0          5m
-
-=== Delete a Replica Set
-
-Run the following command to delete the ReplicaSet:
-
-	$ kubectl delete rs/nginx-replicaset
-	replicaset "nginx-replicaset" deleted
 
 == Service
 
@@ -504,7 +413,7 @@ Events:
   Normal  CreatedLoadBalancer   56s   service-controller  Created load balancer
 ```
 
-Access the service using the LoadBalancer Ingress:
+The output shows `LoadBalancer Ingress` as the addres of an Elastic Load Balancer (ELB). It takes about 2-3 minutes for the ELB to be provisioned and be available. Wait for a couple of minutes, and then access the service:
 
 ```
 $ curl http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
@@ -871,6 +780,9 @@ Here is the job specification:
 	  jobTemplate:
 	    spec:
 	      template:
+	        metadata:
+	          labels:
+	            app: hello-cronpod
 	        spec:
 	          containers:
 	          - name: hello

@@ -29,12 +29,13 @@ as you move through the workshop.
 | link:config-secrets[Configuration and Secrets Management]
 | link:microservices[Service discovery with microservices]
 | link:helm[Deploy applications using Helm charts]
+| link:app-update[Updating applications & Canary deployment]
 | link:cluster-logging[Logging with Kubernetes cluster]
 | link:cluster-monitoring[Monitoring with Kubernetes cluster]
-| link:upgrade-clusters#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
+| link:cluster-upgrade#inplace-upgrade[Upgrading Kubernetes cluster - inplace upgrade]
 | Upgrading Kubernetes cluster - blue/green upgrade
 | link:cluster-scaling[Cluster scaling]
-| link:app-scaling[Pod Autoscaling]
+| link:app-scaling[Application autoscaling]
 |===
 
 [cols="1*"]
@@ -43,6 +44,7 @@ as you move through the workshop.
 
 | link:statefulsets[StatefulSets with EBS]
 | link:calico[Network policies with Calico]
+| link:coredns[Using CoreDNS for Service Discovery]
 | link:roles[Managing IAM roles with kube2iam]
 | CI/CD pipeline
 | ALB ingress controller

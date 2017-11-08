@@ -16,7 +16,7 @@ In terms of architecture, Fluentd is deployed as a DaemonSet with the CloudWatch
 
 == Pre-requisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
 
 All configuration files for this chapter are in the `cluster-logging` directory.
 
@@ -30,8 +30,7 @@ This example creates a two instance Amazon Elasticsearch cluster named `kubernet
       --elasticsearch-cluster-config \
       InstanceType=m4.large.elasticsearch,InstanceCount=2 \
       --ebs-options EBSEnabled=true,VolumeType=standard,VolumeSize=100 \
-      --access-policies '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["es:*"],"Resource":"*"}]}' \
-      --region us-east-1
+      --access-policies '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["es:*"],"Resource":"*"}]}'
 
 It takes a little while for the cluster to be created and arrive at an `active` state. The AWS Console should show the following status when the cluster is ready:
 
@@ -39,9 +38,12 @@ image::logging-cloudwatch-es-cluster.png[]
 
 Look for the word `Active` in the right column.
 
-You could also check for this via the command line:
+You could also check this via AWS CLI:
 
-    aws es describe-elasticsearch-domain --domain-name kubernetes-logs
+    $ aws es describe-elasticsearch-domain --domain-name kubernetes-logs --query 'DomainStatus.Processing'
+    false
+
+If the output value is `false` that means the domain has been processed and is now available to use.
 
 == CloudWatch Log Group
 
@@ -49,7 +51,7 @@ A CloudWatch log group combines log streams that share the same retention, monit
 
 Create a CloudWatch log group:
 
-    aws logs create-log-group --log-group-name kubernetes-logs --region us-east-1
+    aws logs create-log-group --log-group-name kubernetes-logs
 
 Create the log group in the same region as your cluster.
 
@@ -57,7 +59,7 @@ Create the log group in the same region as your cluster.
 
 === Log group name and log stream name
 
-Here is an excerpt from `templates/fluentd-configmap.yaml`:
+Fluentd log group name and stream name are configured in the file `templates/fluentd-configmap.yaml`. An excerpt from the file is shown:
 
     output.conf: |
       <match **>
@@ -133,37 +135,44 @@ If creating an IAM user, the associated policy needs the following permissions
 
 First create the logging namespace
 
-    kubectl create ns logging
+    $ kubectl create ns logging
+    namespace "logging" created
 
 Create all of the necessary service accounts and roles:
 
-    kubectl create -f ./templates/fluentd-service-account.yaml
-    kubectl create -f ./templates/fluentd-role.yaml
-    kubectl create -f ./templates/fluentd-role-binding.yaml
+    $ kubectl create -f ./templates/fluentd-service-account.yaml
+    serviceaccount "fluentd" created
+    $ kubectl create -f ./templates/fluentd-role.yaml
+    clusterrole "fluentd-read" created
+    $ kubectl create -f ./templates/fluentd-role-binding.yaml
+    clusterrolebinding "fluentd-read" created
 
 Then deploy Fluentd:
 
-    kubectl create -f ./templates/fluentd-configmap.yaml
-    kubectl create -f ./templates/fluentd-svc.yaml
-    kubectl create -f ./templates/fluentd-ds.yaml
+    $ kubectl create -f ./templates/fluentd-configmap.yaml
+    configmap "fluentd-config" created
+    $ kubectl create -f ./templates/fluentd-svc.yaml
+    service "fluentd" created
+    $ kubectl create -f ./templates/fluentd-ds.yaml
+    daemonset "fluentd" created
 
 Watch for all of the pods to change to running status:
 
-    kubectl get pods --watch --namespace=logging
+    $ kubectl get pods -w --namespace=logging
+    NAME            READY     STATUS    RESTARTS   AGE
+    fluentd-00zxr   1/1       Running   0          58s
+    fluentd-05hc0   1/1       Running   0          58s
+    fluentd-089s4   1/1       Running   0          58s
+    fluentd-v4vjp   1/1       Running   0          58s
+    fluentd-zv6bv   1/1       Running   0          58s
 
-The output should look something like this. Remember, Fluentd is deployed as a DaemonSet, i.e. one pod per worker node, so your output will vary depending on the size of your cluster:
-
-    NAME            READY     STATUS              RESTARTS   AGE
-    fluentd-0v9nz   0/1       ContainerCreating   0          5s
-    fluentd-b4kq7   0/1       ContainerCreating   0          5s
-    fluentd-0v9nz   1/1       Running   0         10s
-    fluentd-0v9nz   1/1       Running   0         11s
-    fluentd-b4kq7   1/1       Running   0         11s
-    fluentd-b4kq7   1/1       Running   0         12s
+Remember, Fluentd is deployed as a DaemonSet, i.e. one pod per worker node, so your output will vary depending on the size of your cluster. In our case, a 5 node cluster is used and so 5 pods are shown in the output.
 
 We can now login to the AWS console -> Management Tools -> CloudWatch -> Logs -> kubernetes-logs -> fluentd-cloudwatch
 
-We should start to see logs arrive into the service and can use the search feature to looks for specific logs
+We should start to see logs arrive into the service and can use the search feature to looks for specific logs. It looks like as shown:
+
+image::logging-cloudwatch-fluentd-stream.png[]
 
 == Subscribe a CloudWatch Log Group to Amazon Elastisearch
 
@@ -209,7 +218,7 @@ image::logging-cloudwatch-es-subscribe-filter-created.png[]
 
 == Kibana dashboard
 
-In https://us-east-1.console.aws.amazon.com/es/home?#kubernetes-logs:dashboard[Amazon Elasticsearch console], select the Elasticsearch cluster.
+In https://console.aws.amazon.com/es/home?#kubernetes-logs:dashboard[Amazon Elasticsearch console], select the Elasticsearch cluster.
 
 image::logging-cloudwatch-es-overview.png[]
 
@@ -219,10 +228,12 @@ image::logging-cloudwatch-kibana-default.png[]
 
 Begin using the capabilites to search and visuzalize your Kubernetes cluster metrics.
 
-= Conclusion
+== Delete resources
 
-In this post we demonstrated how to leverage AWS managed services to collect, search and visualize your kubernetes metrics. This can be used as reference to being to build your own logging solution for Kubernetes on top of AWS.
+Delete the resources created during this chapter:
 
-== Delete cluster
-
-TBD
+```
+kubectl delete ns logging
+aws es delete-elasticsearch-domain --domain-name kubernetes-logs
+aws logs delete-log-group --log-group-name kubernetes-logs
+```

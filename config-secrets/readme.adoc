@@ -16,7 +16,7 @@ This section will explain how to use ConfigMap and Secrets.
 
 == Pre-requisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
 
 All configuration files for this chapter are in the `config-secrets` directory.
 
@@ -31,26 +31,23 @@ This section will explain:
 
 Create a ConfigMap:
 
-    kubectl apply -f ./templates/redis-configmap.yaml
+    $ kubectl apply -f ./templates/redis-configmap.yaml
+    configmap "redis-config" created
 
 `redis-configmap.yaml` is a standard resource configuration file. It defines the configuration information as:
 
-```
-data:
-  redis-config: |
-    maxmemory=2mb
-    maxmemory-policy=allkeys-lru
-```
+    data:
+      redis-config: |
+        maxmemory=2mb
+        maxmemory-policy=allkeys-lru
 
 The configuration data is stored in the main key `data`. `redis-config` is an attribute inside this key where the configuration information for the Redis pod is defined as key-value pairs.
 
 Get the list of ConfigMaps:
 
-```
-$ kubectl get configmap
-NAME           DATA      AGE
-redis-config   1         4m
-```
+    $ kubectl get configmap
+    NAME           DATA      AGE
+    redis-config   1         14s
 
 Get more details about the created ConfigMap:
 
@@ -85,61 +82,55 @@ The configuration information is shown as key/value pairs in the `data` key.
 
 We created a ConfigMap using a resource configuration file. Other ways to create ConfigMap are listed below:
 
+NOTE: These ConfigMaps are using the exact same name as the one previously created. If you like to try the commands, then you either need to give a different name to the ConfigMap or delete the previously created ConfigMap using the command `kubectl delete -f ./templates/redis-configmap.yaml`.
+
 . `kubectl create configmap --from-literal=<key>:<value>`. Multiple `--from-literal=<key>:<value>` options can be used to define different key/value pairs. For example:
-+
-```
-kubectl create configmap redis-config --from-literal=maxmemory=2mb --from-literal=maxmemory-policy=allkeys-lru
-```
+
+  $ kubectl create configmap redis-config --from-literal=maxmemory=2mb --from-literal=maxmemory-policy=allkeys-lru
+  configmap "redis-config" created
 +
 More details about the ConfigMap can be obtained as:
 +
-```
-$ kubectl get configmap/redis-config -o yaml
-apiVersion: v1
-data:
-  maxmemory: 2mb
-  maxmemory-policy: allkeys-lru
-kind: ConfigMap
-metadata:
-  creationTimestamp: 2017-10-22T15:29:31Z
-  name: redis-config
-  namespace: default
-  resourceVersion: "287452"
-  selfLink: /api/v1/namespaces/default/configmaps/redis-config
-  uid: cccf20b7-b73d-11e7-8c3f-06329c8974cc
-```
+  $ kubectl get configmap/redis-config -o yaml
+  apiVersion: v1
+  data:
+    maxmemory: 2mb
+    maxmemory-policy: allkeys-lru
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: 2017-10-22T15:29:31Z
+    name: redis-config
+    namespace: default
+    resourceVersion: "287452"
+    selfLink: /api/v1/namespaces/default/configmaps/redis-config
+    uid: cccf20b7-b73d-11e7-8c3f-06329c8974cc
 +
 . `kubectl create configmap redis-config --from-file=<properties file>` where `<properties file>` is a property file with key/value pairs. For example, `templates/redis-config` looks like:
 +
-```
-maxmemory 2mb
-maxmemory-policy allkeys-lru
-```
+  maxmemory 2mb
+  maxmemory-policy allkeys-lru
 +
-And now ConfigMap can be created as:
+And now the ConfigMap can be created as:
 +
-```
-kubectl create configmap redis-config --from-file=templates/redis-config
-```
+  $ kubectl create configmap redis-config --from-file=templates/redis-config
+  configmap "redis-config" created
 +
 More details about the ConfigMap can be obtained as:
 +
-```
-$ kubectl get configmap/redis-config -o yaml
-apiVersion: v1
-data:
-  redis-config: |
-    maxmemory=2mb
-    maxmemory-policy=allkeys-lru
-kind: ConfigMap
-metadata:
-  creationTimestamp: 2017-10-22T15:56:08Z
-  name: redis-config
-  namespace: default
-  resourceVersion: "289533"
-  selfLink: /api/v1/namespaces/default/configmaps/redis-config
-  uid: 84901162-b741-11e7-8c3f-06329c8974cc
-```
+  $ kubectl get configmap/redis-config -o yaml
+  apiVersion: v1
+  data:
+    redis-config: |
+      maxmemory=2mb
+      maxmemory-policy=allkeys-lru
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: 2017-10-22T15:56:08Z
+    name: redis-config
+    namespace: default
+    resourceVersion: "289533"
+    selfLink: /api/v1/namespaces/default/configmaps/redis-config
+    uid: 84901162-b741-11e7-8c3f-06329c8974cc
 +
 The filename becomes a key stored in the data section of the ConfigMap. The file contents become the key’s value.
 
@@ -151,7 +142,8 @@ A ConfigMap must be created before referencing it in a Pod specification (unless
 
 Let's use `redis-config` ConfigMap to create our `redis.conf` configuration file in the pod `redis-pod`. It maps the ConfigMap to the volume where the configuration resides:
 
-    kubectl apply -f ./templates/redis-pod.yaml
+    $ kubectl apply -f ./templates/redis-pod.yaml
+    pod "redis-pod" created
 
 Wait for the pod to run:
 
@@ -161,51 +153,47 @@ Wait for the pod to run:
 
 Check logs from the pod to verify that Redis has started:
 
-```
-$ kubectl logs redis-pod
-                _._                                                  
-           _.-``__ ''-._                                             
-      _.-``    `.  `_.  ''-._           Redis 2.8.19 (00000000/0) 64 bit
-  .-`` .-```.  ```\/    _.,_ ''-._                                   
- (    '      ,       .-`  | `,    )     Running in stand alone mode
- |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6379
- |    `-._   `._    /     _.-'    |     PID: 6
-  `-._    `-._  `-./  _.-'    _.-'                                   
- |`-._`-._    `-.__.-'    _.-'_.-'|                                  
- |    `-._`-._        _.-'_.-'    |           http://redis.io        
-  `-._    `-._`-.__.-'_.-'    _.-'                                   
- |`-._`-._    `-.__.-'    _.-'_.-'|                                  
- |    `-._`-._        _.-'_.-'    |                                  
-  `-._    `-._`-.__.-'_.-'    _.-'                                   
-      `-._    `-.__.-'    _.-'                                       
-          `-._        _.-'                                           
-              `-.__.-'                                               
+  $ kubectl logs redis-pod
+                  _._                                                  
+             _.-``__ ''-._                                             
+        _.-``    `.  `_.  ''-._           Redis 2.8.19 (00000000/0) 64 bit
+    .-`` .-```.  ```\/    _.,_ ''-._                                   
+   (    '      ,       .-`  | `,    )     Running in stand alone mode
+   |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6379
+   |    `-._   `._    /     _.-'    |     PID: 6
+    `-._    `-._  `-./  _.-'    _.-'                                   
+   |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+   |    `-._`-._        _.-'_.-'    |           http://redis.io        
+    `-._    `-._`-.__.-'_.-'    _.-'                                   
+   |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+   |    `-._`-._        _.-'_.-'    |                                  
+    `-._    `-._`-.__.-'_.-'    _.-'                                   
+        `-._    `-.__.-'    _.-'                                       
+            `-._        _.-'                                           
+                `-.__.-'                                               
 
-[6] 22 Oct 18:39:45.386 # Server started, Redis version 2.8.19
-[6] 22 Oct 18:39:45.386 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
-[6] 22 Oct 18:39:45.386 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
-[6] 22 Oct 18:39:45.386 * The server is now ready to accept connections on port 6379
-```
+  [6] 22 Oct 18:39:45.386 # Server started, Redis version 2.8.19
+  [6] 22 Oct 18:39:45.386 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+  [6] 22 Oct 18:39:45.386 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
+  [6] 22 Oct 18:39:45.386 * The server is now ready to accept connections on port 6379
 
 Validate that your redis cluster picked up the appropriate configuration:
 
-```
-$ kubectl exec redis-pod -it redis-cli
-127.0.0.1:6379> CONFIG GET maxmemory
-1) "maxmemory"
-2) "2097152"
-127.0.0.1:6379> CONFIG GET maxmemory-policy
-1) "maxmemory-policy"
-2) "allkeys-lru"
-127.0.0.1:6379> quit
-```
+    $ kubectl exec redis-pod -it redis-cli
+    127.0.0.1:6379> CONFIG GET maxmemory
+    1) "maxmemory"
+    2) "2097152"
+    127.0.0.1:6379> CONFIG GET maxmemory-policy
+    1) "maxmemory-policy"
+    2) "allkeys-lru"
+    127.0.0.1:6379> quit
 
 You should see the same values that were specified in `./templates/redis-configmap.yaml` outputted in the above commands.
 
 Now, changing the pod configuration would involve the following steps:
 
 . Edit `redis-configmap.yaml`
-. Update the ConfigMap using the command: `kubectl apply -f templates/redis-config.yaml`
+. Update the ConfigMap using the command: `kubectl apply -f templates/redis-configmap.yaml`
 . Wrap the pod in a Deployment
 . Terminate the pod, Deployment will restart the pod and pick up new configuration
 
@@ -213,34 +201,40 @@ Now, changing the pod configuration would involve the following steps:
 
 The data from ConfigMap can be used to initialize environment variables in a pod. We'll use `arungupta/print-hello` image to print "`Hello World`" on the console. The number of times this message is printed is defined by an environment variable `COUNT`. This value of this variable is defined in the ConfigMap.
 
+==== Create a pod and use ConfigMap
+
 . Create a ConfigMap:
 
-  kubectl create configmap hello-count --from-literal=COUNT=2
+  $ kubectl create configmap hello-config --from-literal=COUNT=2
+  configmap "hello-config" created
 
 . Get more details about this ConfigMap:
 
-  $ kubectl get configmap/hello-count -o yaml
+  $ kubectl get configmap/hello-config -o yaml
   apiVersion: v1
   data:
     COUNT: "2"
   kind: ConfigMap
   metadata:
-    creationTimestamp: 2017-10-23T09:55:26Z
-    name: hello-count
+    creationTimestamp: 2017-10-26T21:40:10Z
+    name: hello-config
     namespace: default
-    resourceVersion: "3317"
-    selfLink: /api/v1/namespaces/default/configmaps/hello-count
-    uid: 4bbb1a85-b7d8-11e7-8708-0800278e0f7d
+    resourceVersion: "92516"
+    selfLink: /api/v1/namespaces/default/configmaps/hello-config
+    uid: 3dacb22f-ba96-11e7-ab9c-123f969a2ce2
 
 . Use this ConfigMap to create a pod:
 
-  kubectl create -f templates/app-pod.yaml
+  $ kubectl apply -f templates/app-pod.yaml
+  pod "app-pod" created
 +
 The pod configuration file looks like:
 +
   apiVersion: v1
   kind: Pod
   metadata:
+    labels:
+      name: app-pod
     name: app-pod
   spec:
     containers:
@@ -250,23 +244,72 @@ The pod configuration file looks like:
       - name: COUNT
         valueFrom:
           configMapKeyRef:
-            name: app-config
+            name: hello-config
             key: COUNT
       ports:
       - containerPort: 8080
 
-. Get logs from the pod:
+. Observe logs from the pod:
 
-  kubectl logs <pod-name>
-+
-Check that the message is printed two times.
-+
-. Change the ConfigMap:
+  $ kubectl logs -f app-pod
+  npm info it worked if it ends with ok
+  npm info using npm@3.10.10
+  npm info using node@v6.11.4
+  npm info lifecycle webapp@1.0.0~prestart: webapp@1.0.0
+  npm info lifecycle webapp@1.0.0~start: webapp@1.0.0
 
-  kubectl edit configmap/hello-count
+  > webapp@1.0.0 start /usr/src/app
+  > node server.js
+
+  Running on http://0.0.0.0:8080
+
+. In a new terminal, expose the pod as a Service:
+
+  $ kubectl expose pod app-pod --port=80 --target-port=8080 --name=app
+  service "app" exposed
+
+. Start Kubernetes proxy:
+
+  kubectl proxy
+
+. In a new terminal, access the service as:
+
+  $ curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
+  printed 2 times
++
+The pod logs are refreshed as well:
++
+  Hello world 0
+  Hello world 1
+
+==== Change the ConfigMap and verify pod logs
+
+. Edit the ConfigMap:
+
+  $ kubectl edit configmap/hello-config
 
 . Change the value to `4`
-. Run the pod again. Check the logs again to confirm that the message is now printed 4 times.
+. Terminate the pod:
+
+  $ kubectl delete pod/app-pod
+  pod "app-pod" deleted
+
+. Run the pod again:
+
+  kubectl create -f templates/app-pod.yaml
+  pod "app-pod" created
+
+. Access the service again:
+
+  curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
+  printed 4 times
+
+. Logs from the pod are refreshed:
+
+  Hello world 0
+  Hello world 1
+  Hello world 2
+  Hello world 3
 
 == Secrets
 

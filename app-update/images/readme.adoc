@@ -1,0 +1,47 @@
+= Docker images for Kubernetes Application Upgrade
+
+== Docker Container
+
+. Build Docker images:
+
+  docker image build -t arungupta/app-upgrade:v1 app-v1
+  docker image build -t arungupta/app-upgrade:v2 app-v2
+
+. Run Docker container:
+
+  docker container run -d -p 8080:8080 arungupta/app-upgrade:v1
+  docker container run -d -p 8081:8080 arungupta/app-upgrade:v2
+
+. Access v1 application:
+
+  curl http://localhost:8080
+  Hello World!
+
+. Access v2 application:
+
+  $ curl http://localhost:8081
+  Howdy World!
+
+== Kubernetes
+
+. Run pod:
+
+  kubectl run app-v1 --image=arungupta/app-upgrade:v1
+  kubectl run app-v2 --image=arungupta/app-upgrade:v2
+
+. Publish service:
+
+  kubectl expose deployment/app-v1 --target-port=8080 --port=8080 --name=app-v1
+  kubectl expose deployment/app-v2 --target-port=8080 --port=8081 --name=app-v2
+
+. Access v1 application (on minikube):
+
+  curl http://localhost:8080
+  Hello World!
++
+For a Kubernetes cluster running on AWS, you need to run proxy and access the application using http://localhost:8001/api/v1/proxy/namespaces/default/services/app-v1/.
++
+. Access v2 application:
+
+  curl http://localhost:8081
+  Howdy World!

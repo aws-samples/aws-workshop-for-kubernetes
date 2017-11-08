@@ -14,7 +14,7 @@ This chapter will demonstrate how to monitor a Kubernetes cluster using the foll
 
 == Pre-requisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install##multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
 
 All configuration files for this chapter are in the `cluster-monitoring` directory.
 
@@ -175,50 +175,41 @@ https://github.com/prometheus/node_exporter[Node exporter] is a Prometheus expor
 
 The Prometheus configuration file is defined as a ConfigMap in the file `prometheus/templates/prometheus-configmap.yaml`.
 
-We need to provide the location of the etcd server in our cluster in this configuration file. In our case, etcd is running inside the Kubernetes cluster. Find the IP address of etcd using this command:
+We need to provide the location of the etcd server in our cluster in this configuration file. In our case, etcd is running inside the Kubernetes cluster. Find the IP address of etcd pods using this command:
 
-     kubectl get pods --namespace=kube-system
+  $ kubectl get pods --namespace=kube-system | grep etcd
+  etcd-server-events-ip-172-20-102-165.eu-central-1.compute.internal        1/1       Running   0          3m
+  etcd-server-events-ip-172-20-59-49.eu-central-1.compute.internal          1/1       Running   0          2m
+  etcd-server-events-ip-172-20-87-29.eu-central-1.compute.internal          1/1       Running   0          3m
+  etcd-server-ip-172-20-102-165.eu-central-1.compute.internal               1/1       Running   0          3m
+  etcd-server-ip-172-20-59-49.eu-central-1.compute.internal                 1/1       Running   0          2m
+  etcd-server-ip-172-20-87-29.eu-central-1.compute.internal                 1/1       Running   0          3m
 
-It shows output as:
+Note down the name of the pod that starts with `etcd-server-ip`. There is one etcd server per master. So if you are using a three master cluster, as is the case here, then you'll see three entries starting with `etcd-server-ip`. Pick any of them.
 
-```
-NAME                                                                  READY     STATUS    RESTARTS   AGE
-dns-controller-246088375-wbxj2                                        1/1       Running   0          2m
-etcd-server-events-ip-172-20-43-222.us-west-2.compute.internal        1/1       Running   0          2m
-etcd-server-ip-172-20-43-222.us-west-2.compute.internal               1/1       Running   0          2m
-kube-apiserver-ip-172-20-43-222.us-west-2.compute.internal            1/1       Running   0          2m
-kube-controller-manager-ip-172-20-43-222.us-west-2.compute.internal   1/1       Running   0          1m
-kube-dns-479524115-80lnk                                              3/3       Running   0          1m
-kube-dns-479524115-xb1fg                                              3/3       Running   0          35s
-kube-dns-autoscaler-1818915203-wh05v                                  1/1       Running   0          2m
-kube-proxy-ip-172-20-39-86.us-west-2.compute.internal                 1/1       Running   0          1m
-kube-proxy-ip-172-20-43-222.us-west-2.compute.internal                1/1       Running   0          2m
-kube-proxy-ip-172-20-59-49.us-west-2.compute.internal                 1/1       Running   0          1m
-kube-scheduler-ip-172-20-43-222.us-west-2.compute.internal            1/1       Running   0          2m
-```
+Get more details about this pod:
 
-Other pods are shown as well, but we are only interested in the etcd pods. Note down the name of the pod that starts with `etcd-server-ip`. Get more details about this pod:
-
-  kubectl describe pod/etcd-server-ip-172-20-43-222.us-west-2.compute.internal --namespace=kube-system 
+  kubectl describe pod/etcd-server-ip-172-20-102-165.eu-central-1.compute.internal --namespace=kube-system 
 
 The output looks like this:
 
 ```
-Name:         etcd-server-ip-172-20-43-222.us-west-2.compute.internal
+Name:         etcd-server-ip-172-20-102-165.eu-central-1.compute.internal
 Namespace:    kube-system
-Node:         ip-172-20-43-222.us-west-2.compute.internal/172.20.43.222
-Start Time:   Thu, 19 Oct 2017 11:45:00 -0700
+Node:         ip-172-20-102-165.eu-central-1.compute.internal/172.20.102.165
+Start Time:   Fri, 03 Nov 2017 08:53:24 +0100
 Labels:       k8s-app=etcd-server
-Annotations:  kubernetes.io/config.hash=0bf764cce6423977578c5556c557cc39
-              kubernetes.io/config.mirror=0bf764cce6423977578c5556c557cc39
-              kubernetes.io/config.seen=2017-10-19T18:44:55.534222237Z
+Annotations:  kubernetes.io/config.hash=ca13c974790baaedca8c01a8eb4a3518
+              kubernetes.io/config.mirror=ca13c974790baaedca8c01a8eb4a3518
+              kubernetes.io/config.seen=2017-11-03T07:53:19.754732296Z
               kubernetes.io/config.source=file
 Status:       Running
-IP:           172.20.43.222
+IP:           172.20.102.165
+Containers:
+  etcd-container:
 
 . . .
 
-QoS Class:       Burstable
 Node-Selectors:  <none>
 Tolerations:     :NoExecute
 Events:          <none>
@@ -235,23 +226,30 @@ Update the file `prometheus/templates/prometheus-configmap.yaml`, and replace `<
     - 172.20.43.222:4001
 ```
 
-TODO: Is this required? Check config map again. etcd is already running in the cluster. etcd clusters deployed with the most recent version of kops use port 4001, if you have a newer version of etcd it will be listening on port 2379.
+etcd clusters deployed with the most recent version of kops use port 4001, if you have a newer version of etcd it will be listening on port 2379.
 
 Once you save the etcd information then you can deploy the ConfigMap:
 
-    kubectl create -f prometheus/templates/prometheus-configmap.yaml
+  $ kubectl create -f prometheus/templates/prometheus-configmap.yaml
+  configmap "prometheus" created
 
 Next, deploy Prometheus into your cluster:
 
-    kubectl create -f prometheus/templates/prometheus-deployment.yaml
+  $ kubectl create -f prometheus/templates/prometheus-deployment.yaml
+  service "prometheus" created
+  deployment "prometheus" created
 
 Next, we will deploy the node exporter DaemonSet which will read system level metrics from each node and export them to Prometheus. Node exporter is defined as a DaemonSet, and so there is a single instance running on each node of the cluster:
 
-    kubectl create -f prometheus/templates/node-exporter.yaml
+  $ kubectl create -f prometheus/templates/node-exporter.yaml
+  service "node-exporter" created
+  daemonset "node-exporter" created
 
 Finally, deploy the Grafana dashboard:
 
-    kubectl create -f prometheus/templates/grafana.yml
+  $ kubectl create -f prometheus/templates/grafana.yml
+  service "grafana" created
+  deployment "grafana" created
 
 === Prometheus Dashboard
 
@@ -263,45 +261,43 @@ Prometheus is now scraping metrics from the etcd server, the Kubernetes API serv
 
 Let's look at these these metrics in the Prometheus dashboard. There are a few way to access the Prometheus dashboard?
 
-You can use port forwarding. First find the pod name, then forward the traffic on that pod:
+You can use port forwarding. First find the pod name:
 
-    kubectl get pods
-    kubectl port-forward prometheus-570506388-1vjm5 8080:9090 &
+    $ kubectl get pods -l app=prometheus
+    NAME                         READY     STATUS    RESTARTS   AGE
+    prometheus-570506388-8z5hq   1/1       Running   0          1m
+
+Then forward the traffic on that pod:
+
+    $ kubectl port-forward prometheus-570506388-8z5hq 8080:9090 &
 
 and enter http://127.0.0.1:8080/graph in your browser. Remember to replace the pod name in the `port-forward` command above.
 
-Or you can access the dashboard directly on an EC2 instance:
+Prometheus dashboard looks like:
 
-. Find a master node in the EC2 console:
-+
-image::prometheus-ec2-nodes.png[]
-+
-. Copy public IP address of the master node as `<master-ip>`.
-. Prometheus dashboard is accessible on the port `30900`. Edit the security group and add a rule to allow inbound traffic on the port 30900 as shown:
-+
-image::prometheus-ec2-security-group.png[]
-+
-. Prometheus dashboard is now available at http://<master-ip>:30900. In our case, this will be http://ec2-54-191-175-245.us-west-2.compute.amazonaws.com:30900, and looks like:
-+
 image::prometheus-dashboard-initial.png[]
-+
-. A wide set of metrics are available and can be seen in the dashboard. Here is a snapshot of metrics from etcd:
-+
+
+A wide set of metrics are available and can be seen in the dashboard. Here is a snapshot of metrics from etcd:
+
 image::prometheus-dashboard-etcd.png[]
-+
+
 Here is a snapshot of metrics from the Kubernetes API server:
-+
+
 image::prometheus-dashboard-kubelet.png[]
-+
+
 Here is a snapshot of metrics from the node exporter:
-+
+
 image::prometheus-dashboard-node-exporter.png[]
 
 === Grafana dashboard
 
-Grafana dashboard, accessible at http://localhost:8001/api/v1/proxy/namespaces/default/services/grafana/, now shows the information about the cluster.
+Start Kubernetes proxy, if not already running, using the command:
 
-NOTE: Grafana dashboard will not be available if Kubernetes proxy is not running. If not running, then it can be started with the command `kubectl proxy`.
+  kubectl proxy
+
+Grafana dashboard is now accessible at http://localhost:8001/api/v1/proxy/namespaces/default/services/grafana/ and looks like as shown:
+
+image::prometheus-grafana-dashboard-initial.png[]
 
 === Cleanup
 

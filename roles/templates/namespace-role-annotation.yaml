@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    iam.amazonaws.com/allowed-roles: |
+      ["{{NodeIamRoleARN}}"]
+  name: default

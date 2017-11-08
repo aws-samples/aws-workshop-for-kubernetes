@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: app-rolling
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        name: app-rolling
+    spec:
+      containers:
+      - name: app-rolling
+        image: arungupta/app-upgrade:v1
+        ports:
+        - containerPort: 8080
