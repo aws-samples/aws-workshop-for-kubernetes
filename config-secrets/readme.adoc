@@ -12,7 +12,7 @@ Kubernetes has resource types that allows to decouple application code from conf
 
 ConfigMap is similar to Secrets, but provides a means of working with strings that don’t contain sensitive information.
 
-This section will explain how to use ConfigMap and Secrets.
+This section will explain how to use ConfigMap and Secrets. Make sure you change to that directory before giving any commands in this chapter.
 
 == Prerequisites
 

@@ -10,7 +10,7 @@ This chapter shows an example of how different microservices within an applicati
 
 This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
 
-All configuration files for this chapter are in the `microservices` directory.
+All configuration files for this chapter are in the `microservices` directory. Make sure you change to that directory before giving any commands in this chapter.
 
 === Application Architecture
 
