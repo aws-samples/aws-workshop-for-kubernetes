@@ -596,8 +596,8 @@ Outputs:
   GeneratedToken:
     Description: Kubernetes Token to Join Nodes
     Value: !Sub "${KubernetesToken.Token}"
-  MoveExistingConfig:
-    Value: mv $HOME/.kube/config $HOME/.kube/config_old
+#  MoveExistingConfig:
+#    Value: mv $HOME/.kube/config $HOME/.kube/config_old
   KubeConfig:
     Value: !Join 
       - ''
@@ -607,6 +607,14 @@ Outputs:
         - !GetAtt 
           - Master
           - PublicIp
-        - ':.kube/config $HOME/.kube/config'
-
+        - ':.kube/config $HOME/.kube/'
+        - !Ref KeyName
+        - '-config'
+        - ' '
+        - 'export KUBECONFIG=$HOME/.kube/'
+        - !Ref KeyName
+        - '-config'
+        - ':$HOME/.kube/config'
+        - ' '
+        - 'kubectl config use-context kubernetes-admin@kubernetes'
 
