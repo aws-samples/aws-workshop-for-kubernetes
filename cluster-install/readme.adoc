@@ -89,6 +89,8 @@ When setting up a cluster you have two options on how the nodes in the cluster c
 
 You'll need to choose one of the two options. Instructions for both options are provided below, and the examples in the workshop should work with either option. Creating a gossip-based cluster requires less setup and will be used in this workshop, unless otherwise specified.
 
+NOTE: If you're using London region (eu-west-2) you need to add `--cloud aws` as kops is not identifying that eu-west-2 indicates AWS. Further info https://github.com/kubernetes/kops/issues/1267
+
 === Create a gossip-based Kubernetes cluster
 
 Kops also has experimental support for a gossip-based cluster. It uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to Kops by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name.
@@ -102,8 +104,6 @@ We show two examples of creating gossip-based clusters below. You can choose whe
 By default, `create cluster` command creates a single master node and two worker nodes in the specified zones.
 
 Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi-node and multi-az configuration:
-
-NOTE: If you're using London region (eu-west-2) you need to add `--cloud aws` as kops is not identifying that eu-west-2 indicates AWS.Further info https://github.com/kubernetes/kops/issues/1267
 
     kops create cluster \
       --name example.cluster.k8s.local \
