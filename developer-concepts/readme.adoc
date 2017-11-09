@@ -1179,7 +1179,7 @@ Let's create a Deployment:
 
 A new namespace can be created using a configuration file or `kubectl`.
 
-. The following configuration file can be used:
+. The following configuration file can be used to create Namespace:
 
 	kind: Namespace
 	apiVersion: v1
@@ -1188,12 +1188,12 @@ A new namespace can be created using a configuration file or `kubectl`.
 	  labels:
 	    name: dev
 
-. Create a new namespace:
+. Create a new Namespace:
 
 	$ kubectl apply -f templates/namespace.yaml 
 	namespace "dev" created
 
-. Get the list of namespaces:
+. Get the list of Namespaces:
 
 	$ kubectl get ns
 	NAME          STATUS    AGE
@@ -1202,7 +1202,7 @@ A new namespace can be created using a configuration file or `kubectl`.
 	kube-public   Active    3h
 	kube-system   Active    3h
 
-. Get more details about the namespace:
+. Get more details about the Namespace:
 +
 ```
 $ kubectl describe ns/dev
@@ -1217,7 +1217,7 @@ No resource quota.
 No resource limits.
 ```
 +
-. Create a Deployment in this new namespace using a configuration file:
+. Create a Deployment in this new Namespace using a configuration file:
 +
 	apiVersion: extensions/v1beta1
 	kind: Deployment
@@ -1245,20 +1245,20 @@ The main change is the addition of `namespace: dev`.
 	$ kubectl apply -f templates/deployment-namespace.yaml 
 	deployment "nginx-deployment" created
 
-. Deployment in a namespace can be queried by providing an additional switch `-n` as shown:
+. Deployment in a Namespace can be queried by providing an additional switch `-n` as shown:
 
 	$ kubectl get deployments -n dev
 	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 	nginx-deployment   3         3         3            3           1m
 
-. Query the namespace for this Deployment:
+. Query the Namespace for this Deployment:
 
 	$ kubectl get deployments/nginx-deployment -n dev -o jsonpath={.metadata.namespace}
 	dev
 
 Alternatively, a namespace can be created using `kubectl` as well.
 
-. Create a namespace:
+. Create a Namespace:
 
 	$ kubectl create ns dev2
 	namespace "dev2" created
@@ -1268,13 +1268,13 @@ Alternatively, a namespace can be created using `kubectl` as well.
 	$ kubectl -n dev2 apply -f templates/deployment.yaml 
 	deployment "nginx-deployment" created
 
-. Get deployments in the newly created namespace:
+. Get Deployments in the newly created Namespace:
 
 	$ kubectl get deployments -n dev2
 	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 	nginx-deployment   3         3         3            3           1m
 
-. Get deployments in all namespaces:
+. Get Deployments in all Namespaces:
 
 	$ kubectl get deployments --all-namespaces
 	NAMESPACE     NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
@@ -1284,11 +1284,4 @@ Alternatively, a namespace can be created using `kubectl` as well.
 	kube-system   dns-controller        1         1         1            1           5h
 	kube-system   kube-dns              2         2         2            2           5h
 	kube-system   kube-dns-autoscaler   1         1         1            1           5h
-
-=== Quota and Limits
-
-Each namespace can be assigned resource quota. By default, a pod will run with unbounded CPU and memory requests/limits. Specifying quota allows to restrict how much of cluster resources can be consumed across all pods in a namespace. Resource quota can be specified using a configuration file:
-
-
-
 
