@@ -38,10 +38,12 @@ To configure Layer 4:
 
 To configure Layer 7:
 
-	kubectl apply -f provider/aws/service-l7.yaml
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/aws/patch-configmap-l7.yaml
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/aws/service-l7.yaml > service-l7.yaml
 
-Note: The line of the file provider/aws/service-l7.yaml must be replaced from a dummy id to a valid one of the form "arn:aws:acm:us-west-2:XXXXXXXX:certificate/XXXXXX-XXXXXXX-XXXXXXX-XXXXXXXX".
+Edit the the line of the file service-l7.yaml to replace the dummy id with a valid one in the form "arn:aws:acm:us-west-2:XXXXXXXX:certificate/XXXXXX-XXXXXXX-XXXXXXX-XXXXXXXX"
+	
+	kubectl apply -f service-l7.yaml
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/aws/patch-configmap-l7.yaml
 
 If RBAC is enabled, apply the following:
 
