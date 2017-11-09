@@ -1285,3 +1285,168 @@ Alternatively, a namespace can be created using `kubectl` as well.
 	kube-system   kube-dns              2         2         2            2           5h
 	kube-system   kube-dns-autoscaler   1         1         1            1           5h
 
+=== Quota and Limits
+
+Each namespace can be assigned resource quota. Specifying quota allows to restrict how much of cluster resources can be consumed across all resources in a namespace. Resource quota can be defined by a ResourceQuota object. A presence of ResourceQuota object in a namespace ensures that resource quotas are enforced. There can be at most one ResourceQuota object in a namespace. Currently, multiple ResourceQuota objects are allowed. This is filed as https://github.com/kubernetes/kubernetes/issues/55430[kubernetes#55430].
+
+A quota can be specified for compute resources such as CPU and memory, storage resources such as PersistentVolume and PersistentVolumeClaim and number of objects of a given type. A complete list of resources that can be restricted using ResourceQuota are listed at https://kubernetes.io/docs/concepts/policy/resource-quotas/.
+
+==== Create ResourceQuota
+
+A ResourceQuota can be created using a configuration file or `kubectl`.
+
+. The following configuration file can be used to create ResourceQuota:
+
+	apiVersion: v1
+	kind: ResourceQuota
+	metadata:
+	  name: quota
+	spec:
+	  hard:
+	    cpu: "4"
+	    memory: 6G
+	    pods: "10"
+	    replicationcontrollers: "3"
+	    services: "5"
+	    configmaps: "5"
++
+This configuration file places the following requirements on the namespace:
++
+.. Every new Container created must have a memory and CPU limit
+.. Total number of Pods in this namespace cannot exceed 10
+.. Total number of ReplicationController in this namespace cannot exceed 3
+.. Total number of Service in this namespace cannot exceed 5
+.. Total number of ConfigMap in this namespace cannot exceed 5
++
+. Create a new ResourceQuota:
+
+	$ kubectl apply -f templates/resource-quota.yaml
+	resourcequota "quota" created
++
+Alternatively, a ResourceQuota may be created using the `kubectl` CLI:
++
+	kubectl create resourcequota quota2 --hard=cpu=10,memory=6G,pods=10,services=5,replicationcontrollers=3
++
+In either this case, these restrictions would be placed on the `default` namespace in this case. An alternate namespace can be specified either in the configuration file or using the `--namespace` option on the `kubectl` CLI.
++
+. Get the list of ResourceQuota:
+
+	$ kubectl get quota
+	NAME      AGE
+	quota     25s
+
+. Get more details about the ResourceQuota:
+
+	$ kubectl describe quota/quota
+	Name:                   quota
+	Namespace:              default
+	Resource                Used  Hard
+	--------                ----  ----
+	configmaps              0     5
+	cpu                     300m  4
+	memory                  0     6G
+	pods                    3     10
+	replicationcontrollers  0     3
+	services                1     5
++
+The output shows that three Pods and one Service already exists in the `default` namespace.
+
+==== Scale resources with ResourceQuota
+
+Now that the ResourceQuota has been created, let's see how this impacts the new resources that are created or existing resources that are scaled.
+
+We already have a Deployment `nginx-deployment`. Let's scale the number of replicas to exceed the assigned quota and see what happens.
+
+. Scale the number of replicas for the Deployment:
+
+	$ kubectl scale --replicas=12 deployment/nginx-deployment
+	deployment "nginx-deployment" scaled
++
+The command output says that the Deployment is scaled.
++
+. Let's check if all the replicas are available:
++
+	$ kubectl get deployment/nginx-deployment -o jsonpath={.status.availableReplicas}
+	3
++
+It shows only three replicas are available.
++
+. More details can be found:
++
+	$ kubectl get deployment/nginx-deployment -o jsonpath={.status.conditions[].message}
+	Deployment does not have minimum availability.
++
+The current reason is displayed in the output.
+
+==== Create resources with ResourceQuota
+
+Let's create a Pod with the following configuration file:
+
+	apiVersion: v1
+	kind: Pod
+	metadata:
+	  name: nginx-pod
+	  labels:
+	    name: nginx-pod
+	spec:
+	  containers:
+	  - name: nginx
+	    image: nginx:latest
+	    ports:
+	    - containerPort: 80
+
+You may have to remove a previously running Pod or Deployment before attempting to create this Pod.
+
+	$ kubectl apply -f templates/pod.yaml
+	Error from server (Forbidden): error when creating "templates/pod.yaml": pods "nginx-pod" is forbidden: failed quota: quota: must specify memory
+
+The error message indicates that a ResourceQuota is in effect, and that the Pod must explicitly specify memory resources.
+
+Update the configuration file to:
+
+	apiVersion: v1
+	kind: Pod
+	metadata:
+	  name: nginx-pod
+	  labels:
+	    name: nginx-pod
+	spec:
+	  containers:
+	  - name: nginx
+	    image: nginx:latest
+	    resources:
+	      requests:
+	        memory: "100m"
+	    ports:
+	    - containerPort: 80
+
+There is an explicity memory resource defined here. Now, try to create the pod:
+
+	$ kubectl apply -f templates/pod-memory.yaml
+	pod "nginx-pod" created
+
+The Pod is successfully created.
+
+Get more details about the Pod:
+
+	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
+	map[requests:map[cpu:100m memory:100m]]
+
+Get more details about the ResourceQuota:
+
+	$ kubectl describe quota/quota
+	Name:                   quota
+	Namespace:              default
+	Resource                Used  Hard
+	--------                ----  ----
+	configmaps              0     5
+	cpu                     400m  4
+	memory                  100m  6G
+	pods                    4     12
+	replicationcontrollers  0     3
+	services                1     5
+
+Note, how CPU and memory resources have incremeneted values.
+
+https://github.com/kubernetes/kubernetes/issues/55433[kubernetes#55433] provide more details on how an explicit CPU resource is not needed to create a Pod with ResourceQuota.
+
