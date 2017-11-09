@@ -1138,3 +1138,157 @@ Delete the Cron Job as shown in the following command:
 
 	$ kubectl delete -f templates/cronjob.yaml
 	cronjob "hello" deleted
+
+== Namespaces
+
+Namespaces allows a physical cluster to be shared by multiple teams. A namespace allows to partition created resources into a logically named group. Each namespace provides:
+
+. a *unique scope* for resources to avoid name collisions
+. *policies* to ensure appropriate authority to trusted users
+. ability to specify *constraints for resource consumption*
+
+This allows a Kubernetes cluster to share resources by multiple groups and provide different levels of QoS each group. Resources created in one namespace are hidden from other namespaces. Multiple namespaces can be created, each potentially with different constraints.
+
+=== Default namespace
+
+The list of namespaces can be displayed using the command:
+
+	$ kubectl get namespace
+	NAME          STATUS    AGE
+	default       Active    2m
+	kube-public   Active    2m
+	kube-system   Active    2m
+
+By default, all resources in Kubernetes cluster are created in a `default` namespace.
+
+`kube-public` is the namespace that is readable by all users, even those not authenticated. Any clusters booted with `kubeadm` will have a `cluster-info` ConfigMap. The clusters in this workshop are created using kops and so this ConfigMap will not exist.
+
+`kube-system` is the namespace for objects created by the Kubernetes system.
+
+Let's create a Deployment:
+
+	$ kubectl apply -f templates/deployment.yaml
+	deployment "nginx-deployment" created
+
+ Check its namespace:
+
+	$ kubectl get deployment -o jsonpath={.items[].metadata.namespace}
+	default
+
+=== Custom namespace
+
+A new namespace can be created using a configuration file or `kubectl`.
+
+. The following configuration file can be used:
+
+	kind: Namespace
+	apiVersion: v1
+	metadata:
+	  name: dev
+	  labels:
+	    name: dev
+
+. Create a new namespace:
+
+	$ kubectl apply -f templates/namespace.yaml 
+	namespace "dev" created
+
+. Get the list of namespaces:
+
+	$ kubectl get ns
+	NAME          STATUS    AGE
+	default       Active    3h
+	dev           Active    12s
+	kube-public   Active    3h
+	kube-system   Active    3h
+
+. Get more details about the namespace:
++
+```
+$ kubectl describe ns/dev
+Name:         dev
+Labels:       name=dev
+Annotations:  kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"labels":{"name":"dev"},"name":"dev","namespace":""}}
+
+Status:  Active
+
+No resource quota.
+
+No resource limits.
+```
++
+. Create a Deployment in this new namespace using a configuration file:
++
+	apiVersion: extensions/v1beta1
+	kind: Deployment
+	metadata:
+	  name: nginx-deployment-ns
+	  namespace: dev
+	spec:
+	  replicas: 3 
+	  template:
+	    metadata:
+	      labels:
+	        app: nginx 
+	    spec:
+	      containers:
+	      - name: nginx 
+	        image: nginx:1.12.1
+	        ports: 
+	        - containerPort: 80
+	        - containerPort: 443
++
+The main change is the addition of `namespace: dev`.
++
+. Create the Deployment:
+
+	$ kubectl apply -f templates/deployment-namespace.yaml 
+	deployment "nginx-deployment" created
+
+. Deployment in a namespace can be queried by providing an additional switch `-n` as shown:
+
+	$ kubectl get deployments -n dev
+	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+	nginx-deployment   3         3         3            3           1m
+
+. Query the namespace for this Deployment:
+
+	$ kubectl get deployments/nginx-deployment -n dev -o jsonpath={.metadata.namespace}
+	dev
+
+Alternatively, a namespace can be created using `kubectl` as well.
+
+. Create a namespace:
+
+	$ kubectl create ns dev2
+	namespace "dev2" created
+
+. Create a Deployment:
+
+	$ kubectl -n dev2 apply -f templates/deployment.yaml 
+	deployment "nginx-deployment" created
+
+. Get deployments in the newly created namespace:
+
+	$ kubectl get deployments -n dev2
+	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+	nginx-deployment   3         3         3            3           1m
+
+. Get deployments in all namespaces:
+
+	$ kubectl get deployments --all-namespaces
+	NAMESPACE     NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+	default       nginx-deployment      3         3         3            3           1h
+	dev           nginx-deployment      3         3         3            3           1h
+	dev2          nginx-deployment      3         3         3            3           1m
+	kube-system   dns-controller        1         1         1            1           5h
+	kube-system   kube-dns              2         2         2            2           5h
+	kube-system   kube-dns-autoscaler   1         1         1            1           5h
+
+=== Quota and Limits
+
+Each namespace can be assigned resource quota. By default, a pod will run with unbounded CPU and memory requests/limits. Specifying quota allows to restrict how much of cluster resources can be consumed across all pods in a namespace. Resource quota can be specified using a configuration file:
+
+
+
+
