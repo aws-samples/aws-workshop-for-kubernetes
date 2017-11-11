@@ -404,7 +404,7 @@ The host and the port are the exact same values where minikube opened the servic
 
 Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters. It provides an overview of applications running on the cluster, as well as the ability to create or modify individual Kubernetes resources and workloads, such as replica sets, jobs, services, and pods. The dashboard can be used to manage the cluster as well.
 
-Kubernetes dashboard with minikube can be easily viewed using the following command ( Do not run this if your minikube on EC2, instead just point your browser to http://127.0.0.1:30000):
+Kubernetes dashboard with minikube can be easily viewed using the following command ( Do not run this if you have minikube on EC2, instead just point your browser to http://127.0.0.1:30000):
 
     minikube dashboard
 
