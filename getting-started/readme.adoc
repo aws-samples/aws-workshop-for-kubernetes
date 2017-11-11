@@ -110,7 +110,6 @@ Verify the version:
 . Add kubectl autocompletion to your current shell 
 +
     source <(kubectl completion bash)
-+
 
 == Start Kubernetes cluster
 
