@@ -80,7 +80,7 @@ Verify the version:
 
 === Setup on EC2 (if you do not virtualbox on your laptop)
 
-. Launch a EC2 (at least 4GB Memory) with Ubuntu image, make sure you have a public IP and can SSH into this instance.
+. Launch an EC2 (at least 4GB Memory) with an "Ubuntu Server 16.04 LTS (HVM)" AMI, make sure you have a public IP and can SSH into this instance.
 . SSH into the EC2 (the port forwarding is for the minikube dashboard):
 +
     ssh -L30000:localhost:30000 ubuntu@<IP Address of EC2>
