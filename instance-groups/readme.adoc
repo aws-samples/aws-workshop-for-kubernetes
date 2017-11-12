@@ -7,21 +7,21 @@
 An instance group is a kops concept that defines a grouping of similar machines. In AWS, an instance group maps to an
 AutoScalingGroup (ASG).
 
-In this section we'll look at different ways of using kops instance groups in a Kubernetes cluster:
+In this section we'll look at different ways of using kops instance groups in a Kubernetes cluster, including:
 
-. Update the instance group by adjusting its size, or the instance types it contains
-. Add an additional instance group to a cluster, and schedule pods on the instances in the new instance group
-. Pin an instance group pinned to a specific AZ
+. Updating the instance group by adjusting its size, or the instance types it contains
+. Adding an additional instance group to a cluster, and scheduling pods on the instances in the new instance group
+. Pinning an instance group to a specific AZ
 
 == Basic instance group commands
 
-List the instance groups in your cluster:
+Your Kubernetes cluster already has a couple of instance groups that were created by kops: one instance group for
+the worker nodes, another for the master nodes. List the instance groups in your cluster:
 
     kops get ig
 
   $ kops get ig
     Using cluster from kubectl context: cluster.k8s.local
-
     NAME			    ROLE	MACHINETYPE	MIN	MAX	SUBNETS
     master-us-east-1d	Master	m3.medium	1	1	us-east-1d
     nodes			    Node	t2.medium	2	6	us-east-1d,us-east-1e
@@ -70,14 +70,14 @@ $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.
 
 == Using kops to make changes to instance groups
 
-We can use kops to change the size of instance group. In AWS terms, this is the same as changing the MinSize and MaxSize
+We can use kops to change the size of an instance group. In AWS terms, this is the same as changing the MinSize and MaxSize
 of your ASG. Let's try this:
 
     kops edit ig nodes
 
 Increase/decrease spec->maxSize and save the change (shift-zz works if you're using a Mac). At this point, only
 the configuration has been changed; no changes have been applied to the cluster. We can preview the changes prior
-to applying them to check how our expected changes will be applied:
+to applying them:
 
     kops update cluster
 
@@ -109,7 +109,7 @@ Cluster changes have been applied to the cloud.
 Changes may require instances to restart: kops rolling-update cluster
 
 ```
-The output of the 'update cluster' hints that a rolling update may be required. Since we are only updating the size
+The output of 'update cluster' hints that a rolling update may be required. Since we are only updating the size
 of the instance group, no rolling update is necessary. In the next example we'll make an update where a rolling update will
 be required.
 
@@ -177,7 +177,7 @@ Using cluster from kubectl context: cluster.k8s.local
 .
 Will modify resources:
   LaunchConfiguration/nodes.cluster.k8s.local
-  	InstanceType        	 t2.medium -> m4.medium
+  	InstanceType        	 t2.medium -> m4.large
 
 Must specify --yes to apply changes
 ```
@@ -225,7 +225,8 @@ Changes may require instances to restart: kops rolling-update cluster
 ```
 
 We expect kops to have created a new LaunchConfiguration using our updated EC2 instance type and updated our
-ASG to refer to this LaunchConfiguration, so let's check if this is indeed the case:
+ASG to refer to this LaunchConfiguration, so let's check if this is indeed the case. Note that the name of the
+LaunchConfiguration associated with the ASG has changed, and the LaunchConfiguration reflects the new instance type:
 
 ```
 $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.cluster.k8s.local --query 'AutoScalingGroups[0].[LaunchConfigurationName]'
@@ -254,9 +255,8 @@ The kops configuration has been updated to reflect the new instance type:
 
     $ kops get ig
     Using cluster from kubectl context: cluster.k8s.local
-
     NAME			    ROLE	MACHINETYPE	MIN	MAX	SUBNETS
-    master-us-east-1d	Master	m3.medium	1	1	us-east-1d
+    master-us-east-1d   Master	m3.medium	1	1	us-east-1d
     nodes			    Node	m4.large	2	8	us-east-1d,us-east-1e
 
 However, the EC2 instances running as worker nodes in the Kubernetes cluster have not yet been updated. You can check
@@ -278,7 +278,7 @@ $ kops rolling-update cluster
 Using cluster from kubectl context: cluster.k8s.local
 
 NAME			    STATUS		NEEDUPDATE	READY	MIN	MAX	NODES
-master-us-east-1d	Ready		0		    1	    1	1	1
+master-us-east-1d   Ready		0		    1	    1	1	1
 nodes			    NeedsUpdate	2		    0	    2	8	2
 
 Must specify --yes to rolling-update.
@@ -303,13 +303,14 @@ I1112 14:15:55.287844   52494 rollingupdate.go:174] Rolling update completed!
 In this section you'll add an additional instance group to your Kubernetes cluster so that your cluster is
 comprised of two instance groups with different instance types. We'll then schedule a pod to run specifically
 on instances in the new instance group. This is useful, for example, if you want to assign pods to run high performing workloads
-on GPU or FPGA instance types.
+on GPU or FPGA instance types, or if you want to run pods on instances with specific EBS volumes attached.
 
 Let's go ahead and create an instance group for p2 instance types:
 
     kops create ig p2 --subnet us-east-1d,us-east-1e
 
-Change the machineType in the resulting skeleton configuration. Make sure you add the nodeLabels as in the example below.
+Change the machineType in the resulting skeleton configuration. Make sure you add the 'nodeLabels' attribute as in
+the example below.
 This will be used in a later example to schedule pods onto these instances.
 
 ```
@@ -362,9 +363,11 @@ Must specify --yes to apply changes
 
 After applying the changes it will take a few minutes before your ASG provisions the instances and reaches the MinSize
 specified in the instance group config. You can check progress by viewing the nodes in your cluster. AWS may only
-provision 1 P2 instance instead of the two specified; this is because most AWS accounts have
-a soft limit of 1 P2 instance per account. If this happens, don't worry, we can still provision pods onto the instances in
+provision one P2 instance instead of the two specified; this is because most AWS accounts have
+a soft limit of 1 P2 instance per account. If this happens, don't worry, we can still provision pods onto the P2 instance(s) in
 this instance group.
+
+Check that your new instances have been provsioned:
 
 ```
 $ kubectl get nodes
@@ -378,7 +381,7 @@ ip-172-20-69-196.ec2.internal   Ready     node      3m        v1.7.4
 
 If you have a lot of instances in your cluster, you can show only the instances in your new instance group using the
 label we assigned during the creation of the instance group earlier. This also confirms that the label has been
-applied to the instances in the instance group - we'll need this to schedule pods onto these instances:
+applied to the instances in the instance group - we'll need the label to schedule pods onto these instances:
 
 ```
 $ kubectl get nodes -l type=p2-ig
@@ -410,7 +413,6 @@ Since GPU instances are costly, let's remove this instance group. In the backgro
 ```
 $ kops get ig
 Using cluster from kubectl context: cluster.k8s.local
-
 NAME			    ROLE	MACHINETYPE	MIN	MAX	SUBNETS
 master-us-east-1d	Master	m3.medium	1	1	us-east-1d
 nodes			    Node	m4.large	2	8	us-east-1d,us-east-1e
