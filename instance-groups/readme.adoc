@@ -1,0 +1,301 @@
+= Instance Groups
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../images
+
+An instance group is a kops concept that defines a grouping of similar machines. In AWS, an instance group maps to an
+AutoScalingGroup (ASG).
+
+In this section we'll look at different ways of using kops instance groups in a Kubernetes cluster:
+
+. Update the instance group by adjusting its size, or the instance types it contains
+. Add an additional instance group to a cluster, and schedule pods on the instances in the new instance group
+. Pin an instance group pinned to a specific AZ
+
+== Basic instance group commands
+
+List the instance groups in your cluster:
+
+    kops get ig
+
+  $ kops get ig
+    Using cluster from kubectl context: cluster.k8s.local
+
+    NAME			    ROLE	MACHINETYPE	MIN	MAX	SUBNETS
+    master-us-east-1d	Master	m3.medium	1	1	us-east-1d
+    nodes			    Node	t2.medium	2	6	us-east-1d,us-east-1e
+
+As we mentioned above, an instance group maps to an ASG in AWS, so let's check out the associated ASG. The name of
+the AWS ASG is a combination of the instance group name and the Kubernetes cluster name:
+
+    aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.cluster.k8s.local
+
+```
+$ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.cluster.k8s.local
+{
+    "AutoScalingGroups": [
+        {
+            "AutoScalingGroupARN": "arn:aws:autoscaling:us-east-1:123456789012:autoScalingGroup:070e8c67-c3fb-4a2d-a7b2-9d9af84fc876:autoScalingGroupName/nodes.cluster.k8s.local",
+            .
+            .
+            "AutoScalingGroupName": "nodes.cluster.k8s.local",
+            "DefaultCooldown": 300,
+            "MinSize": 2,
+            "MaxSize": 6,
+            "Instances": [
+                {
+                    "ProtectedFromScaleIn": false,
+                    "AvailabilityZone": "us-east-1d",
+                    "InstanceId": "i-007c28e33c7c7bd2b",
+                    "HealthStatus": "Healthy",
+                    "LifecycleState": "InService",
+                    "LaunchConfigurationName": "nodes.cluster.k8s.local-20171025033916"
+                },
+                {
+                    "ProtectedFromScaleIn": false,
+                    "AvailabilityZone": "us-east-1e",
+                    "InstanceId": "i-040845072f78d347f",
+                    "HealthStatus": "Healthy",
+                    "LifecycleState": "InService",
+                    "LaunchConfigurationName": "nodes.cluster.k8s.local-20171025033916"
+                }
+            ],
+            .
+            .
+        }
+    ]
+}
+```
+
+== Using kops to make changes to instance groups
+
+We can use kops to change the size of instance group. In AWS terms, this is the same as changing the MinSize and MaxSize
+of your ASG. Let's try this:
+
+    kops edit ig nodes
+
+Increase/decrease spec->maxSize and save the change (shift-zz works if you're using a Mac). At this point, only
+the configuration has been changed; no changes have been applied to the cluster. We can preview the changes prior
+to applying them to check how our expected changes will be applied:
+
+    kops update cluster
+
+```
+$ kops update cluster
+Using cluster from kubectl context: cluster.k8s.local
+.
+.
+Will modify resources:
+  AutoscalingGroup/nodes.cluster.k8s.local
+  	MaxSize             	 6 -> 8
+
+Must specify --yes to apply changes
+```
+
+Now let's apply the changes.
+
+    kops update cluster --yes
+
+```
+$ kops update cluster --yes
+Using cluster from kubectl context: cluster.k8s.local
+.
+.
+Kops has set your kubectl context to cluster.k8s.local
+
+Cluster changes have been applied to the cloud.
+
+Changes may require instances to restart: kops rolling-update cluster
+
+```
+The output of the 'update cluster' hints that a rolling update may be required. Since we are only updating the size
+of the instance group, no rolling update is necessary. In the next example we'll make an update where a rolling update will
+be required.
+
+Now check whether the MaxSize of our ASG has been updated:
+
+    aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.cluster.k8s.local
+
+```
+$ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.cluster.k8s.local
+{
+    "AutoScalingGroups": [
+        {
+            "AutoScalingGroupARN": "arn:aws:autoscaling:us-east-1:123456789012:autoScalingGroup:070e8c67-c3fb-4a2d-a7b2-9d9af84fc876:autoScalingGroupName/nodes.cluster.k8s.local",
+            .
+            .
+            "AutoScalingGroupName": "nodes.cluster.k8s.local",
+            "DefaultCooldown": 300,
+            "MinSize": 2,
+            "MaxSize": 8,
+            "Instances": [
+                {
+                    "ProtectedFromScaleIn": false,
+                    "AvailabilityZone": "us-east-1d",
+                    "InstanceId": "i-007c28e33c7c7bd2b",
+                    "HealthStatus": "Healthy",
+                    "LifecycleState": "InService",
+                    "LaunchConfigurationName": "nodes.cluster.k8s.local-20171025033916"
+                },
+                {
+                    "ProtectedFromScaleIn": false,
+                    "AvailabilityZone": "us-east-1e",
+                    "InstanceId": "i-040845072f78d347f",
+                    "HealthStatus": "Healthy",
+                    "LifecycleState": "InService",
+                    "LaunchConfigurationName": "nodes.cluster.k8s.local-20171025033916"
+                }
+            ],
+            .
+            .
+        }
+    ]
+}
+```
+We can use kops to change the instance type of the instances in an instance group. In AWS terms, this is the same as
+changing the LaunchConfiguration associated with an ASG. In AWS, LaunchConfigurations are immutable, so this change
+will result in the creation of a new LaunchConfiguration, followed by an update to the ASG to associate the new
+LaunchConfiguration.
+
+    kops edit ig nodes
+
+Change the instance type. Kops supports specific AWS instance types; see the source code here for the latest list:
+https://github.com/kubernetes/kops/blob/709f902c11079345588119ab48c46b7129ef1e44/upup/pkg/fi/cloudup/awsup/machine_types.go#L74
+
+
+As with the previous example, only the configuration has been changed at this stage.
+Let's preview our changes:
+
+
+    kops update cluster
+
+```
+$ kops update cluster
+Using cluster from kubectl context: cluster.k8s.local
+.
+.
+Will modify resources:
+  LaunchConfiguration/nodes.cluster.k8s.local
+  	InstanceType        	 t2.medium -> m4.medium
+
+Must specify --yes to apply changes
+```
+
+Before we apply the changes, let's check out our LaunchConfiguration so we can see whether kops updates it. Get the
+LaunchConfiguration from the ASG and note the InstanceType:
+
+```
+$ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.cluster.k8s.local --query 'AutoScalingGroups[0].[LaunchConfigurationName]'
+[
+    "nodes.cluster.k8s.local-20171025033916"
+]
+
+$ aws autoscaling describe-launch-configurations --launch-configuration-names nodes.cluster.k8s.local-20171025033916
+{
+    "LaunchConfigurations": [
+        {
+            "UserData": "etc",
+            "IamInstanceProfile": "nodes.cluster.k8s.local",
+            "EbsOptimized": false,
+            .
+            .
+            "LaunchConfigurationName": "nodes.cluster.k8s.local-20171025033916",
+            "InstanceType": "t2.medium",
+            "AssociatePublicIpAddress": true
+        }
+    ]
+}
+```
+
+Now update the cluster.
+
+    kops update cluster --yes
+
+```
+$ kops update cluster --yes
+Using cluster from kubectl context: cluster.k8s.local
+.
+.
+Kops has set your kubectl context to cluster.k8s.local
+
+Cluster changes have been applied to the cloud.
+
+Changes may require instances to restart: kops rolling-update cluster
+```
+
+We expect kops to have created a new LaunchConfiguration using our updated EC2 instance type and updated our
+ASG to refer to this LaunchConfiguration, so let's check if this is indeed the case:
+
+```
+$ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.cluster.k8s.local --query 'AutoScalingGroups[0].[LaunchConfigurationName]'
+[
+    "nodes.cluster.k8s.local-20171112055155"
+]
+
+$ aws autoscaling describe-launch-configurations --launch-configuration-names nodes.cluster.k8s.local-20171112055155
+{
+    "LaunchConfigurations": [
+        {
+            "UserData": "etc",
+            "IamInstanceProfile": "nodes.cluster.k8s.local",
+            "EbsOptimized": false,
+            .
+            .
+            "LaunchConfigurationName": "nodes.cluster.k8s.local-20171112055155",
+            "InstanceType": "m4.large",
+            "AssociatePublicIpAddress": true
+        }
+    ]
+}
+```
+
+The kops configuration has been updated to reflect the new instance type:
+
+    $ kops get ig
+    Using cluster from kubectl context: cluster.k8s.local
+
+    NAME			    ROLE	MACHINETYPE	MIN	MAX	SUBNETS
+    master-us-east-1d	Master	m3.medium	1	1	us-east-1d
+    nodes			    Node	m4.large	2	8	us-east-1d,us-east-1e
+
+However, the EC2 instances running as worker nodes in the Kubernetes cluster have not yet been updated. You can check
+this by using one of the ec2 instance id's from the 'aws autoscaling describe-auto-scaling-groups' command you ran
+earlier:
+
+    $ aws ec2 describe-instances --instance-ids i-007c28e33c7c7bd2b --query Reservations[0].Instances[0].InstanceType
+    "t2.medium"
+
+This makes sense. In AWS, creating a new LaunchConfiguration and associating it with an ASG has no impact until you
+scale the ASG. As you scale out, new EC2 instances are created based on the new LaunchConfiguration, and as you scale in,
+EC2 instances based on the oldest LaunchConfiguration are terminated.
+
+To apply the new instance type to the cluster we do a rolling update. As with many other kops commands, we can
+preview the changes before applying them:
+
+```
+$ kops rolling-update cluster
+Using cluster from kubectl context: cluster.k8s.local
+
+NAME			    STATUS		NEEDUPDATE	READY	MIN	MAX	NODES
+master-us-east-1d	Ready		0		    1	    1	1	1
+nodes			    NeedsUpdate	2		    0	    2	8	2
+
+Must specify --yes to rolling-update.
+```
+
+Now apply the changes. You'll notice existing EC2 instances in the cluster being terminated one-by-one, and new
+instances based on the new LaunchConfiguration being started. This activity can also be viewed in the AWS Console,
+under the EC2 service. See Activity History under the appropriate Auto Scaling Group.
+
+```
+$ kops rolling-update cluster --yes
+Using cluster from kubectl context: cluster.k8s.local
+
+NAME			    STATUS		NEEDUPDATE	READY	MIN	MAX	NODES
+master-us-east-1d	Ready		0		    1	    1	1	1
+nodes			    NeedsUpdate	2		    0	    2	8	2
+I1112 14:11:51.260854   52494 instancegroups.go:350] Stopping instance "i-007c28e33c7c7bd2b", node "ip-172-20-59-20.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+I1112 14:13:51.907500   52494 instancegroups.go:350] Stopping instance "i-040845072f78d347f", node "ip-172-20-71-215.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+I1112 14:15:55.287844   52494 rollingupdate.go:174] Rolling update completed!
+```
