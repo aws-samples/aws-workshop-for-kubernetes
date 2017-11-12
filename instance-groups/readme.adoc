@@ -299,3 +299,119 @@ I1112 14:11:51.260854   52494 instancegroups.go:350] Stopping instance "i-007c28
 I1112 14:13:51.907500   52494 instancegroups.go:350] Stopping instance "i-040845072f78d347f", node "ip-172-20-71-215.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
 I1112 14:15:55.287844   52494 rollingupdate.go:174] Rolling update completed!
 ```
+== Using kops to add an additional instance group to your cluster
+In this section you'll add an additional instance group to your Kubernetes cluster so that your cluster is
+comprised of two instance groups with different instance types. We'll then schedule a pod to run specifically
+on instances in the new instance group. This is useful, for example, if you want to assign pods to run high performing workloads
+on GPU or FPGA instance types.
+
+Let's go ahead and create an instance group for p2 instance types:
+
+    kops create ig p2 --subnet us-east-1d,us-east-1e
+
+Change the machineType in the resulting skeleton configuration. Make sure you add the nodeLabels as in the example below.
+This will be used in a later example to schedule pods onto these instances.
+
+```
+apiVersion: kops/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: 2017-11-12T07:25:23Z
+  labels:
+    kops.k8s.io/cluster: cluster.k8s.local
+  name: p2
+spec:
+  image: kope.io/k8s-1.7-debian-jessie-amd64-hvm-ebs-2017-07-28
+  machineType: p2.xlarge
+  maxSize: 2
+  minSize: 2
+  nodeLabels:
+    type: p2-ig
+  role: Node
+  subnets:
+  - us-east-1d
+  - us-east-1e
+```
+
+Preview and apply your changes in the usual way. In the preview you'll notice a new LaunchConfiguration and ASG is
+about to be created.
+
+    kops update cluster
+
+```
+$ kops update cluster
+Using cluster from kubectl context: cluster.k8s.local
+.
+.
+Will create resources:
+  AutoscalingGroup/p2.cluster.k8s.local
+  	MinSize             	2
+  	MaxSize             	2
+    .
+  	LaunchConfiguration 	name:p2.cluster.k8s.local
+
+  LaunchConfiguration/p2.cluster.k8s.local
+  	ImageID             	kope.io/k8s-1.7-debian-jessie-amd64-hvm-ebs-2017-07-28
+  	InstanceType        	p2.xlarge
+    .
+    .
+Must specify --yes to apply changes
+```
+
+    kops update cluster --yes
+
+After applying the changes it will take a few minutes before your ASG provisions the instances and reaches the MinSize
+specified in the instance group config. You can check progress by viewing the nodes in your cluster. AWS may only
+provision 1 P2 instance instead of the two specified; this is because most AWS accounts have
+a soft limit of 1 P2 instance per account. If this happens, don't worry, we can still provision pods onto the instances in
+this instance group.
+
+```
+$ kubectl get nodes
+NAME                            STATUS    ROLES     AGE       VERSION
+ip-172-20-32-243.ec2.internal   Ready     master    18d       v1.7.4
+ip-172-20-38-84.ec2.internal    Ready     node      3m        v1.7.4
+ip-172-20-50-253.ec2.internal   Ready     node      1h        v1.7.4
+ip-172-20-69-144.ec2.internal   Ready     node      1h        v1.7.4
+ip-172-20-69-196.ec2.internal   Ready     node      3m        v1.7.4
+```
+
+If you have a lot of instances in your cluster, you can show only the instances in your new instance group using the
+label we assigned during the creation of the instance group earlier. This also confirms that the label has been
+applied to the instances in the instance group - we'll need this to schedule pods onto these instances:
+
+```
+$ kubectl get nodes -l type=p2-ig
+NAME                            STATUS    ROLES     AGE       VERSION
+ip-172-20-38-84.ec2.internal    Ready     node      13m       v1.7.4
+ip-172-20-69-196.ec2.internal   Ready     node      13m       v1.7.4
+```
+
+Now we'll schedule a pod onto an instance in the new instance group and check if it is scheduled onto the correct node:
+
+    $ kubectl create -f instance-groups/nginx-on-p2.yaml
+    pod "nginx" created
+
+Check if the pod was scheduled onto the correct node. The value of NODE should match the NAME of a node in the p2 instance
+ group:
+
+```
+$ kubectl get pods nginx -o wide
+NAME      READY     STATUS    RESTARTS   AGE       IP            NODE
+nginx     1/1       Running   0          1m        100.96.10.2   ip-172-20-69-196.ec2.internal
+```
+
+== Remove the additional instance group
+Since GPU instances are costly, let's remove this instance group. In the background the ASG will be deleted.
+
+    kubectl delete -f instance-groups/nginx-on-p2.yaml
+    kops delete ig p2
+
+```
+$ kops get ig
+Using cluster from kubectl context: cluster.k8s.local
+
+NAME			    ROLE	MACHINETYPE	MIN	MAX	SUBNETS
+master-us-east-1d	Master	m3.medium	1	1	us-east-1d
+nodes			    Node	m4.large	2	8	us-east-1d,us-east-1e
+```
