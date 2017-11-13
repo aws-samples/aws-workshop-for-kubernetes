@@ -460,6 +460,11 @@ A formatted output is shown below:
 
 The output clearly shows that `--runtime-config=batch/v2alpha1=true` is passed as an option to the API server. This means the cluster is now ready for creating creating APIs with version `batch/v2alpha1`.
 
+== Instance groups with kops
+
+An instance group is a kops concept that defines a grouping of similar machines. In AWS, an instance group maps to an
+AutoScalingGroup (ASG). Instructions on how to create instance groups can be found link:instance-groups/readme.adoc[here].
+
 == Delete cluster
 
 Any cluster can be deleted as shown:
