@@ -86,13 +86,55 @@ Verify the version:
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
+
+=== Setup on EC2 (if you do not virtualbox on your laptop)
+
+. Launch an EC2 (at least 4GB Memory) with an "Ubuntu Server 16.04 LTS (HVM)" AMI, make sure you have a public IP and can SSH into this instance.
+. SSH into the EC2 (the port forwarding is for the minikube dashboard):
++
+    ssh -L30000:localhost:30000 ubuntu@<IP Address of EC2>
++
+
+. Install docker
++
+    sudo -i
+    apt-get update -y &&  apt-get install -y docker.io
++
+
+. Install minikube:
++
+    curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
++
+
+Verify the version:
++
+    $ minikube version
+    minikube version: v0.23.0
++
+. Install or Upgrade Kubectl CLI:
++
+    curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
++
+
+. Add kubectl autocompletion to your current shell 
++
+    source <(kubectl completion bash)
+
 == Start Kubernetes cluster
 
 We are using the VirtualBox driver which is the default selection for minikube. If you would prefer you can use an alternate supported component (xhyve driver or VMware Fusion) using the `--vm-driver=xxx` flag.
 
 Start a single-node Kubernetes cluster on your local machine:
 
+```
     minikube start
+```
+    
+if you have installed minikube on a EC2, start it with the --vm-driver=none flag
+
+```
+    minikube start --vm-driver=none
+```
 
 The first start of minikube will download the ISO file and then start the cluster. It shows the following output:
 
@@ -371,7 +413,7 @@ The host and the port are the exact same values where minikube opened the servic
 
 Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters. It provides an overview of applications running on the cluster, as well as the ability to create or modify individual Kubernetes resources and workloads, such as replica sets, jobs, services, and pods. The dashboard can be used to manage the cluster as well.
 
-Kubernetes dashboard with minikube can be easily viewed using the following command:
+Kubernetes dashboard with minikube can be easily viewed using the following command ( Do not run this if you have minikube on EC2, instead just point your browser to http://127.0.0.1:30000):
 
     minikube dashboard
 
