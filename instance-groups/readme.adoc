@@ -404,12 +404,93 @@ NAME      READY     STATUS    RESTARTS   AGE       IP            NODE
 nginx     1/1       Running   0          1m        100.96.10.2   ip-172-20-69-196.ec2.internal
 ```
 
+== Pinning an instance group to an AZ
+Certain workloads benefit from low latency network connectivity between containers. This can be achieved by launching
+an instance group with instances in a single Availability Zone (AZ). It's quite easy to do this using kops.
+
+When creating an instance group with kops, it's necessary to specify a subnet. Since a subnet is specific to an AZ,
+specifying subnets in a single AZ will pin the instance group to that AZ. In the case of the cluster we created in
+this workshop, the subnet names default to the AZ names:
+
+    kops create ig ig-1d --subnet us-east-1d
+
+As with the previous example, add the 'nodeLabels' attribute as in the example below.
+
+```
+apiVersion: kops/v1alpha2
+kind: InstanceGroup
+.
+.
+  nodeLabels:
+    type: 1d-ig
+  role: Node
+  subnets:
+  - us-east-1d
+```
+
+Preview and apply your changes in the usual way. In the preview you'll notice a new LaunchConfiguration and ASG is
+about to be created.
+
+    kops update cluster
+
+```
+$ kops update cluster
+Using cluster from kubectl context: cluster.k8s.local
+.
+.
+Will create resources:
+  AutoscalingGroup/p2.cluster.k8s.local
+  	MinSize             	2
+  	MaxSize             	2
+    .
+  	LaunchConfiguration 	name:ig-1d.cluster.k8s.local
+
+  LaunchConfiguration/ig-1d.cluster.k8s.local
+  	ImageID             	kope.io/k8s-1.7-debian-jessie-amd64-hvm-ebs-2017-07-28
+ 	InstanceType        	t2.medium
+    .
+    .
+Must specify --yes to apply changes
+```
+
+    kops update cluster --yes
+
+Check that your new instances have been provsioned in the correct AZ:
+
+```
+$ kubectl get nodes -l type=1d-ig -o json | grep failure-domain.beta.kubernetes.io/zone
+                    "failure-domain.beta.kubernetes.io/zone": "us-east-1d",
+                    "failure-domain.beta.kubernetes.io/zone": "us-east-1d",
+```
+
+Now we'll schedule a pod onto an instance in the new instance group and check if it is scheduled onto the correct node:
+
+    $ kubectl create -f instance-groups/nginx-on-1d-ig.yaml
+    pod "nginx" created
+
+Check if the pod was scheduled onto the correct node. The value of NODE should match a node in the 1d instance
+ group, in the us-east-1d AZ:
+
+```
+$ kubectl get nodes -l type=1d-ig
+NAME                            STATUS    ROLES     AGE       VERSION
+ip-172-20-39-205.ec2.internal   Ready     node      7m        v1.7.4
+ip-172-20-42-147.ec2.internal   Ready     node      8m        v1.7.4
+
+$ kubectl get pods nginx -o wide
+NAME      READY     STATUS    RESTARTS   AGE       IP            NODE
+nginx     1/1       Running   0          1m        100.96.12.2   ip-172-20-39-205.ec2.internal
+```
+
 == Remove the additional instance group
 Since GPU instances are costly, let's remove this instance group. In the background the ASG will be deleted.
 
     kubectl delete -f instance-groups/nginx-on-p2.yaml
-    kops delete ig p2
+    kubectl delete -f instance-groups/nginx-on-1d-ig.yaml
+    kops delete ig p2 --yes
+    kops delete ig ig-1d --yes
 
+Check the instance group(s) have been deleted:
 ```
 $ kops get ig
 Using cluster from kubectl context: cluster.k8s.local
