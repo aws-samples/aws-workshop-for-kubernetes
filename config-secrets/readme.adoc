@@ -572,25 +572,63 @@ High-Availability Enabled: false
   $ kubectl apply -f templates/vault-reviewer-rbac.yaml 
   clusterrolebinding "role-tokenreview-binding" created
 
-. Read the service account token needed by Vault:
-
-  kubectl get secret \
-  $(kubectl get serviceaccount vault-reviewer -o jsonpath={.secrets[0].name}) \
-  -o jsonpath={.data.token} | base64 -D -
-
 . Creat a service account that will be used to login to the auth backend:
 
   $ kubectl create -f templates/vault-auth.yaml
   serviceaccount "vault-auth" created
 
-=== Configure Kubernetes Auth backend
+=== Configure the Kubernetes Auth backend
 
-. In the EC2 instance, mount the Kubernetes auth backend:
+Service account token, Kubernetes API server address and the certificate used to access the API server are needed in order to configure the Kubernetes Auth backend. Let's get these values.
+
+. On the local machine, read the service account token:
+
+  kubectl get secret \
+  $(kubectl get serviceaccount vault-reviewer -o jsonpath={.secrets[0].name}) \
+  -o jsonpath={.data.token} | base64 -D -
+  eyJ . . . reg
+
+. Get the API server address:
+
+  $ kubectl config view -o jsonpath='{.clusters[*].cluster.server}'
+  https://api-example-cluster-k8s-l-1dt7vk-41321592.us-east-1.elb.amazonaws.com https://192.168.99.100:8443
++
+This is the address of API servers currently configured. The first one is for the cluster created by Kops. Second one is for the minikube server, if its running. The first one is relevant for our case.
++
+. Extract the certificate
+.. Find the default secret token:
+
+  $ kubectl get secrets | grep default
+  default-token-kvjn9          kubernetes.io/service-account-token   3         4d
+
+.. Use the default token name to extract the certificate:
+
+  $ kubectl get secrets default-token-kvjn9 -o jsonpath="{.data['ca\.crt']}" | base64 -D > ~/.kube/kops.crt
+
+.. Copy the certificate to EC2 instance where Vault is running:
+
+  $ scp -i ~/.ssh/arun-us-east1.pem ~/.kube/kops.crt ec2-user@ec2-54-237-223-40.compute-1.amazonaws.com:~/kops.crt
+kops.crt                                                                                    100% 1046    11.1KB/s   00:00   
+
+. Now that all the required values are available, configure the Kubernetes auth backend
+.. In the EC2 instance, mount the Kubernetes auth backend:
 
   [ec2-user@ip-172-31-26-180 ~]$ ./vault auth-enable kubernetes
   Successfully enabled 'kubernetes' at 'kubernetes'!
 
-. Copy the certificate from S3 bucket:
+.. Configure the auth backend:
 
-  aws s3 cp $KOPS_STATE_STORE/example.cluster.k8s.local/pki/issued/ca/*.crt ca.crt
+  vault write auth/kubernetes/config \
+    token_reviewer_jwt=<service-account-token>  \
+    kubernetes_host=<api-server> \
+    kubernetes_ca_cert=~/kops.crt
++
+For example, here is how our command will look like:
+
+  ./vault write auth/kubernetes/config \
+    token_reviewer_jwt=eyJ . . . reg  \
+    kubernetes_host=https://api-example-cluster-k8s-l-1dt7vk-41321592.us-east-1.elb.amazonaws.com \
+    kubernetes_ca_cert=~/kops.crt
+  Success! Data written to: auth/kubernetes/config
+
 
