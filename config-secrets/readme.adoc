@@ -625,10 +625,46 @@ kops.crt                                                                        
 +
 For example, here is how our command will look like:
 
-  ./vault write auth/kubernetes/config \
+  [ec2-user@ip-172-31-26-180 ~]$ ./vault write auth/kubernetes/config \
     token_reviewer_jwt=eyJ . . . reg  \
     kubernetes_host=https://api-example-cluster-k8s-l-1dt7vk-41321592.us-east-1.elb.amazonaws.com \
     kubernetes_ca_cert=~/kops.crt
   Success! Data written to: auth/kubernetes/config
++
+. Create a role with service account name `vault-auth` in the `default` namespace:
 
+  [ec2-user@ip-172-31-26-180 ~]$ ./vault write auth/kubernetes/role/demo \
+    bound_service_account_names=vault-auth \
+    bound_service_account_namespaces=default \
+    policies=kube-auth \
+    period=60s
+  Success! Data written to: auth/kubernetes/role/demo
 
+. Read the role:
+
+  [ec2-user@ip-172-31-26-180 ~]$ ./vault read auth/kubernetes/role/demo
+  Key                               Value
+  ---                               -----
+  bound_service_account_names       [vault-auth]
+  bound_service_account_namespaces  [default]
+  max_ttl                           0
+  num_uses                          0
+  period                            60
+  policies                          [kube-auth]
+  ttl                               0
+
+. Create a policy for this role
+.. Copy the policy file to EC2 instance:
+
+  scp -i ~/.ssh/arun-us-east1.pem templates/kube-auth.hcl ec2-user@ec2-54-237-223-40.compute-1.amazonaws.com:~/kube-auth.hcl
+  kube-auth.hcl                                                                               100%   49     0.5KB/s   00:00    
+
+.. Create the policy for this role:
+
+  [ec2-user@ip-172-31-26-180 ~]$ ./vault policy-write kube-auth kube-auth.hcl
+  Policy 'kube-auth' written.
+
+. Write secrets to Vault:
+
+  [ec2-user@ip-172-31-26-180 ~]$ ./vault write secret/creds GREETING=hello NAME=World
+  Success! Data written to: secret/creds
