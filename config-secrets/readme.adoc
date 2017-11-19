@@ -443,9 +443,13 @@ The above commands illustrate how to see the secret values via environment varia
 
 == Vault (Work in progress)
 
-These instructions are inspured from https://github.com/briankassouf/vault-kubernetes-demo.
+https://www.vaultproject.io/[Hashicorp Vault] is a tool for managing secrets. It secures, stores and tightly controls access to tokens, passwords, certificates, API keys and other secrets.
 
-=== Configure EC2 instance
+This section explains how to configure Vault on AWS, store secrets, and access them in a Pod. The instructions are inspired from https://github.com/briankassouf/vault-kubernetes-demo.
+
+=== Create EC2 instance
+
+We need an EC2 instance for hosting Vault server. This server needs to be accessible to Kubernetes cluster.
 
 . Create an EC2 instance with Linux flavor. For example `m4.large` with `Amazon Linux`
 .. Make sure to allow port `8200` as part of `Configure Security Group`
@@ -668,3 +672,4 @@ For example, here is how our command will look like:
 
   [ec2-user@ip-172-31-26-180 ~]$ ./vault write secret/creds GREETING=hello NAME=World
   Success! Data written to: secret/creds
+
