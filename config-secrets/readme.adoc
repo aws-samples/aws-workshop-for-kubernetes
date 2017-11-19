@@ -440,3 +440,157 @@ Open a shell to the pod to see the secrets:
 
 The above commands illustrate how to see the secret values via environment variables.
 
+
+== Vault (Work in progress)
+
+These instructions are inspured from https://github.com/briankassouf/vault-kubernetes-demo.
+
+=== Configure EC2 instance
+
+. Create an EC2 instance with Linux flavor. For example `m4.large` with `Amazon Linux`
+.. Make sure to allow port `8200` as part of `Configure Security Group`
+.. Configure security group to allow 8200 (not TLS by default, more config required for TLS)
+.. SSH into the machine:
++
+```
+ssh -i ~/.ssh/arun-us-east1.pem ec2-user@ec2-54-237-223-40.compute-1.amazonaws.com
+```
+
+=== Start Vault Server
+
+. In EC2 instance, download Vault server:
++
+```
+wget https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip
+```
++
+. Unzip Vault: `unzip vault_0.9.0_linux_amd64.zip`
+. Start Vault server:
++
+```
+[ec2-user@ip-172-31-26-180 ~]$ ./vault server -dev &
+[ec2-user@ip-172-31-26-180 ~]$ ==> Vault server configuration:
+
+                     Cgo: disabled
+         Cluster Address: https://127.0.0.1:8201
+              Listener 1: tcp (addr: "127.0.0.1:8200", cluster address: "127.0.0.1:8201", tls: "disabled")
+               Log Level: info
+                   Mlock: supported: true, enabled: false
+        Redirect Address: http://127.0.0.1:8200
+                 Storage: inmem
+                 Version: Vault v0.9.0
+             Version Sha: bdac1854478538052ba5b7ec9a9ec688d35a3335
+
+==> WARNING: Dev mode is enabled!
+
+In this mode, Vault is completely in-memory and unsealed.
+Vault is configured to only have a single unseal key. The root
+token has already been authenticated with the CLI, so you can
+immediately begin using the Vault CLI.
+
+The only step you need to take is to set the following
+environment variables:
+
+    export VAULT_ADDR='http://127.0.0.1:8200'
+
+The unseal key and root token are reproduced below in case you
+want to seal/unseal the Vault or play with authentication.
+
+Unseal Key: j/CEsRu7VaxjUdHHGGFfXnahxqhdAfRC8JRAgfE/lkg=
+Root Token: ffd97e6f-2c33-aadd-c3b9-4f5d24995962
+
+==> Vault server started! Log data will stream in below:
+
+2017/11/19 02:49:02.177255 [INFO ] core: security barrier not initialized
+2017/11/19 02:49:02.177365 [INFO ] core: security barrier initialized: shares=1 threshold=1
+2017/11/19 02:49:02.177502 [INFO ] core: post-unseal setup starting
+2017/11/19 02:49:02.190191 [INFO ] core: loaded wrapping token key
+2017/11/19 02:49:02.190201 [INFO ] core: successfully setup plugin catalog: plugin-directory=
+2017/11/19 02:49:02.190916 [INFO ] core: successfully mounted backend: type=kv path=secret/
+2017/11/19 02:49:02.190929 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
+2017/11/19 02:49:02.191032 [INFO ] core: successfully mounted backend: type=system path=sys/
+2017/11/19 02:49:02.191205 [INFO ] core: successfully mounted backend: type=identity path=identity/
+2017/11/19 02:49:02.194695 [INFO ] expiration: restoring leases
+2017/11/19 02:49:02.194858 [INFO ] rollback: starting rollback manager
+2017/11/19 02:49:02.195159 [INFO ] identity: entities restored
+2017/11/19 02:49:02.195177 [INFO ] identity: groups restored
+2017/11/19 02:49:02.195192 [INFO ] core: post-unseal setup complete
+2017/11/19 02:49:02.195202 [INFO ] expiration: lease restore complete
+2017/11/19 02:49:02.195331 [INFO ] core: root token generated
+2017/11/19 02:49:02.195335 [INFO ] core: pre-seal teardown starting
+2017/11/19 02:49:02.195337 [INFO ] core: cluster listeners not running
+2017/11/19 02:49:02.195343 [INFO ] rollback: stopping rollback manager
+2017/11/19 02:49:02.195399 [INFO ] core: pre-seal teardown complete
+2017/11/19 02:49:02.195459 [INFO ] core: vault is unsealed
+2017/11/19 02:49:02.195474 [INFO ] core: post-unseal setup starting
+2017/11/19 02:49:02.195519 [INFO ] core: loaded wrapping token key
+2017/11/19 02:49:02.195522 [INFO ] core: successfully setup plugin catalog: plugin-directory=
+2017/11/19 02:49:02.195677 [INFO ] core: successfully mounted backend: type=kv path=secret/
+2017/11/19 02:49:02.195754 [INFO ] core: successfully mounted backend: type=system path=sys/
+2017/11/19 02:49:02.195888 [INFO ] core: successfully mounted backend: type=identity path=identity/
+2017/11/19 02:49:02.195899 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
+2017/11/19 02:49:02.196454 [INFO ] expiration: restoring leases
+2017/11/19 02:49:02.196517 [INFO ] rollback: starting rollback manager
+2017/11/19 02:49:02.196603 [INFO ] identity: entities restored
+2017/11/19 02:49:02.196613 [INFO ] identity: groups restored
+2017/11/19 02:49:02.196625 [INFO ] core: post-unseal setup complete
+2017/11/19 02:49:02.196668 [INFO ] expiration: lease restore complete
+```
++
+. Run the command to configure Vault CLI to identify the server:
++
+```
+export VAULT_ADDR='http://127.0.0.1:8200'
+```
++
+. Check status:
++
+```
+[ec2-user@ip-172-31-26-180 ~]$ ./vault status
+Type: shamir
+Sealed: false
+Key Shares: 1
+Key Threshold: 1
+Unseal Progress: 0
+Unseal Nonce: 
+Version: 0.9.0
+Cluster Name: vault-cluster-cfa115bc
+Cluster ID: c3b28ced-0625-5825-e758-cc4a71f6ad08
+
+High-Availability Enabled: false
+```
+
+=== Configure Kubernetes Service Account
+
+. Create the service account to verify service account token during login:
+
+  $ kubectl create -f templates/vault-reviewer.yaml
+  serviceaccount "vault-reviewer" created
+
+. Create the RBAC role that will be used by the service account to access the TokenReview API:
+
+  $ kubectl apply -f templates/vault-reviewer-rbac.yaml 
+  clusterrolebinding "role-tokenreview-binding" created
+
+. Read the service account token needed by Vault:
+
+  kubectl get secret \
+  $(kubectl get serviceaccount vault-reviewer -o jsonpath={.secrets[0].name}) \
+  -o jsonpath={.data.token} | base64 -D -
+
+. Creat a service account that will be used to login to the auth backend:
+
+  $ kubectl create -f templates/vault-auth.yaml
+  serviceaccount "vault-auth" created
+
+=== Configure Kubernetes Auth backend
+
+. In the EC2 instance, mount the Kubernetes auth backend:
+
+  [ec2-user@ip-172-31-26-180 ~]$ ./vault auth-enable kubernetes
+  Successfully enabled 'kubernetes' at 'kubernetes'!
+
+. Copy the certificate from S3 bucket:
+
+  aws s3 cp $KOPS_STATE_STORE/example.cluster.k8s.local/pki/issued/ca/*.crt ca.crt
+
