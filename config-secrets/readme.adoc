@@ -676,3 +676,22 @@ For example, here is how our command will look like:
   [ec2-user@ip-172-31-26-180 ~]$ ./vault write secret/creds GREETING=hello NAME=World
   Success! Data written to: secret/creds
 
+. Check that this value can be read:
+
+  [ec2-user@ip-172-31-26-180 ~]$ ./vault read -field=GREETING secret/creds
+  hello
++
+This can also be verified by downloading the Vault CLI on your local machine:
++
+```
+$ export VAULT_ADDR='http://http://ec2-54-237-223-40.compute-1.amazonaws.com:8200'
+$ vault auth
+Token (will be hidden):
+$ vault read -field=GREETING secret/creds
+hello
+```
++
+The value of token is printed during server startup. It is also stored in the file `~/.vault-token` where the server was started.
+
+
+
