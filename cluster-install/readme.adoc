@@ -84,8 +84,8 @@ The Kops CLI can be used to create a highly available cluster, with multiple mas
 
 When setting up a cluster you have two options on how the nodes in the cluster communicate:
 
-. <<Create a DNS-based Kubernetes cluster, Using DNS>> - Creating a Kubernetes that uses DNS for node discovery requires a top-level domain or a subdomain and setting up Route 53 hosted zones. This allows the various Kubernetes components to find and communicate with each other. This is also needed for kubectl to be able to talk directly with the master.
-. <<Create a gossip-based Kubernetes cluster, Using the gossip protocol>> - Kops has experimental support for a gossip-based cluster. This does not require a top-level domain, subdomain or a Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup.
+. <<Create a DNS-based Kubernetes cluster, Using DNS>> - Creating a Kubernetes cluster that uses DNS for node discovery requires your own domain (or subdomain) and setting up Route 53 hosted zones. This allows the various Kubernetes components to find and communicate with each other. This is also necessary for kubectl to be able to talk directly with the master.
+. <<Create a gossip-based Kubernetes cluster, Using the gossip protocol>> - Kops has experimental support for a gossip-based cluster. This does not require a  domain, subdomain, or Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup.
 
 You'll need to choose one of the two options. Instructions for both options are provided below, and the examples in the workshop should work with either option. Creating a gossip-based cluster requires less setup and will be used in this workshop, unless otherwise specified.
 
