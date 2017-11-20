@@ -459,6 +459,8 @@ We need an EC2 instance for hosting Vault server. This server needs to be access
 ```
 ssh -i ~/.ssh/arun-us-east1.pem ec2-user@ec2-54-237-223-40.compute-1.amazonaws.com
 ```
++
+. Note down the private IP address of the EC2 console. This is needed to start our Vault server.
 
 === Start Vault Server
 
@@ -472,15 +474,16 @@ wget https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip
 . Start Vault server:
 +
 ```
-[ec2-user@ip-172-31-26-180 ~]$ ./vault server -dev &
+[ec2-user@ip-172-31-26-180 ~]$ ./vault server -dev-listen-address=ip-172-31-26-180.ec2.internal:8200 -dev &
+[1] 26687
 [ec2-user@ip-172-31-26-180 ~]$ ==> Vault server configuration:
 
                      Cgo: disabled
-         Cluster Address: https://127.0.0.1:8201
-              Listener 1: tcp (addr: "127.0.0.1:8200", cluster address: "127.0.0.1:8201", tls: "disabled")
+         Cluster Address: https://ip-172-31-26-180.ec2.internal:8201
+              Listener 1: tcp (addr: "ip-172-31-26-180.ec2.internal:8200", cluster address: "172.31.26.180:8201", tls: "disabled")
                Log Level: info
                    Mlock: supported: true, enabled: false
-        Redirect Address: http://127.0.0.1:8200
+        Redirect Address: http://ip-172-31-26-180.ec2.internal:8200
                  Storage: inmem
                  Version: Vault v0.9.0
              Version Sha: bdac1854478538052ba5b7ec9a9ec688d35a3335
@@ -495,56 +498,56 @@ immediately begin using the Vault CLI.
 The only step you need to take is to set the following
 environment variables:
 
-    export VAULT_ADDR='http://127.0.0.1:8200'
+    export VAULT_ADDR='http://ip-172-31-26-180.ec2.internal:8200'
 
 The unseal key and root token are reproduced below in case you
 want to seal/unseal the Vault or play with authentication.
 
-Unseal Key: j/CEsRu7VaxjUdHHGGFfXnahxqhdAfRC8JRAgfE/lkg=
-Root Token: ffd97e6f-2c33-aadd-c3b9-4f5d24995962
+Unseal Key: ZBfexpmasu0r4iba+t8tTlm4L5FQJ+JagglEhbfpxkU=
+Root Token: 4e93b3c6-c459-f166-e7e9-6c48044cfdb6
 
 ==> Vault server started! Log data will stream in below:
 
-2017/11/19 02:49:02.177255 [INFO ] core: security barrier not initialized
-2017/11/19 02:49:02.177365 [INFO ] core: security barrier initialized: shares=1 threshold=1
-2017/11/19 02:49:02.177502 [INFO ] core: post-unseal setup starting
-2017/11/19 02:49:02.190191 [INFO ] core: loaded wrapping token key
-2017/11/19 02:49:02.190201 [INFO ] core: successfully setup plugin catalog: plugin-directory=
-2017/11/19 02:49:02.190916 [INFO ] core: successfully mounted backend: type=kv path=secret/
-2017/11/19 02:49:02.190929 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
-2017/11/19 02:49:02.191032 [INFO ] core: successfully mounted backend: type=system path=sys/
-2017/11/19 02:49:02.191205 [INFO ] core: successfully mounted backend: type=identity path=identity/
-2017/11/19 02:49:02.194695 [INFO ] expiration: restoring leases
-2017/11/19 02:49:02.194858 [INFO ] rollback: starting rollback manager
-2017/11/19 02:49:02.195159 [INFO ] identity: entities restored
-2017/11/19 02:49:02.195177 [INFO ] identity: groups restored
-2017/11/19 02:49:02.195192 [INFO ] core: post-unseal setup complete
-2017/11/19 02:49:02.195202 [INFO ] expiration: lease restore complete
-2017/11/19 02:49:02.195331 [INFO ] core: root token generated
-2017/11/19 02:49:02.195335 [INFO ] core: pre-seal teardown starting
-2017/11/19 02:49:02.195337 [INFO ] core: cluster listeners not running
-2017/11/19 02:49:02.195343 [INFO ] rollback: stopping rollback manager
-2017/11/19 02:49:02.195399 [INFO ] core: pre-seal teardown complete
-2017/11/19 02:49:02.195459 [INFO ] core: vault is unsealed
-2017/11/19 02:49:02.195474 [INFO ] core: post-unseal setup starting
-2017/11/19 02:49:02.195519 [INFO ] core: loaded wrapping token key
-2017/11/19 02:49:02.195522 [INFO ] core: successfully setup plugin catalog: plugin-directory=
-2017/11/19 02:49:02.195677 [INFO ] core: successfully mounted backend: type=kv path=secret/
-2017/11/19 02:49:02.195754 [INFO ] core: successfully mounted backend: type=system path=sys/
-2017/11/19 02:49:02.195888 [INFO ] core: successfully mounted backend: type=identity path=identity/
-2017/11/19 02:49:02.195899 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
-2017/11/19 02:49:02.196454 [INFO ] expiration: restoring leases
-2017/11/19 02:49:02.196517 [INFO ] rollback: starting rollback manager
-2017/11/19 02:49:02.196603 [INFO ] identity: entities restored
-2017/11/19 02:49:02.196613 [INFO ] identity: groups restored
-2017/11/19 02:49:02.196625 [INFO ] core: post-unseal setup complete
-2017/11/19 02:49:02.196668 [INFO ] expiration: lease restore complete
+2017/11/20 03:34:06.457231 [INFO ] core: security barrier not initialized
+2017/11/20 03:34:06.457349 [INFO ] core: security barrier initialized: shares=1 threshold=1
+2017/11/20 03:34:06.457475 [INFO ] core: post-unseal setup starting
+2017/11/20 03:34:06.470532 [INFO ] core: loaded wrapping token key
+2017/11/20 03:34:06.470542 [INFO ] core: successfully setup plugin catalog: plugin-directory=
+2017/11/20 03:34:06.471226 [INFO ] core: successfully mounted backend: type=kv path=secret/
+2017/11/20 03:34:06.471239 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
+2017/11/20 03:34:06.471348 [INFO ] core: successfully mounted backend: type=system path=sys/
+2017/11/20 03:34:06.471530 [INFO ] core: successfully mounted backend: type=identity path=identity/
+2017/11/20 03:34:06.475065 [INFO ] expiration: restoring leases
+2017/11/20 03:34:06.475241 [INFO ] rollback: starting rollback manager
+2017/11/20 03:34:06.475583 [INFO ] expiration: lease restore complete
+2017/11/20 03:34:06.475583 [INFO ] identity: entities restored
+2017/11/20 03:34:06.475628 [INFO ] identity: groups restored
+2017/11/20 03:34:06.475641 [INFO ] core: post-unseal setup complete
+2017/11/20 03:34:06.475778 [INFO ] core: root token generated
+2017/11/20 03:34:06.475782 [INFO ] core: pre-seal teardown starting
+2017/11/20 03:34:06.475783 [INFO ] core: cluster listeners not running
+2017/11/20 03:34:06.475790 [INFO ] rollback: stopping rollback manager
+2017/11/20 03:34:06.475848 [INFO ] core: pre-seal teardown complete
+2017/11/20 03:34:06.475905 [INFO ] core: vault is unsealed
+2017/11/20 03:34:06.475919 [INFO ] core: post-unseal setup starting
+2017/11/20 03:34:06.475965 [INFO ] core: loaded wrapping token key
+2017/11/20 03:34:06.475967 [INFO ] core: successfully setup plugin catalog: plugin-directory=
+2017/11/20 03:34:06.476108 [INFO ] core: successfully mounted backend: type=kv path=secret/
+2017/11/20 03:34:06.476186 [INFO ] core: successfully mounted backend: type=system path=sys/
+2017/11/20 03:34:06.476318 [INFO ] core: successfully mounted backend: type=identity path=identity/
+2017/11/20 03:34:06.476328 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
+2017/11/20 03:34:06.476889 [INFO ] expiration: restoring leases
+2017/11/20 03:34:06.476945 [INFO ] rollback: starting rollback manager
+2017/11/20 03:34:06.477008 [INFO ] identity: entities restored
+2017/11/20 03:34:06.477015 [INFO ] identity: groups restored
+2017/11/20 03:34:06.477022 [INFO ] core: post-unseal setup complete
+2017/11/20 03:34:06.477105 [INFO ] expiration: lease restore complete
 ```
 +
 . Run the command to configure Vault CLI to identify the server:
 +
 ```
-export VAULT_ADDR='http://127.0.0.1:8200'
+export VAULT_ADDR='http://ip-172-31-26-180.ec2.internal:8200'
 ```
 +
 . Check status:
@@ -558,8 +561,8 @@ Key Threshold: 1
 Unseal Progress: 0
 Unseal Nonce: 
 Version: 0.9.0
-Cluster Name: vault-cluster-cfa115bc
-Cluster ID: c3b28ced-0625-5825-e758-cc4a71f6ad08
+Cluster Name: vault-cluster-01043c83
+Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
 
 High-Availability Enabled: false
 ```
@@ -581,7 +584,7 @@ High-Availability Enabled: false
   $ kubectl create -f templates/vault-auth.yaml
   serviceaccount "vault-auth" created
 
-=== Configure the Kubernetes Auth backend
+=== Configure Kubernetes Auth backend
 
 Service account token, Kubernetes API server address and the certificate used to access the API server are needed in order to configure the Kubernetes Auth backend. Let's get these values.
 
