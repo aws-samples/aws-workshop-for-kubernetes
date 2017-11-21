@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: "webapp-alb-ingress"
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/subnets: 'subnet-2e917d01, subnet-eb02a5d4'
+  labels:
+    app: webapp-service
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: "webapp-service"
+          servicePort: 80
