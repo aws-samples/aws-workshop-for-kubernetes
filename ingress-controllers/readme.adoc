@@ -8,8 +8,8 @@ For example, creating an Ingress resource is an event. The Ingress controller wi
 appropriate Ingress resource; in the case of this example, this could be an Nginx or an AWS ALB resource.
 
 Kubernetes Ingress has two parts:
-    * Ingress resource: the Ingress definition, defined in a YAML file
-    * Ingress controller: deployed on the Kubernetes master, the controller implements the Ingress in your cluster.
+ * Ingress resource: the Ingress definition, defined in a YAML file
+ * Ingress controller: deployed on the Kubernetes master, the controller implements the Ingress in your cluster.
 There is no default Ingress controller provided in Kubernetes. It may be provided by your platform, or you must install one.
 Since an Ingress controller is not provided on AWS by default, we will install one.
 
