@@ -445,7 +445,7 @@ The above commands illustrate how to see the secret values via environment varia
 
 https://www.vaultproject.io/[Hashicorp Vault] is a tool for managing secrets. It secures, stores and tightly controls access to tokens, passwords, certificates, API keys and other secrets.
 
-This section explains how to configure Vault on AWS, store secrets, and access them in a Pod. The instructions are inspired from https://github.com/briankassouf/vault-kubernetes-demo.
+This section explains how to install and configure Vault on AWS, store secrets, and access them in a Pod. The instructions are inspired from https://github.com/briankassouf/vault-kubernetes-demo.
 
 === Create EC2 instance
 
@@ -673,13 +673,13 @@ For example, here is how our command will look like:
 
 . Write secrets to Vault:
 
-  [ec2-user@ip-172-31-26-180 ~]$ ./vault write secret/creds GREETING=hello NAME=World
+  [ec2-user@ip-172-31-26-180 ~]$ ./vault write secret/creds GREETING=Hello NAME=World
   Success! Data written to: secret/creds
 
 . Check that this value can be read:
 
   [ec2-user@ip-172-31-26-180 ~]$ ./vault read -field=GREETING secret/creds
-  hello
+  Hello
 +
 This can also be verified by downloading the Vault CLI on your local machine:
 +
@@ -688,10 +688,46 @@ $ export VAULT_ADDR='http://http://ec2-54-237-223-40.compute-1.amazonaws.com:820
 $ vault auth
 Token (will be hidden):
 $ vault read -field=GREETING secret/creds
-hello
+Hello
 ```
 +
 The value of token is printed during server startup. It is also stored in the file `~/.vault-token` where the server was started.
 
+=== Deploy a Pod using secrets from Vault
 
+Let's deploy a Pod that is reading secrets from the Vault server.
+
+. The configuration file looks like:
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: java-app-secrets
+  spec:
+    containers:
+    - name: java-app-secrets
+      image: arungupta/java-app-secrets:latest
+      env:
+        - name: VAULT_ADDR
+          value: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
+        - name: VAULT_TOKEN
+          value: 4e93b3c6-c459-f166-e7e9-6c48044cfdb6
+    restartPolicy: Never
+
+. Deploy the Pod:
+
+  $ kubectl apply -f templates/pod-vault.yaml 
+  pod "java-app-secrets" created
+
+. Get the list of Pods:
+
+  $ kubectl get pods --show-all
+  NAME               READY     STATUS      RESTARTS   AGE
+  java-app-secrets   0/1       Completed   0          20s
+
+. Get logs from the complete Pod:
+
+  $ kubectl logs java-app-secrets
+  Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
+  vault: HelloWorld
 
