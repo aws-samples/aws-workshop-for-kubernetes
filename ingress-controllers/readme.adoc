@@ -101,6 +101,15 @@ contains the following for the nodes.cluster.k8s.local inline policy:
         .
 ```
 
+
+=== Editing config
+
+Before starting the exercise there are some small edits to make.
+
+ * Edit `templates/alb-ingress-resource.yaml` and change the list of subnets to match your own: alb.ingress.kubernetes.io/subnets
+ * Edit `templates/alb-ingress-controller.yaml` and change the AWS_REGION and CLUSTER_NAME to match your own. There
+ is no need to enter an access key.
+
 === Ingress controller
 
 As mentioned earlier, deploying an Ingress resource has no effect unless there is an Ingress controller that implements
