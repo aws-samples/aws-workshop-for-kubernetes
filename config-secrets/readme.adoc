@@ -441,7 +441,7 @@ Open a shell to the pod to see the secrets:
 The above commands illustrate how to see the secret values via environment variables.
 
 
-== Vault (Work in progress)
+== Vault
 
 https://www.vaultproject.io/[Hashicorp Vault] is a tool for managing secrets. It secures, stores and tightly controls access to tokens, passwords, certificates, API keys and other secrets.
 
