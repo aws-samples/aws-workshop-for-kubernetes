@@ -1,14 +1,13 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: java-app-secrets
+  name: vault-kubernetes
 spec:
+  serviceAccountName: vault-auth
   containers:
-  - name: java-app-secrets
-    image: arungupta/java-app-secrets:latest
+  - name: vault-kubernetes
+    image: arungupta/vault-kubernetes:latest
     env:
       - name: VAULT_ADDR
         value: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
-      # - name: VAULT_TOKEN
-      #   value: 4e93b3c6-c459-f166-e7e9-6c48044cfdb6
   restartPolicy: Never
