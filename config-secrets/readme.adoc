@@ -462,14 +462,12 @@ ssh -i ~/.ssh/arun-us-east1.pem ec2-user@ec2-54-237-223-40.compute-1.amazonaws.c
 +
 . Note down the private IP address of the EC2 console. This is needed to start our Vault server.
 
-=== Start Vault Server
+=== Start Vault Server on EC2
 
-. In EC2 instance, download Vault server:
-+
-```
-wget https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip
-```
-+
+. Download Vault server:
+
+  wget https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip
+
 . Unzip Vault: `unzip vault_0.9.0_linux_amd64.zip`
 . Start Vault server:
 +
@@ -567,6 +565,39 @@ Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
 High-Availability Enabled: false
 ```
 
+=== Configure Vault CLI on your local machine
+
+. Download Vault server:
+
+  wget https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip
+
+. Unzip Vault: `unzip vault_0.9.0_linux_amd64.zip`
+
+. Find public IP address of the EC2 instance and setup an environment variable:
+
+  export VAULT_ADDR='<public-ip-address>'
++
+For example, this command will look like:
++  
+  export VAULT_ADDR='http://http://ec2-54-237-223-40.compute-1.amazonaws.com:8200'
++
+. Verify the status can be seen from your local machine:
++
+```
+$ vault status
+Type: shamir
+Sealed: false
+Key Shares: 1
+Key Threshold: 1
+Unseal Progress: 0
+Unseal Nonce: 
+Version: 0.9.0
+Cluster Name: vault-cluster-01043c83
+Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
+
+High-Availability Enabled: false
+```
+
 === Configure Kubernetes Service Account
 
 . Create the service account to verify service account token during login:
@@ -612,35 +643,30 @@ This is the address of API servers currently configured. The first one is for th
 
   $ kubectl get secrets default-token-kvjn9 -o jsonpath="{.data['ca\.crt']}" | base64 -D > ~/.kube/kops.crt
 
-.. Copy the certificate to EC2 instance where Vault is running:
-
-  $ scp -i ~/.ssh/arun-us-east1.pem ~/.kube/kops.crt ec2-user@ec2-54-237-223-40.compute-1.amazonaws.com:~/kops.crt
-kops.crt                                                                                    100% 1046    11.1KB/s   00:00   
-
 . Now that all the required values are available, configure the Kubernetes auth backend
-.. In the EC2 instance, mount the Kubernetes auth backend:
+.. Mount the Kubernetes auth backend:
 
-  [ec2-user@ip-172-31-26-180 ~]$ ./vault auth-enable kubernetes
+  $ vault auth-enable kubernetes
   Successfully enabled 'kubernetes' at 'kubernetes'!
 
 .. Configure the auth backend:
 
-  vault write auth/kubernetes/config \
+  $ vault write auth/kubernetes/config \
     token_reviewer_jwt=<service-account-token>  \
     kubernetes_host=<api-server> \
-    kubernetes_ca_cert=~/kops.crt
+    kubernetes_ca_cert=@~/.kube/kops.crt
 +
 For example, here is how our command will look like:
 
-  [ec2-user@ip-172-31-26-180 ~]$ ./vault write auth/kubernetes/config \
+  $ vault write auth/kubernetes/config \
     token_reviewer_jwt=eyJ . . . reg  \
     kubernetes_host=https://api-example-cluster-k8s-l-1dt7vk-41321592.us-east-1.elb.amazonaws.com \
-    kubernetes_ca_cert=~/kops.crt
+    kubernetes_ca_cert=@~/.kube/kops.crt
   Success! Data written to: auth/kubernetes/config
-+
+
 . Create a role with service account name `vault-auth` in the `default` namespace:
 
-  [ec2-user@ip-172-31-26-180 ~]$ ./vault write auth/kubernetes/role/demo \
+  $ vault write auth/kubernetes/role/demo \
     bound_service_account_names=vault-auth \
     bound_service_account_namespaces=default \
     policies=kube-auth \
@@ -661,73 +687,60 @@ For example, here is how our command will look like:
   ttl                               0
 
 . Create a policy for this role
-.. Copy the policy file to EC2 instance:
 
-  scp -i ~/.ssh/arun-us-east1.pem templates/kube-auth.hcl ec2-user@ec2-54-237-223-40.compute-1.amazonaws.com:~/kube-auth.hcl
-  kube-auth.hcl                                                                               100%   49     0.5KB/s   00:00    
-
-.. Create the policy for this role:
-
-  [ec2-user@ip-172-31-26-180 ~]$ ./vault policy-write kube-auth kube-auth.hcl
+  $ vault policy-write kube-auth kube-auth.hcl
   Policy 'kube-auth' written.
 
 . Write secrets to Vault:
 
-  [ec2-user@ip-172-31-26-180 ~]$ ./vault write secret/creds GREETING=Hello NAME=World
+  $ vault write secret/creds GREETING=Hello NAME=World
   Success! Data written to: secret/creds
 
 . Check that this value can be read:
 
-  [ec2-user@ip-172-31-26-180 ~]$ ./vault read -field=GREETING secret/creds
+  $ vault read -field=GREETING secret/creds
   Hello
-+
-This can also be verified by downloading the Vault CLI on your local machine:
-+
-```
-$ export VAULT_ADDR='http://http://ec2-54-237-223-40.compute-1.amazonaws.com:8200'
-$ vault auth
-Token (will be hidden):
-$ vault read -field=GREETING secret/creds
-Hello
-```
-+
-The value of token is printed during server startup. It is also stored in the file `~/.vault-token` where the server was started.
 
 === Deploy a Pod using secrets from Vault
 
-Let's deploy a Pod that is reading secrets from the Vault server.
+Let's deploy a Pod that is reading secrets from the Vault server. Here is the sequence of events that need to happen:
 
-. The configuration file looks like:
+- Pod needs to know the address of Vault server. This is passed as `VAULT_ADDR` environment variable.
+- Pod reads the Kubernetes service account token
+- Service account token is passed to Vault to retrieve a client token
+- Client token is used to authenticate and read secrets from Vault.
+
+More details about the image is at https://github.com/arun-gupta/vault-kubernetes.
+
+. The Pod configuration file looks like:
 
   apiVersion: v1
   kind: Pod
   metadata:
-    name: java-app-secrets
+    name: vault-kubernetes
   spec:
     containers:
-    - name: java-app-secrets
-      image: arungupta/java-app-secrets:latest
+    - name: vault-kubernetes
+      image: arungupta/vault-kubernetes:latest
       env:
         - name: VAULT_ADDR
           value: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
-        - name: VAULT_TOKEN
-          value: 4e93b3c6-c459-f166-e7e9-6c48044cfdb6
     restartPolicy: Never
 
 . Deploy the Pod:
 
   $ kubectl apply -f templates/pod-vault.yaml 
-  pod "java-app-secrets" created
+  pod "vault-kubernetes" created
 
 . Get the list of Pods:
 
   $ kubectl get pods --show-all
   NAME               READY     STATUS      RESTARTS   AGE
-  java-app-secrets   0/1       Completed   0          20s
+  vault-kubernetes   0/1       Completed   0          20s
 
 . Get logs from the complete Pod:
 
-  $ kubectl logs java-app-secrets
+  $ kubectl logs vault-kubernetes
   Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
   vault: HelloWorld
 
