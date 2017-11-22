@@ -1,0 +1,35 @@
+apiVersion: apps/v1beta1
+kind: Deployment 
+metadata:
+  name: vault-sidecar
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: vault-sidecar
+    spec:
+      serviceAccountName: vault-auth
+      containers:
+        - name: aws-cli 
+          image: cgswong/aws:aws
+          command:
+            - "sleep"
+            - "9999999"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: app-secrets
+              mountPath: "/root/.aws/"
+        - name: consul-template
+          image: "arungupta/vault-sidecar:0.0.1"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VAULT_ADDR
+              value: "http://ec2-54-237-223-40.compute-1.amazonaws.com:8200"
+          volumeMounts:
+            - name: app-secrets
+              mountPath: "/root/.aws/"
+      volumes:
+        - name: app-secrets
+          emptyDir: 
+            medium: "Memory"
