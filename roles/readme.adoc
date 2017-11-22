@@ -168,7 +168,7 @@ It shows an output as:
 
 === Configure IAM role on a Pod
 
-`iam.amazonaws.com/role` annotation on the pod is used to assign an IAM role to a pod. Let's set this annotation on our pod. The `templates/aws-cli-po.yaml` file looks like:
+`iam.amazonaws.com/role` annotation on the pod is used to assign an IAM role to a pod. Let's set this annotation on our pod. The `templates/pod-with-kube2iam.yaml` file looks like:
 
   apiVersion: v1
   kind: Pod
@@ -188,7 +188,7 @@ It shows an output as:
 
 Run the following command:
 
-  $ kubectl create -f templates/aws-cli-po.yaml
+  $ kubectl create -f templates/pod-with-kube2iam.yaml
   pod "aws-cli" created
 
 This will create a pod with the AWS CLI already installed, with the `MyPodRole` IAM role assigned.
@@ -220,7 +220,7 @@ Let's update the role to grant S3 permissions:
 
 Recreate the pod, log into it, then try to access S3 again.  We should now be authorized!
 
-  $ kubectl create -f templates/aws-cli-po.yaml
+  $ kubectl create -f templates/pod-with-kube2iam.yaml
   pod "aws-cli" created
 
   $ kubectl exec -it aws-cli /bin/bash
