@@ -675,7 +675,7 @@ For example, here is how our command will look like:
 
 . Read the role:
 
-  [ec2-user@ip-172-31-26-180 ~]$ ./vault read auth/kubernetes/role/demo
+  $ vault read auth/kubernetes/role/demo
   Key                               Value
   ---                               -----
   bound_service_account_names       [vault-auth]
@@ -688,7 +688,7 @@ For example, here is how our command will look like:
 
 . Create a policy for this role
 
-  $ vault policy-write kube-auth kube-auth.hcl
+  $ vault policy-write kube-auth templates/kube-auth.hcl
   Policy 'kube-auth' written.
 
 . Write secrets to Vault:
