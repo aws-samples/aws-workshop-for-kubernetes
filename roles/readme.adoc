@@ -167,7 +167,7 @@ It shows an output as:
       }
   }
 
-=== Configure IAM role on a Pod
+=== Configure IAM role on the Pod
 
 `iam.amazonaws.com/role` annotation on the pod is used to assign an IAM role to a pod. Let's set this annotation on our pod. The `templates/pod-with-kube2iam.yaml` file looks like:
 
@@ -194,21 +194,15 @@ Run the following command:
 
 This will create a pod with the AWS CLI already installed, with the `MyPodRole` IAM role assigned.
 
-Log into the `aws-cli` pod that we have just deployed:
+Run the AWS CLI to attempt to access S3:
 
-  $ kubectl exec -it aws-cli /bin/bash
-  bash-4.3#
+```
+$ kubectl exec -it aws-cli aws s3 ls
 
-We will use the AWS CLI to attempt to access S3.  Recall that the `MyPodRole` IAM role that we created has no permissions, therefore the following should fail:
+An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
+```
 
-  bash-4.3# aws s3 ls
-  An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
-
-Exit the pod:
-
-  bash-4.3# exit
-  exit
-  command terminated with exit code 255
+Recall that the `MyPodRole` IAM role that we created has no permissions and so the access is denied.
 
 Terminate the pod:
 
@@ -224,8 +218,7 @@ Recreate the pod, log into it, then try to access S3 again.  We should now be au
   $ kubectl create -f templates/pod-with-kube2iam.yaml
   pod "aws-cli" created
 
-  $ kubectl exec -it aws-cli /bin/bash
-  bash-4.3# aws s3 ls
+  $ kubectl exec -it aws-cli aws s3 ls
 
 The output should show the list of S3 buckets.
 
