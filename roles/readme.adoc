@@ -12,6 +12,7 @@ This chapter will walk you through:
 
 - Update default policies for the cluster
 - Use kube2iam to assign IAM roles at runtime
+- Use Hashicorp Vault to assign IAM roles at runtime
 
 == Prerequisites
 
@@ -238,4 +239,127 @@ To govern what roles a pod can assume, you can use the `iam.amazonaws.com/allowe
     namespace "default" configured
 
 From now on, pods in the default namespace will only be able to optain the `MyPodRole`.
+
+== IAM container roles using Hashicorp Vault (NOT WORKING)
+
+Hashicorp Vault is a tool for securely accessing secrets. The secrets could be static where they are retrieved from a key-value store or could be dynamically generated when needed such as IAM credentials. This is enabled by the pluggable architecture of Vault that supports different backends. Vault behaves like a virtual filesystem where each backend is mounted at a specific path. For example, https://www.vaultproject.io/docs/auth/aws.html[AWS backend] is mounted at the path `aws`.
+
+Each Vault backend reacts differently to different Vault CLI commands. For example, the command `vault read aws/deploy` will generate an access key based on the deploy policy.
+
+=== Setup AWS account
+
+. Crete the user:
+
+  $ aws iam create-user \
+       --user-name vault-root
+  {
+      "User": {
+          "UserName": "vault-root", 
+          "Path": "/", 
+          "CreateDate": "2017-11-22T20:13:39.273Z", 
+          "UserId": "AIDAI6SQOXCLURVV2J7BK", 
+          "Arn": "arn:aws:iam::091144949931:user/vault-root"
+      }
+  }
+
+. Attach the `IAMFullAccess` policy to the user:
+
+  $ aws iam attach-user-policy \
+       --user-name vault-root \
+       --policy-arn arn:aws:iam::aws:policy/IAMFullAccess
+
+. Generate a access key and secret access key pair:
+
+$ aws iam create-access-key \
+     --user-name vault-root
+
+{
+    "AccessKey": {
+        "UserName": "vault-root", 
+        "Status": "Active", 
+        "CreateDate": "2017-11-22T20:14:00.682Z", 
+        "SecretAccessKey": "<secret-key>", 
+        "AccessKeyId": "<access-key>"
+    }
+}
+
+=== Setup Vault
+
+. Create a policy for this role:
+
+  $ vault policy-write kube-auth templates/kube-auth.hcl
+  Policy 'kube-auth' written.
+
+. Check the policy:
+
+```
+$ vault policies kube-auth
+path "secret/creds" {
+  capabilities = ["read"]
+}
+
+path "aws/creds/readonly" {
+  capabilities = ["read"]
+}
+```
+
+. Mount AWS backend:
+
+  $ vault mount aws
+  Successfully mounted 'aws' at 'aws'!
+
+. Configure the aws secret backend:
+
+  $ vault write aws/config/root \
+    secret_key=<secret-key> \
+    access_key=<access-key> \
+    region=us-east-1
+  Success! Data written to: aws/config/root
+
+. Create a aws secret backend role that has read-only permissions on EC2 instances for the account using a AWS managed policy this policy:
+
+  $ vault write aws/roles/readonly \
+    arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+  Success! Data written to: aws/roles/readonly
+
+Pod will be using this role to request IAM credentials during runtime.
+
+. Create the Pod:
+
+  $ kubectl apply -f templates/pod-with-vault.yaml 
+  pod "aws-cli" created
+
+. Use AWS CLI:
+
+```
+$ kubectl exec -it aws-cli aws s3 ls
+
+An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
+command terminated with exit code 255
+```
+
+. Delete the Pod:
+
+  $ kubectl delete po/aws-cli
+  pod "aws-cli" deleted
+
+. Update the policy:
+
+  $ vault write aws/roles/readonly \
+    arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+  Success! Data written to: aws/roles/readonly
+
+. Create the Pod:
+
+  $ kubectl apply -f templates/pod-with-vault.yaml 
+  pod "aws-cli" created
+
+. Use AWS CLI:
+
+```
+$ kubectl exec -it aws-cli aws s3 ls
+
+An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
+command terminated with exit code 255
+```
 
