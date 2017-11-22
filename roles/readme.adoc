@@ -4,11 +4,14 @@
 
 AWS uses Identity and Access Management (IAM) roles to manage authentication and authorization for AWS Services.  An IAM role is an IAM entity that defines a set of permissions for making AWS service requests. For more information about IAM, please see link:https://aws.amazon.com/iam/details/[here].
 
-Out of the box, Kubernetes supports two types of roles: a master IAM role and a node IAM role.
+Out of the box, a Kubernetes cluster created by kops has two IAM roles: a master IAM role and a node IAM role. Additional policies may be associated with these IAM roles. More details about the IAM roles and associated policies is available at https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md.
 
-In addition, the 3rd party plugin https://github.com/jtblin/kube2iam[kube2iam] can be configured to apply IAM roles at the pod level.
+A Pod may be assigned a specific IAM role using different mechanisms. A third-party plugin such as https://github.com/jtblin/kube2iam[kube2iam] can be configured to apply IAM roles at the pod level. https://www.vaultproject.io/[Hashicorp's Vault] can be used to assign IAM dynamic IAM roles as well.
 
-This exercise will walk you through configuring both concepts.
+This chapter will walk you through:
+
+- Update default policies for the cluster
+- Use kube2iam to assign IAM roles at runtime
 
 == Prerequisites
 
@@ -16,9 +19,9 @@ This chapter uses a cluster with 3 master nodes and 5 worker nodes as described 
 
 All configuration files for this chapter are in the `roles` directory.
 
-== IAM Roles for Master Nodes
+== IAM Roles for master nodes
 
-Out of the box, when deploying Kubernetes on AWS, master nodes require a number of EC2, Elastic Load Balancer (ELB), EC2 Container Registry (ECR), Route53, and Key Management Service (KMS) policies applied. The worker nodes require a number of EC2, ECR, and Route53 policies applied.  If using `kops` to install, these will be automatically configured for you (see link:https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md[here] for a full list).
+Kubernetes cluster created using kops has two IAM roles - one for all master nodes and one for all worker nodes. The master IAM role is associated with a number of policies related to EC2, Elastic Load Balancer (ELB), EC2 Container Registry (ECR), Route53, and Key Management Service (KMS). The worker nodes require a number of EC2, ECR, and Route53 policies applied. Kops automatically configures these roles and policies for you (see link:https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md[here] for a full list).
 
 These policies may be augmented via `kops`.  For example, to allow all nodes ElasticSearch access, perform the following steps:
 
@@ -58,7 +61,7 @@ In a similar fashion, policies may be applied to all masters by setting the `add
 
 Once again, the cluster needs to be updated for these changes to take effect.
 
-== IAM Container Roles
+== IAM container roles using kube2iam
 
 link:https://github.com/jtblin/kube2iam[Kube2iam] provides different AWS IAM roles for pods running on Kubernetes based on annotations.
 
@@ -95,7 +98,7 @@ The following steps describe how to configure kube2iam:
 +
 Note that the `kube2iam-ds.yaml` is assuming that your network configuration is based on `kubenet`, which is also the default kops configuration. If you have changed this as part of another exercise (e.g. switched to Calico) you will need to change the value of the `--host-interface` arg in the configuration file. For example, set to `cal+` if using Calico.
 
-=== IAM Roles for Worker Nodes
+=== IAM Roles for worker nodes
 
 It is necessary to create an IAM role which can assume other roles and assign it to each kubernetes worker.
 
@@ -163,7 +166,7 @@ It shows an output as:
       }
   }
 
-=== Configure IAM Role on a Pod
+=== Configure IAM role on a Pod
 
 `iam.amazonaws.com/role` annotation on the pod is used to assign an IAM role to a pod. Let's set this annotation on our pod. The `templates/aws-cli-po.yaml` file looks like:
 
@@ -225,7 +228,7 @@ Recreate the pod, log into it, then try to access S3 again.  We should now be au
 
 The output should show the list of S3 buckets.
 
-=== Additional Notes
+=== Additional notes
 
 As kube2iam caches STS tokens for 15 minutes, if you make any changes to a role and need it to take effect immediately, you will need to restart the pod.
 
@@ -235,3 +238,4 @@ To govern what roles a pod can assume, you can use the `iam.amazonaws.com/allowe
     namespace "default" configured
 
 From now on, pods in the default namespace will only be able to optain the `MyPodRole`.
+
