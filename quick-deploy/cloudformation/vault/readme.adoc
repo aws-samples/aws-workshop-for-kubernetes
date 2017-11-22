@@ -1,0 +1,7 @@
+This template has AMI mappings to all regions, with parameters options to select VPCid and subnets where you want your instances to be created. The default instance type is m4.large
+
+This template will have vault server dev up and running during instance launch.
+
+To launch this stack via AWS CLI, please use below command. Replace ParameterValue(s) with your subnetID, keypairname and VPC-ID vaules
+
+$aws cloudformation create-stack --stack-name VaultServer-$(date "+%F-%Hh-%Mm-%Ss-%Z") --template-body file://vault-template.json --parameters ParameterKey=KeyName,ParameterValue=<KeyPairNametoSSH> ParameterKey=SubnetID,ParameterValue=<subnet-ID> ParameterKey=VpcId,ParameterValue=<vpc-ID>
