@@ -1,34 +1,42 @@
-Create Vault Server using CloudFormation template
--------------------
-This chapter explains how to create a Vault Server using CloudFomration
+= Create Vault Server using CloudFormation template
 
-A CloudFormation template is available in the cloudformation directory.
- 
-The template has AMI mappings to all regions, with parameters like VPCid and subnets where you want your instances to be created. The default instance type is m4.large
+This chapter explains how to create a Vault Server using CloudFormation and have Vault dev server running as part of boot strap process.
 
-This template will have vault server dev up and running during instance launch.
+== CloudFormation
+
+https://aws.amazon.com/cloudformation/[AWS CloudFormation] gives developers and systems administrators an easy way to create and manage a collection of related AWS resources, provisioning and updating them in an orderly and predictable fashion.
 
 To launch this stack via AWS CLI, please use below command. Replace ParameterValue(s) with your subnetID, keypairname and VPC-ID vaules
 
-cd quickdeploy/cloudformation/vault
-$aws cloudformation create-stack \
-	--stack-name VaultServer-$(date "+%F-%Hh-%Mm-%Ss-%Z") \
-	--template-body file://vault-template.json \
-	--capabilities CAPABILITY_IAM \
-	--parameters \
-		ParameterKey=KeyName,ParameterValue=<KeyPairNametoSSH> \
-		ParameterKey=SubnetID,ParameterValue=<subnet-ID> \
-		ParameterKey=VpcId,ParameterValue=<vpc-ID>
+	cd quickdeploy/cloudformation/vault
+	$aws cloudformation create-stack \
+		--stack-name VaultServer-$(date "+%F-%Hh-%Mm-%Ss-%Z") \
+		--template-body file://vault-template.json \
+		--capabilities CAPABILITY_IAM \
+		--parameters \
+			ParameterKey=KeyName,ParameterValue=<KeyPairNametoSSH> \
+			ParameterKey=SubnetID,ParameterValue=<subnet-ID> \
+			ParameterKey=VpcId,ParameterValue=<vpc-ID>
 
+The template has AMI mappings to all regions, with parameters like VPCid and subnets where you want your instances to be created. 
 The following is an explanation of the input parameters:
 
-KeyName: This must be a valid EC2 KeyPair for ssh access. # Required
-InstanceType: EC2 instance type. # Defaulted to m4.large
-SubnetID: Provide existing SubnetId if any. #Default to create new Subnet
-VPCId: Provide existing VPCId if any. #Default to create new VPCId
+	KeyName: This must be a valid EC2 KeyPair for ssh access. # Required
+	InstanceType: EC2 instance type. # Defaulted to m4.large
+	SubnetID: Provide existing SubnetId if any. #Default to create new Subnet
+	VPCId: Provide existing VPCId if any. #Default to create new VPCId
+	
+To check if Vault server dev is started on the instance created, please SSH into the instance and run below command:
 
-Note: Vault template will create single instance Dev Vault server. If you want to create Vault server instance as part of autoscaling group, please use vault-template-asg.json template. 
+	
+	To SSH on to the instance $ssh -i </path-to-your-keypar/XXX.pem> ec2-user@<PublicIP>
+	$vault status
 
-Default single EC2 instance: VAULT_ADDR=http://<publicIPaddr>:8200
-Vault server behind ASG:  VAULT_ADDR=http://<ELB-DNS-NAME> 
-[ For PublicIp address/ELB DNS name, please look CloudFormation stack output section after stack is created.]
+Note: vault-template.json will create single EC2 instance which will have Dev Vault server running with VAULT_ADDR=http://<private_IP>:8200 variable set.  If you want to create Vault server instance as part of autoscaling group, please use vault-template-asg.json template. 
+
+Below are the variables that should be exported while trying to connect to Vault server from your local machine. 
+	Default single EC2 instance: VAULT_ADDR=http://<publicIPaddr>:8200
+	
+	Vault server behind ASG:  VAULT_ADDR=http://<ELB-DNS-NAME> 
+	
+For PublicIp address/ELB DNS name, check CloudFormation stack output section after stack is created.
