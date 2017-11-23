@@ -351,7 +351,7 @@ Pod will be using this role to request IAM credentials during runtime.
   vault-sidecar-79bbc86955-wwlkb   2/2       Running   0          35s
 
 . Use AWS CLI:
-
++
 ```
 $ kubectl exec -it $(kubectl get pods -l app=vault-sidecar -o jsonpath={.items[0].metadata.name}) aws s3 ls
 Defaulting container name to aws-cli.
@@ -360,7 +360,9 @@ Use 'kubectl describe pod/vault-sidecar-79bbc86955-h4pkf' to see all of the cont
 An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
 command terminated with exit code 255
 ```
-
++
+This is expected because the AWS secret backend gives access to `AmazonEC2ReadOnlyAccess` only.
++
 . Update the AWS secret backend to allow access to S3:
 
   $ vault write aws/roles/readonly \
