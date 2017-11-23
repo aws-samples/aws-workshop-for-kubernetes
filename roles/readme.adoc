@@ -290,7 +290,7 @@ $ aws iam create-access-key \
       }
   }
 
-=== Setup Vault
+=== Setup Vault and AWS backend
 
 . Create a policy for this role:
 
@@ -298,7 +298,7 @@ $ aws iam create-access-key \
   Policy 'kube-auth' written.
 
 . Check the policy:
-
++
 ```
 $ vault policies kube-auth
 path "secret/creds" {
@@ -309,7 +309,7 @@ path "aws/creds/readonly" {
   capabilities = ["read"]
 }
 ```
-
++
 . Mount AWS backend:
 
   $ vault mount aws
