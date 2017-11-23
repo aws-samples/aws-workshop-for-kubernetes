@@ -99,9 +99,9 @@ The following steps describe how to configure kube2iam:
 +
 Note that the `kube2iam-ds.yaml` is assuming that your network configuration is based on `kubenet`, which is also the default kops configuration. If you have changed this as part of another exercise (e.g. switched to Calico) you will need to change the value of the `--host-interface` arg in the configuration file. For example, set to `cal+` if using Calico.
 
-=== IAM Roles for worker nodes
+=== IAM roles for worker nodes
 
-It is necessary to create an IAM role which can assume other roles and assign it to each kubernetes worker.
+It is necessary to create an IAM role which can assume other roles and assign it to each Kubernetes worker.
 
 We need the link:https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html[Amazon Resource Name (ARN)] of the IAM Role assigned to the worker nodes.  We will need this as part of creating pod roles.  We can obtain this by running the following command:
 
@@ -167,7 +167,7 @@ It shows an output as:
       }
   }
 
-=== Configure IAM role on the Pod
+=== Test the Pod with IAM role
 
 `iam.amazonaws.com/role` annotation on the pod is used to assign an IAM role to a pod. Let's set this annotation on our pod. The `templates/pod-with-kube2iam.yaml` file looks like:
 
@@ -233,13 +233,27 @@ To govern what roles a pod can assume, you can use the `iam.amazonaws.com/allowe
 
 From now on, pods in the default namespace will only be able to optain the `MyPodRole`.
 
-== IAM container roles using Hashicorp Vault (NOT WORKING)
+== IAM container roles using Hashicorp Vault
 
 Hashicorp Vault is a tool for securely accessing secrets. The secrets could be static where they are retrieved from a key-value store or could be dynamically generated when needed such as IAM credentials. This is enabled by the pluggable architecture of Vault that supports different backends. Vault behaves like a virtual filesystem where each backend is mounted at a specific path. For example, https://www.vaultproject.io/docs/auth/aws.html[AWS backend] is mounted at the path `aws`.
 
 Each Vault backend reacts differently to different Vault CLI commands. For example, the command `vault read aws/deploy` will generate an access key based on the deploy policy.
 
+Make sure to setup Vault as explained in:
+
+. link:../config-secrets#create-ec2-instance[Create EC2 instance]
+. link:../config-secrets#start-vault-server-on-ec2[Start Vault Server on EC2]
+. link:../config-secrets#configure-vault-cli-on-your-local-machine[Configure Vault CLI on your local machine]
+. link:../config-secrets#configure-kubernetes-service-account[Configure Kubernetes Service Account]
+. link:../config-secrets#configure-kubernetes-auth-backend[Configure Kubernetes Auth backend]
+
+And now follow the steps outlined here.
+
+The steps in this section are inspired from https://github.com/calvn/vault-kubernetes-demo/blob/master/5-deploy-aws.md.
+
 === Setup AWS account
+
+Create an IAM user with enough permissions to manage IAM resources. We will be using the `IAMFullAccess` policy here, but a more locked down custom policy can be provided. For an example on such policy template, refer to the Vault documentation regarding the backend's https://www.vaultproject.io/docs/secrets/aws/index.html#root-credentials-for-dynamic-iam-users[root credentials].
 
 . Crete the user:
 
@@ -266,15 +280,15 @@ Each Vault backend reacts differently to different Vault CLI commands. For examp
 $ aws iam create-access-key \
      --user-name vault-root
 
-{
-    "AccessKey": {
-        "UserName": "vault-root", 
-        "Status": "Active", 
-        "CreateDate": "2017-11-22T20:14:00.682Z", 
-        "SecretAccessKey": "<secret-key>", 
-        "AccessKeyId": "<access-key>"
-    }
-}
+  {
+      "AccessKey": {
+          "UserName": "vault-root", 
+          "Status": "Active", 
+          "CreateDate": "2017-11-22T20:14:00.682Z", 
+          "SecretAccessKey": "<secret-key>", 
+          "AccessKeyId": "<access-key>"
+      }
+  }
 
 === Setup Vault
 
@@ -301,7 +315,7 @@ path "aws/creds/readonly" {
   $ vault mount aws
   Successfully mounted 'aws' at 'aws'!
 
-. Configure the aws secret backend:
+. Configure the AWS secret backend:
 
   $ vault write aws/config/root \
     secret_key=<secret-key> \
@@ -309,50 +323,63 @@ path "aws/creds/readonly" {
     region=us-east-1
   Success! Data written to: aws/config/root
 
-. Create a aws secret backend role that has read-only permissions on EC2 instances for the account using a AWS managed policy this policy:
+. Create a AWS secret backend role that has read-only permissions on EC2 instances for the account using a AWS managed policy this policy:
 
   $ vault write aws/roles/readonly \
     arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
   Success! Data written to: aws/roles/readonly
 
+=== Test the Pod with IAM role
+
 Pod will be using this role to request IAM credentials during runtime.
 
 . Create the Pod:
 
-  $ kubectl apply -f templates/pod-with-vault.yaml 
-  pod "aws-cli" created
+  $ kubectl apply -f templates/deployment-with-vault.yaml
+  deployment "vault-sidecar" created
+
+. Get the list of Deployment:
+
+  $ kubectl get deployment
+  NAME            DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+  vault-sidecar   1         1         1            1           10s
+
+. Get the list of Pod:
+
+  $ kubectl get pods -l app=vault-sidecar
+  NAME                             READY     STATUS    RESTARTS   AGE
+  vault-sidecar-79bbc86955-wwlkb   2/2       Running   0          35s
 
 . Use AWS CLI:
 
 ```
-$ kubectl exec -it aws-cli aws s3 ls
+$ kubectl exec -it $(kubectl get pods -l app=vault-sidecar -o jsonpath={.items[0].metadata.name}) aws s3 ls
+Defaulting container name to aws-cli.
+Use 'kubectl describe pod/vault-sidecar-79bbc86955-h4pkf' to see all of the containers in this pod.
 
 An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
 command terminated with exit code 255
 ```
 
-. Delete the Pod:
-
-  $ kubectl delete po/aws-cli
-  pod "aws-cli" deleted
-
-. Update the policy:
+. Update the AWS secret backend to allow access to S3:
 
   $ vault write aws/roles/readonly \
     arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
   Success! Data written to: aws/roles/readonly
 
-. Create the Pod:
+. Delete the Deployment:
 
-  $ kubectl apply -f templates/pod-with-vault.yaml 
-  pod "aws-cli" created
+  $ kubectl delete -f templates/deployment-with-vault.yaml
+  deployment "vault-sidecar" deleted
+
+. Create the Deployment again:
+
+  $ kubectl apply -f templates/deployment-with-vault.yaml
+  deployment "aws-sidecar-example" created
 
 . Use AWS CLI:
 
-```
-$ kubectl exec -it aws-cli aws s3 ls
-
-An error occurred (AccessDenied) when calling the ListBuckets operation: Access Denied
-command terminated with exit code 255
-```
+  $ kubectl exec -it $(kubectl get pods -l app=vault-sidecar -o jsonpath={.items[0].metadata.name}) aws s3 ls
++
+And this shows the listing of S3 buckets in your account.
 
