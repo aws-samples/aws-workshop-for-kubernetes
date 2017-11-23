@@ -20,5 +20,6 @@ VAULT_TOKEN=$(curl -sb \
 /bin/consul-template \
     --vault-token=$VAULT_TOKEN \
     --vault-addr=$VAULT_ADDR \
+    --vault-renew-token=false \
     -template "/config.ctmpl:/root/.aws/credentials"
 Add Comment Collapse
