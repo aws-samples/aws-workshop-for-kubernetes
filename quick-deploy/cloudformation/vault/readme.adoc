@@ -18,7 +18,7 @@ To launch this stack via AWS CLI, please use below command. Replace ParameterVal
 			ParameterKey=SubnetID,ParameterValue=<subnet-ID> \
 			ParameterKey=VpcId,ParameterValue=<vpc-ID>
 
-The template has AMI mappings to all regions, with parameters like VPCid and subnets where you want your instances to be created. 
+The template has AMI mappings to all regions, with parameters like VPCID and subnetID where you want your instances to be created. 
 The following is an explanation of the input parameters:
 
 	KeyName: This must be a valid EC2 KeyPair for ssh access. # Required
