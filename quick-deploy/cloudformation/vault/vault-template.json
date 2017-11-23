@@ -5,13 +5,15 @@
       "Type": "AWS::EC2::KeyPair::KeyName", 
       "Description": "Name of an existing EC2 key pair to enable SSH access to the ECS instances."
     }, 
-    "VpcId": {
-      "Type": "AWS::EC2::VPC::Id", 
-      "Description": "Select a default VPC ID."
+    "VPCID": {
+      "Type": "String", 
+      "Default": "",
+      "Description": "By default we will create a new VPC or Select an existing VPC ID."
     }, 
     "SubnetID": {
-      "Type": "List<AWS::EC2::Subnet::Id>", 
-      "Description": "Select a default subnet ID in your selected VPC."
+      "Type": "String", 
+      "Default": "",
+      "Description": "By default we will create a new Subnet ID or select an existing subnet ID from VPC selected above."
     }, 
     "DesiredCapacity": {
       "Type": "Number", 
@@ -116,18 +118,43 @@
     }
   }, 
   "Conditions" : {
-        "IAMrole" : {"Fn::Equals" : [{"Ref" : "EC2VaultInstanceProfile"}, "ecsInstanceRole"]
+    "IAMrole" : {"Fn::Equals" : [{"Ref" : "EC2VaultInstanceProfile"}, "ecsInstanceRole"]
+    },
+    "VPC": {"Fn::Equals": [{"Ref": "VPCID"}, ""]
+    },
+    "Subnet": {"Fn::And": [ {"Fn::Equals": [{"Ref": "SubnetID"}, ""]}, {"Condition": "VPC"}]
     }
-},
+ },
   "Resources": {
+    "NewVPC":{
+      "Condition": "VPC",
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+         "CidrBlock" : "10.0.0.0/16",
+         "Tags" : [ {"Key" : "Name", "Value" : "VaultServer"} ]
+      }
+    }, 
+    "NewSubnet":{
+      "Condition": "Subnet",
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+         "VpcId" : { "Ref" : "NewVPC" },
+         "CidrBlock" : "10.0.0.0/24",
+         "Tags" : [ { "Key" : "foo", "Value" : "bar" } ]
+      }
+    },
     "EC2VaultSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup", 
       "Properties": {
         "GroupDescription": "EC2 Security Group", 
         "VpcId": {
-          "Ref": "VpcId"
-        }
+          "Fn::If": [
+          "VPC",
+          {"Ref": "NewVPC"},
+          {"Ref": "VPCID"}
+        ]
       }
+     }
     }, 
     "EC2VaultSecurityGroupHTTPinbound": {
       "Type": "AWS::EC2::SecurityGroupIngress", 
@@ -157,7 +184,11 @@
       "Type": "AWS::AutoScaling::AutoScalingGroup", 
       "Properties": {
         "VPCZoneIdentifier": {
-          "Ref": "SubnetID"
+          "Fn::If": [
+            "Subnet",
+            {"Ref": "NewSubnet"},
+            {"Ref": "SubnetID"}
+          ]
         }, 
         "LaunchConfigurationName": {
           "Ref": "VaultInstances"
