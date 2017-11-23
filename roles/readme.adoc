@@ -384,4 +384,15 @@ This is expected because the AWS secret backend gives access to `AmazonEC2ReadOn
   $ kubectl exec -it $(kubectl get pods -l app=vault-sidecar -o jsonpath={.items[0].metadata.name}) aws s3 ls
 +
 And this shows the listing of S3 buckets in your account.
++
+. Kubernetes Auth backend is configured for the token to expire in 60 seconds. This means the temporary IAM role created for this Deployment will eventually disappear. Trying to access the S3 listing after a few minutes will give an error:
++
+```
+$ kubectl exec -it $(kubectl get pods -l app=vault-sidecar -o jsonpath={.items[0].metadata.name}) aws s3 ls
+Defaulting container name to aws-cli.
+Use 'kubectl describe pod/vault-sidecar-79bbc86955-7wpt6' to see all of the containers in this pod.
+
+An error occurred (InvalidAccessKeyId) when calling the ListBuckets operation: The AWS Access Key Id you provided does not exist in our records.
+command terminated with exit code 255
+```
 
