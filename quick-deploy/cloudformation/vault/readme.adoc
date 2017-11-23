@@ -1,7 +1,34 @@
-This template has AMI mappings to all regions, with parameters options to select VPCid and subnets where you want your instances to be created. The default instance type is m4.large
+Create Vault Server using CloudFormation template
+-------------------
+This chapter explains how to create a Vault Server using CloudFomration
+
+A CloudFormation template is available in the cloudformation directory.
+ 
+The template has AMI mappings to all regions, with parameters like VPCid and subnets where you want your instances to be created. The default instance type is m4.large
 
 This template will have vault server dev up and running during instance launch.
 
 To launch this stack via AWS CLI, please use below command. Replace ParameterValue(s) with your subnetID, keypairname and VPC-ID vaules
 
-$aws cloudformation create-stack --stack-name VaultServer-$(date "+%F-%Hh-%Mm-%Ss-%Z") --template-body file://vault-template.json --parameters ParameterKey=KeyName,ParameterValue=<KeyPairNametoSSH> ParameterKey=SubnetID,ParameterValue=<subnet-ID> ParameterKey=VpcId,ParameterValue=<vpc-ID>
+cd quickdeploy/cloudformation/vault
+$aws cloudformation create-stack \
+	--stack-name VaultServer-$(date "+%F-%Hh-%Mm-%Ss-%Z") \
+	--template-body file://vault-template.json \
+	--capabilities CAPABILITY_IAM \
+	--parameters \
+		ParameterKey=KeyName,ParameterValue=<KeyPairNametoSSH> \
+		ParameterKey=SubnetID,ParameterValue=<subnet-ID> \
+		ParameterKey=VpcId,ParameterValue=<vpc-ID>
+
+The following is an explanation of the input parameters:
+
+KeyName: This must be a valid EC2 KeyPair for ssh access. # Required
+InstanceType: EC2 instance type. # Defaulted to m4.large
+SubnetID: Provide existing SubnetId if any. #Default to create new Subnet
+VPCId: Provide existing VPCId if any. #Default to create new VPCId
+
+Note: Vault template will create single instance Dev Vault server. If you want to create Vault server instance as part of autoscaling group, please use vault-template-asg.json template. 
+
+Default single EC2 instance: VAULT_ADDR=http://<publicIPaddr>:8200
+Vault server behind ASG:  VAULT_ADDR=http://<ELB-DNS-NAME> 
+[ For PublicIp address/ELB DNS name, please look CloudFormation stack output section after stack is created.]
