@@ -2,17 +2,21 @@
 :linkcss:
 :imagesdir: ../images
 
-= Kubernetes ConfigMap and Secrets
+= Application Configuration and Secrets
 :toc:
 
-Kubernetes has resource types that allows to decouple application code from configuration. It makes the applications to be more portable. This chapter will cover how ConfigMap and Secrets can be used to do that.
+Separating application code from configuration is one of the factors when building an application using https://12factor.net/[12-factor]. This allows the same application to be deployed across multiple environments, such as dev, test, staging and production. It also allows the application to be more portable.
+
+Kubernetes has native constructs like _ConfigMap_ and _Secrets_ that allow you to decouple configuration artifacts from the image content to keep containerized applications portable. In addition, other services as https://aws.amazon.com/ec2/systems-manager/parameter-store/[AWS Parameter Store] or https://www.vaultproject.io/[Hashicorp Vault] can be used to store that information as well.
+
+This chapter will cover how these constructs and services can be used to store configuration information and secrets.
 
 . ConfigMap is just a set of key-value pairs. It allow you to decouple configuration artifacts from image content.
 . Secrets allows separating sensitive information such as credentials and keys from an application.
 
 ConfigMap is similar to Secrets, but provides a means of working with strings that don’t contain sensitive information.
 
-This section will explain how to use ConfigMap and Secrets. Make sure you change to that directory before giving any commands in this chapter.
+Make sure you change to that directory before giving any commands in this chapter.
 
 == Prerequisites
 
@@ -743,4 +747,13 @@ More details about the image is at https://github.com/arun-gupta/vault-kubernete
   $ kubectl logs vault-kubernetes
   Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
   vault: HelloWorld
+
+== AWS Parameter Store (WORK IN PROGRESS)
+
+Parameter store provides a centralized store to manage your configuration data, whether plain-text data such as database strings or secrets such as passwords, encrypted through https://aws.amazon.com/kms/[AWS Key Management Service] (KMS).
+
+KMS helps you encrypt your sensitive information and protect the security of your keys. Additionally, all calls to the parameter store are recorded with AWS CloudTrail so that they can be audited. Access to each parameter store secrets can be scoped with IAM.
+
+
+
 
