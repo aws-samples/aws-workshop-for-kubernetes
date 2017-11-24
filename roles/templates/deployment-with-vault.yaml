@@ -25,7 +25,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: VAULT_ADDR
-              value: "http://ec2-54-237-223-40.compute-1.amazonaws.com:8200"
+              value: "http://<public-ip-address>:8200"
           volumeMounts:
             - name: app-secrets
               mountPath: "/root/.aws/"
