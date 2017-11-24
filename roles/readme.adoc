@@ -235,9 +235,9 @@ From now on, pods in the default namespace will only be able to optain the `MyPo
 
 == IAM container roles using Hashicorp Vault
 
-Hashicorp Vault is a tool for securely accessing secrets. The secrets could be static where they are retrieved from a key-value store or could be dynamically generated when needed such as IAM credentials. This is enabled by the pluggable architecture of Vault that supports different backends. Vault behaves like a virtual filesystem where each backend is mounted at a specific path. For example, https://www.vaultproject.io/docs/auth/aws.html[AWS backend] is mounted at the path `aws`.
+Hashicorp Vault is a tool for securely accessing secrets. The secrets could be static where they are retrieved from a key-value store or could be dynamically generated when needed such as IAM credentials. This is enabled by the pluggable architecture of Vault that supports different backends. Vault behaves like a virtual filesystem where each backend is mounted at a specific path. For example, by default, https://www.vaultproject.io/docs/auth/aws.html[AWS backend] is mounted at the path `aws`. An alternative path can be specified using `-path` at mount time.
 
-Each Vault backend reacts differently to different Vault CLI commands. For example, the command `vault read aws/deploy` will generate an access key based on the deploy policy.
+Each Vault backend reacts differently to different Vault CLI commands. For example, the command `vault read aws/deploy` will generate an access key based on the `"deploy"` role in the context of Vault/AWS secret backend. This role contains an IAM role or ARN mapping.
 
 Make sure to setup Vault as explained in:
 
@@ -255,7 +255,7 @@ The steps in this section are inspired from https://github.com/calvn/vault-kuber
 
 Create an IAM user with enough permissions to manage IAM resources. We will be using the `IAMFullAccess` policy here, but a more locked down custom policy can be provided. For an example on such policy template, refer to the Vault documentation regarding the backend's https://www.vaultproject.io/docs/secrets/aws/index.html#root-credentials-for-dynamic-iam-users[root credentials].
 
-. Crete the user:
+. Create the user:
 
   $ aws iam create-user \
        --user-name vault-root
@@ -265,7 +265,7 @@ Create an IAM user with enough permissions to manage IAM resources. We will be u
           "Path": "/", 
           "CreateDate": "2017-11-22T20:13:39.273Z", 
           "UserId": "AIDAI6SQOXCLURVV2J7BK", 
-          "Arn": "arn:aws:iam::091144949931:user/vault-root"
+          "Arn": "arn:aws:iam::<account-id>:user/vault-root"
       }
   }
 
@@ -276,19 +276,21 @@ Create an IAM user with enough permissions to manage IAM resources. We will be u
        --policy-arn arn:aws:iam::aws:policy/IAMFullAccess
 
 . Generate a access key and secret access key pair:
-
++
+```
 $ aws iam create-access-key \
      --user-name vault-root
 
-  {
-      "AccessKey": {
-          "UserName": "vault-root", 
-          "Status": "Active", 
-          "CreateDate": "2017-11-22T20:14:00.682Z", 
-          "SecretAccessKey": "<secret-key>", 
-          "AccessKeyId": "<access-key>"
-      }
-  }
+{
+    "AccessKey": {
+        "UserName": "vault-root", 
+        "Status": "Active", 
+        "CreateDate": "2017-11-22T20:14:00.682Z", 
+        "SecretAccessKey": "<secret-key>", 
+        "AccessKeyId": "<access-key>"
+    }
+}
+```
 
 === Setup Vault and AWS backend
 
@@ -333,6 +335,7 @@ path "aws/creds/readonly" {
 
 Pod will be using this role to request IAM credentials during runtime.
 
+. Edit `templates/deplloymnet-with-vault.yaml` to replace `<public-ip-address>` with the public IP address of the EC2 instance where Vault server is running.
 . Create the Pod:
 
   $ kubectl apply -f templates/deployment-with-vault.yaml
@@ -369,7 +372,9 @@ This is expected because the AWS secret backend gives access to `AmazonEC2ReadOn
     arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
   Success! Data written to: aws/roles/readonly
 
-. Delete the Deployment:
+. We need to generate a new set of AWS credentials after the policy is updated. In order for this policy to take effect, we need to restart the sidecar container. But its easier to delete and create the Deployment again.
+
+that reads the credentials from Vault. This will allow the new policy to take effect. But its easier to delete the Deployment.
 
   $ kubectl delete -f templates/deployment-with-vault.yaml
   deployment "vault-sidecar" deleted
@@ -385,7 +390,7 @@ This is expected because the AWS secret backend gives access to `AmazonEC2ReadOn
 +
 And this shows the listing of S3 buckets in your account.
 +
-. Kubernetes Auth backend is configured for the token to expire in 60 seconds. This means the temporary IAM role created for this Deployment will eventually disappear. Trying to access the S3 listing after a few minutes will give an error:
+. Kubernetes Auth backend is configured for the token to expire in 60 seconds. This was done during Kubernetes Auth backend configuration by setting the `-period=60s` on the `vault write auth/kubernetes/role/demo` command. This means the temporary IAM role created for this Deployment will eventually disappear. Trying to access the S3 listing after a few minutes will give an error:
 +
 ```
 $ kubectl exec -it $(kubectl get pods -l app=vault-sidecar -o jsonpath={.items[0].metadata.name}) aws s3 ls
