@@ -15,21 +15,11 @@
       "Default": "",
       "Description": "By default we will create a new Subnet ID or select an existing subnet ID from VPC selected above."
     }, 
-    "DesiredCapacity": {
-      "Type": "Number", 
-      "Default": "1", 
-      "Description": "Number of instances to launch in your ECS cluster."
-    }, 
     "EC2InstanceProfile": {
             "Type": "String",
             "Default": "ecsInstanceRole",
             "Description": "This field is optional"
-        },
-    "MaxSize": {
-      "Type": "Number", 
-      "Default": "1", 
-      "Description": "Maximum number of instances that can be launched in your ECS cluster."
-    }, 
+        }, 
     "InstanceType": {
       "Description": "EC2 instance type", 
       "Type": "String", 
@@ -229,49 +219,8 @@
           "CidrIp": "0.0.0.0/0"
         }
       },
-    "EC2VaultAutoScalingGroup": {
-      "Type": "AWS::AutoScaling::AutoScalingGroup", 
-      "Properties": {
-        "VPCZoneIdentifier": [{
-          "Fn::If": [
-            "Subnet",
-            {"Ref": "NewSubnet"},
-            {"Ref": "SubnetID"}
-          ]
-        }],
-        "LoadBalancerNames":[{"Ref": "VaultStackELB"}],
-        "LaunchConfigurationName": {
-          "Ref": "VaultInstances"
-        }, 
-        "Tags": [{
-            "Key": "Name",
-            "Value": "Vault-Server-ASG",
-            "PropagateAtLaunch": "true"
-        }],
-        "MinSize": "1", 
-        "MaxSize": {
-          "Ref": "MaxSize"
-        }, 
-        "DesiredCapacity": {
-          "Ref": "DesiredCapacity"
-        }
-      }, 
-      "CreationPolicy": {
-        "ResourceSignal": {
-          "Timeout": "PT15M"
-        }
-      }, 
-      "UpdatePolicy": {
-        "AutoScalingRollingUpdate": {
-          "MinInstancesInService": "1", 
-          "MaxBatchSize": "1", 
-          "PauseTime": "PT15M", 
-          "WaitOnResourceSignals": "true"
-        }
-      }
-    }, 
-    "VaultInstances": {
-      "Type": "AWS::AutoScaling::LaunchConfiguration", 
+  "EC2VaultInstance": {
+      "Type" : "AWS::EC2::Instance",
       "Metadata": {
         "AWS::CloudFormation::Init": {
             "config":{
@@ -314,18 +263,29 @@
             }
           }
         }
-      }, 
+      },
       "Properties": {
-        "ImageId": {
-          "Fn::FindInMap": [
-            "AWSRegionToAMI", 
+        "SubnetId": {
+          "Fn::If": [
+            "Subnet",
+            {"Ref": "NewSubnet"},
+            {"Ref": "SubnetID"}
+          ]
+        }, 
+        "Tags": [{
+            "Key": "Name",
+            "Value": "Vault-Server"
+        }],  
+      "ImageId": {
+        "Fn::FindInMap": [
+          "AWSRegionToAMI", 
             {
               "Ref": "AWS::Region"
             }, 
             "AMIID"
           ]
         }, 
-        "SecurityGroups": [
+        "SecurityGroupIds": [
           {
             "Ref": "EC2VaultSecurityGroup"
           }
@@ -355,7 +315,7 @@
                  {
                      "Ref": "AWS::StackName"
                  },
-                 "         --resource VaultInstances ",
+                 "         --resource EC2VaultInstance ",
                  "         --region ",
                  {
                      "Ref": "AWS::Region"
@@ -367,7 +327,7 @@
                  {
                     "Ref": "AWS::StackName"
                  },
-                 "         --resource EC2VaultAutoScalingGroup ",
+                 "         --resource EC2VaultInstance ",
                  "         --region ",
                  {
                     "Ref": "AWS::Region"
@@ -378,33 +338,12 @@
           }
         }
       }
-    },
-    "VaultStackELB" : {
-      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
-      "Properties" : {
-        "Subnets":[{
-          "Fn::If": [
-            "Subnet",
-            {"Ref": "NewSubnet"},
-            {"Ref": "SubnetID"}
-          ]
-        }],
-        "Tags": [{
-          "Key": "Name",
-          "Value": "Vault-server-ELB"
-        }],
-        "Listeners": [{
-          "LoadBalancerPort": "80",
-          "InstancePort": "8200",
-          "Protocol": "HTTP"
-        }]
-      }
     }
   },
   "Outputs": {
-    "ELBDNSName": {
+    "EC2PublicDNSURL": {
       "Description": "URL for VAULT_ADDRESS which should be exported locally for CLI",
-      "Value": { "Fn::Join": [ "", [ "http://", { "Fn::GetAtt": [ "VaultStackELB", "DNSName" ] } ] ] }
+      "Value": { "Fn::Join": [ "", [ "http://", { "Fn::GetAtt": [ "EC2VaultInstance", "PublicDnsName" ] },":8200" ] ] }
     }
   }
 }
