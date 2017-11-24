@@ -1,0 +1,410 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09", 
+  "Parameters": {
+    "KeyName": {
+      "Type": "AWS::EC2::KeyPair::KeyName", 
+      "Description": "Name of an existing EC2 key pair to enable SSH access to the ECS instances."
+    }, 
+    "VPCID": {
+      "Type": "String", 
+      "Default": "",
+      "Description": "By default we will create a new VPC or Select an existing VPC ID."
+    }, 
+    "SubnetID": {
+      "Type": "String", 
+      "Default": "",
+      "Description": "By default we will create a new Subnet ID or select an existing subnet ID from VPC selected above."
+    }, 
+    "DesiredCapacity": {
+      "Type": "Number", 
+      "Default": "1", 
+      "Description": "Number of instances to launch in your ECS cluster."
+    }, 
+    "EC2InstanceProfile": {
+            "Type": "String",
+            "Default": "ecsInstanceRole",
+            "Description": "This field is optional"
+        },
+    "MaxSize": {
+      "Type": "Number", 
+      "Default": "1", 
+      "Description": "Maximum number of instances that can be launched in your ECS cluster."
+    }, 
+    "InstanceType": {
+      "Description": "EC2 instance type", 
+      "Type": "String", 
+      "Default": "m4.large", 
+      "AllowedValues": [
+        "t2.micro", 
+        "t2.small", 
+        "t2.medium", 
+        "t2.large", 
+        "m3.medium", 
+        "m3.large", 
+        "m3.xlarge", 
+        "m3.2xlarge", 
+        "m4.large", 
+        "m4.xlarge", 
+        "m4.2xlarge", 
+        "m4.4xlarge", 
+        "m4.10xlarge", 
+        "c4.large", 
+        "c4.xlarge", 
+        "c4.2xlarge", 
+        "c4.4xlarge", 
+        "c4.8xlarge", 
+        "c3.large", 
+        "c3.xlarge", 
+        "c3.2xlarge", 
+        "c3.4xlarge", 
+        "c3.8xlarge", 
+        "r3.large", 
+        "r3.xlarge", 
+        "r3.2xlarge", 
+        "r3.4xlarge", 
+        "r3.8xlarge", 
+        "i2.xlarge", 
+        "i2.2xlarge", 
+        "i2.4xlarge", 
+        "i2.8xlarge"
+      ], 
+      "ConstraintDescription": "Please choose a valid instance type."
+    }
+  }, 
+  "Mappings": {
+    "SubnetConfig" : {
+      "VPC"     : { "CIDR" : "10.0.0.0/16" },
+      "Public"  : { "CIDR" : "10.0.0.0/24" },
+      "Private" : { "CIDR" : "10.0.1.0/24" }
+    },
+    "AWSRegionToAMI": {
+      "ap-south-1": {
+        "AMIID": "ami-2ed19c41"
+      }, 
+      "eu-west-2": {
+        "AMIID": "ami-e3051987"
+      }, 
+      "eu-west-1": {
+        "AMIID": "ami-760aaa0f"
+      }, 
+      "ap-northeast-2": {
+        "AMIID": "ami-fc862292"
+      }, 
+      "ap-northeast-1": {
+        "AMIID": "ami-2803ac4e"
+      }, 
+      "sa-east-1": {
+        "AMIID": "ami-1678037a"
+      }, 
+      "ca-central-1": {
+        "AMIID": "ami-ef3b838b"
+      }, 
+      "ap-southeast-1": {
+        "AMIID": "ami-dd7935be"
+      }, 
+      "ap-southeast-2": {
+        "AMIID": "ami-1a668878"
+      }, 
+      "eu-central-1": {
+        "AMIID": "ami-e28d098d"
+      }, 
+      "us-east-1": {
+        "AMIID": "ami-6057e21a"
+      }, 
+      "us-east-2": {
+        "AMIID": "ami-aa1b34cf"
+      }, 
+      "us-west-1": {
+        "AMIID": "ami-1a033c7a"
+      }, 
+      "us-west-2": {
+        "AMIID": "ami-32d8124a"
+      }
+    }
+  }, 
+  "Conditions" : {
+    "IAMrole" : {"Fn::Equals" : [{"Ref" : "EC2InstanceProfile"}, "ecsInstanceRole"]
+    },
+    "VPC": {"Fn::Equals": [{"Ref": "VPCID"}, ""]
+    },
+    "Subnet": {"Fn::And": [ {"Fn::Equals": [{"Ref": "SubnetID"}, ""]}, {"Condition": "VPC"}]
+    }
+ },
+  "Resources": {
+    "InternetGateway" : {
+      "Condition": "VPC",
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties" : {
+         "Tags" : [ {"Key" : "Name", "Value" : "VaultServer-IGW"}]
+      }
+    },
+    "RouteTable" : {
+      "Condition": "VPC",
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+         "VpcId" : { "Ref" : "NewVPC" },
+         "Tags" : [ { "Key" : "Name", "Value" : "VaultServer-RT" } ]
+      }
+    },
+    "IGWRoute": {
+      "Condition": "VPC",
+      "Type": "AWS::EC2::Route",
+      "DependsOn" : "AttachGateway",
+      "Properties": {
+        "GatewayId": {"Ref": "InternetGateway"},
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {"Ref" : "RouteTable"}
+      }
+    },
+    "AttachGateway" : {
+      "Condition": "VPC",
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+         "VpcId" : { "Ref" : "NewVPC" },
+         "InternetGatewayId" : { "Ref" : "InternetGateway" }
+      }
+   },
+   "NewVPC":{
+      "Condition": "VPC",
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+         "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "VPC", "CIDR" ]},
+         "EnableDnsHostnames": "true",
+         "Tags" : [ {"Key" : "Name", "Value" : "VaultServer-VPC"} ]
+      }
+    }, 
+    "NewSubnet":{
+      "Condition": "Subnet",
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+         "VpcId" : { "Ref" : "NewVPC" },
+         "MapPublicIpOnLaunch": "true",
+         "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Public", "CIDR" ]},
+         "Tags" : [ { "Key" : "Name", "Value" : "VaultServer-Subnet" } ]
+      }
+    },
+    "PublicSubnetRouteTableAssociation" : {
+      "Condition": "Subnet",
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "NewSubnet" },
+        "RouteTableId" : { "Ref" : "RouteTable" }
+      }
+    },
+    "EC2VaultSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup", 
+      "Properties": {
+        "GroupDescription": "EC2 Security Group", 
+        "VpcId": {
+          "Fn::If": [
+          "VPC",
+          {"Ref": "NewVPC"},
+          {"Ref": "VPCID"}
+        ]
+      },
+      "Tags" : [ { "Key" : "Name", "Value" : "VaultServer-SG" } ]
+     }
+    }, 
+    "EC2VaultSecurityGroupHTTPinbound": {
+      "Type": "AWS::EC2::SecurityGroupIngress", 
+      "Properties": {
+        "GroupId": {
+          "Ref": "EC2VaultSecurityGroup"
+        }, 
+        "IpProtocol": "tcp", 
+        "FromPort": "8200", 
+        "ToPort": "8200", 
+        "CidrIp": "0.0.0.0/0"
+      }
+    }, 
+    "EC2VaultSecurityGroupSSHinbound": {
+        "Type": "AWS::EC2::SecurityGroupIngress", 
+        "Properties": {
+          "GroupId": {
+            "Ref": "EC2VaultSecurityGroup"
+          }, 
+          "IpProtocol": "tcp", 
+          "FromPort": "22", 
+          "ToPort": "22", 
+          "CidrIp": "0.0.0.0/0"
+        }
+      },
+    "EC2VaultAutoScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup", 
+      "Properties": {
+        "VPCZoneIdentifier": [{
+          "Fn::If": [
+            "Subnet",
+            {"Ref": "NewSubnet"},
+            {"Ref": "SubnetID"}
+          ]
+        }],
+        "LoadBalancerNames":[{"Ref": "VaultStackELB"}],
+        "LaunchConfigurationName": {
+          "Ref": "VaultInstances"
+        }, 
+        "Tags": [{
+            "Key": "Name",
+            "Value": "Vault-Server-ASG",
+            "PropagateAtLaunch": "true"
+        }],
+        "MinSize": "1", 
+        "MaxSize": {
+          "Ref": "MaxSize"
+        }, 
+        "DesiredCapacity": {
+          "Ref": "DesiredCapacity"
+        }
+      }, 
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT15M"
+        }
+      }, 
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1", 
+          "MaxBatchSize": "1", 
+          "PauseTime": "PT15M", 
+          "WaitOnResourceSignals": "true"
+        }
+      }
+    }, 
+    "VaultInstances": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration", 
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+            "config":{
+            "sources" : {
+                "/etc/vault": "https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip"
+            },
+            "files":{
+                "/etc/vault/vault-dev-server-start.sh": {
+                    "content": { "Fn::Join" : ["\n", [
+                        "#! /bin/bash",
+                        "LISTEN_ADDRESS=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)",
+                        "nohup vault server -dev-listen-address=${LISTEN_ADDRESS}:8200 -dev > /etc/vault/vault-server-log.out 2>&1 &",
+                        "echo done",
+                        "exit 0"
+                        ]]},
+                        "mode"  : "000744",
+                        "owner" : "root",
+                        "group" : "root"
+                },
+                "/etc/profile.d/vault-addr-variable.sh" : {
+                    "content": { "Fn::Join" : ["\n", [
+                        "LISTEN_ADDRESS=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)",
+                        "export VAULT_ADDR=http://${LISTEN_ADDRESS}:8200",
+                        "echo 'VAULT_ADDR is set to  '$VAULT_ADDR"
+                        ]]},
+                        "mode"  : "000744",
+                        "owner" : "root",
+                        "group" : "root"
+                    
+                }
+            },
+            "commands": {
+                "command1": {
+                   "command": "ln -s /etc/vault/vault vault",
+                   "cwd": "/usr/bin"
+                },
+                "command2": {
+                    "command": "/etc/vault/vault-dev-server-start.sh"
+                }
+            }
+          }
+        }
+      }, 
+      "Properties": {
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegionToAMI", 
+            {
+              "Ref": "AWS::Region"
+            }, 
+            "AMIID"
+          ]
+        }, 
+        "SecurityGroups": [
+          {
+            "Ref": "EC2VaultSecurityGroup"
+          }
+        ], 
+        "InstanceType": {
+          "Ref": "InstanceType"
+        }, 
+        "IamInstanceProfile": {
+          "Fn::If" : [
+        "IAMrole",
+         {"Ref" : "EC2InstanceProfile"},
+         {"Ref" : "AWS::NoValue"}
+         ]
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        }, 
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "", 
+              [
+                 "#!/bin/bash -x\n",
+                 "# Install the files and packages from the metadata\n",
+                 "/opt/aws/bin/cfn-init -v ",
+                 "         --stack ",
+                 {
+                     "Ref": "AWS::StackName"
+                 },
+                 "         --resource VaultInstances ",
+                 "         --region ",
+                 {
+                     "Ref": "AWS::Region"
+                 },
+                 "\n",
+                 "# Signal the status from cfn-init\n",
+                 "/opt/aws/bin/cfn-signal -e $? ",
+                 "         --stack ",
+                 {
+                    "Ref": "AWS::StackName"
+                 },
+                 "         --resource EC2VaultAutoScalingGroup ",
+                 "         --region ",
+                 {
+                    "Ref": "AWS::Region"
+                 },
+                 "\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "VaultStackELB" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "Subnets":[{
+          "Fn::If": [
+            "Subnet",
+            {"Ref": "NewSubnet"},
+            {"Ref": "SubnetID"}
+          ]
+        }],
+        "Tags": [{
+          "Key": "Name",
+          "Value": "Vault-server-ELB"
+        }],
+        "Listeners": [{
+          "LoadBalancerPort": "80",
+          "InstancePort": "8200",
+          "Protocol": "HTTP"
+        }]
+      }
+    }
+  },
+  "Outputs": {
+    "ELBDNSName": {
+      "Description": "URL for VAULT_ADDRESS which should be exported locally for CLI",
+      "Value": { "Fn::Join": [ "", [ "http://", { "Fn::GetAtt": [ "VaultStackELB", "DNSName" ] } ] ] }
+    }
+  }
+}
