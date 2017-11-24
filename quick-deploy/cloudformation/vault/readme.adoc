@@ -33,7 +33,7 @@ The following is an explanation of the input parameters:
 	VPCId: Provide existing VPCId if any
 	# Default: Creates a new VPC
 	# Required: No
-	
+        	
 To check if Vault server dev is started on the instance created, please SSH into the instance and run below command:
 
 	
@@ -41,6 +41,7 @@ To check if Vault server dev is started on the instance created, please SSH into
 	$vault status
 
 Note: vault-template.json will create single EC2 instance which will have Dev Vault server running with VAULT_ADDR=http://<private_IP>:8200 variable set.  
+
 If you want to create Vault server instance as part of autoscaling group, please use vault-template-asg.json template. The ASG template will also create a classic load balancer and associated to Autoscaling group with ELB listerner mapped to port 80 and instance port to 8200
 
 Below are the variables that should be exported while trying to connect to Vault server from your local machine. 
