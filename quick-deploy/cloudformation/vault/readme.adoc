@@ -22,19 +22,19 @@ The template has AMI mappings to all regions, with parameters like VPCID and sub
 The following is an explanation of the input parameters:
 	 
 	KeyName: This must be a valid EC2 KeyPair for ssh access
-        # Required: Yes 
-	
+	# Required: Yes 
+	----------------------------------------------------------
 	InstanceType: Instance type which you want to you
-        #Default:  Create a m4.large intance type
-        #Required: No 
-	
+	#Default:  Create a m4.large intance type
+	#Required: No 
+	----------------------------------------------------------
 	SubnetID: Provide existing SubnetId if any
- 	#Default: Creates a new Subnet
+	#Default: Creates a new Subnet
 	#Required: No
-	
+	----------------------------------------------------------
 	VPCId: Provide existing VPCId if any
 	#Default: Creates a new VPC
- 	#Required: No
+	#Required: No
 	
 To check if Vault server dev is started on the instance created, please SSH into the instance and run below command:
 
