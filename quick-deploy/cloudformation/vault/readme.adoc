@@ -18,7 +18,8 @@ To launch this stack via AWS CLI, please use below command. Replace ParameterVal
 
 The template has AMI mappings to all regions, with parameters like VPCID and subnetID where you want your instances to be created. 
 The following is an explanation of the input parameters:
-	 
+	
+	----------------------------------------------------------
 	KeyName: This must be a valid EC2 KeyPair for ssh access
 	# Required: Yes 
 	----------------------------------------------------------
@@ -36,7 +37,8 @@ The following is an explanation of the input parameters:
 	----------------------------------------------------------
 	EC2InstanceProfile: Provide an existing IAM role
 	# Default: ecsInstanceRole
-	# Required: No	
+	# Required: No
+	----------------------------------------------------------
 
 To check if Vault server dev is started on the instance created, please SSH into the instance and run below command:
 
