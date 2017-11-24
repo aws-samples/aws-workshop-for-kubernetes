@@ -33,7 +33,7 @@ The following is an explanation of the input parameters:
 	VPCId: Provide existing VPCId if any
 	# Default: Creates a new VPC
 	# Required: No
-        ----------------------------------------------------------
+	----------------------------------------------------------
 	EC2InstanceProfile: Provide an existing IAM role
 	# Default: ecsInstanceRole
 	# Required: No	
