@@ -72,6 +72,11 @@
     }
   }, 
   "Mappings": {
+    "SubnetConfig" : {
+      "VPC"     : { "CIDR" : "10.0.0.0/16" },
+      "Public"  : { "CIDR" : "10.0.0.0/24" },
+      "Private" : { "CIDR" : "10.0.1.0/24" }
+    },
     "AWSRegionToAMI": {
       "ap-south-1": {
         "AMIID": "ami-2ed19c41"
@@ -126,12 +131,46 @@
     }
  },
   "Resources": {
-    "NewVPC":{
+    "InternetGateway" : {
+      "Condition": "VPC",
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties" : {
+         "Tags" : [ {"Key" : "Name", "Value" : "VaultServer-IGW"}]
+      }
+    },
+    "RouteTable" : {
+      "Condition": "VPC",
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+         "VpcId" : { "Ref" : "NewVPC" },
+         "Tags" : [ { "Key" : "Name", "Value" : "VaultServer-RT" } ]
+      }
+    },
+    "IGWRoute": {
+      "Condition": "VPC",
+      "Type": "AWS::EC2::Route",
+      "DependsOn" : "AttachGateway",
+      "Properties": {
+        "GatewayId": {"Ref": "InternetGateway"},
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {"Ref" : "RouteTable"}
+      }
+    },
+    "AttachGateway" : {
+      "Condition": "VPC",
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+         "VpcId" : { "Ref" : "NewVPC" },
+         "InternetGatewayId" : { "Ref" : "InternetGateway" }
+      }
+   },
+   "NewVPC":{
       "Condition": "VPC",
       "Type" : "AWS::EC2::VPC",
       "Properties" : {
-         "CidrBlock" : "10.0.0.0/16",
-         "Tags" : [ {"Key" : "Name", "Value" : "VaultServer"} ]
+         "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "VPC", "CIDR" ]},
+         "EnableDnsHostnames": "true",
+         "Tags" : [ {"Key" : "Name", "Value" : "VaultServer-VPC"} ]
       }
     }, 
     "NewSubnet":{
@@ -139,8 +178,17 @@
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
          "VpcId" : { "Ref" : "NewVPC" },
-         "CidrBlock" : "10.0.0.0/24",
-         "Tags" : [ { "Key" : "foo", "Value" : "bar" } ]
+         "MapPublicIpOnLaunch": "true",
+         "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Public", "CIDR" ]},
+         "Tags" : [ { "Key" : "Name", "Value" : "VaultServer-Subnet" } ]
+      }
+    },
+    "PublicSubnetRouteTableAssociation" : {
+      "Condition": "Subnet",
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "NewSubnet" },
+        "RouteTableId" : { "Ref" : "RouteTable" }
       }
     },
     "EC2VaultSecurityGroup": {
@@ -153,7 +201,8 @@
           {"Ref": "NewVPC"},
           {"Ref": "VPCID"}
         ]
-      }
+      },
+      "Tags" : [ { "Key" : "Name", "Value" : "VaultServer-SG" } ]
      }
     }, 
     "EC2VaultSecurityGroupHTTPinbound": {
@@ -183,19 +232,20 @@
     "EC2VaultAutoScalingGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup", 
       "Properties": {
-        "VPCZoneIdentifier": {
+        "VPCZoneIdentifier": [{
           "Fn::If": [
             "Subnet",
             {"Ref": "NewSubnet"},
             {"Ref": "SubnetID"}
           ]
-        }, 
+        }],
+        "LoadBalancerNames":[{"Ref": "VaultStackELB"}],
         "LaunchConfigurationName": {
           "Ref": "VaultInstances"
         }, 
         "Tags": [{
             "Key": "Name",
-            "Value": "Vault-Server",
+            "Value": "Vault-Server-ASG",
             "PropagateAtLaunch": "true"
         }],
         "MinSize": "1", 
@@ -289,7 +339,7 @@
          {"Ref" : "EC2VaultInstanceProfile"},
          {"Ref" : "AWS::NoValue"}
          ]
-        }, 
+        },
         "KeyName": {
           "Ref": "KeyName"
         }, 
@@ -328,6 +378,33 @@
           }
         }
       }
+    },
+    "VaultStackELB" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "Subnets":[{
+          "Fn::If": [
+            "Subnet",
+            {"Ref": "NewSubnet"},
+            {"Ref": "SubnetID"}
+          ]
+        }],
+        "Tags": [{
+          "Key": "Name",
+          "Value": "Vault-server-ELB"
+        }],
+        "Listeners": [{
+          "LoadBalancerPort": "80",
+          "InstancePort": "8200",
+          "Protocol": "HTTP"
+        }]
+      }
+    }
+  },
+  "Outputs": {
+    "ELBDNSName": {
+      "Description": "URL for VAULT_ADDRESS which should be exported locally for CLI",
+      "Value": { "Fn::Join": [ "", [ "http://", { "Fn::GetAtt": [ "VaultStackELB", "DNSName" ] } ] ] }
     }
   }
 }
