@@ -1,2 +1,6 @@
 .DS_STORE
+**/*.iml
+**/target
+**/.idea
+**/dependency-reduced-pom.xml
 
