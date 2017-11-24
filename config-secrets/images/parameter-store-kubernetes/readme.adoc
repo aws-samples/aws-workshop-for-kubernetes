@@ -1,0 +1,13 @@
+= AWS Parameter Store and Kubernetes
+
+This application shows how a Java application deployed as a Pod in a Kubernetes cluster can read secrets from AWS Parameter Store.
+
+. Build Docker image: `mvn package -Pdocker`
+. Push Docker image: `docker push arungupta/parameter-store-kubernetes:latest`
+
+== To be tested
+
+. Delete pod: `kubectl delete pod/parameter-store-kubernetes`
+. Deploy pod: `kubectl apply -f pod.yaml`
+. Check pod logs: `kubectl logs pod/parameter-store-kubernetes`
+
