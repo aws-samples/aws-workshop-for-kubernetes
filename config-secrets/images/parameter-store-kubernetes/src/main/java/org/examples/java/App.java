@@ -12,7 +12,7 @@ import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
  */
 public class App {
     public static void main(String[] args) {
-        System.out.println("vault: "
+        System.out.println("parameter store: "
                 + getSecret("GREETING")
                 + getSecret("NAME"));
     }
