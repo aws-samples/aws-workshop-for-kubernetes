@@ -20,22 +20,22 @@ The template has AMI mappings to all regions, with parameters like VPCID and sub
 The following is an explanation of the input parameters:
 	
 	----------------------------------------------------------
-	KeyName: This must be a valid EC2 KeyPair for ssh access
+	KeyName: **This must be a valid EC2 KeyPair for ssh access**
 	# Required: Yes 
 	----------------------------------------------------------
-	InstanceType: Instance type which you want to you
+	InstanceType: **Instance type which you want to you**
 	# Default: Creates a m4.large intance
 	# Required: No 
 	----------------------------------------------------------
-	SubnetID: Provide existing SubnetId if any
+	SubnetID: **Provide existing SubnetId if any**
 	# Default: Creates a new Subnet
 	# Required: No
 	----------------------------------------------------------
-	VPCId: Provide existing VPCId if any
+	VPCId: **Provide existing VPCId if any**
 	# Default: Creates a new VPC
 	# Required: No
 	----------------------------------------------------------
-	EC2InstanceProfile: Provide an existing IAM role
+	EC2InstanceProfile: **Provide an existing IAM role**
 	# Default: ecsInstanceRole
 	# Required: No
 	----------------------------------------------------------
