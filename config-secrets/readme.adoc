@@ -747,7 +747,7 @@ More details about the image is at https://github.com/arun-gupta/vault-kubernete
   Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
   vault: HelloWorld
 
-== Configuration data and Secrets using AWS Parameter Store (WORK IN PROGRESS)
+== Configuration data and Secrets using AWS Parameter Store
 
 https://aws.amazon.com/ec2/systems-manager/[Amazon EC2 Systems Manager] eases the configuration and management of Amazon EC2 instances and associated resources. One of the features of Systems Manager is https://aws.amazon.com/ec2/systems-manager/parameter-store/[Parameter Store] that provides a centralized location to store, provide access control, and easily reference your configuration data, whether plain-text data such as database strings or secrets such as passwords, encrypted through https://aws.amazon.com/kms/[AWS Key Management Service] (KMS).
 
