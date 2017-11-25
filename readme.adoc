@@ -1,4 +1,4 @@
-= Kubernetes on AWS Workshop
+= AWS Workshop for Kubernetes
 
 image::images/kubernetes-aws-smile.png[kubernetes and aws logos, 400]
 
