@@ -24,7 +24,7 @@ This chapter uses a cluster with 3 master nodes and 5 worker nodes as described 
 
 All configuration files for this chapter are in the `config-secrets` directory.
 
-== ConfigMap
+== Configuration data using Kubernetes ConfigMap
 
 This section will explain:
 
@@ -315,7 +315,7 @@ The pod logs are refreshed as well:
   Hello world 2
   Hello world 3
 
-== Secrets
+== Secrets using Kubernetes Secrets
 
 In this section we will demonstrate how to place secrets into the Kubernetes cluster and then show multiple ways of retrieving those secretes from within a pod.
 
@@ -444,8 +444,7 @@ Open a shell to the pod to see the secrets:
 
 The above commands illustrate how to see the secret values via environment variables.
 
-
-== Vault
+== Secrets using Vault
 
 https://www.vaultproject.io/[Hashicorp Vault] is a tool for managing secrets. It secures, stores and tightly controls access to tokens, passwords, certificates, API keys and other secrets.
 
@@ -748,12 +747,71 @@ More details about the image is at https://github.com/arun-gupta/vault-kubernete
   Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
   vault: HelloWorld
 
-== AWS Parameter Store (WORK IN PROGRESS)
+== Configuration data and Secrets using AWS Parameter Store (WORK IN PROGRESS)
 
-Parameter store provides a centralized store to manage your configuration data, whether plain-text data such as database strings or secrets such as passwords, encrypted through https://aws.amazon.com/kms/[AWS Key Management Service] (KMS).
+https://aws.amazon.com/ec2/systems-manager/[Amazon EC2 Systems Manager] eases the configuration and management of Amazon EC2 instances and associated resources. One of the features of Systems Manager is https://aws.amazon.com/ec2/systems-manager/parameter-store/[Parameter Store] that provides a centralized location to store, provide access control, and easily reference your configuration data, whether plain-text data such as database strings or secrets such as passwords, encrypted through https://aws.amazon.com/kms/[AWS Key Management Service] (KMS).
 
 KMS helps you encrypt your sensitive information and protect the security of your keys. Additionally, all calls to the parameter store are recorded with AWS CloudTrail so that they can be audited. Access to each parameter store secrets can be scoped with IAM.
 
+Parameter Store allows three types of configuration data to be stored:
+
+- String
+- List of string
+- Secure string
+
+This section will show how to create a secure string using AWS CLI and access it in a Pod.
+
+=== Create secrets
+
+Only the value of the secure string parameter is encrypted. The name of the parameter, description, and other properties are not encrypted.
+
+. A secret in AWS Parameter is created as a secure string. Create a secure string:
++
+  $ aws ssm put-parameter --name GREETING --value Hello --type SecureString 
+  {
+      "Version": 1
+  }
++
+This will create a secret in the Parameter Store using the default KMS key. Optionally, a new key may be created using `aws kms create-key` and then specified using the option `--key-id <key-ARN>`.
++
+. Get the value of the created secret:
++
+```
+$ aws ssm get-parameter --name GREETING
+{
+    "Parameter": {
+        "Version": 1, 
+        "Type": "SecureString", 
+        "Name": "GREETING", 
+        "Value": "AQICAHjpQ3N/3+MWjuLpKf2zXN8hhDD7QhU4T1DSp3yvrOl4nwH2WebRE/HkN0YbwrCdIuW8AAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMmsXjDFq043rG9vXsAgEQgCBXL51EEG7Ksn64XtO2lIHCX5sOnuJBhs9bpye5yhbzgQ=="
+    }
+}
+```
++
+By default, the encrypted value of the secret is shown in the output.
++
+. Decrypted value of the secret can be obtained:
+
+  $ aws ssm get-parameter --name GREETING --with-decryption
+  {
+      "Parameter": {
+          "Version": 1, 
+          "Type": "SecureString", 
+          "Name": "GREETING", 
+          "Value": "Hello"
+      }
+  }
+
+. Create another secret:
+
+  $ aws ssm put-parameter --name NAME --value World --type SecureString 
+  {
+      "Version": 1
+  }
++
+These two secrets will be consumed in the Pod.
+
+=== Consume secrets in a Pod
 
 
 
