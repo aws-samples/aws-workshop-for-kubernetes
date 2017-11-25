@@ -761,18 +761,127 @@ Parameter Store allows three types of configuration data to be stored:
 
 This section will show how to create a secure string using AWS CLI and access it in a Pod.
 
+=== Create KMS Key
+
+. Create a new encryption key: https://console.aws.amazon.com/iam/home#/encryptionKeys/
+. Click on `Create key`
+. Specify the `Alias` as `k8s-key`
++
+image::aws-kms-create-key.png[]
++
+Click on `Next Step`.
+. Take the defaults for `Add Tags` and click on `Next Step`.
+. Select the IAM user(s) and roles that can administer this key through the KMS API
++
+image::aws-kms-key-admins.png[]
++
+. Select the IAM user(s) and roles that can use this key to encrypt and decrypt data from within applications. We'll use the IAM role that is assigned to the worker nodes in the Kubernetes cluster created by kops.
++
+image::aws-kms-key-usage-perms.png[]
++
+. Preview key policy:
+
+  {
+    "Id": "key-consolepolicy-3",
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "Enable IAM User Permissions",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "arn:aws:iam::091144949931:root"
+          ]
+        },
+        "Action": "kms:*",
+        "Resource": "*"
+      },
+      {
+        "Sid": "Allow access for Key Administrators",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "arn:aws:iam::091144949931:user/arun",
+            "arn:aws:iam::091144949931:role/nodes.example.cluster.k8s.local"
+          ]
+        },
+        "Action": [
+          "kms:Create*",
+          "kms:Describe*",
+          "kms:Enable*",
+          "kms:List*",
+          "kms:Put*",
+          "kms:Update*",
+          "kms:Revoke*",
+          "kms:Disable*",
+          "kms:Get*",
+          "kms:Delete*",
+          "kms:TagResource",
+          "kms:UntagResource",
+          "kms:ScheduleKeyDeletion",
+          "kms:CancelKeyDeletion"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Sid": "Allow use of the key",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "arn:aws:iam::091144949931:role/nodes.example.cluster.k8s.local"
+          ]
+        },
+        "Action": [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Sid": "Allow attachment of persistent resources",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "arn:aws:iam::091144949931:role/nodes.example.cluster.k8s.local"
+          ]
+        },
+        "Action": [
+          "kms:CreateGrant",
+          "kms:ListGrants",
+          "kms:RevokeGrant"
+        ],
+        "Resource": "*",
+        "Condition": {
+          "Bool": {
+            "kms:GrantIsForAWSResource": true
+          }
+        }
+      }
+    ]
+  }
+
+. Click on `Finish`.
+. Select `IAM`, `Encryption Keys`, `k8s-key` and copy the ARN of the key.
+
 === Create secrets
 
 Only the value of the secure string parameter is encrypted. The name of the parameter, description, and other properties are not encrypted.
 
 . A secret in AWS Parameter is created as a secure string. Create a secure string:
 +
-  $ aws ssm put-parameter --name GREETING --value Hello --type SecureString 
+  $ aws ssm put-parameter \
+    --name GREETING \
+    --value Hello \
+    --type SecureString \
+    --key-id arn:aws:kms:us-east-1:091144949931:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
   {
       "Version": 1
   }
 +
-This will create a secret in the Parameter Store using the default KMS key. Optionally, a new key may be created using `aws kms create-key` and then specified using the option `--key-id <key-ARN>`.
+This will create a secret in the Parameter Store using the KMS key.
 +
 . Get the value of the created secret:
 +
@@ -783,7 +892,7 @@ $ aws ssm get-parameter --name GREETING
         "Version": 1, 
         "Type": "SecureString", 
         "Name": "GREETING", 
-        "Value": "AQICAHjpQ3N/3+MWjuLpKf2zXN8hhDD7QhU4T1DSp3yvrOl4nwH2WebRE/HkN0YbwrCdIuW8AAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMmsXjDFq043rG9vXsAgEQgCBXL51EEG7Ksn64XtO2lIHCX5sOnuJBhs9bpye5yhbzgQ=="
+        "Value": "AQICAHghFIWYznvdUrX6qDhd5xLFHpoaQ5WL1EaHqsbkenfFEwHdqTpU8URwKMf2H9XmMyMgAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM0jZaUadELhmiCzj4AgEQgCBXVAZzfjac8P2AFrelnLaXb3z7ssZt2q/npxYAdJ9ABQ=="
     }
 }
 ```
@@ -804,7 +913,11 @@ By default, the encrypted value of the secret is shown in the output.
 
 . Create another secret:
 
-  $ aws ssm put-parameter --name NAME --value World --type SecureString 
+  $ aws ssm put-parameter \
+    --name NAME \
+    --value World \
+    --type SecureString \
+    --key-id arn:aws:kms:us-east-1:091144949931:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
   {
       "Version": 1
   }
@@ -812,6 +925,46 @@ By default, the encrypted value of the secret is shown in the output.
 These two secrets will be consumed in the Pod.
 
 === Consume secrets in a Pod
+
+The directory `images/parameter-store-kubernetes` contains a Java application that reads secrets from AWS Parameter Store. This application is then packaged as a Pod and deployed in the cluster.
+
+The Pod configuration is shown:
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: pod-parameter-store
+  spec:
+    containers:
+    - name: pod-parameter-store
+      image: arungupta/parameter-store-kubernetes:latest
+    restartPolicy: Never
+
+Create the Pod:
+
+  $ kubectl apply -f templates/pod-parameter-store.yaml
+  pod "pod-parameter-store" configured
+
+Check the logs of the Pod:
+
+  Exception in thread "main" com.amazonaws.services.simplesystemsmanagement.model.AWSSimpleSystemsManagementException: User: arn:aws:sts::091144949931:assumed-role/nodes.example.cluster.k8s.local/i-05101c6ca462115a9 is not authorized to perform: ssm:GetParameter on resource: arn:aws:ssm:us-east-1:091144949931:parameter/GREETING (Service: AWSSimpleSystemsManagement; Status Code: 400; Error Code: AccessDeniedException; Request ID: d8a3e20a-d17f-11e7-a11d-5323541cf7d1)
+  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.handleErrorResponse(AmazonHttpClient.java:1639)
+  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.executeOneRequest(AmazonHttpClient.java:1304)
+  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.executeHelper(AmazonHttpClient.java:1056)
+  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.doExecute(AmazonHttpClient.java:743)
+  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.executeWithTimer(AmazonHttpClient.java:717)
+  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.execute(AmazonHttpClient.java:699)
+  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.access$500(AmazonHttpClient.java:667)
+  at com.amazonaws.http.AmazonHttpClient$RequestExecutionBuilderImpl.execute(AmazonHttpClient.java:649)
+  at com.amazonaws.http.AmazonHttpClient.execute(AmazonHttpClient.java:513)
+  at com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient.doInvoke(AWSSimpleSystemsManagementClient.java:6495)
+  at com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient.invoke(AWSSimpleSystemsManagementClient.java:6471)
+  at com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient.executeGetParameter(AWSSimpleSystemsManagementClient.java:3955)
+  at com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient.getParameter(AWSSimpleSystemsManagementClient.java:3931)
+  at org.examples.java.App.getSecret(App.java:25)
+  at org.examples.java.App.main(App.java:16)
+
+This should show that the Java application has been able to read the secrets correctly. This is tracked as https://github.com/aws-samples/aws-workshop-for-kubernetes/issues/250.
 
 
 
