@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-parameter-store
+spec:
+  containers:
+  - name: pod-parameter-store
+    image: arungupta/parameter-store-kubernetes:latest
+  restartPolicy: Never
