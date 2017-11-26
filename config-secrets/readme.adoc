@@ -888,8 +888,8 @@ and click it. In the Permissions tab, expand the inline policy for `nodes.exampl
                     "ssm:GetParameter"
                 ],
                 "Resource": [
-                    "arn:aws:ssm:us-east-1:295744685835:parameter/GREETING",
-                    "arn:aws:ssm:us-east-1:295744685835:parameter/NAME"
+                    "arn:aws:ssm:us-east-1:123456789012:parameter/GREETING",
+                    "arn:aws:ssm:us-east-1:123456789012:parameter/NAME"
                 ]
             }
         ]
