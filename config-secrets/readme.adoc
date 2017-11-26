@@ -444,6 +444,239 @@ Open a shell to the pod to see the secrets:
 
 The above commands illustrate how to see the secret values via environment variables.
 
+== Configuration data and Secrets using AWS Parameter Store
+
+https://aws.amazon.com/ec2/systems-manager/[Amazon EC2 Systems Manager] eases the configuration and management of Amazon EC2 instances and associated resources. One of the features of Systems Manager is https://aws.amazon.com/ec2/systems-manager/parameter-store/[Parameter Store] that provides a centralized location to store, provide access control, and easily reference your configuration data, whether plain-text data such as database strings or secrets such as passwords, encrypted through https://aws.amazon.com/kms/[AWS Key Management Service] (KMS).
+
+KMS helps you encrypt your sensitive information and protect the security of your keys. Additionally, all calls to the parameter store are recorded with AWS CloudTrail so that they can be audited. Access to each parameter store secrets can be scoped with IAM.
+
+Parameter Store allows three types of configuration data to be stored:
+
+- String
+- List of string
+- Secure string
+
+This section will show how to create a secure string using AWS CLI and access it in a Pod.
+
+=== Create KMS Key
+
+. Create a new encryption key: https://console.aws.amazon.com/iam/home#/encryptionKeys/
+. Click on `Create key`. If you haven't used the KMS service before, click `Get Started`.
+. Specify the `Alias` as `k8s-key`
++
+image::aws-kms-create-key.png[]
++
+Click on `Next Step`.
+. Take the defaults for `Add Tags` and click on `Next Step`.
+. Select the IAM user(s) and roles that can administer this key through the KMS API
++
+image::aws-kms-key-admins.png[]
++
+. Select the IAM user(s) and roles that can use this key to encrypt and decrypt data from within applications. We'll use the IAM role that is assigned to the worker nodes in the Kubernetes cluster created by kops.
++
+image::aws-kms-key-usage-perms.png[]
++
+. Preview key policy:
+
+  {
+    "Id": "key-consolepolicy-3",
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "Enable IAM User Permissions",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "arn:aws:iam::<account-id>:root"
+          ]
+        },
+        "Action": "kms:*",
+        "Resource": "*"
+      },
+      {
+        "Sid": "Allow access for Key Administrators",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "arn:aws:iam::<account-id>:user/arun",
+            "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
+          ]
+        },
+        "Action": [
+          "kms:Create*",
+          "kms:Describe*",
+          "kms:Enable*",
+          "kms:List*",
+          "kms:Put*",
+          "kms:Update*",
+          "kms:Revoke*",
+          "kms:Disable*",
+          "kms:Get*",
+          "kms:Delete*",
+          "kms:TagResource",
+          "kms:UntagResource",
+          "kms:ScheduleKeyDeletion",
+          "kms:CancelKeyDeletion"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Sid": "Allow use of the key",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
+          ]
+        },
+        "Action": [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Sid": "Allow attachment of persistent resources",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
+          ]
+        },
+        "Action": [
+          "kms:CreateGrant",
+          "kms:ListGrants",
+          "kms:RevokeGrant"
+        ],
+        "Resource": "*",
+        "Condition": {
+          "Bool": {
+            "kms:GrantIsForAWSResource": true
+          }
+        }
+      }
+    ]
+  }
+
+. Click on `Finish`.
+. Select `IAM`, `Encryption Keys`, `k8s-key` and copy the ARN of the key.
+
+=== Update the IAM role
+
+For a Kubernetes cluster created by kops, EC2 worker nodes use an instance profile to allow the EC2 instances to access other AWS services. This role must be updated to allow the worker nodes to read the secrets from Parameter Store.
+
+In the IAM Console click `roles` and type `nodes` into the search box. Find the `nodes.example.cluster.k8s.local` role
+and click it. In the Permissions tab, expand the inline policy for `nodes.example.cluster.k8s.local` and click
+`Edit policy`. Add the `ssm:GetParameter` permission to the policy so the policy looks similar to the one below.
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            .
+            .
+            .
+            },
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "ssm:GetParameter"
+                ],
+                "Resource": [
+                    "arn:aws:ssm:us-east-1:<account-id>:parameter/GREETING",
+                    "arn:aws:ssm:us-east-1:<account-id>:parameter/NAME"
+                ]
+            }
+        ]
+    }
+
+=== Create secrets
+
+Only the value of the secure string parameter is encrypted. The name of the parameter, description, and other properties are not encrypted.
+
+. A secret in AWS Parameter is created as a secure string. Create a secure string:
++
+  $ aws ssm put-parameter \
+    --name GREETING \
+    --value Hello \
+    --type SecureString \
+    --key-id arn:aws:kms:us-east-1:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
+  {
+      "Version": 1
+  }
++
+This will create a secret in the Parameter Store using the KMS key.
++
+. Get the value of the created secret:
++
+```
+$ aws ssm get-parameter --name GREETING
+{
+    "Parameter": {
+        "Version": 1, 
+        "Type": "SecureString", 
+        "Name": "GREETING", 
+        "Value": "AQICAHghFIWYznvdUrX6qDhd5xLFHpoaQ5WL1EaHqsbkenfFEwHdqTpU8URwKMf2H9XmMyMgAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM0jZaUadELhmiCzj4AgEQgCBXVAZzfjac8P2AFrelnLaXb3z7ssZt2q/npxYAdJ9ABQ=="
+    }
+}
+```
++
+By default, the encrypted value of the secret is shown in the output.
++
+. Decrypted value of the secret can be obtained:
+
+  $ aws ssm get-parameter --name GREETING --with-decryption
+  {
+      "Parameter": {
+          "Version": 1, 
+          "Type": "SecureString", 
+          "Name": "GREETING", 
+          "Value": "Hello"
+      }
+  }
+
+. Create another secret:
+
+  $ aws ssm put-parameter \
+    --name NAME \
+    --value World \
+    --type SecureString \
+    --key-id arn:aws:kms:us-east-1:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
+  {
+      "Version": 1
+  }
++
+These two secrets will be consumed in the Pod.
+
+=== Consume secrets in a Pod
+
+The directory `images/parameter-store-kubernetes` contains a Java application that reads secrets from AWS Parameter Store. This application is then packaged as a Pod and deployed in the cluster.
+
+The Pod configuration is shown:
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: pod-parameter-store
+  spec:
+    containers:
+    - name: pod-parameter-store
+      image: arungupta/parameter-store-kubernetes:latest
+    restartPolicy: Never
+
+Create the Pod:
+
+  $ kubectl apply -f templates/pod-parameter-store.yaml
+  pod "pod-parameter-store" configured
+
+Check the logs of the Pod:
+
+  $ kubectl logs pod-parameter-store
+  parameter store: HelloWorld
+
+This shows that the Java application has been able to read both the NAME and GREETING secrets from AWS Parameter Store.
+
 == Secrets using Vault
 
 https://www.vaultproject.io/[Hashicorp Vault] is a tool for managing secrets. It secures, stores and tightly controls access to tokens, passwords, certificates, API keys and other secrets.
@@ -747,236 +980,4 @@ More details about the image is at https://github.com/arun-gupta/vault-kubernete
   Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
   vault: HelloWorld
 
-== Configuration data and Secrets using AWS Parameter Store
-
-https://aws.amazon.com/ec2/systems-manager/[Amazon EC2 Systems Manager] eases the configuration and management of Amazon EC2 instances and associated resources. One of the features of Systems Manager is https://aws.amazon.com/ec2/systems-manager/parameter-store/[Parameter Store] that provides a centralized location to store, provide access control, and easily reference your configuration data, whether plain-text data such as database strings or secrets such as passwords, encrypted through https://aws.amazon.com/kms/[AWS Key Management Service] (KMS).
-
-KMS helps you encrypt your sensitive information and protect the security of your keys. Additionally, all calls to the parameter store are recorded with AWS CloudTrail so that they can be audited. Access to each parameter store secrets can be scoped with IAM.
-
-Parameter Store allows three types of configuration data to be stored:
-
-- String
-- List of string
-- Secure string
-
-This section will show how to create a secure string using AWS CLI and access it in a Pod.
-
-=== Create KMS Key
-
-. Create a new encryption key: https://console.aws.amazon.com/iam/home#/encryptionKeys/
-. Click on `Create key`. If you haven't used the KMS service before, click `Get Started`.
-. Specify the `Alias` as `k8s-key`
-+
-image::aws-kms-create-key.png[]
-+
-Click on `Next Step`.
-. Take the defaults for `Add Tags` and click on `Next Step`.
-. Select the IAM user(s) and roles that can administer this key through the KMS API
-+
-image::aws-kms-key-admins.png[]
-+
-. Select the IAM user(s) and roles that can use this key to encrypt and decrypt data from within applications. We'll use the IAM role that is assigned to the worker nodes in the Kubernetes cluster created by kops.
-+
-image::aws-kms-key-usage-perms.png[]
-+
-. Preview key policy:
-
-  {
-    "Id": "key-consolepolicy-3",
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Sid": "Enable IAM User Permissions",
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "arn:aws:iam::<account-id>:root"
-          ]
-        },
-        "Action": "kms:*",
-        "Resource": "*"
-      },
-      {
-        "Sid": "Allow access for Key Administrators",
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "arn:aws:iam::<account-id>:user/arun",
-            "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
-          ]
-        },
-        "Action": [
-          "kms:Create*",
-          "kms:Describe*",
-          "kms:Enable*",
-          "kms:List*",
-          "kms:Put*",
-          "kms:Update*",
-          "kms:Revoke*",
-          "kms:Disable*",
-          "kms:Get*",
-          "kms:Delete*",
-          "kms:TagResource",
-          "kms:UntagResource",
-          "kms:ScheduleKeyDeletion",
-          "kms:CancelKeyDeletion"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Sid": "Allow use of the key",
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
-          ]
-        },
-        "Action": [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:ReEncrypt*",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Sid": "Allow attachment of persistent resources",
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
-          ]
-        },
-        "Action": [
-          "kms:CreateGrant",
-          "kms:ListGrants",
-          "kms:RevokeGrant"
-        ],
-        "Resource": "*",
-        "Condition": {
-          "Bool": {
-            "kms:GrantIsForAWSResource": true
-          }
-        }
-      }
-    ]
-  }
-
-. Click on `Finish`.
-. Select `IAM`, `Encryption Keys`, `k8s-key` and copy the ARN of the key.
-
-=== Update the IAM role
-
-For a Kubernetes cluster created by kops, EC2 worker nodes use an instance profile to allow the EC2 instances to access other AWS services. This role must be updated to allow the worker nodes to read the secrets from Parameter Store.
-
-In the IAM Console click `roles` and type `nodes` into the search box. Find the `nodes.example.cluster.k8s.local` role
-and click it. In the Permissions tab, expand the inline policy for `nodes.example.cluster.k8s.local` and click
-`Edit policy`. Add the `ssm:GetParameter` permission to the policy so the policy looks similar to the one below.
-
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            .
-            .
-            .
-            },
-            {
-                "Effect": "Allow",
-                "Action": [
-                    "ssm:GetParameter"
-                ],
-                "Resource": [
-                    "arn:aws:ssm:us-east-1:<account-id>:parameter/GREETING",
-                    "arn:aws:ssm:us-east-1:<account-id>:parameter/NAME"
-                ]
-            }
-        ]
-    }
-
-=== Create secrets
-
-Only the value of the secure string parameter is encrypted. The name of the parameter, description, and other properties are not encrypted.
-
-. A secret in AWS Parameter is created as a secure string. Create a secure string:
-+
-  $ aws ssm put-parameter \
-    --name GREETING \
-    --value Hello \
-    --type SecureString \
-    --key-id arn:aws:kms:us-east-1:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
-  {
-      "Version": 1
-  }
-+
-This will create a secret in the Parameter Store using the KMS key.
-+
-. Get the value of the created secret:
-+
-```
-$ aws ssm get-parameter --name GREETING
-{
-    "Parameter": {
-        "Version": 1, 
-        "Type": "SecureString", 
-        "Name": "GREETING", 
-        "Value": "AQICAHghFIWYznvdUrX6qDhd5xLFHpoaQ5WL1EaHqsbkenfFEwHdqTpU8URwKMf2H9XmMyMgAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM0jZaUadELhmiCzj4AgEQgCBXVAZzfjac8P2AFrelnLaXb3z7ssZt2q/npxYAdJ9ABQ=="
-    }
-}
-```
-+
-By default, the encrypted value of the secret is shown in the output.
-+
-. Decrypted value of the secret can be obtained:
-
-  $ aws ssm get-parameter --name GREETING --with-decryption
-  {
-      "Parameter": {
-          "Version": 1, 
-          "Type": "SecureString", 
-          "Name": "GREETING", 
-          "Value": "Hello"
-      }
-  }
-
-. Create another secret:
-
-  $ aws ssm put-parameter \
-    --name NAME \
-    --value World \
-    --type SecureString \
-    --key-id arn:aws:kms:us-east-1:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
-  {
-      "Version": 1
-  }
-+
-These two secrets will be consumed in the Pod.
-
-=== Consume secrets in a Pod
-
-The directory `images/parameter-store-kubernetes` contains a Java application that reads secrets from AWS Parameter Store. This application is then packaged as a Pod and deployed in the cluster.
-
-The Pod configuration is shown:
-
-  apiVersion: v1
-  kind: Pod
-  metadata:
-    name: pod-parameter-store
-  spec:
-    containers:
-    - name: pod-parameter-store
-      image: arungupta/parameter-store-kubernetes:latest
-    restartPolicy: Never
-
-Create the Pod:
-
-  $ kubectl apply -f templates/pod-parameter-store.yaml
-  pod "pod-parameter-store" configured
-
-Check the logs of the Pod:
-
-  $ kubectl logs pod-parameter-store
-  parameter store: HelloWorld
-
-This shows that the Java application has been able to read both the NAME and GREETING secrets from AWS Parameter Store.
 
