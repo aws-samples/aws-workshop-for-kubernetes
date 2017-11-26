@@ -875,25 +875,25 @@ In the IAM Console click `roles` and type `nodes` into the search box. Find the 
 and click it. In the Permissions tab, expand the inline policy for `nodes.example.cluster.k8s.local` and click
 `Edit policy`. Add the `ssm:GetParameter` permission to the policy so the policy looks similar to the one below.
 
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        .
-        .
-        .
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ssm:GetParameter"
-            ],
-            "Resource": [
-                "arn:aws:ssm:us-east-1:295744685835:parameter/GREETING",
-                "arn:aws:ssm:us-east-1:295744685835:parameter/NAME"
-            ]
-        }
-    ]
-}
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            .
+            .
+            .
+            },
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "ssm:GetParameter"
+                ],
+                "Resource": [
+                    "arn:aws:ssm:us-east-1:295744685835:parameter/GREETING",
+                    "arn:aws:ssm:us-east-1:295744685835:parameter/NAME"
+                ]
+            }
+        ]
+    }
 
 === Create secrets
 
