@@ -764,7 +764,7 @@ This section will show how to create a secure string using AWS CLI and access it
 === Create KMS Key
 
 . Create a new encryption key: https://console.aws.amazon.com/iam/home#/encryptionKeys/
-. Click on `Create key`
+. Click on `Create key`. If you haven't used the KMS service before, click `Get Started`.
 . Specify the `Alias` as `k8s-key`
 +
 image::aws-kms-create-key.png[]
@@ -790,7 +790,7 @@ image::aws-kms-key-usage-perms.png[]
         "Effect": "Allow",
         "Principal": {
           "AWS": [
-            "arn:aws:iam::091144949931:root"
+            "arn:aws:iam::123456789012:root"
           ]
         },
         "Action": "kms:*",
@@ -801,8 +801,8 @@ image::aws-kms-key-usage-perms.png[]
         "Effect": "Allow",
         "Principal": {
           "AWS": [
-            "arn:aws:iam::091144949931:user/arun",
-            "arn:aws:iam::091144949931:role/nodes.example.cluster.k8s.local"
+            "arn:aws:iam::123456789012:user/arun",
+            "arn:aws:iam::123456789012:role/nodes.example.cluster.k8s.local"
           ]
         },
         "Action": [
@@ -828,7 +828,7 @@ image::aws-kms-key-usage-perms.png[]
         "Effect": "Allow",
         "Principal": {
           "AWS": [
-            "arn:aws:iam::091144949931:role/nodes.example.cluster.k8s.local"
+            "arn:aws:iam::123456789012:role/nodes.example.cluster.k8s.local"
           ]
         },
         "Action": [
@@ -845,7 +845,7 @@ image::aws-kms-key-usage-perms.png[]
         "Effect": "Allow",
         "Principal": {
           "AWS": [
-            "arn:aws:iam::091144949931:role/nodes.example.cluster.k8s.local"
+            "arn:aws:iam::123456789012:role/nodes.example.cluster.k8s.local"
           ]
         },
         "Action": [
@@ -866,6 +866,35 @@ image::aws-kms-key-usage-perms.png[]
 . Click on `Finish`.
 . Select `IAM`, `Encryption Keys`, `k8s-key` and copy the ARN of the key.
 
+=== Update the IAM role
+
+The Kubernetes EC2 worker nodes use an instance profile to allow the EC2 instances to access other AWS services. This role
+must be updated to allow the worker nodes to read the secrets from Parameter Store.
+
+In the IAM Console click `roles` and type `nodes` into the search box. Find the `nodes.example.cluster.k8s.local` role
+and click it. In the Permissions tab, expand the inline policy for `nodes.example.cluster.k8s.local` and click
+`Edit policy`. Add the `ssm:GetParameter` permission to the policy so the policy looks similar to the one below.
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            .
+            .
+            .
+            },
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "ssm:GetParameter"
+                ],
+                "Resource": [
+                    "arn:aws:ssm:us-east-1:123456789012:parameter/GREETING",
+                    "arn:aws:ssm:us-east-1:123456789012:parameter/NAME"
+                ]
+            }
+        ]
+    }
+
 === Create secrets
 
 Only the value of the secure string parameter is encrypted. The name of the parameter, description, and other properties are not encrypted.
@@ -876,7 +905,7 @@ Only the value of the secure string parameter is encrypted. The name of the para
     --name GREETING \
     --value Hello \
     --type SecureString \
-    --key-id arn:aws:kms:us-east-1:091144949931:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
+    --key-id arn:aws:kms:us-east-1:123456789012:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
   {
       "Version": 1
   }
@@ -917,7 +946,7 @@ By default, the encrypted value of the secret is shown in the output.
     --name NAME \
     --value World \
     --type SecureString \
-    --key-id arn:aws:kms:us-east-1:091144949931:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
+    --key-id arn:aws:kms:us-east-1:123456789012:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
   {
       "Version": 1
   }
@@ -947,24 +976,8 @@ Create the Pod:
 
 Check the logs of the Pod:
 
-  Exception in thread "main" com.amazonaws.services.simplesystemsmanagement.model.AWSSimpleSystemsManagementException: User: arn:aws:sts::091144949931:assumed-role/nodes.example.cluster.k8s.local/i-05101c6ca462115a9 is not authorized to perform: ssm:GetParameter on resource: arn:aws:ssm:us-east-1:091144949931:parameter/GREETING (Service: AWSSimpleSystemsManagement; Status Code: 400; Error Code: AccessDeniedException; Request ID: d8a3e20a-d17f-11e7-a11d-5323541cf7d1)
-  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.handleErrorResponse(AmazonHttpClient.java:1639)
-  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.executeOneRequest(AmazonHttpClient.java:1304)
-  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.executeHelper(AmazonHttpClient.java:1056)
-  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.doExecute(AmazonHttpClient.java:743)
-  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.executeWithTimer(AmazonHttpClient.java:717)
-  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.execute(AmazonHttpClient.java:699)
-  at com.amazonaws.http.AmazonHttpClient$RequestExecutor.access$500(AmazonHttpClient.java:667)
-  at com.amazonaws.http.AmazonHttpClient$RequestExecutionBuilderImpl.execute(AmazonHttpClient.java:649)
-  at com.amazonaws.http.AmazonHttpClient.execute(AmazonHttpClient.java:513)
-  at com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient.doInvoke(AWSSimpleSystemsManagementClient.java:6495)
-  at com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient.invoke(AWSSimpleSystemsManagementClient.java:6471)
-  at com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient.executeGetParameter(AWSSimpleSystemsManagementClient.java:3955)
-  at com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClient.getParameter(AWSSimpleSystemsManagementClient.java:3931)
-  at org.examples.java.App.getSecret(App.java:25)
-  at org.examples.java.App.main(App.java:16)
+  $ kubectl logs pod-parameter-store
+  parameter store: HelloWorld
 
-This should show that the Java application has been able to read the secrets correctly. This is tracked as https://github.com/aws-samples/aws-workshop-for-kubernetes/issues/250.
-
-
+This shows that the Java application has been able to read both the NAME and GREETING secrets from AWS Parameter Store.
 
