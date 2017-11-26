@@ -868,8 +868,7 @@ image::aws-kms-key-usage-perms.png[]
 
 === Update the IAM role
 
-The Kubernetes EC2 worker nodes use an instance profile to allow the EC2 instances to access other AWS services. This role
-must be updated to allow the worker nodes to read the secrets from Parameter Store.
+For a Kubernetes cluster created by kops, EC2 worker nodes use an instance profile to allow the EC2 instances to access other AWS services. This role must be updated to allow the worker nodes to read the secrets from Parameter Store.
 
 In the IAM Console click `roles` and type `nodes` into the search box. Find the `nodes.example.cluster.k8s.local` role
 and click it. In the Permissions tab, expand the inline policy for `nodes.example.cluster.k8s.local` and click
