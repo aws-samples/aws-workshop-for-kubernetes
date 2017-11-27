@@ -1,0 +1,44 @@
+= Defining a Network Policy
+:toc:
+:imagesdir: ../images
+
+
+== What is Network Policy?
+
+Kubernetes provides an API that allows you to specify which pods can communicate with other pods. Policy is defined and described in YAML files and then passed to a “network policy controller” by Kubernetes.
+
+You can use either Weave Net or Calico as a Kubernetes plugin add-on. Both of these solutions allow you to specify a network policy and then enforce the rules while your services are running.
+
+== Calico
+
+Calico is an open-source plugin that allows for fine-grained network policy enforcement, ensuring that traffic within your Kubernetes cluster can only flow in the direction that you specify. As an example, if we take a scenario where Kubernetes namespaces are used opt enforce boundaries between products, or even enforce boundaries between different environments (e.g. development vs production), network policies can be configured to ensure no unauthorized network traffic is allowed beyond its boundary. Think of it as being similar to applying Security Groups in the AWS world.
+
+
+== Weave Net
+
+Weave Net provides a program called the Weave NPC (network policy controller). The NPC runs once on every host, and it routes the traffic according to the rules set up in the YAML file. Weave Net does this by talking to iptables which is a feature of Linux.
+
+=== Enforcing IPtables rules
+
+At the top level forward chain, a rule is injected that checks whether a WEAVE-NPC policy applies, and if it doesn’t, then the packet is dropped. If is does, and if there is an established connection, then the packet is accepted.
+
+Only packets with newly opened connections are checked. Therefore, if the packet is already on an established connection, it is accepted, and the other chains are checked.
+
+```
+FORWARD chain:
+-o weave -j WEAVE-NPC
+-o weave -j DROP
+
+WEAVE_NPC chain:
+-m state --state RELATED,ESTABLISHED -j ACCEPT
+-m state --state NEW -j WEAVE-NPC-DEFAULT
+-m state --state NEW -j WEAVE-NPC-INGRESS
+```
+
+=== Network Filtering Flow in Weave Net
+
+IPtables rules are updated when the policy’s ‘ipsets’ are changed on every coming and going pod.
+
+Weave begins with the source address on the network, which goes over a linux bridge. In the course of traversing that bridge, the connection is checked against the IPtables rules.
+
+And if you're using Weave Cloud you can visualize your container networks and services all from a single dashboard and also configure monitoring to alert you about any suspicious network activity.
