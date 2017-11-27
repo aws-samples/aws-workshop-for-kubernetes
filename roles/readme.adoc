@@ -125,9 +125,9 @@ It shows an output like:
 
 Note down the ARN from this output.
 
-Edit the `templates/pod-role-trust-policy.json` file, replace `{{NodeIamRoleARN}}` with the IAM Role ARN obtained from the previous step.
+Edit the `templates/pod-role-trust-policy.json` file, replace `{{NodeIAMRoleARN}}` with the IAM Role ARN obtained from the previous step.
 
-We will first create a role with no permissions.  By configuring the Trusted Policy of the role, we are allowing kube2iam (via the worker node IAM Instance Profile Role) to assume the pod role.  Make note of the role ARN from the response:
+We will first create a role with no permissions. By configuring the Trusted Policy of the role, we are allowing kube2iam (via the worker node IAM Instance Profile Role) to assume the pod role.  Make note of the role ARN from the response:
 
   $ aws iam create-role \
     --role-name MyPodRole \
@@ -213,20 +213,22 @@ Let's update the role to grant S3 permissions:
 
   $ aws iam attach-role-policy --role-name MyPodRole --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 
-Recreate the pod, log into it, then try to access S3 again.  We should now be authorized!
+Recreate the pod and then try to access S3 again.
 
-  $ kubectl create -f templates/pod-with-kube2iam.yaml
-  pod "aws-cli" created
+```
+$ kubectl create -f templates/pod-with-kube2iam.yaml
+pod "aws-cli" created
 
-  $ kubectl exec -it aws-cli aws s3 ls
+$ kubectl exec -it aws-cli aws s3 ls
+```
 
-The output should show the list of S3 buckets.
+We should now be authorized and the output should show the list of S3 buckets in this IAM account.
 
 === Additional notes
 
 As kube2iam caches STS tokens for 15 minutes, if you make any changes to a role and need it to take effect immediately, you will need to restart the pod.
 
-To govern what roles a pod can assume, you can use the `iam.amazonaws.com/allowed-roles` namespace annotation. Edit the `templates/namespace-role-annotation.yaml` file, replace `{{NodeIamRoleARN}}` with the IAM Role ARN obtained from the previous step and run the following command:
+To govern what roles a pod can assume, you can use the `iam.amazonaws.com/allowed-roles` namespace annotation. Edit the `templates/namespace-role-annotation.yaml` file, replace `{{NodeIAMRoleARN}}` with the IAM Role ARN obtained from the previous step and run the following command:
 
     $ kubectl apply -f templates/namespace-role-annotation.yaml
     namespace "default" configured
