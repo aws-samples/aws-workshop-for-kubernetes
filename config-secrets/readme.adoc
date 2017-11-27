@@ -879,7 +879,7 @@ This is the address of API servers currently configured. The first one is for th
 
   $ kubectl get secrets default-token-kvjn9 -o jsonpath="{.data['ca\.crt']}" | base64 -D > ~/.kube/kops.crt
 
-. Now that all the required values are available, configure the Kubernetes auth backend
+. Now that all the required values are available, configure the Kubernetes auth backend.
 .. Mount the Kubernetes auth backend:
 
   $ vault auth-enable kubernetes
@@ -943,10 +943,10 @@ Let's deploy a Pod that is reading secrets from the Vault server. Here is the se
 
 - Pod needs to know the address of Vault server. This is passed as `VAULT_ADDR` environment variable.
 - Pod reads the Kubernetes service account token
-- Service account token is passed to Vault to retrieve a client token
-- Client token is used to authenticate and read secrets from Vault.
+- Service account token is passed to Vault server to retrieve a client token
+- Client token is used to authenticate and read secrets from Vault
 
-More details about the image is at https://github.com/arun-gupta/vault-kubernetes.
+More details about the Docker image used in the Pod is at https://github.com/arun-gupta/vault-kubernetes.
 
 . The Pod configuration file looks like:
 
@@ -974,7 +974,7 @@ More details about the image is at https://github.com/arun-gupta/vault-kubernete
   NAME               READY     STATUS      RESTARTS   AGE
   vault-kubernetes   0/1       Completed   0          20s
 
-. Get logs from the complete Pod:
+. Get logs from the completed Pod:
 
   $ kubectl logs vault-kubernetes
   Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
