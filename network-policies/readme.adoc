@@ -11,17 +11,17 @@ You can use either Weave Net or Calico as a Kubernetes plugin add-on. Both of th
 
 == Calico
 
-https://www.projectcalico.org [Calico] is an open-source plugin that allows for fine-grained network policy enforcement, ensuring that traffic within your Kubernetes cluster can only flow in the direction that you specify. As an example, if we take a scenario where Kubernetes namespaces are used opt enforce boundaries between products, or even enforce boundaries between different environments (e.g. development vs production), network policies can be configured to ensure no unauthorized network traffic is allowed beyond its boundary. Think of it as being similar to applying Security Groups in the AWS world.
+https://www.projectcalico.org[Calico] is an open-source plugin that allows for fine-grained network policy enforcement, ensuring that traffic within your Kubernetes cluster can only flow in the direction that you specify. As an example, if we take a scenario where Kubernetes namespaces are used opt enforce boundaries between products, or even enforce boundaries between different environments (e.g. development vs production), network policies can be configured to ensure no unauthorized network traffic is allowed beyond its boundary. Think of it as being similar to applying Security Groups in the AWS world.
 
 | link:calico[Define Network Policy with Calico]
 
 
 == Weave Net
 
-https://www.weave.works/docs/net/latest/kubernetes/kube-addon/ [Weave Net] provides a program called the Weave NPC (network policy controller). The NPC runs once on every host, and routes the traffic according to the rules set up in the YAML file. Weave Net does this by talking to IPtables which is a feature of Linux.
+https://www.weave.works/docs/net/latest/kubernetes/kube-addon/[Weave Net] provides a program called the Weave NPC (network policy controller). The NPC runs once on every host, and routes the traffic according to the rules set up in the YAML file. Weave Net does this by talking to IPtables which is a feature of Linux.
 
 At the top level forward chain, a rule is injected that checks whether a WEAVE-NPC policy applies, and if it doesn’t, then the packet is dropped. If is does, and if there is an established connection, then the packet is accepted. Only packets with newly opened connections are checked. Therefore, if the packet is already on an established connection, it is accepted, and the other chains are checked. IPtables rules are updated when the policy’s ‘ipsets’ are changed on every coming and going pod. Weave begins with the source address on the network, which goes over a linux bridge. In the course of traversing that bridge, the connection is checked against the IPtables rules.
 
-If you're using https://www.weave.works/docs/cloud/latest/concepts/network-policy/ [Weave Cloud] you can visualize your container networks and services all from a single dashboard and also configure monitoring to alert you about any suspicious network activity.
+If you're using https://www.weave.works/docs/cloud/latest/concepts/network-policy/[Weave Cloud] you can visualize your container networks and services all from a single dashboard and also configure monitoring to alert you about any suspicious network activity.
 
 | link:weave-net[Define Network Policy with Weave Net]
