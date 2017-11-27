@@ -1,7 +1,7 @@
 = Kubernetes - Enforcing Network Security Policies with Calico
 :toc:
 
-https://www.projectcalico.org[Calico] is an open-source plugin that allows for fine-grained network policy enforcement, ensuring that traffic within your Kubernetes cluster can only flow in the direction that you specify.  As an example, if we take a scenario where Kubernetes namespaces are used opt enforce boundaries between products, or even enforce boundaries between different environments (e.g. development vs production), network policies can be configured to ensure no unauthorized network traffic is allowed beyond its boundary.  Think of it as being similar to applying Security Groups in the AWS world.
+https://www.projectcalico.org[Calico] is an open-source plugin that allows for fine-grained network policy enforcement, ensuring that traffic within your Kubernetes cluster can only flow in the direction that you specify.  As an example, if we take a scenario where Kubernetes namespaces are used to enforce boundaries between products, or even enforce boundaries between different environments (e.g. development vs production), network policies can be configured to ensure no unauthorized network traffic is allowed beyond its boundary.  Think of it as being similar to applying Security Groups in the AWS world.
 
 This exercise will walk you through configuring Calico and applying a Network Policy.
 
