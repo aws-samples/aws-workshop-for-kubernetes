@@ -225,7 +225,7 @@ We will create a namespace, deploy some test pods into it, and see the before an
   $ kubectl expose --namespace=ns-1 deployment http-echo --port=80
   service "http-echo" exposed
 +
-Monitor the logs of the deployed container by querying the name of the pod defined with the label `run-http-echo`, then passing it to the `kubectl logs` command:
+Monitor the logs of the deployed container by querying the name of the pod defined with the label `run=http-echo`, then passing it to the `kubectl logs` command:
 +
 ```
 kubectl get po \
@@ -297,7 +297,7 @@ clusterrolebinding "k8s-ec2-srcdst" configured
 deployment "k8s-ec2-srcdst" created
 ```
 
-After this, wait for the calido pods to be updated via:
+After this, wait for the calico pods to be updated via:
 ```
 $ kubectl rollout status ds/calico-node -n kube-system
 Waiting for rollout to finish: 0 out of 3 new pods have been updated...
