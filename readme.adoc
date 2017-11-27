@@ -54,6 +54,7 @@ as you move through the workshop.
 | link:roles[Managing IAM roles with kube2iam]
 | CI/CD Pipeline
 | link:ingress-controllers[ALB Ingress Controller]
+| link:ingress-controllers[Kube AWS Ingress Controller and Skipper]
 | link:ingress-controllers[Nginx Ingress Controller]
 | link:service-mesh[Service Mesh Integration using Linkerd and Istio]
 |===
