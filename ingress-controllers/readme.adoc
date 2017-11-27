@@ -74,7 +74,7 @@ We'll deploy this Ingress controller and use it to route traffic to our Pods.
 === IAM role
 
 You should already have an IAM role assigned to your Kubernetes worker nodes. The role ARN will be similar to
-`arn:aws:iam::123456789012:role/nodes.cluster.k8s.local`. Check the role in the IAM Console and make sure it
+`arn:aws:iam::<account-id>:role/nodes.cluster.k8s.local`. Check the role in the IAM Console and make sure it
 contains the following for the nodes.cluster.k8s.local inline policy:
 
 ```

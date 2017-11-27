@@ -47,10 +47,10 @@ image::images/iamrole.png[iamrole, 800]
 
 	{
 		"repository": {
-			"repositoryArn": "arn:aws:ecr:ap-southeast-1:123456789012:repository/xraydaemon",
-			"registryId": "123456789012",
+			"repositoryArn": "arn:aws:ecr:ap-southeast-1:<account-id>:repository/xraydaemon",
+			"registryId": "<account-id>",
 			"repositoryName": "xraydaemon",
-			"repositoryUri": "123456789012.dkr.ecr.ap-southeast-1.amazonaws.com/xraydaemon",
+			"repositoryUri": "<account-id>.dkr.ecr.ap-southeast-1.amazonaws.com/xraydaemon",
 			"createdAt": 1510724710.0
 		}
 	}

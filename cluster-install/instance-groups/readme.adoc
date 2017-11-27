@@ -36,7 +36,7 @@ $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.
 {
     "AutoScalingGroups": [
         {
-            "AutoScalingGroupARN": "arn:aws:autoscaling:us-east-1:123456789012:autoScalingGroup:070e8c67-c3fb-4a2d-a7b2-9d9af84fc876:autoScalingGroupName/nodes.cluster.k8s.local",
+            "AutoScalingGroupARN": "arn:aws:autoscaling:us-east-1:<account-id>:autoScalingGroup:070e8c67-c3fb-4a2d-a7b2-9d9af84fc876:autoScalingGroupName/nodes.cluster.k8s.local",
             .
             .
             "AutoScalingGroupName": "nodes.cluster.k8s.local",
@@ -122,7 +122,7 @@ $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.
 {
     "AutoScalingGroups": [
         {
-            "AutoScalingGroupARN": "arn:aws:autoscaling:us-east-1:123456789012:autoScalingGroup:070e8c67-c3fb-4a2d-a7b2-9d9af84fc876:autoScalingGroupName/nodes.cluster.k8s.local",
+            "AutoScalingGroupARN": "arn:aws:autoscaling:us-east-1:<account-id>:autoScalingGroup:070e8c67-c3fb-4a2d-a7b2-9d9af84fc876:autoScalingGroupName/nodes.cluster.k8s.local",
             .
             .
             "AutoScalingGroupName": "nodes.cluster.k8s.local",

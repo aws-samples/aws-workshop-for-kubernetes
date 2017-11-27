@@ -22,7 +22,7 @@ $ aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names nodes.
 {
     "AutoScalingGroups": [
         {
-            "AutoScalingGroupARN": "arn:aws:autoscaling:us-east-1:123456789012:autoScalingGroup:xxx:autoScalingGroupName/nodes.cluster.k8s.local",
+            "AutoScalingGroupARN": "arn:aws:autoscaling:us-east-1:<account-id>:autoScalingGroup:xxx:autoScalingGroupName/nodes.cluster.k8s.local",
             .
             .
             "MaxSize": 10,
