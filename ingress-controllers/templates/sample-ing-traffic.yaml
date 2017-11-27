@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: "demo-traffic-switching"
+  labels:
+    application: demo
+  annotations:
+    zalando.org/backend-weights: |
+      {"demo-app-v1": 80, "demo-app-v2": 20}
+spec:
+  rules:
+  - host: "<HOSTNAME>"
+    http:
+      paths:
+      - backend:
+          serviceName: "demo-app-v1"
+          servicePort: 80
+      - backend:
+          serviceName: "demo-app-v2"
+          servicePort: 80

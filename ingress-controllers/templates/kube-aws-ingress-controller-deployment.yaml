@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-ingress-aws-controller
+  namespace: kube-system
+  labels:
+    component: ingress
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: ingress
+    spec:
+      containers:
+      - name: kube-ingress-aws-controller
+        image: registry.opensource.zalan.do/teapot/kube-ingress-aws-controller:latest
+        env:
+        - name: AWS_REGION
+          value: <REGION>
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 25Mi
