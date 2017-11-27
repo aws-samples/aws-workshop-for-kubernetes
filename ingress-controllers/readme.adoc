@@ -241,7 +241,7 @@ Cloud Labels are required to make Kube AWS Ingress Controller work,
 because it has to find the AWS Application Load Balancers it manages
 by AWS Tags, which are called cloud Labels in Kops.
 
-First you set some environment variables to choose AZs to deploy to,
+If not already set, you have to set some environment variables to choose AZs to deploy to,
 your S3 Bucket name for Kops configuration and you Kops cluster name:
 
 
