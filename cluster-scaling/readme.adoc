@@ -224,7 +224,7 @@ You can find the name of nodes ASG using this command
       "master-eu-central-1a.masters.cluster.k8s.local", 
       "master-eu-central-1b.masters.cluster.k8s.local", 
       "master-eu-central-1c.masters.cluster.k8s.local", 
-      "nodes.cluster.k8s.local"
+      "nodes.example.cluster.k8s.local"
   ]
 
 The last value in this output is the name of the nodes ASG. If the default cluster name of `example.cluster.k8s.local` was used to create the cluster, then there is no need to make any changes to the configuration file.
@@ -259,7 +259,7 @@ I1029 22:50:23.324479       1 leaderelection.go:204] successfully renewed lease 
 
 To validate that the `cluster-autoscaler` is properly working you can use the `aws` CLI to request the current `DesiredCapacity` of your ASG with
 
-  export ASG_NAME=nodes.cluster.k8s.local
+  export ASG_NAME=nodes.example.cluster.k8s.local
   aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names=$ASG_NAME --query 'AutoScalingGroups[0].DesiredCapacity'
 
 You should see a result of 5, or whatever was the initial size of your cluster.
