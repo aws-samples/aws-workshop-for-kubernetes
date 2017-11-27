@@ -13,7 +13,7 @@
         "Sid": "",
         "Effect": "Allow",
         "Principal": {
-          "AWS": "arn:aws:iam::091144949931:role/nodes.cluster.k8s.local"
+          "AWS": "{{NodeIAMRoleARN}}"
         },
         "Action": "sts:AssumeRole"
       }
