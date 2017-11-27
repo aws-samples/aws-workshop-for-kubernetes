@@ -147,7 +147,7 @@ NGINX container requires fairly low memory and CPU. And so these request and lim
 
 The max amount of memory allocated for the WildFly container in this pod is restricted to 200MB. Let's create this Pod:
 
-	$ kubectl apply -f templates/pod-resources2.yaml
+	$ kubectl apply -f templates/pod-resources1.yaml
 	pod "wildfly-pod" created
 
 Watch the status of the Pod:
@@ -169,7 +169,7 @@ Watch the status of the Pod:
 
 In `templates/pod-resources2.yaml`, change the value of `spec.containers[].resources.limits.memory` to `300Mi`. Delete the existing Pod, and create a new one:
 
-	$ kubectl delete -f templates/pod-resources2.yaml
+	$ kubectl delete -f templates/pod-resources1.yaml
 	pod "wildfly-pod" deleted
 	$ kubectl apply -f templates/pod-resources2.yaml
 	pod "wildfly-pod" created
