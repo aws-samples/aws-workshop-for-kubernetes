@@ -1,0 +1,21 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: demo-app-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        application: demo
+        version: v1
+    spec:
+      containers:
+      - name: skipper-demo
+        image: registry.opensource.zalan.do/pathfinder/skipper:latest
+        args:
+          - "skipper"
+          - "-inline-routes"
+          - "* -> inlineContent(\"<body style='color: green; background-color: white;'><h1>Hello!</h1>\") -> <shunt>"
+        ports:
+        - containerPort: 9090

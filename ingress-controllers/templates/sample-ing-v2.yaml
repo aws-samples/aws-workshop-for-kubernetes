@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: "demo-feature-toggle"
+  labels:
+    application: demo
+  annotations:
+    zalando.org/skipper-predicate: QueryParam("version", "^v2$")
+    zalando.org/skipper-filter: ratelimit(2, "1m")
+spec:
+  rules:
+  - host: "<HOSTNAME>"
+    http:
+      paths:
+      - backend:
+          serviceName: "demo-app-v1"
+          servicePort: 80
