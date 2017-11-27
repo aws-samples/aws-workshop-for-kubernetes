@@ -50,6 +50,7 @@ as you move through the workshop.
 
 | link:statefulsets[StatefulSets with EBS]
 | link:calico[Network policies with Calico]
+| link:weavenet[Network policies with Weave Net]
 | link:coredns[Using CoreDNS for Service Discovery]
 | link:roles[Managing IAM roles with kube2iam]
 | CI/CD Pipeline
