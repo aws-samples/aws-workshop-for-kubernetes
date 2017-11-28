@@ -1,5 +1,7 @@
 = Application tracing
 :toc:
+:linkcss:
+:imagesdir: ../images
 
 This section will explain how to perform distribute tracing on applications deployed on Kubernetes.
 

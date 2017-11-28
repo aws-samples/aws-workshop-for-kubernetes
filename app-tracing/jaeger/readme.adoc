@@ -1,5 +1,7 @@
 = Application tracing using Jaeger
 :toc:
+:linkcss:
+:imagesdir: ../images
 
 This section will explain how to use http://jaeger.readthedocs.io/en/latest/[Jaeger] to perform distribute tracing on applications deployed on Kubernetes.
 Jaeger, inspired by Dapper and OpenZipkin, is a distributed tracing system released as open source by Uber Technologies.
