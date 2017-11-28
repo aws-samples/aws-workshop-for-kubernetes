@@ -7,4 +7,4 @@ This section will explain how to perform distribute tracing on applications depl
 
 We will cover the following tracing frameworks:
 
-    link:jaeger[Jaeger]
+* link:jaeger[Jaeger]
