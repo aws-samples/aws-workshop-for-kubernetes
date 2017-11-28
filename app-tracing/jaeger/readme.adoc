@@ -19,7 +19,7 @@ In September 2017, Jaeger became a member of the link:https://www.cncf.io/[CNCF]
 
 A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
 
-We will use the Istio service mesh sample application, so follow these steps to link:../../service-mesh#install-istio[install istio] and link:../../service-mesh#deploy-the-sample-application[deploy the sample application]
+We will use the Istio service mesh sample application, so follow these steps to link:../../service-mesh#install-istio[install istio] and link:../../service-mesh#deploying-the-sample-application[deploy the sample application].
 Check that you can see the BookInfo product page in your browser, as seen below.
 
 image::bookinfo.png[]
@@ -44,8 +44,9 @@ Deploy the Jaeger all-in-one pod into your cluster:
     service "jaeger-agent" created
     service "zipkin" created
 
-If all components were installed successfully, you should be able to see the Jaeger console. This may take a minute or two, first for the Ingress to be created, and secondly for the Ingress to hook up with the services it exposes.
-Just keep refreshing the browser until the Jaeger console appears.
+If all components were installed successfully, you should be able to see the Jaeger console. Use the shortcut below to
+open the Jaeger console. This may take a minute or two, first for the Ingress to be created, and secondly for the Ingress
+to hook up with the services it exposes. Just keep refreshing the browser until the Jaeger console appears.
 
     JAEGER_INGRESS=$(kubectl get svc jaeger-query -n istio-system -o jsonpath="{.status.loadBalancer.ingress[0].*}")
     open http://$JAEGER_INGRESS
@@ -56,7 +57,7 @@ image::jaeger-console.png[]
 
 In the Jaeger console, select 'productpage' from the Services drop down, and click 'Find Traces'.
 If there are no Services in the drop down (i.e. you only see a '-'), go to the BookInfo application in your browser and refresh the product page.
-This will send an HTTP request to the BookInfo application, which will be captured by Jaeger, and visible in the Jaeger console. You'll need to
+This will send an HTTP request to the BookInfo application. The HTTP trace will be captured by Jaeger and be visible in the Jaeger console. You'll need to
 refresh the Jaeger console page in order to see the list of Services.
 
 image::jaeger-spans.png[]
