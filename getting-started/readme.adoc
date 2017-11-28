@@ -116,7 +116,7 @@ Verify the version:
     curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 +
 
-. Add kubectl autocompletion to your current shell 
+. Add kubectl autocompletion to your current shell
 +
     source <(kubectl completion bash)
 
@@ -129,7 +129,7 @@ Start a single-node Kubernetes cluster on your local machine:
 ```
     minikube start
 ```
-    
+
 if you have installed minikube on a EC2, start it with the --vm-driver=none flag
 
 ```
@@ -286,7 +286,7 @@ This opens a Bash shell and allows you to look around the filesystem of the cont
 
 === Expose pod
 
-By default, all Kubernetes resources are only accessible within the cluster. This command will publish the NGINX pod to a port on the host where its deployed:
+By default, all Kubernetes resources are only accessible within the cluster. This command will publish the NGINX pod to a port on the host where it's deployed:
 
     kubectl expose pod <pod-name> --port=80 --type=NodePort --name=web
 
