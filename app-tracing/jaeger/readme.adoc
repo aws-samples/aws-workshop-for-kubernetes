@@ -57,7 +57,7 @@ If there are no Services in the drop down (i.e. you only see a '-'), go to the B
 This will send an HTTP request to the BookInfo application, which will be captured by Jaeger, and visible in the Jaeger console. You'll need to
 refresh the Jaeger console page in order to see the list of Services.
 
-image::images/jaeger-spans.png[spans, 800]
+image::jaeger-spans.png[]
 
 For each trace (you may only have one), you'll see the total time required by the call, and the number of spans involved (in this case, 11).
 In one of the traces, click 'productpage'. You'll see various spans showing the tracing of your request through the BookInfo application,
