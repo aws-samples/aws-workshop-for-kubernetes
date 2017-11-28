@@ -50,7 +50,7 @@ Just keep refreshing the browser until the Jaeger console appears.
 
 You should see the Jaeger console.
 
-image::images/jaeger-console.png[console, 800]
+image::images/123[]
 
 In the Jaeger console, select 'productpage' from the Services drop down, and click 'Find Traces'.
 If there are no Services in the drop down (i.e. you only see a '-'), go to the BookInfo application in your browser and refresh the product page.
