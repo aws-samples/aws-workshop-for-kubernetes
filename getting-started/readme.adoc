@@ -44,6 +44,10 @@ Verify the version:
     $ minikube version
     minikube version: v0.23.0
 +
+If `minikube` has already been installed earlier, you will also want to delete the previous minikube ISO:
++
+    minikube delete
++
 . Install Kubectl CLI
 
     brew install kubernetes-cli
@@ -116,7 +120,7 @@ Verify the version:
     curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 +
 
-. Add kubectl autocompletion to your current shell 
+. Add kubectl autocompletion to your current shell
 +
     source <(kubectl completion bash)
 
@@ -129,7 +133,7 @@ Start a single-node Kubernetes cluster on your local machine:
 ```
     minikube start
 ```
-    
+
 if you have installed minikube on a EC2, start it with the --vm-driver=none flag
 
 ```
