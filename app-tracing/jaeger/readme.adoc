@@ -49,11 +49,8 @@ Just keep refreshing the browser until the Jaeger console appears.
     open http://$JAEGER_INGRESS
 
 You should see the Jaeger console.
-+
-image::aws-kms-key-admins.png[]
-+
 
-image::images/123[]
+image::jaeger-console.png[]
 
 In the Jaeger console, select 'productpage' from the Services drop down, and click 'Find Traces'.
 If there are no Services in the drop down (i.e. you only see a '-'), go to the BookInfo application in your browser and refresh the product page.
@@ -67,12 +64,12 @@ In one of the traces, click 'productpage'. You'll see various spans showing the 
 with the time taken for each call. As the BookInfo application is using Istio for pod-to-pod communication, you can also see the small
 overhead Istio introduces into each of the calls.
 
-image::jaeger-traces.png[traces, 800]
+image::jaeger-traces.png[]
 
 Jaeger can also show you the path taken by a request after it enters via your endpoint. Click on 'Dependencies' in the menu,
 then the 'DAG' tab. Jaeger will show you the different microservices invoked by your request.
 
-image::images/jaeger-dag.png[dag, 800]
+image::jaeger-dag.png[]
 
 == Cleanup
 	$ kubectl delete -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
