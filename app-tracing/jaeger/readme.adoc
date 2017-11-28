@@ -49,6 +49,9 @@ Just keep refreshing the browser until the Jaeger console appears.
     open http://$JAEGER_INGRESS
 
 You should see the Jaeger console.
++
+image::aws-kms-key-admins.png[]
++
 
 image::images/123[]
 
@@ -56,9 +59,9 @@ In the Jaeger console, select 'productpage' from the Services drop down, and cli
 If there are no Services in the drop down (i.e. you only see a '-'), go to the BookInfo application in your browser and refresh the product page.
 This will send an HTTP request to the BookInfo application, which will be captured by Jaeger, and visible in the Jaeger console. You'll need to
 refresh the Jaeger console page in order to see the list of Services.
-
++
 image::jaeger-spans.png[]
-
++
 For each trace (you may only have one), you'll see the total time required by the call, and the number of spans involved (in this case, 11).
 In one of the traces, click 'productpage'. You'll see various spans showing the tracing of your request through the BookInfo application,
 with the time taken for each call. As the BookInfo application is using Istio for pod-to-pod communication, you can also see the small
