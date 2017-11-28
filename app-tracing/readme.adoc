@@ -1,0 +1,8 @@
+= Application tracing
+:toc:
+
+This section will explain how to perform distribute tracing on applications deployed on Kubernetes.
+
+We will cover the following tracing frameworks:
+
+    link:jaeger[Jaeger]
