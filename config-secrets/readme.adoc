@@ -867,7 +867,7 @@ Service account token, Kubernetes API server address and the certificate used to
   $ kubectl config view -o jsonpath='{.clusters[*].cluster.server}'
   https://api-example-cluster-k8s-l-1dt7vk-41321592.us-east-1.elb.amazonaws.com https://192.168.99.100:8443
 +
-This is the address of API servers currently configured. The first one is for the cluster created by Kops. Second one is for the minikube server, if its running. The first one is relevant for our case.
+This is the address of API servers currently configured. The first one is for the cluster created by kops. Second one is for the minikube server, if its running. The first one is relevant for our case.
 +
 . Extract the certificate
 .. Find the default secret token:

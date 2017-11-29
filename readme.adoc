@@ -42,6 +42,7 @@ as you move through the workshop.
 | Upgrading a Kubernetes cluster: Blue/Green Upgrade
 | link:cluster-scaling[Cluster Scaling]
 | link:app-scaling[Application Autoscaling]
+| link:app-tracing[Application Tracing]
 |===
 
 [cols="1*"]

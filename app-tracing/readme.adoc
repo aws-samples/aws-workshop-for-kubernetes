@@ -7,4 +7,5 @@ This section will explain how to perform distribute tracing on applications depl
 
 We will cover the following tracing frameworks:
 
+* link:x-ray[X-Ray]
 * link:jaeger[Jaeger]

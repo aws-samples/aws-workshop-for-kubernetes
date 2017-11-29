@@ -110,8 +110,8 @@ Several parts of the workshop require the region or availability zones to be exp
 
 The workshop repo has configuration files that are used to create Kubernetes resources. You need to clone the repo to have access to those files:
 
-	$ git clone https://github.com/arun-gupta/kubernetes-aws-workshop/
+	$ git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
 
 == Need Help
 
-Please https://github.com/arun-gupta/kubernetes-aws-workshop/issues[file a bug] if you run into issues.
+Please https://github.com/aws-samples/aws-workshop-for-kubernetes/issues[file a bug] if you run into issues.

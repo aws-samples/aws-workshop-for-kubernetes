@@ -77,7 +77,7 @@ I1029 14:09:43.034786   15831 executor.go:91] Tasks: 73 done / 81 total; 5 can r
 I1029 14:09:43.868003   15831 executor.go:91] Tasks: 78 done / 81 total; 3 can run
 I1029 14:09:44.655604   15831 executor.go:91] Tasks: 81 done / 81 total; 0 can run
 I1029 14:09:44.991551   15831 update_cluster.go:247] Exporting kubecfg for cluster
-Kops has set your kubectl context to example.cluster.k8s.local
+kops has set your kubectl context to example.cluster.k8s.local
 
 Cluster changes have been applied to the cloud.
 
@@ -104,7 +104,7 @@ No rolling-update required.
 
 Each worker running in your Kubernetes cluster MUST have the necessary IAM Policy attached. If you previously set up your cluster using `kops` you can modify the existing permissions on your worker IAM Role or you can manually create a new policy and attach it to the IAM Role. Both methods are shown below.
 
-=== Using Kops to update the IAM policy
+=== Using kops to update the IAM policy
 
 Use kops to edit the cluster configuration
 
@@ -151,7 +151,7 @@ I1029 15:25:29.512767   21411 executor.go:91] Tasks: 73 done / 81 total; 5 can r
 I1029 15:25:30.338608   21411 executor.go:91] Tasks: 78 done / 81 total; 3 can run
 I1029 15:25:31.189236   21411 executor.go:91] Tasks: 81 done / 81 total; 0 can run
 I1029 15:25:31.586799   21411 update_cluster.go:247] Exporting kubecfg for cluster
-Kops has set your kubectl context to example.cluster.k8s.local
+kops has set your kubectl context to example.cluster.k8s.local
 
 Cluster changes have been applied to the cloud.
 
