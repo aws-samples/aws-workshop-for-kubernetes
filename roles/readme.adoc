@@ -22,7 +22,7 @@ All configuration files for this chapter are in the `roles` directory.
 
 == IAM Roles for master nodes
 
-Kubernetes cluster created using kops has two IAM roles - one for all master nodes and one for all worker nodes. The master IAM role is associated with a number of policies related to EC2, Elastic Load Balancer (ELB), EC2 Container Registry (ECR), Route53, and Key Management Service (KMS). The worker nodes require a number of EC2, ECR, and Route53 policies applied. Kops automatically configures these roles and policies for you (see link:https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md[here] for a full list).
+Kubernetes cluster created using kops has two IAM roles - one for all master nodes and one for all worker nodes. The master IAM role is associated with a number of policies related to EC2, Elastic Load Balancer (ELB), EC2 Container Registry (ECR), Route53, and Key Management Service (KMS). The worker nodes require a number of EC2, ECR, and Route53 policies applied. kops automatically configures these roles and policies for you (see link:https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md[here] for a full list).
 
 These policies may be augmented via `kops`.  For example, to allow all nodes ElasticSearch access, perform the following steps:
 
