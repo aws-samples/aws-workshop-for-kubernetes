@@ -26,7 +26,22 @@ All configuration files for this chapter are in the `cluster-monitoring` directo
 
 https://github.com/kubernetes/dashboard[Kubernetes Dashboard] is a general purpose web-based UI for Kubernetes clusters.
 
-Deploy Dashboard using the following command:
+The Dashboard uses the https://kubernetes.io/docs/admin/authorization/rbac/[RBAC API], which has been promoted in
+Kubernetes v1.8 to GA rather than Beta, so you'll use a different version of
+the dashboard depending on the version of Kubernetes you are running. Check your Kubernetes version using the following command -
+check the value of the `Server Version`, which is v1.7.4 in this example:
+
+    kubectl version
+
+    $ kubectl version
+    Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.0", GitCommit:"6e937839ac04a38cac63e6a7a306c5d035fe7b0a", GitTreeState:"clean", BuildDate:"2017-09-28T22:57:57Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"darwin/amd64"}
+    Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+
+If you are using v1.7.x, deploy the Dashboard using the following command:
+
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/6dc75162dce25b5a94aa500ebba923e8223e5cfd/src/deploy/recommended/kubernetes-dashboard.yaml
+
+If you are using v1.8 or above, deploy the Dashboard using the following command:
 
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
 
