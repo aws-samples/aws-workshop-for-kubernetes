@@ -18,7 +18,7 @@ This chapter uses a cluster with 3 master nodes and 5 worker nodes as described 
 
 Deploy Heapster using the steps described in the link:../cluster-monitoring#installation[Cluster Monitoring] lab. You can deploy Heapster using the configuration file `cluster-monitoring/heapster/templates/heapster.yaml`:
 
-    $ kubectl create -f heapster/templates/heapster.yaml
+    $ kubectl create -f templates/heapster/heapster.yaml
     serviceaccount "heapster" created
     deployment "heapster" created
     service "heapster" created
@@ -102,3 +102,8 @@ webapp    Deployment/webapp   0% / 10%   1         10        1         16m
 webapp    Deployment/webapp   0% / 10%   1         10        1         17m
 ```
 
+== Cleanup
+
+    kubectl delete hpa webapp
+    kubectl delete deployment load-generator
+    kubectl delete deployment webapp
