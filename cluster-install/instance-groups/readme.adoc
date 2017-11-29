@@ -102,7 +102,7 @@ $ kops update cluster --yes
 Using cluster from kubectl context: cluster.k8s.local
 .
 .
-Kops has set your kubectl context to cluster.k8s.local
+kops has set your kubectl context to cluster.k8s.local
 
 Cluster changes have been applied to the cloud.
 
@@ -160,7 +160,7 @@ LaunchConfiguration.
 
     kops edit ig nodes
 
-Change the instance type. Kops supports specific AWS instance types; see the source code here for the latest list:
+Change the instance type. kops supports specific AWS instance types; see the source code here for the latest list:
 https://github.com/kubernetes/kops/blob/709f902c11079345588119ab48c46b7129ef1e44/upup/pkg/fi/cloudup/awsup/machine_types.go#L74
 
 
@@ -217,7 +217,7 @@ $ kops update cluster --yes
 Using cluster from kubectl context: cluster.k8s.local
 .
 .
-Kops has set your kubectl context to cluster.k8s.local
+kops has set your kubectl context to cluster.k8s.local
 
 Cluster changes have been applied to the cloud.
 

@@ -1,17 +1,17 @@
 = Upgrading Kubernetes cluster
 :toc:
 
-Upgrading Kubernetes cluster on AWS is easy with Kops. In this exercise we will demonstrate upgrading
+Upgrading Kubernetes cluster on AWS is easy with kops. In this exercise we will demonstrate upgrading
 Kubernetes cluster using two methods.
 
 == In-place Upgrade
 
-Upgrading cluster using in-place is easy with Kops. This exercise will setup a Kubernetes cluster
+Upgrading cluster using in-place is easy with kops. This exercise will setup a Kubernetes cluster
 with 1.6.10 version and perform an automatic rolling upgrade to 1.7.2 using kops.
 
 === Create cluster
 
-Review steps to create link:../prereqs.adoc[prereqs] nad make sure `KOPS_STATE_STORE` and `AWS_AVAILABILITY_ZONES` environment variables are set. More details about creating a cluster are at link:../cluster-install[Create Kubernetes cluster using Kops]. 
+Review steps to create link:../prereqs.adoc[prereqs] nad make sure `KOPS_STATE_STORE` and `AWS_AVAILABILITY_ZONES` environment variables are set. More details about creating a cluster are at link:../cluster-install[Create Kubernetes cluster using kops]. 
 
 In this chapter, we'll create a Kubernetes 1.6.10 version cluster as shown:
 
@@ -185,7 +185,7 @@ I1028 18:22:59.756888   10876 executor.go:91] Tasks: 73 done / 81 total; 5 can r
 I1028 18:23:01.154703   10876 executor.go:91] Tasks: 78 done / 81 total; 3 can run
 I1028 18:23:01.890273   10876 executor.go:91] Tasks: 81 done / 81 total; 0 can run
 I1028 18:23:02.196422   10876 update_cluster.go:247] Exporting kubecfg for cluster
-Kops has set your kubectl context to example.cluster.k8s.local
+kops has set your kubectl context to example.cluster.k8s.local
 
 Cluster changes have been applied to the cloud.
 

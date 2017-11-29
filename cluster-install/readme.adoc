@@ -1,9 +1,9 @@
-= Create Kubernetes cluster using Kops
+= Create Kubernetes cluster using kops
 :toc:
 
 This tutorial will walk you through how to install a Kubernetes cluster using kops on AWS.
 
-https://github.com/kubernetes/kops[Kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters in the cloud. A rolling upgrade of an older version of Kubernetes to a new version can also be performed. It also manages the cluster add-ons. After the cluster is created, the usual kubectl CLI can be used to manage resources in the cluster.
+https://github.com/kubernetes/kops[kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters in the cloud. A rolling upgrade of an older version of Kubernetes to a new version can also be performed. It also manages the cluster add-ons. After the cluster is created, the usual kubectl CLI can be used to manage resources in the cluster.
 
 == Install kops
 
@@ -13,7 +13,7 @@ There is no need to download a Kubernetes binary distribution for creating a clu
 
     brew update && brew install kops
 
-If Kops is already installed, then it can be upgraded to the latest version using the following command:
+If kops is already installed, then it can be upgraded to the latest version using the following command:
 
     brew upgrade kops
 
@@ -23,7 +23,7 @@ If Kops is already installed, then it can be upgraded to the latest version usin
     sudo chmod +x kops-linux-amd64
     sudo mv kops-linux-amd64 /usr/local/bin/kops
 
-Kops is available on Mac OSX, Linux or the Windows 10 Linux Subsystem. Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
+kops is available on Mac OSX, Linux or the Windows 10 Linux Subsystem. Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
 
 Check kops version:
 
@@ -36,7 +36,7 @@ In addition, if not already installed, you also need kubectl CLI to manage the r
 
 === Configure kops
 
-Kops uses a public SSH key while creating a cluster. The location of this file defaults to `~/.ssh/id_rsa.pub`. Please generate an SSH key using `ssh-keygen` command.
+kops uses a public SSH key while creating a cluster. The location of this file defaults to `~/.ssh/id_rsa.pub`. Please generate an SSH key using `ssh-keygen` command.
 
 Alternatively, you can use the `--ssh-public-key` option to specify a custom location. More details about kops security can be found in the https://github.com/kubernetes/kops/blob/master/docs/security.md[kops docs].
 
@@ -57,7 +57,7 @@ https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https
 
 == S3 bucket to store Kubernetes config
 
-Kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
+kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
 
 NOTE: The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `example-state-store-` and add a randomly generated string to the end.
 
@@ -76,7 +76,7 @@ NOTE: The bucket name must be unique otherwise you will encounter an error on de
 
 == Create cluster
 
-The Kops CLI can be used to create a highly available cluster, with multiple master nodes spread across multiple Availability Zones. Workers can be spread across multiple zones as well. Some of the tasks that happen behind the scene during cluster creation are:
+The kops CLI can be used to create a highly available cluster, with multiple master nodes spread across multiple Availability Zones. Workers can be spread across multiple zones as well. Some of the tasks that happen behind the scene during cluster creation are:
 
 - Provisioning EC2 instances
 - Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
@@ -85,7 +85,7 @@ The Kops CLI can be used to create a highly available cluster, with multiple mas
 When setting up a cluster you have two options on how the nodes in the cluster communicate:
 
 . <<Create a DNS-based Kubernetes cluster, Using DNS>> - Creating a Kubernetes cluster that uses DNS for node discovery requires your own domain (or subdomain) and setting up Route 53 hosted zones. This allows the various Kubernetes components to find and communicate with each other. This is also necessary for kubectl to be able to talk directly with the master.
-. <<Create a gossip-based Kubernetes cluster, Using the gossip protocol>> - Kops has experimental support for a gossip-based cluster. This does not require a  domain, subdomain, or Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup.
+. <<Create a gossip-based Kubernetes cluster, Using the gossip protocol>> - kops has experimental support for a gossip-based cluster. This does not require a  domain, subdomain, or Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup.
 
 You'll need to choose one of the two options. Instructions for both options are provided below, and the examples in the workshop should work with either option. Creating a gossip-based cluster requires less setup and will be used in this workshop, unless otherwise specified.
 
@@ -93,7 +93,7 @@ NOTE: If you're using London region (`eu-west-2`) you need to add `--cloud aws` 
 
 === Create a gossip-based Kubernetes cluster
 
-Kops also has experimental support for a gossip-based cluster. It uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to Kops by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name.
+kops also has support for a gossip-based cluster. It uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name.
 
 This is a fairly recent feature, so we recommend you continue to use DNS for production clusters. However, setting up a gossip-based cluster allows you to get started rather quickly.
 
@@ -203,7 +203,7 @@ Your output may differ from the one shown here based up on the type of cluster y
 
 === Create a Kubernetes cluster in a private VPC
 
-Kops can create a private Kubernetes cluster, where the master and worker nodes are launched in private subnets in a VPC. This is possible with both Gossip and DNS-based clusters. This reduces the attack surface on your instances by protecting them behind security groups inside private subnets. The services hosted in the cluster can still be exposed via internet-facing ELBs if required. It's necessary to run an overlay network in the Kubernetes cluster when using a private topology. We have used https://www.projectcalico.org/[Calico] below, though other options such as `kopeio-vxlan`, `weave` and `cni` are available.
+kops can create a private Kubernetes cluster, where the master and worker nodes are launched in private subnets in a VPC. This is possible with both Gossip and DNS-based clusters. This reduces the attack surface on your instances by protecting them behind security groups inside private subnets. The services hosted in the cluster can still be exposed via internet-facing ELBs if required. It's necessary to run an overlay network in the Kubernetes cluster when using a private topology. We have used https://www.projectcalico.org/[Calico] below, though other options such as `kopeio-vxlan`, `weave` and `cni` are available.
 
 Create a gossip-based private cluster with master and worker nodes in private subnets:
 

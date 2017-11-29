@@ -235,14 +235,14 @@ For this tutorial I assume you have GNU sed installed, if not read
 commands with `sed` to modify the files according to the `sed` command
 being run. If you are running BSD or MacOS you can use `gsed`.
 
-=== Create Kops cluster with cloud labels
+=== Create kops cluster with cloud labels
 
 Cloud Labels are required to make Kube AWS Ingress Controller work,
 because it has to find the AWS Application Load Balancers it manages
-by AWS Tags, which are called cloud Labels in Kops.
+by AWS Tags, which are called cloud Labels in kops.
 
 If not already set, you have to set some environment variables to choose AZs to deploy to,
-your S3 Bucket name for Kops configuration and you Kops cluster name:
+your S3 Bucket name for kops configuration and you kops cluster name:
 
 
         export AWS_AVAILABILITY_ZONES=eu-central-1b,eu-central-1c
@@ -250,7 +250,7 @@ your S3 Bucket name for Kops configuration and you Kops cluster name:
         export KOPS_CLUSTER_NAME=example.cluster.k8s.local
 
 
-The you create the Kops cluster and validate that everything is set up properly.
+The you create the kops cluster and validate that everything is set up properly.
 
 
         export KOPS_STATE_STORE=s3://${S3_BUCKET}
@@ -434,7 +434,7 @@ If it is provisioned you can check with curl, http to https redirect is created 
         curl -L -H"Host: myapp.example.org" example-lb-19tamgwi3atjf-1066321195.us-central-1.elb.amazonaws.com
         <body style='color: green; background-color: white;'><h1>Hello!</h1>
 
-Check if Kops dns-controller created a DNS record:
+Check if kops dns-controller created a DNS record:
 
         curl -L myapp.example.org
         <body style='color: green; background-color: white;'><h1>Hello!</h1>
@@ -512,7 +512,7 @@ If it is provisioned you can check with curl, http to https redirect is created 
         curl -L -H"Host: myapp.example.org" example-lb-19tamgwi3atjf-1066321195.us-central-1.elb.amazonaws.com
         <body style='color: green; background-color: white;'><h1>Hello!</h1>
 
-Check if Kops dns-controller created a DNS record:
+Check if kops dns-controller created a DNS record:
 
         curl -L myapp.example.org
         <body style='color: green; background-color: white;'><h1>Hello!</h1>
