@@ -28,7 +28,9 @@ View the cluster configuration using the following command:
 This will show the following fragment under `.spec`:
 
   networking:
-    calico: {}
+    calico: {
+      crossSubnet: true
+    }
 
 Rest of the chapter goes with the presumption that you are using an existing cluster.
 
