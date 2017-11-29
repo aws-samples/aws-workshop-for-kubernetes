@@ -26,7 +26,8 @@ All configuration files for this chapter are in the `cluster-monitoring` directo
 
 https://github.com/kubernetes/dashboard[Kubernetes Dashboard] is a general purpose web-based UI for Kubernetes clusters.
 
-The Dashboard uses the https://kubernetes.io/docs/admin/authorization/rbac/[RBAC API], which has been promoted in v1.8 to GA rather than Beta, so you'll use a different version of
+The Dashboard uses the https://kubernetes.io/docs/admin/authorization/rbac/[RBAC API], which has been promoted in
+Kubernetes v1.8 to GA rather than Beta, so you'll use a different version of
 the dashboard depending on the version of Kubernetes you are running. Check your Kubernetes version using the following command -
 check the value of the `Server Version`, which is v1.7.4 in this example:
 
