@@ -152,6 +152,7 @@ The max amount of memory allocated for the WildFly container in this pod is rest
 
 Watch the status of the Pod:
 
+	$ kubectl get pods -w
 	NAME          READY     STATUS              RESTARTS   AGE
 	wildfly-pod   0/1       ContainerCreating   0          5s
 	wildfly-pod   1/1       Running   0         26s
