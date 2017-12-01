@@ -19,7 +19,7 @@ If kops is already installed, then it can be upgraded to the latest version usin
 
     brew upgrade kops
 
-==== Linux / Windows 10 Linux Subsystem:
+==== Linux / Windows 10 Linux Subsystem
 
     wget https://github.com/kubernetes/kops/releases/download/1.7.1/kops-linux-amd64
     sudo chmod +x kops-linux-amd64
