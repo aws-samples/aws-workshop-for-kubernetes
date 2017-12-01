@@ -90,14 +90,14 @@ kops needs a "`state store`" to store the configuration information of the clust
 
 NOTE: The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `example-state-store-` and add a randomly generated string to the end.
 
-    # create variables for bucket, state store and cluster names
+    # create variables for bucket, state store, and cluster names
     $ export S3_BUCKET=example-state-store-$(cat /dev/random | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
     $ export KOPS_STATE_STORE=s3://${S3_BUCKET}
 
-    # use aws cli to create bucket
+    # use AWS CLI to create the bucket
     $ aws s3 mb $KOPS_STATE_STORE
 
-    # enable versioning and export
+    # enable versioning
     $ aws s3api put-bucket-versioning \
       --bucket $S3_BUCKET \
       --versioning-configuration \
@@ -108,21 +108,21 @@ NOTE: The bucket name must be unique otherwise you will encounter an error on de
 The kops CLI can be used to create a highly available cluster, with multiple master nodes spread across multiple Availability Zones. Workers can be spread across multiple zones as well. Some of the tasks that happen behind the scene during cluster creation are:
 
 - Provisioning EC2 instances
-- Setting up AWS resources such as Networking, Auto Scaling Groups, IAM policies, and Security Groups
+- Setting up AWS resources such as Networking, AutoScaling Groups, IAM policies, and Security Groups
 - Installing Kubernetes
 
 When setting up a cluster you have two options on how the nodes in the cluster communicate:
 
-. <<Create a gossip-based Kubernetes cluster, Using the gossip protocol>> - kops has experimental support for a gossip-based cluster. This does not require a domain, subdomain, or Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup, and is the preferred method for creating a cluster for use with this workshop.
+. <<Create a gossip-based Kubernetes cluster, Using the gossip protocol>> - kops has recent support for a gossip-based cluster. This does not require a domain, subdomain, or Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup, and is the preferred method for creating a cluster for use with this workshop.
 . <<Create a DNS-based Kubernetes cluster, Using DNS>> - Creating a Kubernetes cluster that uses DNS for node discovery requires your own domain (or subdomain) and setting up Route 53 hosted zones. This allows the various Kubernetes components to use DNS resolutions find and communicate with each other, and for kubectl to be able to talk directly with the master node(s).
 
-Instructions for creating a gossip-baed cluster are provided below, however, the examples in the workshop should work with either option. Instructions for creating a DNS-based cluster are provided as an addendum at the bottom of this page.
+Instructions for creating a gossip-based cluster are provided below, however, the examples in the workshop should work with either option. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.
 
 NOTE: If you're using London region (`eu-west-2`) you need to add `--cloud aws` as kops is not identifying that `eu-west-2` indicates AWS. Further info https://github.com/kubernetes/kops/issues/1267
 
 === Create a gossip-based Kubernetes cluster
 
-kops supports for a gossip-based cluster, which uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and therefore much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
+kops supports creating a gossip-based cluster, which uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and therefore much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
 
 This is a fairly recent feature, so we recommend you continue to use DNS for production clusters. Information on setting up a DNS-based cluster can be found at the bottom of this page in the Appendix. However, setting up a gossip-based cluster allows you to get started quickly.
 
@@ -134,22 +134,22 @@ By default, `create cluster` command creates a single master node and two worker
 
 Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi-node and multi-az configuration:
 
-    kops create cluster \
+    $ kops create cluster \
       --name example.cluster.k8s.local \
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
 You can find the command for creating the `AWS_AVAILABILITY_ZONES` environment variable at link:../prereqs.adoc#aws-availability-zones[].
 
-The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
+The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding the `--yes` flag ensures that the cluster is immediately created as well.
 
-Alternatively, you may not specify the `--yes` option as part of the `kops create cluster` command. Then you can use `kops edit cluster example.cluster.k8s.local` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
+Alternatively, you may not specify the `--yes` flag as part of the `kops create cluster` command. Then you can use `kops edit cluster example.cluster.k8s.local` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
 
-    kops update cluster example.cluster.k8s.local --yes
+    $ kops update cluster example.cluster.k8s.local --yes
 
-Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
+Once the `kops create cluster` command is issued, it provisions the EC2 instances, sets up Auto Scaling Groups, IAM users, Security Groups, installs Kubernetes on each node, then configures the master and worker nodes. This process can take some time based upon the number of master and worker nodes.
 
-Wait for 10-15 minutes and then the cluster can be validated as shown:
+Wait for 10-15 minutes and then validate the cluster as shown:
 
 ```
 $ kops validate cluster
@@ -194,7 +194,7 @@ Create a cluster with multi-master, multi-node and multi-az configuration. We ca
 
 A multi-master cluster can be created by using the `--master-count` option and specifying the number of master nodes. An odd value is recommended. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, `--master-zones` option can be used to explicitly specify the zones for the master nodes.
 
-`--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
+The `--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
 As mentioned above, wait for 10-15 minutes for the cluster to be created. Validate the cluster:
 
@@ -227,9 +227,9 @@ Your cluster example.cluster.k8s.local is ready
 
 Note that all masters are spread across different AZs.
 
-Your output may differ from the one shown here based up on the type of cluster you created.
+Your output may differ slightly from the one shown here based up on the type of cluster you created.
 
-=== Create a Kubernetes cluster in a private VPC
+=== (Optional) Create a Kubernetes cluster in a private VPC
 
 kops can create a private Kubernetes cluster, where the master and worker nodes are launched in private subnets in a VPC. This is possible with both gossip-based and DNS-based clusters. This reduces the attack surface on your instances by protecting them behind security groups inside private subnets. The services hosted in the cluster can still be exposed via internet-facing ELBs if required. It is necessary to run an overlay network in the Kubernetes cluster when using a private topology. We have used https://www.projectcalico.org/[Calico] below, though other options such as `kopeio-vxlan`, `weave` and `cni` are available.
 
