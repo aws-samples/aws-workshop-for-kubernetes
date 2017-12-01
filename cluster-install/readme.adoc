@@ -1,9 +1,11 @@
 = Create Kubernetes cluster using kops
 :toc:
 
-This tutorial will walk you through how to install a Kubernetes cluster using kops on AWS.
+This tutorial will walk you through how to install a Kubernetes cluster on AWS using kops.
 
-https://github.com/kubernetes/kops[kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters in the cloud. A rolling upgrade of an older version of Kubernetes to a new version can also be performed. It also manages the cluster add-ons. After the cluster is created, the usual kubectl CLI can be used to manage resources in the cluster.
+https://github.com/kubernetes/kops[kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters in the cloud. It can also perform rolling upgrades from older versions of Kubernetes to newer ones. kops also manages the cluster add-ons. After the cluster is created, the usual link:getting-started[kubectl CLI] can be used to manage resources in the cluster.
+
+kops is available on Mac OSX, Linux, or the Windows 10 Linux Subsystem. 
 
 == Install kops
 
@@ -17,14 +19,14 @@ If kops is already installed, then it can be upgraded to the latest version usin
 
     brew upgrade kops
 
-==== Linux:
+==== Linux / Windows 10 Linux Subsystem:
 
     wget https://github.com/kubernetes/kops/releases/download/1.7.1/kops-linux-amd64
     sudo chmod +x kops-linux-amd64
     sudo mv kops-linux-amd64 /usr/local/bin/kops
 
-kops is available on Mac OSX, Linux or the Windows 10 Linux Subsystem. 
-Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
+
+Complete installation instructions are available https://github.com/kubernetes/kops#installing[here].
 
 Check kops version:
 
@@ -33,19 +35,45 @@ Check kops version:
 
 Latest and early versions of kops can be downloaded from https://github.com/kubernetes/kops/releases.
 
-In addition, if not already installed, you also need kubectl CLI to manage the resources on Kubernetes cluster. This is explained link:../getting-started#download-and-install[].
+You will also need the Kubernetes CLI (kubectl) to manage the resources on the Kubernetes cluster. If you don't have the Kubernetes CLI installed, please follow the instructions link:../getting-started#download-and-install[here] to do so.
 
 === Configure kops
 
 kops uses a public SSH key while creating a cluster. The location of this file defaults to `~/.ssh/id_rsa.pub`. Please generate an SSH key using `ssh-keygen` command.
 
-Alternatively, you can use the `--ssh-public-key` option to specify a custom location. More details about kops security can be found in the https://github.com/kubernetes/kops/blob/master/docs/security.md[kops docs].
+    $ ssh-keygen 
+    Generating public/private rsa key pair.
+    Enter file in which to save the key (~/.ssh/id_rsa):
+    Enter passphrase (empty for no passphrase): 
+    Enter same passphrase again: 
+    Your identification has been saved in ~/.ssh/id_rsa
+    Your public key has been saved in ~/.ssh/id_rsa.pub.
+    The key fingerprint is:
+    SHA256:bQXH2zAAcFVtpEwcOL5D1QZnXp3zkiC123456789
+    The key's randomart image is:
+    +---[RSA 2048]----+
+    |      ..oo=B**+ +|
+    |       . o+=B*=+.|
+    |        +..+*O+E=|
+    |       . =o=.o=oo|
+    |        S.*..  o |
+    |         oo      |
+    |           .     |
+    |                 |
+    |                 |
+    +----[SHA256]-----+
 
+Alternatively, you can use the `--ssh-public-key` option to specify a custom location. 
+More details about kops security can be found in the https://github.com/kubernetes/kops/blob/master/docs/security.md[documentation for kops].
 
-== IAM user permission
+== IAM user permissions
 
-Make sure the latest version of http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
-is installed. User permissions used in this workshop must have these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies] attached.
+Make sure the latest version of the http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
+is installed. 
+
+   $ pip install --upgrade awscli
+
+The AWS user profile used in this workshop must have these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies] attached.
 
     AmazonEC2FullAccess
     AmazonRoute53FullAccess
@@ -58,29 +86,29 @@ https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https
 
 == S3 bucket to store Kubernetes config
 
-kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
+kops needs a "`state store`" to store the configuration information of the cluster.  For example: how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. As of now, Amazon S3 is the only supported storage mechanism. Create an S3 bucket and pass that to the kops CLI during cluster creation.
 
 NOTE: The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `example-state-store-` and add a randomly generated string to the end.
 
     # create variables for bucket, state store and cluster names
-    export S3_BUCKET=example-state-store-$(cat /dev/random | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
-    export KOPS_STATE_STORE=s3://${S3_BUCKET}
+    $ export S3_BUCKET=example-state-store-$(cat /dev/random | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
+    $ export KOPS_STATE_STORE=s3://${S3_BUCKET}
 
     # use aws cli to create bucket
-    aws s3 mb $KOPS_STATE_STORE
+    $ aws s3 mb $KOPS_STATE_STORE
 
     # enable versioning and export
-    aws s3api put-bucket-versioning \
+    $ aws s3api put-bucket-versioning \
       --bucket $S3_BUCKET \
       --versioning-configuration \
       Status=Enabled
 
-== Create cluster
+== Create the cluster
 
 The kops CLI can be used to create a highly available cluster, with multiple master nodes spread across multiple Availability Zones. Workers can be spread across multiple zones as well. Some of the tasks that happen behind the scene during cluster creation are:
 
 - Provisioning EC2 instances
-- Setting up AWS resources such as networks, Auto Scaling groups, IAM users, and security groups
+- Setting up AWS resources such as Networking, Auto Scaling Groups, IAM policies, and Security Groups
 - Installing Kubernetes
 
 When setting up a cluster you have two options on how the nodes in the cluster communicate:
