@@ -23,7 +23,8 @@ If kops is already installed, then it can be upgraded to the latest version usin
     sudo chmod +x kops-linux-amd64
     sudo mv kops-linux-amd64 /usr/local/bin/kops
 
-kops is available on Mac OSX, Linux or the Windows 10 Linux Subsystem. Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
+kops is available on Mac OSX, Linux or the Windows 10 Linux Subsystem. 
+Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
 
 Check kops version:
 
@@ -93,9 +94,9 @@ NOTE: If you're using London region (`eu-west-2`) you need to add `--cloud aws` 
 
 === Create a gossip-based Kubernetes cluster
 
-kops also has support for a gossip-based cluster. It uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name.
+kops supports for a gossip-based cluster, which uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and therefore much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
 
-This is a fairly recent feature, so we recommend you continue to use DNS for production clusters. However, setting up a gossip-based cluster allows you to get started rather quickly.
+This is a fairly recent feature, so we recommend you continue to use DNS for production clusters. Information on setting up a DNS-based cluster can be found at the bottom of this page in the Appendix. However, setting up a gossip-based cluster allows you to get started quickly.
 
 We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Workshop exercises will work on both types of cluster.
 
@@ -203,7 +204,7 @@ Your output may differ from the one shown here based up on the type of cluster y
 
 === Create a Kubernetes cluster in a private VPC
 
-kops can create a private Kubernetes cluster, where the master and worker nodes are launched in private subnets in a VPC. This is possible with both Gossip and DNS-based clusters. This reduces the attack surface on your instances by protecting them behind security groups inside private subnets. The services hosted in the cluster can still be exposed via internet-facing ELBs if required. It's necessary to run an overlay network in the Kubernetes cluster when using a private topology. We have used https://www.projectcalico.org/[Calico] below, though other options such as `kopeio-vxlan`, `weave` and `cni` are available.
+kops can create a private Kubernetes cluster, where the master and worker nodes are launched in private subnets in a VPC. This is possible with both gossip-based and DNS-based clusters. This reduces the attack surface on your instances by protecting them behind security groups inside private subnets. The services hosted in the cluster can still be exposed via internet-facing ELBs if required. It is necessary to run an overlay network in the Kubernetes cluster when using a private topology. We have used https://www.projectcalico.org/[Calico] below, though other options such as `kopeio-vxlan`, `weave` and `cni` are available.
 
 Create a gossip-based private cluster with master and worker nodes in private subnets:
 
