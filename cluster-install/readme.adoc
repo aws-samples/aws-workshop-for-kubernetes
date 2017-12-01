@@ -9,21 +9,21 @@ kops is available on Mac OSX, Linux, or the Windows 10 Linux Subsystem.
 
 == Install kops
 
-There is no need to download a Kubernetes binary distribution for creating a cluster using kops. However, you do need to download the kops CLI. It then takes care of downloading the right Kubernetes binary in the cloud, and provisions the cluster.
+There is no need to download a Kubernetes binary distribution for creating a cluster using kops. However, you do need to download the kops CLI. It takes care of downloading the right Kubernetes binary in the cloud, and then provisions and manages the cluster.
 
 ==== macOS
 
-    brew update && brew install kops
+    $ brew update && brew install kops
 
 If kops is already installed, then it can be upgraded to the latest version using the following command:
 
-    brew upgrade kops
+    $ brew upgrade kops
 
 ==== Linux / Windows 10 Linux Subsystem
 
-    wget https://github.com/kubernetes/kops/releases/download/1.7.1/kops-linux-amd64
-    sudo chmod +x kops-linux-amd64
-    sudo mv kops-linux-amd64 /usr/local/bin/kops
+    $ wget https://github.com/kubernetes/kops/releases/download/1.7.1/kops-linux-amd64
+    $ sudo chmod +x kops-linux-amd64
+    $ sudo mv kops-linux-amd64 /usr/local/bin/kops
 
 
 Complete installation instructions are available https://github.com/kubernetes/kops#installing[here].
@@ -80,6 +80,8 @@ The AWS user profile used in this workshop must have these http://docs.aws.amazo
     AmazonS3FullAccess
     IAMFullAccess
     AmazonVPCFullAccess
+
+If you are using the AWS user and credentials created as part of the link:prereqs.adoc[Prerequisites], then you should already have these permissions.
 
 Please review these links for additional info on IAM permissions:
 https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md
@@ -173,8 +175,8 @@ Your cluster example.cluster.k8s.local is ready
 
 Sometimes the cluster creation does not work and the validation fails. This happens when only worker nodes are created and master node is not provisioned. This is filed as https://github.com/kubernetes/kops/issues/3751[kops/#3751]. As a workaround, specifying the exact number of master node(s) and worker node(s) will create the cluster successfully. The exact command for that is:
 
-    kops delete cluster --name example.cluster.k8s.local --yes
-    kops create cluster \
+    $ kops delete cluster --name example.cluster.k8s.local --yes
+    $ kops create cluster \
       --name example.cluster.k8s.local \
       --zones $AWS_AVAILABILITY_ZONES \
       --master-count=1 \
@@ -185,7 +187,7 @@ Sometimes the cluster creation does not work and the validation fails. This happ
 
 Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in one step by passing the `--yes` flag.
 
-    kops create cluster \
+    $ kops create cluster \
       --name example.cluster.k8s.local \
       --master-count 3 \
       --node-count 5 \
@@ -235,7 +237,7 @@ kops can create a private Kubernetes cluster, where the master and worker nodes 
 
 Create a gossip-based private cluster with master and worker nodes in private subnets:
 
-    kops create cluster \
+    $ kops create cluster \
       --networking calico \
       --topology private \
       --name example.cluster.k8s.local \
@@ -436,7 +438,7 @@ The `create cluster` command only creates and stores the cluster config in the S
 
 Alternatively, you may not specify the `--yes` option as part of the `kops create cluster` command. Then you can use `kops edit cluster example.cluster.com` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
 
-    kops update cluster example.cluster.com --yes
+    $ kops update cluster example.cluster.com --yes
 
 Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
 
