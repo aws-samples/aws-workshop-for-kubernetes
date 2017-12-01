@@ -122,7 +122,7 @@ NOTE: If you're using London region (`eu-west-2`) you need to add `--cloud aws` 
 
 === Create a gossip-based Kubernetes cluster
 
-kops supports creating a gossip-based cluster, which uses Weave Mesh behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and therefore much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
+kops supports creating a gossip-based cluster, which uses https://github.com/weaveworks/mesh[Weave Mesh] behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and therefore much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
 
 This is a fairly recent feature, so we recommend you continue to use DNS for production clusters. Information on setting up a DNS-based cluster can be found at the bottom of this page in the Appendix. However, setting up a gossip-based cluster allows you to get started quickly.
 
