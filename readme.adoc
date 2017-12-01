@@ -26,7 +26,7 @@ as you move through the workshop.
 |link:cluster-install[Create a Kubernetes cluster using kops]
 |link:getting-started[First Steps with the Kubernetes CLI]
 |link:developer-concepts[Kubernetes Developer Concepts]
-|link:local-development[(Optional) Set up Local Development Environment]
+|link:local-development[(Optional) Configure a Local Development Environment]
 |===
 
 [cols="1*"]
