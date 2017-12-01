@@ -183,8 +183,7 @@ Sometimes the cluster creation does not work and the validation fails. This happ
 
 ==== Multi-master, multi-node, multi-az gossip-based cluster
 
-Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in
-one step by passing the `--yes` flag.
+Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in one step by passing the `--yes` flag.
 
     kops create cluster \
       --name example.cluster.k8s.local \
@@ -243,7 +242,7 @@ Create a gossip-based private cluster with master and worker nodes in private su
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
-Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
+Once the `kops create cluster` command is issued, it provisions the EC2 instances, sets up AutoScaling Groups, IAM users, Security Groups, installs Kubernetes on each node, then configures the master and worker nodes. This process can take some time based upon the number of master and worker nodes.
 
 Wait for 10-15 minutes and then the cluster can be validated as shown:
 
@@ -312,7 +311,7 @@ Specific API versions can be turned on or off by passing `--runtime-config=api/<
 
 For a cluster created using kops, this can be done by editing the cluster configuration using the command shown:
 
-  kops edit cluster --name example.cluster.k8s.local
+    $ kops edit cluster --name example.cluster.k8s.local
 
 This will open up the cluster configuration in a text editor. Update the `spec` attribute such that it looks like as shown:
 
@@ -383,32 +382,35 @@ The output clearly shows that `--runtime-config=batch/v2alpha1=true` is passed a
 == Instance groups with kops
 
 An instance group is a kops concept that defines a grouping of similar machines. In AWS, an instance group maps to an
-AutoScalingGroup (ASG). Instructions on how to create instance groups can be found link:instance-groups/readme.adoc[here].
+AutoScaling Group (ASG). Instructions on how to create instance groups can be found link:instance-groups/readme.adoc[here].
 
 == Delete cluster
 
 Any cluster can be deleted as shown:
 
-    kops delete cluster \
+    $ kops delete cluster \
       <cluster-name> \
       --yes
 
 `<cluster-name>` is the name of the cluster. For example, our `example.cluster.k8s.local` cluster can be deleted as:
 
-    kops delete cluster \
+    $ kops delete cluster \
       example.cluster.k8s.local \
       --yes
+
+If you leave off the `--yes` flag, you will get a listing of all the resources kops will delete.  To confirm deletion, run the command again appending `--yes`.
 
 If you created a private VPC, then an additional cleanup of resources is required as shown below:
 
     # Find Route53 hosted zone ID from the console or via CLI and delete hosted zone
-    aws route53 delete-hosted-zone --id Z1234567890ABC
+    $ aws route53 delete-hosted-zone --id Z1234567890ABC
+
     # Delete VPC if you created earlier
-    aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID
+    $ aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID
     aws ec2 delete-internet-gateway --internet-gateway-id $IGW
     aws ec2 delete-vpc --vpc-id $VPCID
 
-=== Appendix: Create a DNS-based Kubernetes cluster
+== Appendix: Create a DNS-based Kubernetes cluster
 
 To create a DNS-based Kubernetes cluster you'll need a top-level domain or subdomain that meets one of the following scenarios:
 
@@ -425,7 +427,7 @@ By default, `create cluster` command creates a single master node and two worker
 
 Create a Kubernetes cluster using the following command. For the purposes of this demonstration, we will use a cluster name of example.cluster.com as our registered DNS. This will create a cluster with a single master, multi-node and multi-az configuration:
 
-    kops create cluster \
+    $ kops create cluster \
       --name example.cluster.com \
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
@@ -470,12 +472,12 @@ It shows that Kubectl CLI version is 1.8.1 and the server version is 1.7.4.
 
 Check the list of Availability Zones that exist for your region using the following command:
 
-    aws --region <region> ec2 describe-availability-zones
+    $ aws --region <region> ec2 describe-availability-zones
 
 Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in
 one step by passing the `--yes` flag.
 
-    kops create cluster \
+    $ kops create cluster \
       --name example.cluster.com \
       --master-count 3 \
       --node-count 5 \
