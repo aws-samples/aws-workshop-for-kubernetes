@@ -4,15 +4,13 @@
 :imagesdir: ../images
 :toc:
 
-Before starting this section, please have created  a highly available cluster on AWS using https://github.com/kubernetes/kops[kops], as explained here: link:../cluster-install[cluster install] section.
+Before starting this section, please have created a cluster on AWS with https://github.com/kubernetes/kops[kops], as explained in the link:../cluster-install[Create a Kubernetes cluster using kops] section.
 
 == Kubernetes basic commands
 
 Now that we have a cluster up and running we can start issuing some basic commands and deploy some simple resources.
 
-In this part we will familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGiNX pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps get developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
-
-NOTE: The kubectl commands below will be routed via your virtualbox network interface. If you are using a VPN or have a local firewall, this may prevent kubectl from contacting the minikube endpoint. Stopping the VPN or adding a firewall rule may resolve this.
+In this part we will familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGiNX pod and execute some commands to help you gain comfort with the Kubernetes environment from an end-user perspective. This helps get developers up and running - taking advantage of the Kubernetes application deployment capabilities - without having to worry about the infrastructure related complexities.
 
 === Display nodes
 
