@@ -201,7 +201,7 @@ Replace the `Values` value with the nodeName retreived earlier.
         ]
     ]    
 
-Next, we add an ingress rule to the security group opening up the port on the node to anyone - `0.0.0.0/0`. This is purely for demonstration purposes in this workshop and is not a best practice. Most services will be exposed behind a load balancer, which we cover in the next section.  For the command below, replace the `--port` flag value with the nodePort retreived above.
+Next, we add an ingress rule to the security group opening up the port on the node to anyone - `0.0.0.0/0`. This is purely for demonstration purposes in this workshop and is not a best practice. Most services will be exposed behind a load balancer, which we cover in the next section.  For the command below, replace the `--group-id` parameter with the GroupId you just retrieved, and the `--port` parameter value with the nodePort retreived above.
 
     $ aws ec2 authorize-security-group-ingress --group-id sg-c0285fa8 --protocol tcp --port 32400 --cidr 0.0.0.0/0
 
