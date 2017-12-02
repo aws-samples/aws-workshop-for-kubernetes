@@ -160,7 +160,7 @@ This command will open a TTY to a shell in your pod:
 
 This opens a Bash shell and allows you to look around the filesystem of the container.
 
-=== Expose the deployment as a service (via NodePort)
+== Expose the deployment as a service (via NodePort)
 
 By default, all Kubernetes resources are only accessible within the cluster. This command will create a loadBalancer and allow the the NGiNX deployment to be accessible from the Internet:
 
@@ -175,7 +175,7 @@ This will expose the deployment as a Service. You can see the published service:
 
 We will learn more about Services and Deployments later in the workshop.    
 
-== View the NGiNX deployment using the NodePort
+=== View the NGiNX deployment using the NodePort
 
 First, we find the hostname of the node on which the nginx Pod is running: 
 
@@ -242,7 +242,7 @@ You should now be able to point a browser or use `cURL` to retrieve the combined
 
     <p><em>Thank you for using nginx.</em></p> 
     
-=== Expose the deployment as a service via a load balancer
+== Expose the deployment as a service (via a Load Balancer)
 
 Delete the existing service and deployment:
 
@@ -285,7 +285,7 @@ Events:
 ```
 It will take a few minutes for the load balancer to be created and attached to the nodes.
 
-== View the deployment as a service via a load balancer
+=== View the deployment as a service via the Load Balancer
 
 In addition to seeing the hostname via the desribe operation, we can also retrieve just the hostname of the load balancer via:
 
