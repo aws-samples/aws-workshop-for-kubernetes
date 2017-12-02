@@ -10,7 +10,7 @@ Before starting this section, please have created  a highly available cluster on
 
 Now that we have a cluster up and running we can start issuing some basic commands and deploy some simple resources.
 
-In this part we will familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGINX pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps get developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
+In this part we will familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGiNX pod and execute some commands to help developers gain comfort with the Kubernetes environment from an end-user perspective. This helps get developers up and running taking advantage of the Kubernetes application deployment capabilities without having to worry about the infrastructure related complexities.
 
 NOTE: The kubectl commands below will be routed via your virtualbox network interface. If you are using a VPN or have a local firewall, this may prevent kubectl from contacting the minikube endpoint. Stopping the VPN or adding a firewall rule may resolve this.
 
@@ -18,18 +18,26 @@ NOTE: The kubectl commands below will be routed via your virtualbox network inte
 
 This command will show all the nodes available in your kubernetes cluster:
 
-    kubectl get nodes
+    $ kubectl get nodes
 
-It shows the output as:
+It will show an output similar to:
 
-  NAME       STATUS    ROLES     AGE       VERSION
-
+    NAME                                           STATUS    ROLES     AGE      VERSION
+    ip-172-20-105-158.us-east-2.compute.internal   Ready     node      2d       v1.7.4
+    ip-172-20-124-26.us-east-2.compute.internal    Ready     master    2d       v1.7.4
+    ip-172-20-127-251.us-east-2.compute.internal   Ready     node      2d       v1.7.4
+    ip-172-20-52-35.us-east-2.compute.internal     Ready     master    2d       v1.7.4
+    ip-172-20-63-150.us-east-2.compute.internal    Ready     node      2d       v1.7.4
+    ip-172-20-71-14.us-east-2.compute.internal     Ready     node      2d       v1.7.4
+    ip-172-20-87-91.us-east-2.compute.internal     Ready     node      2d       v1.7.4
+    ip-172-20-94-153.us-east-2.compute.internal    Ready     master    2d       v1.7.4
 
 === Create your first pod
 
 This command creates an nginx pod into your cluster:
 
-    kubectl run nginx --image=nginx
+    $ kubectl run nginx --image=nginx
+    deployment "nginx" created
 
 Get the list of deployments:
 
@@ -41,210 +49,146 @@ Get the list of running pods:
 
     $ kubectl get pods
     NAME                     READY     STATUS    RESTARTS   AGE
-    nginx-4217019353-h7mns   1/1       Running   0          1m
+    nginx-4217019353-pmkzb   1/1       Running   0          1m
 
 Get additional details for the pod by using the `<pod-name>` from the above output:
 
 ```
-$ kubectl describe pod/nginx-4217019353-h7mns
-Name:           nginx-4217019353-h7mns
+$ kubectl describe pod/nginx-4217019353-pmkzb
+kubectl describe pod/nginx-4217019353-pmkzb
+Name:           nginx-4217019353-pmkzb
 Namespace:      default
-Node:           minikube/192.168.99.100
-Start Time:     Sun, 22 Oct 2017 21:19:07 -0400
+Node:           ip-172-20-87-91.us-east-2.compute.internal/172.20.87.91
+Start Time:     Fri, 01 Dec 2017 16:36:48 -0800
 Labels:         pod-template-hash=4217019353
                 run=nginx
-Annotations:    kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"nginx-4217019353","uid":"2ac75475-b790-11e7-98ed-08002724bd66","...
+Annotations:    kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"nginx-4217019353","uid":"e161abe9-d6f8-11e7-af8f-06c4465216f2","...
+                kubernetes.io/limit-ranger=LimitRanger plugin set: cpu request for container nginx
 Status:         Running
-IP:             172.17.0.6
+IP:             100.96.7.19
 Created By:     ReplicaSet/nginx-4217019353
 Controlled By:  ReplicaSet/nginx-4217019353
 Containers:
   nginx:
-    Container ID:   docker://75ac01bf97fee66ea8e5cfd6cfe00d3b29d8b09d9ca52b7be1782db5dd610057
+    Container ID:   docker://2def6a6dc1594c337748abf6160ff81fab9fa6d734aca02b5f1afc4d395edc6b
     Image:          nginx
-    Image ID:       docker://sha256:1e5ab59102ce46c277eda5ed77affaa4e3b06a59fe209fe0b05200606db3aa7a
+    Image ID:       docker-pullable://nginx@sha256:b81f317384d7388708a498555c28a7cce778a8f291d90021208b3eba3fe74887
     Port:           <none>
     State:          Running
-      Started:      Sun, 22 Oct 2017 21:20:02 -0400
+      Started:      Fri, 01 Dec 2017 16:36:52 -0800
     Ready:          True
     Restart Count:  0
-    Environment:    <none>
+    Requests:
+      cpu:        100m
+    Environment:  <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-c5xdg (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-cqht0 (ro)
 Conditions:
   Type           Status
-  Initialized    True
-  Ready          True
-  PodScheduled   True
+  Initialized    True 
+  Ready          True 
+  PodScheduled   True 
 Volumes:
-  default-token-c5xdg:
+  default-token-cqht0:
     Type:        Secret (a volume populated by a Secret)
-    SecretName:  default-token-c5xdg
+    SecretName:  default-token-cqht0
     Optional:    false
-QoS Class:       BestEffort
+QoS Class:       Burstable
 Node-Selectors:  <none>
-Tolerations:     <none>
+Tolerations:     node.alpha.kubernetes.io/notReady:NoExecute for 300s
+                 node.alpha.kubernetes.io/unreachable:NoExecute for 300s
 Events:
-  Type    Reason                 Age   From               Message
-  ----    ------                 ----  ----               -------
-  Normal  Scheduled              1m    default-scheduler  Successfully assigned nginx-4217019353-h7mns to minikube
-  Normal  SuccessfulMountVolume  1m    kubelet, minikube  MountVolume.SetUp succeeded for volume "default-token-c5xdg"
-  Normal  Pulling                1m    kubelet, minikube  pulling image "nginx"
-  Normal  Pulled                 51s   kubelet, minikube  Successfully pulled image "nginx"
-  Normal  Created                51s   kubelet, minikube  Created container
-  Normal  Started                51s   kubelet, minikube  Started container
+  Type    Reason                 Age   From                                                 Message
+  ----    ------                 ----  ----                                                 -------
+  Normal  Scheduled              46s   default-scheduler                                    Successfully assigned nginx-4217019353-pmkzb to ip-172-20-87-91.us-east-2.compute.internal
+  Normal  SuccessfulMountVolume  46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  MountVolume.SetUp succeeded for volume "default-token-cqht0"
+  Normal  Pulling                46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  pulling image "nginx"
+  Normal  Pulled                 42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Successfully pulled image "nginx"
+  Normal  Created                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Created container
+  Normal  Started                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Started container
+
 ```
 
 By default, pods are created in a `default` namespace. In addition, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
 
 ```
 $ kubectl get pods --namespace kube-system
-NAME                          READY     STATUS    RESTARTS   AGE
-kube-addon-manager-minikube   1/1       Running   0          1m
-kube-dns-1326421443-69xs9     3/3       Running   0          1m
-kubernetes-dashboard-5jt9q    1/1       Running   0          1m
+NAME                                                                  READY     STATUS    RESTARTS   AGE
+dns-controller-3497129722-4pxd6                                       1/1       Running   0          28d
+etcd-server-events-ip-172-20-124-26.us-east-2.compute.internal        1/1       Running   0          28d
+etcd-server-events-ip-172-20-52-35.us-east-2.compute.internal         1/1       Running   0          28d
+etcd-server-events-ip-172-20-94-153.us-east-2.compute.internal        1/1       Running   0          28d
+etcd-server-ip-172-20-124-26.us-east-2.compute.internal               1/1       Running   0          28d
+etcd-server-ip-172-20-52-35.us-east-2.compute.internal                1/1       Running   0          28d
+etcd-server-ip-172-20-94-153.us-east-2.compute.internal               1/1       Running   0          28d
+kube-apiserver-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
+kube-apiserver-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
+kube-apiserver-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
+kube-controller-manager-ip-172-20-124-26.us-east-2.compute.internal   1/1       Running   0          28d
+kube-controller-manager-ip-172-20-52-35.us-east-2.compute.internal    1/1       Running   0          28d
+kube-controller-manager-ip-172-20-94-153.us-east-2.compute.internal   1/1       Running   0          28d
+kube-dns-1311260920-jgl0m                                             3/3       Running   0          28d
+kube-dns-1311260920-tvpmp                                             3/3       Running   0          28d
+kube-dns-autoscaler-1818915203-5kxrb                                  1/1       Running   0          28d
+kube-proxy-ip-172-20-105-158.us-east-2.compute.internal               1/1       Running   0          28d
+kube-proxy-ip-172-20-124-26.us-east-2.compute.internal                1/1       Running   0          28d
+kube-proxy-ip-172-20-127-251.us-east-2.compute.internal               1/1       Running   0          28d
+kube-proxy-ip-172-20-52-35.us-east-2.compute.internal                 1/1       Running   0          28d
+kube-proxy-ip-172-20-63-150.us-east-2.compute.internal                1/1       Running   0          28d
+kube-proxy-ip-172-20-71-14.us-east-2.compute.internal                 1/1       Running   0          28d
+kube-proxy-ip-172-20-87-91.us-east-2.compute.internal                 1/1       Running   0          28d
+kube-proxy-ip-172-20-94-153.us-east-2.compute.internal                1/1       Running   0          28d
+kube-scheduler-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
+kube-scheduler-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
+kube-scheduler-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
+tiller-deploy-1114875906-k2pj2                                        1/1       Running   0          28d
 ```
+Again, the exact output may vary but your results should look similar to these.
 
 === Get logs from the pod
 
 Logs from the pod can be obtained (a fresh nginx does not have logs - check again later once you have accessed the service):
 
-    kubectl logs <pod-name>
+    $ kubectl logs <pod-name>
 
 === Execute a shell on the running pod
 
 This command will open a TTY to a shell in your pod:
 
-    kubectl get pods
-    kubectl exec -it <pod-name> /bin/bash
+    $ kubectl get pods
+    $ kubectl exec -it <pod-name> /bin/bash
 
 This opens a Bash shell and allows you to look around the filesystem of the container.
 
-=== Expose pod
+=== Expose the deployment as a Service
 
-By default, all Kubernetes resources are only accessible within the cluster. This command will publish the NGINX pod to a port on the host where it's deployed:
+By default, all Kubernetes resources are only accessible within the cluster. This command will create a loadBalancer and allow the the NGiNX deployment to be accessible from the Internet:
 
-    kubectl expose pod <pod-name> --port=80 --type=NodePort --name=web
+    $ kubectl expose deployment nginx --type=LoadBalancer --port=80 --target-port=80 --name=web
+    service "web" exposed
 
-Where `<pod-name>` is the pod name of your NGINX pod. This will expose the pod as a Service. You can see the published service:
+This will expose the deployment as a Service. You can see the published service:
 
-    $ kubectl get svc
-    NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)        AGE
-    kubernetes   ClusterIP   10.0.0.1     <none>        443/TCP        50m
-    web          NodePort    10.0.0.138   <none>        80:32406/TCP   3s
+    $ kubectl get service
+    NAME         TYPE           CLUSTER-IP      EXTERNAL-IP        PORT(S)        AGE
+    kubernetes   ClusterIP      100.64.0.1      <none>             443/TCP        2d
+    web          LoadBalancer   100.69.223.33   a904073d0d6fe...   80:31259/TCP   32s
 
-=== View service webpage
+We will learn more about Services and Deployments later in the workshop.    
 
-You can view the IP address of a node in your cluster with these steps, first find all of the nodes in your cluster:
+=== View Service webpage
 
-    kubectl get nodes
+We can find the hostname of the LoadBalancer created when we exposed the nginx deployment as service.
+The `-o` flag allows us to choose a different output format, and choosing the `jsonpath` output format allows us to filter the resultant JSON down to the exact value we need. 
 
-Once you have the nodes (in minikubes case there will be only one), we can describe all of the attribute of that node with:
+    $ kubectl get service web -o jsonpath={.status.loadBalancer.ingress..hostname}
+    a904073d0d6fe11e7af8f06c4465216f-766639162.us-east-2.elb.amazonaws.com
 
-    kubectl describe node <node-name>
-
-Where `<node-name>` is the output from the previous command. This shows a lot of information about the node:
-
-```
-$ kubectl describe node minikube
-Name:               minikube
-Roles:              <none>
-Labels:             beta.kubernetes.io/arch=amd64
-                    beta.kubernetes.io/os=linux
-                    kubernetes.io/hostname=minikube
-Annotations:        alpha.kubernetes.io/provided-node-ip=192.168.99.100
-                    node.alpha.kubernetes.io/ttl=0
-                    volumes.kubernetes.io/controller-managed-attach-detach=true
-Taints:             <none>
-CreationTimestamp:  Sun, 15 Oct 2017 17:22:22 -0400
-Conditions:
-  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
-  ----             ------  -----------------                 ------------------                ------                       -------
-  OutOfDisk        False   Sun, 22 Oct 2017 21:26:44 -0400   Mon, 16 Oct 2017 19:28:57 -0400   KubeletHasSufficientDisk     kubelet has sufficient disk space available
-  MemoryPressure   False   Sun, 22 Oct 2017 21:26:44 -0400   Mon, 16 Oct 2017 19:28:57 -0400   KubeletHasSufficientMemory   kubelet has sufficient memory available
-  DiskPressure     False   Sun, 22 Oct 2017 21:26:44 -0400   Mon, 16 Oct 2017 19:28:57 -0400   KubeletHasNoDiskPressure     kubelet has no disk pressure
-  Ready            True    Sun, 22 Oct 2017 21:26:44 -0400   Mon, 16 Oct 2017 19:28:57 -0400   KubeletReady                 kubelet is posting ready status
-Addresses:
-  InternalIP:  192.168.99.100
-  Hostname:    minikube
-Capacity:
- cpu:     2
- memory:  2048484Ki
- pods:    110
-Allocatable:
- cpu:     2
- memory:  1946084Ki
- pods:    110
-System Info:
- Machine ID:                 6756b9ba9cd3480fa019cf553d4fea04
- System UUID:                AC4BE6D4-7896-46EF-B921-44BD0BC92D0D
- Boot ID:                    66a504af-ce10-4d45-ad50-334f21a2063e
- Kernel Version:             4.7.2
- OS Image:                   Buildroot 2016.08
- Operating System:           linux
- Architecture:               amd64
- Container Runtime Version:  docker://1.11.1
- Kubelet Version:            v1.7.5
- Kube-Proxy Version:         v1.7.5
-ExternalID:                  minikube
-Non-terminated Pods:         (4 in total)
-  Namespace                  Name                           CPU Requests  CPU Limits  Memory Requests  Memory Limits
-  ---------                  ----                           ------------  ----------  ---------------  -------------
-  default                    nginx-4217019353-h7mns         0 (0%)        0 (0%)      0 (0%)           0 (0%)
-  kube-system                kube-addon-manager-minikube    5m (0%)       0 (0%)      50Mi (2%)        0 (0%)
-  kube-system                kube-dns-1326421443-tbzqc      260m (13%)    0 (0%)      110Mi (5%)       170Mi (8%)
-  kube-system                kubernetes-dashboard-zqd7w     0 (0%)        0 (0%)      0 (0%)           0 (0%)
-Allocated resources:
-  (Total limits may be over 100 percent, i.e., overcommitted.)
-  CPU Requests  CPU Limits  Memory Requests  Memory Limits
-  ------------  ----------  ---------------  -------------
-  265m (13%)    0 (0%)      160Mi (8%)       170Mi (8%)
-Events:
-  Type     Reason                   Age              From                  Message
-  ----     ------                   ----             ----                  -------
-  Normal   Starting                 6d               kubelet, minikube     Starting kubelet.
-  Normal   NodeAllocatableEnforced  6d               kubelet, minikube     Updated Node Allocatable limit across pods
-  Warning  Rebooted                 6d               kubelet, minikube     Node minikube has been rebooted, boot id: d80f975d-2373-4fd0-9d11-3262049e1f39
-  Normal   NodeNotReady             6d               kubelet, minikube     Node minikube status is now: NodeNotReady
-  Normal   Starting                 6d               kube-proxy, minikube  Starting kube-proxy.
-  Normal   NodeHasSufficientDisk    6d (x2 over 6d)  kubelet, minikube     Node minikube status is now: NodeHasSufficientDisk
-  Normal   NodeHasSufficientMemory  6d (x2 over 6d)  kubelet, minikube     Node minikube status is now: NodeHasSufficientMemory
-  Normal   NodeHasNoDiskPressure    6d (x2 over 6d)  kubelet, minikube     Node minikube status is now: NodeHasNoDiskPressure
-  Normal   NodeReady                6d (x2 over 6d)  kubelet, minikube     Node minikube status is now: NodeReady
-  Normal   Starting                 8m               kubelet, minikube     Starting kubelet.
-  Normal   NodeAllocatableEnforced  8m               kubelet, minikube     Updated Node Allocatable limit across pods
-  Normal   NodeHasSufficientDisk    8m               kubelet, minikube     Node minikube status is now: NodeHasSufficientDisk
-  Normal   NodeHasSufficientMemory  8m               kubelet, minikube     Node minikube status is now: NodeHasSufficientMemory
-  Normal   NodeHasNoDiskPressure    8m               kubelet, minikube     Node minikube status is now: NodeHasNoDiskPressure
-  Warning  Rebooted                 8m               kubelet, minikube     Node minikube has been rebooted, boot id: 66a504af-ce10-4d45-ad50-334f21a2063e
-  Normal   Starting                 8m               kube-proxy, minikube  Starting kube-proxy.
-```
-
-IP address information can be obtained by looking at the `InternalIP` field:
-
-    $ echo $(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}')
-
-This gives us the IP address where the service is hosted. Now, we need to get the port that the service is exposed on. This can be found using the following command:
-
-    $ echo $(kubectl get service web -o jsonpath='{.spec.ports[*].nodePort}')
-
-We can combine these two commands with curl to access the service from the cli:
-```
-$ curl $(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'):$(kubectl get service web -o jsonpath='{.spec.ports[*].nodePort}')
-```
-
-The host and the port are the exact same values where minikube opened the service page in the browser.
-
-=== Kubernetes dashboard
-
-Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters. It provides an overview of applications running on the cluster, as well as the ability to create or modify individual Kubernetes resources and workloads, such as replica sets, jobs, services, and pods. The dashboard can be used to manage the cluster as well.
-
-Look around the dashboard and become familiar with some of the Kubernetes terminology. This will be explained in the subsequent chapters.
-
+Placing that hostname into a browser should show the default NGiNX homepage.
 
 === Delete resources
 
-Delete the Kubernetes resources created so far:
+Delete all the Kubernetes resources created so far:
 
-    kubectl delete svc/web deployment/nginx
+    $ kubectl delete service/web deployment/nginx
 
