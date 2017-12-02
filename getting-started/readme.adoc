@@ -32,7 +32,7 @@ It will show an output similar to:
 
 === Create your first pod
 
-This command creates an nginx pod into your cluster:
+This command instantiates an nginx container into your cluster, inside a pod:
 
     $ kubectl run nginx --image=nginx
     deployment "nginx" created
@@ -156,16 +156,16 @@ This command will open a TTY to a shell in your pod:
     $ kubectl get pods
     $ kubectl exec -it <pod-name> /bin/bash
 
-This opens a Bash shell and allows you to look around the filesystem of the container.
+This opens a bash shell and allows you to look around the filesystem of the container.
 
 == Expose the deployment as a service (via NodePort)
 
-By default, all Kubernetes resources are only accessible within the cluster. This command will create a loadBalancer and allow the the NGiNX deployment to be accessible from the Internet:
+By default, all Kubernetes resources are only accessible within the cluster. This command will expose the pod via a dynamically chosen port on the node itself.  This will eventually allow the the NGiNX deployment to be accessible from the Internet:
 
     $ kubectl expose deployment nginx --type=NodePort --port=80 --target-port=80 --name=web
     service "web" exposed
 
-This will expose the deployment as a Service. You can see the published service:
+Expose the deployment creates what Kubernetes calls a service. You can see the published service:
 
     $ kubectl get service
     NAME         TYPE           CLUSTER-IP      EXTERNAL-IP        PORT(S)        AGE
@@ -186,12 +186,13 @@ First, we find the hostname of the node on which the nginx Pod is running:
 
 The `-o` flag allows us to choose a different output format, and choosing the `jsonpath` output format allows us to filter the resultant JSON down to the exact value we need. 
 
-Next we need the dynamic port the service opened for us on the Node running the NGiNX pod.
+Next we need the dynamic port the service opened for us on the node running the NGiNX pod.
 
     $ kubectl get service web -o jsonpath={.spec.ports..nodePort}
     32400
 
 Next, we need to authorize access on the port on the node itself to receive traffic. We do this by finding the node's security group, then using the AWS CLI to authorize ingress on that port.
+Replace the `Values` value with the nodeName retreived earlier.
 
    $ aws ec2 describe-instances --filters "Name=private-dns-name,Values=ip-172-20-87-91.us-east-2.compute.internal" --query 'Reservations[*].Instances[*].SecurityGroups[*].GroupId'
     [
@@ -199,6 +200,8 @@ Next, we need to authorize access on the port on the node itself to receive traf
             "sg-c0285fa8"
         ]
     ]    
+
+Next, we add an ingress rule to the security group opening up the port on the node to anyone - `0.0.0.0/0`. This is purely for demonstration purposes in this workshop and is not a best practice. Most services will be exposed behind a load balancer, which we cover in the next section.  For the command below, replace the `--port` flag value with the nodePort retreived above.
 
     $ aws ec2 authorize-security-group-ingress --group-id sg-c0285fa8 --protocol tcp --port 32400 --cidr 0.0.0.0/0
 
