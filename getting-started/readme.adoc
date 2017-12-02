@@ -160,7 +160,7 @@ This command will open a TTY to a shell in your pod:
 
 This opens a Bash shell and allows you to look around the filesystem of the container.
 
-=== Expose the deployment as a service via NodePort
+=== Expose the deployment as a service (via NodePort)
 
 By default, all Kubernetes resources are only accessible within the cluster. This command will create a loadBalancer and allow the the NGiNX deployment to be accessible from the Internet:
 
@@ -175,7 +175,7 @@ This will expose the deployment as a Service. You can see the published service:
 
 We will learn more about Services and Deployments later in the workshop.    
 
-== View the NGiNX deployment via the NodePort
+== View the NGiNX deployment using the NodePort
 
 First, we find the hostname of the node on which the nginx Pod is running: 
 
@@ -193,7 +193,7 @@ Next we need the dynamic port the service opened for us on the Node running the 
     $ kubectl get service web -o jsonpath={.spec.ports..nodePort}
     32400
 
-Next, we need to open the port on the node itself to receive traffic that port. We do this by finding the security group to which the node belongs.
+Next, we need to authorize access on the port on the node itself to receive traffic. We do this by finding the node's security group, then using the AWS CLI to authorize ingress on that port.
 
    $ aws ec2 describe-instances --filters "Name=private-dns-name,Values=ip-172-20-87-91.us-east-2.compute.internal" --query 'Reservations[*].Instances[*].SecurityGroups[*].GroupId'
     [
@@ -204,6 +204,8 @@ Next, we need to open the port on the node itself to receive traffic that port. 
 
     $ aws ec2 authorize-security-group-ingress --group-id sg-c0285fa8 --protocol tcp --port 32400 --cidr 0.0.0.0/0
 
+Finally, we can use the AWS CLI to retrieve the public hostname of the node itself.
+
     $ aws ec2 describe-instances --filters "Name=private-dns-name,Values=ip-172-20-87-91.us-east-2.compute.internal" --query 'Reservations[*].Instances[*].NetworkInterfaces[*].PrivateIpAddresses[*].Association.PublicDnsName'
     [
         [
@@ -213,7 +215,7 @@ Next, we need to open the port on the node itself to receive traffic that port. 
         ]
     ]
 
-You should now be able to go to point a browser or use `curl` to go to the combined site and see the default NGiNX homepage:
+You should now be able to point a browser or use `cURL` to retrieve the combined <public hostname>:<node port> and see the default NGiNX homepage:
 
     $ curl http://ec2-18-216-5-70.us-east-2.compute.amazonaws.com:32400 
     <!DOCTYPE html>
@@ -240,7 +242,7 @@ You should now be able to go to point a browser or use `curl` to go to the combi
 
     <p><em>Thank you for using nginx.</em></p> 
     
-=== Expose a deployment as a service via a load balancer
+=== Expose the deployment as a service via a load balancer
 
 Delete the existing service and deployment:
 
@@ -283,6 +285,8 @@ Events:
 ```
 It will take a few minutes for the load balancer to be created and attached to the nodes.
 
+== View the deployment as a service via a load balancer
+
 In addition to seeing the hostname via the desribe operation, we can also retrieve just the hostname of the load balancer via:
 
     $ kubectl get service web -o jsonpath={.status.loadBalancer.ingress..hostname}
@@ -290,9 +294,13 @@ In addition to seeing the hostname via the desribe operation, we can also retrie
 
 Just as before, you can point a browser or `cURL` to that hostname (this time on port 80) and you should see the NGiNX homepage.
 
-=== Delete resources
+=== Delete resources and clean up
 
 Delete all the Kubernetes resources created so far:
 
     $ kubectl delete service/web deployment/nginx
+
+Revoke access on the port you opened on the EC2 security group earlier:
+
+    $ aws ec2 revoke-security-group-ingress --group-id sg-c0285fa8 --protocol tcp --port 32400 --cidr 0.0.0.0/0
 
