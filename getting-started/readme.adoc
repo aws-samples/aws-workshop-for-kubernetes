@@ -170,6 +170,7 @@ Expose the deployment creates what Kubernetes calls a service. You can see the p
     $ kubectl get service
     NAME         TYPE           CLUSTER-IP      EXTERNAL-IP        PORT(S)        AGE
     kubernetes   ClusterIP      100.64.0.1      <none>             443/TCP        2d
+    web          NodePort       100.67.45.110   <none>             80:32400/TCP   32s
 
 We will learn more about Services and Deployments later in the workshop.    
 
