@@ -61,31 +61,31 @@ Now you see your newly admin user and group together with the `Access key ID`. T
 To login from the console run `aws configure` and enter the required values. It will look like this:
 
 ```
-aws configure
+$ aws configure
 AWS Access Key ID [None]: *****
 AWS Secret Access Key [None]: *****
 Default region name [None]: eu-central-1
 Default output format [None]:
 ```
 
-=== Create IAM user for workshop
+=== Create an IAM user with necessary permissions
 
 Run the following commands on CLI to create the needed group and user:
 
 ```
-aws iam create-group --group-name k8s-workshop
+$ aws iam create-group --group-name k8s-workshop
 
-aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name k8s-workshop
-aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name k8s-workshop
-aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name k8s-workshop
-aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name k8s-workshop
-aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name k8s-workshop
+$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name k8s-workshop
+$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name k8s-workshop
+$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name k8s-workshop
+$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name k8s-workshop
+$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name k8s-workshop
 
-aws iam create-user --user-name k8s-workshop
+$ aws iam create-user --user-name k8s-workshop
 
-aws iam add-user-to-group --user-name k8s-workshop --group-name k8s-workshop
+$ aws iam add-user-to-group --user-name k8s-workshop --group-name k8s-workshop
 
-aws iam create-access-key --user-name k8s-workshop
+$ aws iam create-access-key --user-name k8s-workshop
 ```
 
 Now run `aws configure` again and use the `Access Key ID` and `Secret Access Key` from the newly created user.
@@ -112,6 +112,6 @@ The workshop repo has configuration files that are used to create Kubernetes res
 
 	$ git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
 
-== Need Help
+== Need Help? Found an Issue?
 
 Please https://github.com/aws-samples/aws-workshop-for-kubernetes/issues[file a bug] if you run into issues.

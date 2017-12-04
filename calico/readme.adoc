@@ -156,7 +156,7 @@ I1025 15:56:30.010284    3458 executor.go:91] Tasks: 68 done / 72 total; 3 can r
 I1025 15:56:30.626483    3458 executor.go:91] Tasks: 71 done / 72 total; 1 can run
 I1025 15:56:30.934673    3458 executor.go:91] Tasks: 72 done / 72 total; 0 can run
 I1025 15:56:31.545416    3458 update_cluster.go:247] Exporting kubecfg for cluster
-Kops has set your kubectl context to example.cluster.k8s.local
+kops has set your kubectl context to example.cluster.k8s.local
 
 Cluster changes have been applied to the cloud.
 

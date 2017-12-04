@@ -23,9 +23,10 @@ as you move through the workshop.
 |Beginner (100 level)
 
 |link:prereqs.adoc[Prerequisites]
-|link:getting-started[Setup Development Environment and First Steps]
 |link:cluster-install[Create a Kubernetes cluster using kops]
+|link:getting-started[First Steps with the Kubernetes CLI]
 |link:developer-concepts[Kubernetes Developer Concepts]
+|link:local-development[(Optional) Configure a Local Development Environment]
 |===
 
 [cols="1*"]
@@ -42,6 +43,7 @@ as you move through the workshop.
 | Upgrading a Kubernetes cluster: Blue/Green Upgrade
 | link:cluster-scaling[Cluster Scaling]
 | link:app-scaling[Application Autoscaling]
+| link:app-tracing[Application Tracing]
 |===
 
 [cols="1*"]
