@@ -24,15 +24,15 @@ Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh
 
 . Install VirtualBox
 
-    brew cask install virtualbox
+    $ brew cask install virtualbox
 
 . Install minikube
 
-    brew cask install minikube
+    $ brew cask install minikube
 +
 If `minikube` has already been installed earlier, then you can update the install using the following command:
 +
-    brew cask reinstall minikube
+    $ brew cask reinstall minikube
 +
 If you receive this error after `brew cask install minikube`:
 +
@@ -41,20 +41,20 @@ If you receive this error after `brew cask install minikube`:
 +
 Run this command:
 +
-    $ sudo cp ~/Library/Caches/Homebrew/Cask/minikube--0.23.0 /usr/local/bin/minikube
+    $ sudo cp ~/Library/Caches/Homebrew/Cask/minikube--0.24.1 /usr/local/bin/minikube
 +
 Verify the version:
 +
     $ minikube version
-    minikube version: v0.23.0
+    minikube version: v0.24.1
 +
 . Install Kubectl CLI
 
-    brew install kubernetes-cli
+    $ brew install kubernetes-cli
 +
 If you already have Kubectl CLI installed, then you just need to update it:
 +
-    brew upgrade kubernetes-cli
+    $ brew upgrade kubernetes-cli
 
 === Setup on Windows
 
@@ -64,7 +64,7 @@ If you already have Kubectl CLI installed, then you just need to update it:
 Verify the version:
 +
     $ minikube version
-    minikube version: v0.23.0
+    minikube version: v0.24.1
 +
 . Download kubectl CLI with cmd.exe
 +
@@ -83,12 +83,12 @@ Latest instructions are also available at https://kubernetes.io/docs/tasks/tools
 Verify the version:
 +
     $ minikube version
-    minikube version: v0.23.0
+    minikube version: v0.24.1
 +
 . Install or Upgrade Kubectl CLI:
 +
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-    chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+    $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    $ chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
 
 === Setup on EC2 (if you do not virtualbox on your laptop)
@@ -96,33 +96,33 @@ Verify the version:
 . Launch an EC2 (at least 4GB Memory) with an "Ubuntu Server 16.04 LTS (HVM)" AMI, make sure you have a public IP and can SSH into this instance.
 . SSH into the EC2 (the port forwarding is for the minikube dashboard):
 +
-    ssh -L30000:localhost:30000 ubuntu@<IP Address of EC2>
+    $ ssh -L30000:localhost:30000 ubuntu@<IP Address of EC2>
 +
 
 . Install docker
 +
-    sudo -i
-    apt-get update -y &&  apt-get install -y docker.io
+    $ sudo -i
+    $ apt-get update -y &&  apt-get install -y docker.io
 +
 
 . Install minikube:
 +
-    curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+    $ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
 +
 
 Verify the version:
 +
     $ minikube version
-    minikube version: v0.23.0
+    minikube version: v0.24.1
 +
 . Install or Upgrade Kubectl CLI:
 +
-    curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+    $ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 +
 
 . Add kubectl autocompletion to your current shell
 +
-    source <(kubectl completion bash)
+    $ source <(kubectl completion bash)
 
 == Start Kubernetes cluster
 
@@ -131,13 +131,13 @@ We are using the VirtualBox driver which is the default selection for minikube. 
 Start a single-node Kubernetes cluster on your local machine:
 
 ```
-    minikube start
+    $ minikube start
 ```
 
 if you have installed minikube on a EC2, start it with the --vm-driver=none flag
 
 ```
-    minikube start --vm-driver=none
+    $ minikube start --vm-driver=none
 ```
 
 The first start of minikube will download the ISO file and then start the cluster. It shows the following output:
@@ -182,7 +182,7 @@ Now that we have a local development cluster up and running we can start issuing
 
 This minikube command will display the service for you in a web page:
 
-    minikube service web
+    $ minikube service web
 
 This opened a browser with an IP address and the port that the service was exposed on. It looks like as shown:
 
@@ -192,11 +192,11 @@ This is a convenient feature of minikube. But what if you wanted to find this in
 
 You can view the IP address of a node in your cluster with these steps, first find all of the nodes in your cluster:
 
-    kubectl get nodes
+    $ kubectl get nodes
 
 Once you have the nodes (in minikubes case there will be only one), we can describe all of the attribute of that node with:
 
-    kubectl describe node <node-name>
+    $ kubectl describe node <node-name>
 
 Where `<node-name>` is the output from the previous command. This shows a lot of information about the node:
 
@@ -296,7 +296,7 @@ Kubernetes dashboard is a general purpose, web-based UI for Kubernetes clusters.
 
 Kubernetes dashboard with minikube can be easily viewed using the following command ( Do not run this if you have minikube on EC2, instead just point your browser to http://127.0.0.1:30000):
 
-    minikube dashboard
+    $ minikube dashboard
 
 It looks like this:
 
