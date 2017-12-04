@@ -385,4 +385,9 @@ Remove all the resources and the namespace using the command:
 
 === Preventing Outbound access
 
-The Kubernetes Network Policies allow you to isolate inbound traffic only.  To filter outbound traffic, you need to configure Calico directly using the `calicoctl` tool.  Refer to the section https://docs.projectcalico.org/v2.6/getting-started/kubernetes/tutorials/advanced-policy[Prevent outgoing connections from pods] for further information.
+NetworkPolicy resources in Kubernetes versions prior to 1.8 allow you to isolate inbound traffic only.  To filter outbound traffic, you need to configure Calico directly using the `calicoctl` tool.  Refer to the section https://docs.projectcalico.org/v2.5/getting-started/kubernetes/tutorials/advanced-policy[Prevent outgoing connections from pods] for further information.
+
+Kubernetes is an evolving project and for Kubernetes versions 1.8 and newer NetworkPolicy is growing to support egress traffic, so users of Kubernetes 1.8+ should refer to the section https://docs.projectcalico.org/v2.6/getting-started/kubernetes/tutorials/advanced-policy[Prevent outgoing connections from pods], which the same section as above but in the newer Calico version's docs updated for this upgrade and allows only using `kubectl`.
+
+The https://kubernetes.io/docs/concepts/services-networking/network-policies/[Kubernetes official Network Policies Concepts Documentation] contains more information and examples around the egress support. Currently these changes are in beta state, with 1.10 the goal for general availability. Work towards completing egress support for NetworkPolicy can be tracked at https://github.com/kubernetes/features/issues/366[Kubernetes/Features: GA Egress support for Network Policy] and https://github.com/kubernetes/kubernetes/issues/22469[Kubernetes/Kubernetes: Kubernetes Network Policy].
+
