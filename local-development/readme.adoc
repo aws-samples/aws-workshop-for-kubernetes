@@ -50,7 +50,7 @@ If you receive this error:
 
 Run this command:
 
-    $ sudo cp ~/Library/Caches/Homebrew/Cask/minikube--0.23.0 /usr/local/bin/minikube
+    $ sudo cp ~/Library/Caches/Homebrew/Cask/minikube--0.24.1 /usr/local/bin/minikube
 ====
 +
 Verify the version:
