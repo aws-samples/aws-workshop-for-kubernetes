@@ -35,7 +35,7 @@ Provision and install a local Kubernetes cluster on a Mac OS via https://brew.sh
 Verify the version:
 +
     $ minikube version
-    minikube version: v0.23.0
+    minikube version: v0.24.1
 +
 *If you already have minikube:*
 +
@@ -56,7 +56,7 @@ Run this command:
 Verify the version:
 
     $ minikube version
-    minikube version: v0.23.0
+    minikube version: v0.24.1
 +
 Finally delete the previous minikube ISO:
 
