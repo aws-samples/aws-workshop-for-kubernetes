@@ -1,4 +1,4 @@
-= Create Kubernetes Cluster Using kops
+= Create A Kubernetes Cluster Using kops
 :toc:
 
 This tutorial will walk you through how to install a Kubernetes cluster on AWS using kops.
@@ -31,7 +31,7 @@ Latest and early versions of kops can be downloaded from https://github.com/kube
 
 You will also need the Kubernetes CLI (kubectl) to manage the resources on the Kubernetes cluster. If you don't have the Kubernetes CLI installed, please follow the instructions link:../getting-started#download-and-install[here] to do so.
 
-=== Configure kops
+=== Create An SSH Key
 
 kops uses a public SSH key while creating a cluster. The location of this file defaults to `~/.ssh/id_rsa.pub`. Please generate an SSH key using `ssh-keygen` command.
 
@@ -404,7 +404,9 @@ If multiple clusters exist, then you can change the context:
 
   $ kubectl config use-context <config-name>
 
-== Turn on an API version for your cluster
+== Turn on an API version for your Cluster
+
+Note: This section is for Kubebernetes 1.7.x, in 1.8.x the api is `batch/v1beta1`. 
 
 Kubernetes resources are created with a specific API version. The exact value is defined by the `apiVersion` attribute in the resource configuration file. Some of the values are `v1`, `extensions/v1beta1` or `batch/v1`. By default, resources with `apiVersion` values X, Y, Z are enabled. If a resource has a version with the word `alpha` in it, then that version needs to be explicitly enabled in the cluster. For example, if you are running a Kubernetes cluster of version 1.7.x, then Cron Job resource cannot be created unless `batch/v2alpha1` is explicitly enabled.
 
