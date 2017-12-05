@@ -51,7 +51,7 @@ as you move through the workshop.
 |Advanced (300 - 400+ level)
 
 | link:statefulsets[StatefulSets with EBS]
-| link:calico[Network policies with Calico]
+| link:network-policies[Specifying Network Policies]
 | link:coredns[Using CoreDNS for Service Discovery]
 | link:roles[Managing IAM roles with kube2iam]
 | CI/CD Pipeline
