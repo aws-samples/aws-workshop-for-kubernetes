@@ -13,8 +13,7 @@ There is no need to download a Kubernetes binary distribution for creating a clu
 
 ==== macOS
 
-At this point brew PR https://github.com/Homebrew/homebrew-core/pull/21305 is not merged, so in order to use kops 1.8 please
-execute the following command.
+At this point brew PR https://github.com/Homebrew/homebrew-core/pull/21305 is not merged, so in order to use kops 1.8 please execute the following command.
 
     $ curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-darwin-amd64
     $ chmod +x kops-darwin-amd64
@@ -320,7 +319,7 @@ This will open up the cluster configuration in a text editor. Update the `spec` 
     spec:
       kubeAPIServer:
         runtimeConfig:
-          "batch/v2alpha1": "true"
+          batch/v2alpha1: "true"
       api:
 
 Save the changes and exit the editor. Kubernetes cluster needs to re-read the configuration. This can be done by forcing a rolling update of the cluster using the following command:
@@ -470,7 +469,7 @@ Verify the client and server version:
   Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
   Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
 
-It shows that Kubectl CLI version is 1.8.1 and the server version is 1.7.4
+It shows that Kubectl CLI version is 1.8.1 and the server version is 1.7.4. Cluster version may changed depending on kops version.
 
 ==== Multi-master, multi-node, multi-az DNS-based cluster
 
