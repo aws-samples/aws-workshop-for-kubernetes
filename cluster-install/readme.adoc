@@ -270,118 +270,6 @@ If `--dns private` is also specified, a Route53 private hosted zone is created f
 
 Although most of the exercises in this workshop should work on a cluster with a private VPC, some commands won't, specifically those that use a proxy to access internally hosted services.
 
-=== Create a DNS-based Kubernetes Cluster
-
-To create a DNS-based Kubernetes cluster you'll need a top-level domain or subdomain that meets one of the following scenarios:
-
-. Domain purchased/hosted via AWS
-. A subdomain under a domain purchased/hosted via AWS
-. Setting up Route53 for a domain purchased with another registrar, transferring the domain to Route53
-. Subdomain for clusters in Route53, leaving the domain at another registrar
-
-Then you need to follow the instructions in https://github.com/kubernetes/kops/blob/master/docs/aws.md#configure-dns[configure DNS]. Typically, the first and the last bullets are common scenarios.
-
-==== Default DNS-based Cluster
-
-By default, `create cluster` command creates a single master node and two worker nodes in the specified zones.
-
-Create a Kubernetes cluster using the following command. For the purposes of this demonstration, we will use a cluster name of example.cluster.com as our registered DNS. This will create a cluster with a single master, multi-node and multi-az configuration:
-
-    kops create cluster \
-      --name example.cluster.com \
-      --zones $AWS_AVAILABILITY_ZONES \
-      --yes
-
-Using `--dns-zone` flag may be required if kops is unable to automatically determine your Route53 zone id.
-
-The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
-
-Alternatively, you may not specify the `--yes` option as part of the `kops create cluster` command. Then you can use `kops edit cluster example.cluster.com` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
-
-    kops update cluster example.cluster.com --yes
-
-Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
-
-Wait for 10-15 minutes and then the cluster can be validated as shown:
-
-```
-$ kops validate cluster --name=example.cluster.com
-Validating cluster example.cluster.com
-
-INSTANCE GROUPS
-NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
-master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
-nodes     Node  t2.medium 2 2 eu-central-1a,eu-central-1b
-
-NODE STATUS
-NAME        ROLE  READY
-ip-172-20-51-232.ec2.internal node  True
-ip-172-20-60-192.ec2.internal master  True
-ip-172-20-91-39.ec2.internal  node  True
-
-Your cluster example.cluster.com is ready
-```
-
-Verify the client and server version:
-
-  $ kubectl version
-  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
-  Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
-
-It shows that Kubectl CLI version is 1.8.1 and the server version is 1.7.4. Depending on the kops current
-release the version of Kubernetes will change by default.
-
-==== Multi-master, multi-node, multi-az DNS-based cluster
-
-Check the list of Availability Zones that exist for your region using the following command:
-
-    aws --region <region> ec2 describe-availability-zones
-
-Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in
-one step by passing the `--yes` flag.
-
-    kops create cluster \
-      --name example.cluster.com \
-      --master-count 3 \
-      --node-count 5 \
-      --zones $AWS_AVAILABILITY_ZONES \
-      --yes
-
-A multi-master cluster can be created by using the `--master-count` option and specifying the number of master nodes. An odd value is recommended. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, `--master-zones` option can be used to explicitly specify the zones for the master nodes.
-
-`--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
-
-As mentioned above, wait for 10-15 minutes for the cluster to be created. Validate the cluster:
-
-```
-$ kops validate cluster --name=example.cluster.com
-Validating cluster example.cluster.com
-
-INSTANCE GROUPS
-NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
-master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
-master-eu-central-1b Master  m3.medium 1 1 eu-central-1b
-master-eu-central-1c Master  c4.large  1 1 eu-central-1c
-nodes     Node  t2.medium 5 5 eu-central-1a,eu-central-1b,eu-central-1c
-
-NODE STATUS
-NAME        ROLE  READY
-ip-172-20-103-30.ec2.internal master  True
-ip-172-20-105-16.ec2.internal node  True
-ip-172-20-127-147.ec2.internal  node  True
-ip-172-20-35-38.ec2.internal  node  True
-ip-172-20-47-199.ec2.internal node  True
-ip-172-20-61-207.ec2.internal master  True
-ip-172-20-75-78.ec2.internal  master  True
-ip-172-20-94-216.ec2.internal node  True
-
-Your cluster example.cluster.com is ready
-```
-
-Note that all masters are spread across different AZs.
-
-Your output may differ from the one shown here based up on the type of cluster you created.
-
 == Kubernetes Cluster Context
 
 You may create multiple Kubernetes clusters. The configuration for each cluster is stored in a configuration file, referred to as "`kubeconfig file`". By default, kubectl looks for a file named `config` in the directory `~/.kube`. The kubectl CLI uses kubeconfig file to find the information it needs to choose a cluster and communicate with the API server of a cluster.
@@ -556,7 +444,7 @@ Alternatively, you may not specify the `--yes` option as part of the `kops creat
 
 Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
 
-Wait for 10-15 minutes and then the cluster can be validated as shown:
+Wait for 5-8 minutes and then the cluster can be validated as shown:
 
 ```
 $ kops validate cluster --name=example.cluster.com
@@ -604,7 +492,7 @@ A multi-master cluster can be created by using the `--master-count` option and s
 
 `--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
-As mentioned above, wait for 10-15 minutes for the cluster to be created. Validate the cluster:
+As mentioned above, wait for 5-8 minutes for the cluster to be created. Validate the cluster:
 
 ```
 $ kops validate cluster --name=example.cluster.com
