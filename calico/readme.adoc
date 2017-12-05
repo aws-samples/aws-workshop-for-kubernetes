@@ -28,7 +28,9 @@ View the cluster configuration using the following command:
 This will show the following fragment under `.spec`:
 
   networking:
-    calico: {}
+    calico: {
+      crossSubnet: true
+    }
 
 Rest of the chapter goes with the presumption that you are using an existing cluster.
 
@@ -278,34 +280,6 @@ Connecting to http-echo.ns-1.svc.cluster.local (100.71.77.153:80)
 test                 100% |*************************************************************************************************|   533   0:00:00 ETA
 ```
 HTTP POST request succeeds.
-
-=== Update calico to 2.4.1 in kops 1.7.x
-kops 1.7.x comes with calico 1.2.1 out-of-the-box which does not support the latest network-policy updates for kubernetes 1.7.
-In order to make this work, we need to update calico via:
-
-```
-$ kubectl apply -f templates/calico-update.yaml
-configmap "calico-config" configured
-clusterrole "calico" configured
-serviceaccount "calico" configured
-clusterrolebinding "calico" configured
-daemonset "calico-node" configured
-deployment "calico-policy-controller" configured
-clusterrole "k8s-ec2-srcdst" configured
-serviceaccount "k8s-ec2-srcdst" configured
-clusterrolebinding "k8s-ec2-srcdst" configured
-deployment "k8s-ec2-srcdst" created
-```
-
-After this, wait for the calico pods to be updated via:
-```
-$ kubectl rollout status ds/calico-node -n kube-system
-Waiting for rollout to finish: 0 out of 3 new pods have been updated...
-Waiting for rollout to finish: 1 out of 3 new pods have been updated...
-Waiting for rollout to finish: 2 out of 3 new pods have been updated...
-Waiting for rollout to finish: 2 of 3 updated pods are available...
-daemon set "calico-node" successfully rolled out
-```
 
 === Create default network policy
 
