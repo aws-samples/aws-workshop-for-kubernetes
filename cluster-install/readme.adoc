@@ -3,7 +3,7 @@
 
 This tutorial will walk you through how to install a Kubernetes cluster on AWS using kops.
 
-https://github.com/kubernetes/kops[kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters. kops can also perform rolling upgrades from older versions of Kubernetes to newer ones. kops also manages the cluster add-ons. After the cluster is created, the link:https://kubernetes.io/docs/tasks/tools/install-kubectl/[Kubernetes CLI] can be used to manage resources in the cluster. If you have not installed the Kubernetes CLI before, please do so now before continuing.
+https://github.com/kubernetes/kops[kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters. kops can also perform rolling upgrades from older versions of Kubernetes to newer ones. kops also manages the cluster add-ons. After the cluster is created, the link:https://github.com/scottmalkie/kubernetes-aws-workshop/blob/master/prereqs.adoc[Kubernetes CLI] can be used to manage resources in the cluster. If you have not gone through the link:https://github.com/scottmalkie/kubernetes-aws-workshop/blob/master/prereqs.adoc[Prerequisites] section, please do so now before continuing.
 
 kops is available on Mac OSX, Linux, or the Windows 10 Linux Subsystem. 
 

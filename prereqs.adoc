@@ -13,9 +13,9 @@ An error occurred (OptInRequired) when calling the DescribeAvailabilityZones ope
 ```
 NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator].
 
-== AWS CLI
+== AWS CLI and Kubernetes CLI
 
-Install the latest version of http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-bundle.html[AWS CLI] on your machine.
+Install the latest version of the link:http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-bundle.html[AWS CLI] and the link:https://kubernetes.io/docs/tasks/tools/install-kubectl/[Kubernetes CLI] on your machine.
 
 === Setup on macOS
 
@@ -29,6 +29,14 @@ Provision and install AWS CLI on a Mac OS via https://brew.sh/[homebrew].
 
     brew install awscli
 
+. Install Kubectl CLI
+
+    $ brew install kubernetes-cli
++
+If you already have Kubectl CLI installed, then you just need to update it:
++
+    $ brew upgrade kubernetes-cli    
+
 === Setup on Windows
 
 The Windows 10 Linux subsystem is required if you are using Windows 10.
@@ -41,7 +49,13 @@ The lab has been tested with Windows 10. A similar Unix shell on other Windows m
 
 === Setup on Linux
 
-. http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-linux.html
+. Install the AWS CLI
++ Follow this document: http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-linux.html
+
+. Install or Upgrade Kubectl CLI:
++
+    $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    $ chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
 == AWS IAM Permissions
 

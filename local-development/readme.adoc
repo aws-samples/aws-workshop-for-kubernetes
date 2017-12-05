@@ -62,13 +62,6 @@ Finally delete the previous minikube ISO:
 
     minikube delete
 +
-. Install Kubectl CLI
-
-    $ brew install kubernetes-cli
-+
-If you already have Kubectl CLI installed, then you just need to update it:
-+
-    $ brew upgrade kubernetes-cli
 
 === Setup on Windows
 
@@ -99,11 +92,6 @@ Verify the version:
     $ minikube version
     minikube version: v0.24.1
 +
-. Install or Upgrade Kubectl CLI:
-+
-    $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-    $ chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-
 
 === Setup on EC2 (if you do not virtualbox on your laptop)
 
