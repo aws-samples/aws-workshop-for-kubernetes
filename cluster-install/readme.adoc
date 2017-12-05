@@ -437,13 +437,13 @@ Create a Kubernetes cluster using the following command. For the purposes of thi
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
 
-Alternatively, you may leave off the `--yes` option from the `kops create cluster` command. This will allow you to use `kops edit cluster example.cluster.com` command to view the current cluster state and make change before actually creating the cluster. 
+Alternatively, you may leave off the `--yes` option from the `kops create cluster` command. This will allow you to use `kops edit cluster example.cluster.com` command to view the current cluster state and make changes before actually creating the cluster. 
 
 The cluster creation, in that case, is started with the following command:
 
     $ kops update cluster example.cluster.com --yes
 
-Once the `kops create cluster` command is issued, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
+Once the `kops create cluster` or `kops update cluster` command is issued with the `--yes` flag,, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
 
 Wait for 5-8 minutes and then the cluster can be validated as shown:
 
