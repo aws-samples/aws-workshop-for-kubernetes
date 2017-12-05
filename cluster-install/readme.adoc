@@ -437,7 +437,9 @@ Create a Kubernetes cluster using the following command. For the purposes of thi
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
 
-Alternatively, you may not specify the `--yes` option as part of the `kops create cluster` command. Then you can use `kops edit cluster example.cluster.com` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
+Alternatively, you may leave off the `--yes` option from the `kops create cluster` command. This will allow you to use `kops edit cluster example.cluster.com` command to view the current cluster state and make change before actually creating the cluster. 
+
+The cluster creation, in that case, is started with the following command:
 
     $ kops update cluster example.cluster.com --yes
 
