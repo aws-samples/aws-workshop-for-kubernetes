@@ -13,6 +13,15 @@ There is no need to download a Kubernetes binary distribution for creating a clu
 
 ==== macOS
 
+At this point brew PR https://github.com/Homebrew/homebrew-core/pull/21305 is not merged, so in order to use kops 1.8 please
+execute the following command.
+
+    $ curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-darwin-amd64
+    $ chmod +x kops-darwin-amd64
+    $ sudo mv kops-darwin-amd64 /usr/local/bin/kops
+
+Once the above PR is merged you will be able to install kops using brew.
+
     $ brew update && brew install kops
 
 If kops is already installed, then it can be upgraded to the latest version using the following command:
