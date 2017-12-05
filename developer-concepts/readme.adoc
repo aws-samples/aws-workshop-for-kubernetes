@@ -44,7 +44,8 @@ Get the list of pod:
 
 Verify that the pod came up fine (ensure nothing else is running on port 8088):
 
-	$ kubectl -n default port-forward $(kubectl -n default get pod -l name=nginx-pod -o jsonpath='{.items[0].metadata.name}') 8088:80 && open http://localhost:8088/
+	$ kubectl -n default port-forward $(kubectl -n default get pod -l name=nginx-pod -o jsonpath='{.items[0].metadata.name}') 8088:80
+	$ open http://localhost:8088/
 
 If you are running a Linux distribution that doesn't support `open`, try `xdg-open`, `gnome-open`, or `gvfs-open` instead.
 
@@ -1246,17 +1247,17 @@ The main change is the addition of `namespace: dev`.
 . Create the Deployment:
 
 	$ kubectl apply -f templates/deployment-namespace.yaml 
-	deployment "nginx-deployment" created
+	deployment "nginx-deployment-ns" created
 
 . Deployment in a Namespace can be queried by providing an additional switch `-n` as shown:
 
 	$ kubectl get deployments -n dev
 	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-	nginx-deployment   3         3         3            3           1m
+	nginx-deployment-ns   3         3         3            3           1m
 
 . Query the Namespace for this Deployment:
 
-	$ kubectl get deployments/nginx-deployment -n dev -o jsonpath={.metadata.namespace}
+	$ kubectl get deployments/nginx-deployment-ns -n dev -o jsonpath={.metadata.namespace}
 	dev
 
 Alternatively, a namespace can be created using `kubectl` as well.
@@ -1269,21 +1270,21 @@ Alternatively, a namespace can be created using `kubectl` as well.
 . Create a Deployment:
 
 	$ kubectl -n dev2 apply -f templates/deployment.yaml 
-	deployment "nginx-deployment" created
+	deployment "nginx-deployment-ns" created
 
 . Get Deployments in the newly created Namespace:
 
 	$ kubectl get deployments -n dev2
 	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-	nginx-deployment   3         3         3            3           1m
+	nginx-deployment-ns   3         3         3            3           1m
 
 . Get Deployments in all Namespaces:
 
 	$ kubectl get deployments --all-namespaces
 	NAMESPACE     NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 	default       nginx-deployment      3         3         3            3           1h
-	dev           nginx-deployment      3         3         3            3           1h
-	dev2          nginx-deployment      3         3         3            3           1m
+	dev           nginx-deployment-ns   3         3         3            3           1h
+	dev2          nginx-deployment-ns   3         3         3            3           1m
 	kube-system   dns-controller        1         1         1            1           5h
 	kube-system   kube-dns              2         2         2            2           5h
 	kube-system   kube-dns-autoscaler   1         1         1            1           5h
