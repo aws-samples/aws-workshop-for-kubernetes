@@ -46,7 +46,7 @@ Verify that the pod came up fine (ensure nothing else is running on port 8088):
 
 	$ kubectl -n default port-forward $(kubectl -n default get pod -l name=nginx-pod -o jsonpath='{.items[0].metadata.name}') 8088:80 && open http://localhost:8088/
 
-If you are running a Linux distribution that doesn't support `open`, try `xdg-open`, `gnome-open`, `gvfs-open` instead.
+If you are running a Linux distribution that doesn't support `open`, try `xdg-open`, `gnome-open`, or `gvfs-open` instead.
 
 This opens up a browser window and shows the NGINX main page:
 
