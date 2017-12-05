@@ -83,9 +83,9 @@ Containers:
       /var/run/secrets/kubernetes.io/serviceaccount from default-token-cqht0 (ro)
 Conditions:
   Type           Status
-  Initialized    True 
-  Ready          True 
-  PodScheduled   True 
+  Initialized    True
+  Ready          True
+  PodScheduled   True
 Volumes:
   default-token-cqht0:
     Type:        Secret (a volume populated by a Secret)
@@ -172,20 +172,20 @@ Expose the deployment creates what Kubernetes calls a service. You can see the p
     kubernetes   ClusterIP      100.64.0.1      <none>             443/TCP        2d
     web          NodePort       100.67.45.110   <none>             80:32400/TCP   32s
 
-We will learn more about Services and Deployments later in the workshop.    
+We will learn more about Services and Deployments later in the workshop.
 
 === View the NGiNX deployment using the NodePort
 
-First, we find the hostname of the node on which the nginx Pod is running: 
+First, we find the hostname of the node on which the nginx Pod is running:
 
-    $ kubectl get pods -l="run=nginx" 
+    $ kubectl get pods -l="run=nginx"
     NAME                     READY     STATUS    RESTARTS   AGE
     nginx-4217019353-pmkzb   1/1       Running   0          16m
 
     $ kubectl get pod nginx-4217019353-pmkzb -o=jsonpath={.spec.nodeName}
     ip-172-20-87-91.us-east-2.compute.internal
 
-The `-o` flag allows us to choose a different output format, and choosing the `jsonpath` output format allows us to filter the resultant JSON down to the exact value we need. 
+The `-o` flag allows us to choose a different output format, and choosing the `jsonpath` output format allows us to filter the resultant JSON down to the exact value we need.
 
 Next we need the dynamic port the service opened for us on the node running the NGiNX pod.
 
@@ -200,7 +200,7 @@ Replace the `Values` value with the nodeName retreived earlier.
         [
             "sg-c0285fa8"
         ]
-    ]    
+    ]
 
 Next, we add an ingress rule to the security group opening up the port on the node to anyone - `0.0.0.0/0`. This is purely for demonstration purposes in this workshop and is not a best practice. Most services will be exposed behind a load balancer, which we cover in the next section.  For the command below, replace the `--group-id` parameter with the GroupId you just retrieved, and the `--port` parameter value with the nodePort retreived above.
 
@@ -219,7 +219,7 @@ Finally, we can use the AWS CLI to retrieve the public hostname of the node itse
 
 You should now be able to point a browser or use `cURL` to retrieve the combined <public hostname>:<node port> and see the default NGiNX homepage:
 
-    $ curl http://ec2-18-216-5-70.us-east-2.compute.amazonaws.com:32400 
+    $ curl http://ec2-18-216-5-70.us-east-2.compute.amazonaws.com:32400
     <!DOCTYPE html>
     <html>
     <head>
@@ -240,8 +240,8 @@ You should now be able to point a browser or use `cURL` to retrieve the combined
     <a href="http://nginx.org/">nginx.org</a>.<br/>
     Commercial support is available at
     <a href="http://nginx.com/">nginx.com</a>.</p>
-    <p><em>Thank you for using nginx.</em></p> 
-    
+    <p><em>Thank you for using nginx.</em></p>
+
 == Expose the deployment as a service (via a Load Balancer)
 
 Delete the existing service and deployment:
@@ -303,4 +303,3 @@ Delete all the Kubernetes resources created so far:
 Revoke access on the port you opened on the EC2 security group earlier:
 
     $ aws ec2 revoke-security-group-ingress --group-id sg-c0285fa8 --protocol tcp --port 32400 --cidr 0.0.0.0/0
-
