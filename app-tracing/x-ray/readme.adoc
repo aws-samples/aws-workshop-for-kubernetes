@@ -86,7 +86,7 @@ Replace line 14 and change *image: <AWS::AccountId>.dkr.ecr.<AWS::Region>.amazon
 
 .  Test the docker image locally, you should get a reply when you `curl http://0.0.0.0:5000` : 
 
-	$ docker run -it <AWS::AccountId>.dkr.ecr.<AWS::Region>.amazonaws.com/flaskxray:v1
+	$ docker run -p 5000:5000 -it <AWS::AccountId>.dkr.ecr.<AWS::Region>.amazonaws.com/flaskxray:v1
 
  		Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 
