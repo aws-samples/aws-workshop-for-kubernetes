@@ -87,7 +87,7 @@ CPU can be requested in _cpu units_. 1 cpu unit is equivalent 1 AWS vCPU. It can
 
 By default, a container in a pod is allocated no memory request/limit and 100m CPU request and no limit. This can be verified using the previously started pod:
 
-	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
+	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers..resources}
 	map[requests:map[cpu:100m]]
 
 ===== Assign memory and CPU
@@ -123,7 +123,7 @@ Create the pod:
 
 Get more details about the requests and limits:
 
-	$ kubectl get pod/nginx-pod2 -o jsonpath={.spec.containers[].resources}
+	$ kubectl get pod/nginx-pod2 -o jsonpath={.spec.containers..resources}
 	map[limits:map[memory:200Mi cpu:2] requests:map[cpu:1 memory:100Mi]]
 
 NGINX container requires fairly low memory and CPU. And so these request and limit numbers would work well, and the pod is started correctly. Now, let's try to start a WildFly pod using similar numbers. The configuration file for the same is shown:
@@ -186,7 +186,7 @@ Now, the Pod successfully starts.
 
 Get more details about the resources allocated to the Pod:
 
-	$ kubectl get pod/wildfly-pod -o jsonpath={.spec.containers[].resources}
+	$ kubectl get pod/wildfly-pod -o jsonpath={.spec.containers..resources}
 	map[limits:map[cpu:2 memory:300Mi] requests:map[cpu:1 memory:100Mi]]
 
 === Quality of service
@@ -239,7 +239,7 @@ Create this Pod:
 
 Check the resources:
 
-	$ kubectl get pod/nginx-pod-guaranteed -o jsonpath={.spec.containers[].resources}
+	$ kubectl get pod/nginx-pod-guaranteed -o jsonpath={.spec.containers..resources}
 	map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:200Mi]]
 
 Check the QoS:
@@ -276,7 +276,7 @@ Create this Pod:
 
 Check the resources:
 
-	$ kubectl get pod/nginx-pod-guaranteed2 -o jsonpath={.spec.containers[].resources}
+	$ kubectl get pod/nginx-pod-guaranteed2 -o jsonpath={.spec.containers..resources}
 	map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:200Mi]]
 
 Check the QoS:
@@ -317,7 +317,7 @@ Create this Pod:
 
 Check the resources:
 
-	$ kubectl get pod/nginx-pod-burstable -o jsonpath={.spec.containers[].resources}
+	$ kubectl get pod/nginx-pod-burstable -o jsonpath={.spec.containers..resources}
 	map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:100Mi]]
 
 Check the QoS:
