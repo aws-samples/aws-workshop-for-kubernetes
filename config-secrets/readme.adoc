@@ -584,8 +584,8 @@ and click it. In the Permissions tab, expand the inline policy for `nodes.exampl
                     "ssm:GetParameter"
                 ],
                 "Resource": [
-                    "arn:aws:ssm:us-east-1:<account-id>:parameter/GREETING",
-                    "arn:aws:ssm:us-east-1:<account-id>:parameter/NAME"
+                    "arn:aws:ssm:<region>:<account-id>:parameter/GREETING",
+                    "arn:aws:ssm:<region>:<account-id>:parameter/NAME"
                 ]
             }
         ]
@@ -601,7 +601,7 @@ Only the value of the secure string parameter is encrypted. The name of the para
     --name GREETING \
     --value Hello \
     --type SecureString \
-    --key-id arn:aws:kms:us-east-1:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
+    --key-id arn:aws:kms:<region>:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
   {
       "Version": 1
   }
@@ -642,7 +642,7 @@ By default, the encrypted value of the secret is shown in the output.
     --name NAME \
     --value World \
     --type SecureString \
-    --key-id arn:aws:kms:us-east-1:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
+    --key-id arn:aws:kms:<region>:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
   {
       "Version": 1
   }
