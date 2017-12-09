@@ -148,6 +148,16 @@ Alternatively, you may not specify the `--yes` flag as part of the `kops create 
 
 Once the `kops create cluster` command is issued, it provisions the EC2 instances, sets up Auto Scaling Groups, IAM users, Security Groups, installs Kubernetes on each node, then configures the master and worker nodes. This process can take some time based upon the number of master and worker nodes.
 
+Note: If your 'create cluster' fails with an error like:
+
+"error reading s3://example-kops-state-store-workshop/workshop-prep.cluster.k8s.local/config: Unable to list AWS regions: NoCredentialProviders: no valid providers in chain
+caused by: EnvAccessKeyNotFound: failed to find credentials in the environment.", try setting the following environment variables before executing the 'create cluster' command:
+
+```
+export AWS_DEFAULT_PROFILE=<your_aws_credentials_profile_name>
+export AWS_SDK_LOAD_CONFIG=1
+```
+
 Wait for 5-8 minutes and then the cluster can be validated as shown:
 
 ```
