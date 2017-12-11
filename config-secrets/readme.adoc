@@ -834,6 +834,17 @@ Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
 High-Availability Enabled: false
 ```
 
+. Authenticate against Vault using the root token from the output when starting vault:
++
+```
+vault auth
+Token (will be hidden):
+Successfully authenticated! You are now logged in.
+token: 4e93b3c6-c459-f166-e7e9-6c48044cfdb6
+token_duration: 0
+token_policies: [root]
+```
+
 === Configure Kubernetes Service Account
 
 . Create the service account to verify service account token during login:
@@ -860,6 +871,10 @@ Service account token, Kubernetes API server address and the certificate used to
   kubectl get secret \
   $(kubectl get serviceaccount vault-reviewer -o jsonpath={.secrets[0].name}) \
   -o jsonpath={.data.token} | base64 -D -
+  export REVIEWER_TOKEN=$(kubectl get secret \
+  $(kubectl get serviceaccount vault-reviewer \
+  -o jsonpath={.secrets[0].name}) -o jsonpath={.data.token} | base64 -D -)
+  && echo $REVIEWER_TOKEN
   eyJ . . . reg
 
 . Get the API server address:
@@ -888,7 +903,7 @@ This is the address of API servers currently configured. The first one is for th
 .. Configure the auth backend:
 
   $ vault write auth/kubernetes/config \
-    token_reviewer_jwt=<service-account-token>  \
+    token_reviewer_jwt=$REVIEWER_TOKEN  \
     kubernetes_host=<api-server> \
     kubernetes_ca_cert=@~/.kube/kops.crt
 +
@@ -960,8 +975,16 @@ More details about the Docker image used in the Pod is at https://github.com/aru
       image: arungupta/vault-kubernetes:latest
       env:
         - name: VAULT_ADDR
-          value: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
+          valueFrom:
+            configMapKeyRef:
+              name: vault
+              key: address
     restartPolicy: Never
+
+. Create the ConfigMap:
+
+  $ kubectl create configmap vault --from-literal=address=$VAULT_ADDR
+  configmap "vault" created
 
 . Deploy the Pod:
 

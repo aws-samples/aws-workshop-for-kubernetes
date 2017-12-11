@@ -9,5 +9,8 @@ spec:
     image: arungupta/vault-kubernetes:latest
     env:
       - name: VAULT_ADDR
-        value: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
+        valueFrom:
+          configMapKeyRef:
+            name: vault
+            key: address
   restartPolicy: Never
