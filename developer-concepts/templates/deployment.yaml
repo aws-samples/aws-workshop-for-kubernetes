@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: nginx-deployment-ns
+  name: nginx-deployment
 spec:
   replicas: 3 
   template:
