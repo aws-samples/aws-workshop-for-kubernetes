@@ -61,14 +61,11 @@ Verify the version:
 Finally delete the previous minikube ISO:
 
     minikube delete
-+
 
 === Setup on Windows
 
 . Download and install https://www.virtualbox.org/wiki/Downloads[VirtualBox].
-. Download the https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe[minikube-windows-amd64.exe] file, and rename it to `minikube.exe`.
-+
-Verify the version:
+. Download the https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe[minikube-windows-amd64.exe] file, and rename it to `minikube.exe`. Verify the version:
 +
     $ minikube version
     minikube version: v0.24.1
@@ -84,46 +81,41 @@ Latest instructions are also available at https://kubernetes.io/docs/tasks/tools
 
 . Download and install https://www.virtualbox.org/wiki/Downloads[VirtualBox].
 . Install minikube:
-+
+
     curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
-+
-Verify the version:
-+
+
+. Verify the version:
+
     $ minikube version
     minikube version: v0.24.1
-+
 
 === Setup on EC2 (if you do not virtualbox on your laptop)
 
 . Launch an EC2 (at least 4GB Memory) with an "Ubuntu Server 16.04 LTS (HVM)" AMI, make sure you have a public IP and can SSH into this instance.
 . SSH into the EC2 (the port forwarding is for the minikube dashboard):
-+
+
     $ ssh -L30000:localhost:30000 ubuntu@<IP Address of EC2>
-+
 
 . Install docker
-+
+
     $ sudo -i
     $ apt-get update -y &&  apt-get install -y docker.io
-+
 
 . Install minikube:
-+
-    $ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
-+
 
-Verify the version:
-+
+    $ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+
+. Verify the version:
+
     $ minikube version
     minikube version: v0.24.1
-+
+
 . Install or Upgrade Kubectl CLI:
-+
+
     $ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-+
 
 . Add kubectl autocompletion to your current shell
-+
+
     $ source <(kubectl completion bash)
 
 == Start Kubernetes cluster
@@ -132,34 +124,28 @@ We are using the VirtualBox driver which is the default selection for minikube. 
 
 Start a single-node Kubernetes cluster on your local machine:
 
-```
     $ minikube start
-```
 
-if you have installed minikube on a EC2, start it with the --vm-driver=none flag
+if you have installed minikube on a EC2, start it with the `--vm-driver=none` flag
 
-```
     $ minikube start --vm-driver=none
-```
 
 The first start of minikube will download the ISO file and then start the cluster. It shows the following output:
 
-```
-$ minikube start
-Starting local Kubernetes v1.8.0 cluster...
-Starting VM...
-Downloading Minikube ISO
- 140.01 MB / 140.01 MB [============================================] 100.00% 0s
-Getting VM IP address...
-Moving files into cluster...
-Downloading localkube binary
- 148.56 MB / 148.56 MB [============================================] 100.00% 0s
-Setting up certs...
-Connecting to cluster...
-Setting up kubeconfig...
-Starting cluster components...
-Kubectl is now configured to use the cluster.
-```
+  $ minikube start
+  Starting local Kubernetes v1.8.0 cluster...
+  Starting VM...
+  Downloading Minikube ISO
+   140.01 MB / 140.01 MB [============================================] 100.00% 0s
+  Getting VM IP address...
+  Moving files into cluster...
+  Downloading localkube binary
+   148.56 MB / 148.56 MB [============================================] 100.00% 0s
+  Setting up certs...
+  Connecting to cluster...
+  Setting up kubeconfig...
+  Starting cluster components...
+  Kubectl is now configured to use the cluster.
 
 Now you can start to develop and test your application.
 
@@ -167,12 +153,10 @@ Now you can start to develop and test your application.
 
 Check the status of minikube to get the status of your local Kubernetes cluster:
 
-```
-$ minikube status
-minikube: Running
-cluster: Running
-kubectl: Correctly Configured: pointing to minikube-vm at 192.168.99.100
-```
+  $ minikube status
+  minikube: Running
+  cluster: Running
+  kubectl: Correctly Configured: pointing to minikube-vm at 192.168.99.100
 
 Kubectl CLI is configured to talk to this cluster.
 
