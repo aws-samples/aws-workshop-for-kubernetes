@@ -91,7 +91,7 @@ kops needs a "`state store`" to store configuration information of the cluster. 
 NOTE: The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `example-state-store-` and add a randomly generated string to the end.
 
     # create variables for bucket, state store, and cluster names
-    $ export S3_BUCKET=example-state-store-$(cat /dev/random | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
+    $ export S3_BUCKET=example-state-store-$(cat /dev/urandom | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
     $ export KOPS_STATE_STORE=s3://${S3_BUCKET}
 
     # use AWS CLI to create the bucket
