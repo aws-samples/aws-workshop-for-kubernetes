@@ -1,6 +1,7 @@
 = AWS Workshop for Kubernetes
-
-image::images/kubernetes-aws-smile.png[kubernetes and aws logos, 400]
+:linkcss:
+:icons:
+image::resources/images/kubernetes-aws-smile.png[kubernetes and aws logos, 400]
 
 This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services.
 
@@ -18,23 +19,22 @@ The workshop is presented in a series of chapters; However it can be done in a n
 |===
 |Chapter 1: Basics
 
-|link:101-start-here[Start Here]
-|link:102-your-first-cluster[Create a Kubernetes cluster using kops]
-|link:103-kubernetes-concepts[Introduction to the Kubernetes CLI]
+|link:101-start-here[101: Start Here]
+|link:102-your-first-cluster[102: Create a Kubernetes cluster using kops]
+|link:103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
 |===
 
 [cols="1*"]
 |===
 |Chapter 2: Working with Clusters
 
-|link:config-secrets[Configuration and Secrets Management]
-|link:201-cluster-monitoring[Monitoring a Kubernetes Cluster]
-|link:202-service-mesh[Leveraging a Service Mesh]
-|link:203-cluster-upgrades[Upgrading a Kubernetes Cluster]
-|link:204-cluster-logging-with-EFK[Logging with an EFK Stack]
-|link:205-cluster-autoscaling[Autoscaling a Kubernetes Cluster]
-|link:206-cloudformation-and-terraform[Deploy Kubernetes with Terraform and CloudFormation]
-|link:207-cluster-federation[Federate Access to your Cluster (Alpha)]
+|link:201-cluster-monitoring[201: Monitoring a Kubernetes Cluster]
+|link:202-service-mesh[202: Leveraging a Service Mesh]
+|link:203-cluster-upgrades[203: Upgrading a Kubernetes Cluster]
+|link:204-cluster-logging-with-EFK[204: Logging with an EFK Stack]
+|link:205-cluster-autoscaling[205: Autoscaling a Kubernetes Cluster]
+|link:206-cloudformation-and-terraform[206: Deploy Kubernetes with Terraform and CloudFormation]
+|link:207-cluster-federation[207: Federate Access to your Cluster (Alpha)]
 |===
 
 [cols="1*"]
