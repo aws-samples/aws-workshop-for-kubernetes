@@ -1,6 +1,6 @@
 = AWS Workshop for Kubernetes
 
-image:resources/images/kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",height=320]
+image:resources/images/kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",width=420]
 
 This is a self-paced workshop designed for Development and Operations teams who would like to leverage Kubernetes on Amazon Web Services (AWS).
 
@@ -8,13 +8,16 @@ This workshop provides instructions to create, manage, and scale a Kubernetes cl
 
 It also shows deep integration with several AWS technologies.
 
-There are two main paths, one for Development Teams, and one for Operations Teams. Each path should take approximately 4 hours to complete. 
+There are two main paths, one for xref:dev[Development Teams], and one for xref:ops[Operations Teams]. Each path should take approximately 4 hours to complete. 
 
-For those looking for a more condensed introduction to Kubernetes on AWS, there is also a Combined Version, which should take approximately 2 hours to complete.
+For those looking for a more condensed introduction to Kubernetes on AWS, there is also a xref:combo[Combined Version], which should take approximately 2 hours to complete.
 
-[width="80%",cols="3,^,",frame="top",options="header"]
+[width="80%",cols="3*^",grid="cols",options="header"]
 |=====
-| Development Teams | Operations Teams | Combined
+|anchor:dev[Development Teams]Development Teams 
+|anchor:ops[Operations Teams]Operations Teams 
+|anchor:combo[Combined Version]Combined Versions
+
 |link:01-path-basics/101-start-here[101: Start Here]
 |link:01-path-basics/101-start-here[101: Start Here]
 |link:01-path-basics/101-start-here[101: Start Here]
