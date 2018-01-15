@@ -1,71 +1,88 @@
 = AWS Workshop for Kubernetes
 :linkcss:
-:icons:
 image::./resources/images/kubernetes-aws-smile.png[kubernetes and aws logos, 400]
 
-This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services.
-
-It explains how to deploy, scale, and configure applications on this cluster.
-
-This workshop is designed for attendees on Development and Operations teams who would like to get started with Kubernetes on Amazon Web Services (AWS).
+This is a self-paced workshop designed for Development and Operations teams who would like to leverage Kubernetes on Amazon Web Services (AWS).
 
 This workshop provides instructions to create, manage, and scale a Kubernetes cluster on AWS, as well as how to deploy applications, scale them, run stateless and stateful containers, perform service discovery between different microservices, and other similar concepts.
 
 It also shows deep integration with several AWS technologies.
 
-[cols="1*"]
-|===
-|Module 1: Basics
+There are two main paths, one for Development Teams, and one for Operations Teams. Each path should take approximately 4 hours to complete. 
 
+For those looking for a more condensed introduction to Kubernetes on AWS, there is also a Combined Version, which should take approximately 2 hours to complete.
+
+[cols="3*"]
+|===
+| Development Teams | Operations Teams | Combined
 |link:01-path-basics/101-start-here[101: Start Here]
+|link:01-path-basics/101-start-here[101: Start Here]
+|link:01-path-basics/101-start-here[101: Start Here]
+
 |link:01-path-basics/102-your-first-cluster[102: Create a Kubernetes cluster using kops]
+|link:01-path-basics/102-your-first-cluster[102: Create a Kubernetes cluster using kops]
+|link:01-path-basics/102-your-first-cluster[102: Create a Kubernetes cluster using kops]
+
 |link:01-path-basics/103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
-|===
-
-[cols="1*"]
-|===
-|Module 2: Deploying and Managing Clusters
-
-|link:02-path-working-with-clusters/201-cluster-monitoring[201: Monitoring a Kubernetes Cluster]
-|link:02-path-working-with-clusters/202-service-mesh[202: Leveraging a Service Mesh]
-|link:02-path-working-with-clusters/203-cluster-upgrades[203: Upgrading a Kubernetes Cluster]
-|link:02-path-working-with-clusters/204-cluster-logging-with-EFK[204: Logging with an EFK Stack]
-|link:02-path-working-with-clusters/205-cluster-autoscaling[205: Autoscaling a Kubernetes Cluster]
-|link:02-path-working-with-clusters/206-cloudformation-and-terraform[206: Deploy Kubernetes with Terraform and CloudFormation]
-|link:02-path-working-with-clusters/207-cluster-federation[207: Federate Access to your Cluster (Alpha)]
-|===
-
-[cols="1*"]
-|===
-|Module 3: Application Development
+|link:01-path-basics/103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
+|link:01-path-basics/103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
 
 |link:03-path-application-development/301-local-development[301: Setting up a Local Development Environment]
-|link:03-path-application-development/302-app-discovery[302: Service Discovery for Micorservices]
-|link:03-path-application-development/303-app-update[303: Updating Applications on Kubernetes]
-|link:03-path-application-development/304-app-scaling[304: Scaling Applications on Kubernetes]
-|link:03-path-application-development/305-app-tracing-with-jaeger-and-x-ray[305: Tracing Applications with Jaeger and X-Ray]
-|link:03-path-application-development/306-app-management-with-helm[306: Manage Applications with Helm]
-|link:03-path-application-development/307-statefulsets-and-pvs[307: Store Persistent Data with StatefulSets and PVs]
-|===
+|link:02-path-working-with-clusters/201-cluster-monitoring[201: Monitoring a Kubernetes Cluster]
+|
 
-[cols="1*"]
-|===
-|Module 4: Security and Networking
+|link:03-path-application-development/302-app-discovery[302: Service Discovery for Microservices]
+|link:02-path-working-with-clusters/202-service-mesh[202: Leveraging a Service Mesh]
+|
+
+|link:03-path-application-development/303-app-update[303: Updating Applications on Kubernetes]
+|link:02-path-working-with-clusters/203-cluster-upgrades[203: Upgrading a Kubernetes Cluster]
+|
+
+|link:03-path-application-development/304-app-scaling[304: Scaling Applications on Kubernetes]
+|link:02-path-working-with-clusters/204-cluster-logging-with-EFK[204: Logging with an EFK Stack]
+|
+
+|link:03-path-application-development/305-app-tracing-with-jaeger-and-x-ray[305: Tracing Applications with Jaeger and X-Ray]
+|link:02-path-working-with-clusters/205-cluster-autoscaling[205: Autoscaling a Kubernetes Cluster]
+|
+
+|link:03-path-application-development/306-app-management-with-helm[306: Manage Applications with Helm]
+|link:02-path-working-with-clusters/206-cloudformation-and-terraform[206: Deploy Kubernetes with Terraform and CloudFormation]
+|
+
+|link:03-path-application-development/307-statefulsets-and-pvs[307: Store Persistent Data with StatefulSets and PVs]
+|link:02-path-working-with-clusters/207-cluster-federation[207: Federate Access to your Cluster (Alpha)]
+|
 
 |link:04-path-security-and-networking/401-configmaps-and-secrets[401: ConfigMaps and Secrets]
-|link:04-path-security-and-networking/402-authentication-and-authorization[402: Authentication, Authorization, and Access]
-|link:04-path-security-and-networking/403-network-policies[403: Network Policies]
-|link:04-path-security-and-networking/404-ingress-controllers[404: Ingress Controllers]
-|link:04-path-security-and-networking/405-coredns[405: CoreDNS]
-|===
+|link:04-path-security-and-networking/401-configmaps-and-secrets[401: ConfigMaps and Secrets]
+|
 
-[cols="1*"]
-|===
-|Module 5: Next Steps
+|link:04-path-security-and-networking/402-authentication-and-authorization[402: Authentication, Authorization, and Access]
+|link:04-path-security-and-networking/402-authentication-and-authorization[402: Authentication, Authorization, and Access]
+|
+
+|link:04-path-security-and-networking/403-network-policies[403: Network Policies]
+|link:04-path-security-and-networking/403-network-policies[403: Network Policies]
+|
+
+|link:04-path-security-and-networking/404-ingress-controllers[404: Ingress Controllers]
+|link:04-path-security-and-networking/404-ingress-controllers[404: Ingress Controllers]
+|
+
+|link:04-path-security-and-networking/405-coredns[405: CoreDNS]
+|link:04-path-security-and-networking/405-coredns[405: CoreDNS]
+|
 
 |link:05-path-next-steps/501-k8s-best-practices[501: Best Practices]
+|link:05-path-next-steps/501-k8s-best-practices[501: Best Practices]
+|
+
 |link:05-path-next-steps/502-for-further-reading[502: For Further Reading]
-| 
+|link:05-path-next-steps/502-for-further-reading[502: For Further Reading] 
+|
+
 |===
 
 NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator]
