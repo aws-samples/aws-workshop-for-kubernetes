@@ -1,0 +1,7 @@
+= For Further Reading 
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../resources/images
+
+TBD
