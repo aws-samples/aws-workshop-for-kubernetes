@@ -1,6 +1,6 @@
 = AWS Workshop for Kubernetes
-:linkcss:
-image:resources/images/kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",height=400]
+
+image:resources/images/kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",height=320]
 
 This is a self-paced workshop designed for Development and Operations teams who would like to leverage Kubernetes on Amazon Web Services (AWS).
 
@@ -12,8 +12,8 @@ There are two main paths, one for Development Teams, and one for Operations Team
 
 For those looking for a more condensed introduction to Kubernetes on AWS, there is also a Combined Version, which should take approximately 2 hours to complete.
 
-[width="80%",cols="3,^,",options="header"]
-|===
+[width="80%",cols="3,^,",frame="top",options="header"]
+|=====
 | Development Teams | Operations Teams | Combined
 |link:01-path-basics/101-start-here[101: Start Here]
 |link:01-path-basics/101-start-here[101: Start Here]
@@ -83,6 +83,6 @@ For those looking for a more condensed introduction to Kubernetes on AWS, there 
 |link:05-path-next-steps/502-for-further-reading[502: For Further Reading] 
 |
 
-|===
+|=====
 
 NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator]
