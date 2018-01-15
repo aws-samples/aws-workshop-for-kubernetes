@@ -19,9 +19,9 @@ The workshop is presented in a series of chapters; However it can be done in a n
 |===
 |Chapter 1: Basics
 
-|link:101-start-here[101: Start Here]
-|link:102-your-first-cluster[102: Create a Kubernetes cluster using kops]
-|link:103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
+|link:01-path-basics/101-start-here[101: Start Here]
+|link:01-path-basics/102-your-first-cluster[102: Create a Kubernetes cluster using kops]
+|link:01-path-basics/103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
 |===
 
 [cols="1*"]
@@ -41,7 +41,8 @@ The workshop is presented in a series of chapters; However it can be done in a n
 |===
 |Chapter 3: Application Development
 
-| 
+|link:301-local-development[301: Setting up a Local Development Environment]
+|link:302-app-discovery[302: Service Discovery for Micorservices]
 |===
 
 [cols="1*"]
