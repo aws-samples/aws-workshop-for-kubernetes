@@ -12,7 +12,7 @@ There are two main paths, one for Development Teams, and one for Operations Team
 
 For those looking for a more condensed introduction to Kubernetes on AWS, there is also a Combined Version, which should take approximately 2 hours to complete.
 
-[cols="3*"]
+[width="80%",cols="3,^,",options="header"]
 |===
 | Development Teams | Operations Teams | Combined
 |link:01-path-basics/101-start-here[101: Start Here]
