@@ -12,53 +12,50 @@ This workshop provides instructions to create, manage, and scale a Kubernetes cl
 
 It also shows deep integration with several AWS technologies.
 
-The proposed agenda is to go through the described format to ramp up your knowledge on Kubernetes by following
-the workshop guides.
-
-You are also encouraged to take a detour and explore advanced topics if you feel comfortable
-as you move through the workshop.
+The workshop is presented in a series of chapters; However it can be done in a non-linear order based on attendees' experience with Kubernetes.
 
 [cols="1*"]
 |===
-|Beginner (100 level)
+|Chapter 1: Basics
 
-|link:prereqs.adoc[Prerequisites]
-|link:cluster-install[Create a Kubernetes cluster using kops]
-|link:getting-started[First Steps with the Kubernetes CLI]
-|link:developer-concepts[Kubernetes Developer Concepts]
-|link:local-development[(Optional) Configure a Local Development Environment]
+|link:101-start-here[Start Here]
+|link:102-your-first-cluster[Create a Kubernetes cluster using kops]
+|link:103-kubernetes-concepts[Introduction to the Kubernetes CLI]
 |===
 
 [cols="1*"]
 |===
-|Intermediate (200 - 300 level)
+|Chapter 2: Working with Clusters
 
-| link:config-secrets[Configuration and Secrets Management]
-| link:microservices[Service Discovery with Microservices]
-| link:helm[Deploy Applications using Helm Charts]
-| link:app-update[Updating Applications & Canary Deployment]
-| link:cluster-logging[Logging within a Kubernetes cluster]
-| link:cluster-monitoring[Monitoring within a Kubernetes cluster]
-| link:cluster-upgrade#inplace-upgrade[Upgrading a Kubernetes cluster: In-place Upgrade]
-| Upgrading a Kubernetes cluster: Blue/Green Upgrade
-| link:cluster-scaling[Cluster Scaling]
-| link:app-scaling[Application Autoscaling]
-| link:app-tracing[Application Tracing]
+|link:config-secrets[Configuration and Secrets Management]
+|link:201-cluster-monitoring[Monitoring a Kubernetes Cluster]
+|link:202-service-mesh[Leveraging a Service Mesh]
+|link:203-cluster-upgrades[Upgrading a Kubernetes Cluster]
+|link:204-cluster-logging-with-EFK[Logging with an EFK Stack]
+|link:205-cluster-autoscaling[Autoscaling a Kubernetes Cluster]
+|link:206-cloudformation-and-terraform[Deploy Kubernetes with Terraform and CloudFormation]
+|link:207-cluster-federation[Federate Access to your Cluster (Alpha)]
 |===
 
 [cols="1*"]
 |===
-|Advanced (300 - 400+ level)
+|Chapter 3: Application Development
 
-| link:statefulsets[StatefulSets with EBS]
-| link:network-policies[Specifying Network Policies]
-| link:coredns[Using CoreDNS for Service Discovery]
-| link:roles[Managing IAM roles with kube2iam]
-| CI/CD Pipeline
-| link:ingress-controllers[ALB Ingress Controller]
-| link:ingress-controllers[Kube AWS Ingress Controller and Skipper]
-| link:ingress-controllers[Nginx Ingress Controller]
-| link:service-mesh[Service Mesh Integration using Linkerd and Istio]
+| 
+|===
+
+[cols="1*"]
+|===
+|Chapter 4: Security and Networking
+
+| 
+|===
+
+[cols="1*"]
+|===
+|Chapter 5: Next Steps
+
+| 
 |===
 
 NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator]
