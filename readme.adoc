@@ -13,11 +13,9 @@ This workshop provides instructions to create, manage, and scale a Kubernetes cl
 
 It also shows deep integration with several AWS technologies.
 
-The workshop is presented in a series of chapters; However it can be done in a non-linear order based on attendees' experience with Kubernetes.
-
 [cols="1*"]
 |===
-|Chapter 1: Basics
+|Module 1: Basics
 
 |link:01-path-basics/101-start-here[101: Start Here]
 |link:01-path-basics/102-your-first-cluster[102: Create a Kubernetes cluster using kops]
@@ -26,7 +24,7 @@ The workshop is presented in a series of chapters; However it can be done in a n
 
 [cols="1*"]
 |===
-|Chapter 2: Working with Clusters
+|Module 2: Deploying and Managing Clusters
 
 |link:02-path-working-with-clusters/201-cluster-monitoring[201: Monitoring a Kubernetes Cluster]
 |link:02-path-working-with-clusters/202-service-mesh[202: Leveraging a Service Mesh]
@@ -39,7 +37,7 @@ The workshop is presented in a series of chapters; However it can be done in a n
 
 [cols="1*"]
 |===
-|Chapter 3: Application Development
+|Module 3: Application Development
 
 |link:03-path-application-development/301-local-development[301: Setting up a Local Development Environment]
 |link:03-path-application-development/302-app-discovery[302: Service Discovery for Micorservices]
@@ -52,7 +50,7 @@ The workshop is presented in a series of chapters; However it can be done in a n
 
 [cols="1*"]
 |===
-|Chapter 4: Security and Networking
+|Module 4: Security and Networking
 
 |link:04-path-security-and-networking/401-configmaps-and-secrets[401: ConfigMaps and Secrets]
 |link:04-path-security-and-networking/402-authentication-and-authorization[402: Authentication, Authorization, and Access]
@@ -63,7 +61,7 @@ The workshop is presented in a series of chapters; However it can be done in a n
 
 [cols="1*"]
 |===
-|Chapter 5: Next Steps
+|Module 5: Next Steps
 
 |link:05-path-next-steps/501-k8s-best-practices[501: Best Practices]
 |link:05-path-next-steps/502-for-further-reading[502: For Further Reading]
