@@ -1,6 +1,6 @@
 = AWS Workshop for Kubernetes
 :linkcss:
-image::./resources/images/kubernetes-aws-smile.png[kubernetes and aws logos, 400]
+image:resources/images/kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",height=400]
 
 This is a self-paced workshop designed for Development and Operations teams who would like to leverage Kubernetes on Amazon Web Services (AWS).
 
