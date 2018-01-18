@@ -1,0 +1,342 @@
+
+= Admission Control for Kubernetes on AWS
+Doc Writer <tim@styra.com>
+v1.0, 2018-01-17
+
+Kubernetes https://kubernetes.io/docs/admin/admission-controllers/[Admission Controllers]
+perform *semantic validation* of resources during create, update, and delete operations.
+In Kubernetes 1.7+, you can use OPA to enforce custom policies without recompiling or reconfiguring
+the Kubernetes API server by leveraging
+https://kubernetes.io/docs/admin/extensible-admission-controllers/#external-admission-webhooks[External Admission Webhooks].
+
+For example, you could enforce any of the following policies:
+
+* All images come from an AWS repository (other than a whitelist)
+* Images are pulled from the same AWS repository in the same region as the cluster
+* Namespaces are assigned to different AWS IAM groups
+
+
+== Goals
+
+This tutorial shows how to use OPA to enforce custom policies on resources in
+Kubernetes running on AWS. For the purpose of this tutorial, you will define a policy that
+prevents users from running `kubectl exec` on "privileged" containers in the
+"production" namespace.
+
+
+== Prerequisites
+
+This tutorial requires a Kubernetes 1.7 (or later) cluster. To test Kubernetes locally,
+we recommend using [minikube](https://kubernetes.io/docs/getting-started-guides/minikube/).
+Keep in mind that External Admission Webhook support in Kubernetes is currently in **alpha**.
+
+== Overview
+
+1. Create the Kubernetes cluster with `kops` and enable the External Admission Webhooks
+2. Install the OpenPolicyAgent as an External Admission Webhook
+3. Write admission control policies with OPA
+
+
+
+== Step 1: Create Cluster with External Admission Controllers via `kops`
+
+Create a Kubernetes 1.9 cluster with `kops` using the usual commands:
+
+
+```bash
+kops create cluster ...
+kops create secret ...
+```
+
+Update the Cluster spec to enable webhooks and configure client credentials.
+
+Run `kops edit <cluster-name>` and specify:
+
+```yaml
+  kubeAPIServer:
+    admissionControl:
+      - NamespaceLifecycle
+      - LimitRanger
+      - ServiceAccount
+      - PersistentVolumeLabel
+      - DefaultStorageClass
+      - DefaultTolerationSeconds
+      - GenericAdmissionWebhook
+      - ResourceQuota
+    runtimeConfig:
+      admissionregistration.k8s.io/v1alpha1: "true"
+```
+
+Then update `kops`.
+```bash
+kops update <clustername>
+```
+
+
+== Step 2: Deploy OPA on Kubernetes
+
+=== 2.1 Generate service-certificate for OPA
+
+First, create the required OpenSSL configuration files:
+
+*server.conf*
+```bash
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth, serverAuth
+```
+
+Now generate the CA and server key pair.
+
+```bash
+# Create a certificate authority
+openssl genrsa -out ca.key 2048
+openssl req -x509 -new -nodes -key ca.key -days 100000 -out ca.crt -subj "/CN=admission_ca"
+
+# Create a server certiticate
+# IMPORTANT: the CN must match the name of the service used to expose the external admission controller.
+openssl genrsa -out server.key 2048
+openssl req -new -key server.key -out server.csr -subj "/CN=opa.opa.svc" -config server.conf
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 100000 -extensions v3_req -extfile server.conf
+```
+
+=== 2.2: Deploy OPA on Kubernetes
+
+First, create a namespace to deploy OPA into.
+
+```bash
+kubectl create namespace opa
+```
+
+Create a Service to expose the OPA API. The Kubernetes API server will lookup
+the Service and execute webhook requests against it.
+
+**opa-admission-controller-service.yaml**:
+
+```yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: opa
+spec:
+  selector:
+    app: opa
+  ports:
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+```
+
+```bash
+kubectl create -f opa-admission-controller-service.yaml -n opa
+```
+
+Next, create Secrets containing the TLS credentials for OPA:
+
+```bash
+kubectl create secret generic opa-ca --from-file=ca.crt -n opa
+kubectl create secret tls opa-server --cert=server.crt --key=server.key -n opa
+```
+
+Finally, create the Deployment to run OPA as an Admission Controller.
+
+**opa-admission-controller-deployment.yaml**:
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: opa
+  name: opa
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: opa
+      name: opa
+    spec:
+      containers:
+        - name: opa
+          image: openpolicyagent/opa:0.5.13
+          args:
+            - "run"
+            - "--server"
+            - "--tls-cert-file=/certs/tls.crt"
+            - "--tls-private-key-file=/certs/tls.key"
+            - "--addr=0.0.0.0:443"
+            - "--insecure-addr=127.0.0.1:8181"
+          volumeMounts:
+            - readOnly: true
+              mountPath: /certs
+              name: opa-server
+        - name: kube-mgmt
+          image: openpolicyagent/kube-mgmt:0.5
+          args:
+            - "--replicate=v1/pods"
+            - "--pod-name=$(MY_POD_NAME)"
+            - "--pod-namespace=$(MY_POD_NAMESPACE)"
+            - "--register-admission-controller"
+            - "--admission-controller-ca-cert-file=/certs/ca.crt"
+            - "--admission-controller-service-name=opa"
+            - "--admission-controller-service-namespace=$(MY_POD_NAMESPACE)"
+          volumeMounts:
+            - readOnly: true
+              mountPath: /certs
+              name: opa-ca
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+      volumes:
+        - name: opa-server
+          secret:
+            secretName: opa-server
+        - name: opa-ca
+          secret:
+            secretName: opa-ca
+```
+
+```bash
+kubectl create -f opa-admission-controller-deployment.yaml -n opa
+```
+
+When OPA starts, the sidecar (`kube-mgmt`) will register it as an External
+Admission Controller. To verify that registration succeeded, run `kubectl proxy`
+in another terminal and then query the Kubernetes API for the list of External
+Admission Controllers.
+
+```bash
+curl localhost:8001/apis/admissionregistration.k8s.io/v1alpha1/externaladmissionhookconfigurations
+```
+
+Finally, you can follow the OPA logs to see the webhook requests being issued
+by the Kubernetes API server:
+
+```
+kubectl logs -l app=opa -c opa -n opa
+```
+
+== Step 3:  Enforce Kubernetes Admission Control with OPA
+
+=== 3.1 Load a policy into OPA
+To test admission control, create a policy that restricts exec access on
+privileged pods:
+
+**image_source.rego**:
+
+```ruby
+package system
+
+# Deny requests that include container images not from ECR.
+deny[explanation] {
+    image_name = input.spec.object.Spec.Containers[_].Image
+    image_name_parts = split(image_name, "/")
+    repo_name = image_name_parts[0]
+    not startswith(repo_name, "12345678.dkr.ecr.us-west-2.amazonaws.com")
+    explanation = sprintf("image '%v' not from AWS ECR", [image_name])
+}
+
+
+# main is entry point to policy.
+# Boilerplate required by admission webhook.
+# Policy decision is `status`, which is either
+#   {"allowed": true} or
+#   {"allowed": false, "status": {"reason": <string>}}
+main = {
+    "apiVersion": "admission.k8s.io/v1alpha1",
+    "kind": "AdmissionReview",
+    "status": {"allowed": allowed, "status": {"reason": reason}}
+}
+
+# Boilerplate: construct 'reason' and 'allowed' variables.
+#  Real policy is collection of 'deny' statements.
+#  If not denied, allow.
+reason = msg {
+    msg = concat(", ", deny)
+}
+default allowed = true
+allowed = false { n = count(deny); n > 0 }
+
+```
+
+Store the policy in Kubernetes as a ConfigMap.
+
+```bash
+kubectl create configmap privileged-exec --from-file=image_source.rego -n opa
+```
+
+The OPA sidecar will notice the ConfigMap and automatically load the contained
+policy into OPA.
+
+=== 3.2 Check that the policy is working
+
+To verify that your policy is working, create separate test Pods in the `production` namespace.
+
+**nginx-pod.yaml**:
+
+```yaml
+kind: Pod
+version: v1
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+```
+
+**amazon-linux-pod.yaml**:
+
+```yaml
+kind: Pod
+version: v1
+metadata:
+  name: amazon-linux-pod
+  labels:
+    app: amazon-linux
+spec:
+  containers:
+  - image: 12345678.dkr.ecr.us-west-2.amazonaws.com/amazon-linux
+    name: amazon-linux
+```
+
+Create a 'production' namespace.
+```bash
+kubectl create namespace production
+```
+
+Verify that you can create an amazon-linux pod.
+```bash
+kubectl -n production create -f amazon-linux-pod.yaml
+```
+
+Verify that you CANNOT create an nginx pod.
+```bash
+kubectl -n production create -f nginx-pod.yaml
+```
+
+
+== Wrap Up
+
+Congratulations for finishing the tutorial!
+
+This tutorial showed how you can leverage OPA to enforce admission control
+decisions in Kubernetes clusters without modifying or recompiling any
+Kubernetes components. Furthermore, once Kubernetes is configured to use OPA as
+an External Admission Controller, policies can be modified on-the-fly to
+satisfy changing operational requirements.
