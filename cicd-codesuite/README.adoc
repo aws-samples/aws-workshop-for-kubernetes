@@ -1,4 +1,4 @@
-= Kubernetes Application Update
+= Codesuite - Continuous Deployment
 :toc:
 :icons:
 :linkcss:
