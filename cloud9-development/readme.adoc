@@ -6,9 +6,9 @@
 
 This tutorial will walk you through the process of creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run and debug containerized workloads with just a web browser.
 
-=== Create Cloud9 Environment
-==== Option 1: Cloud9 Console
-1. Log into the Cloud9 Console by visiting https://console.aws.amazon.com/cloud9/home/create
+=== Create AWS Cloud9 Environment
+==== Option 1: AWS Cloud9 Console
+1. Log into the AWS Cloud9 Console by visiting https://console.aws.amazon.com/cloud9/home/create
 
 2. Provide a name for your environment.  Feel free to use something simple, such as `kubernetes-developmet`.  Then click "Next Step".
 
@@ -29,27 +29,29 @@ Your environment is now ready to be setup for working with Kubernetes and the re
 
 === Setup Environment
 
-Your Cloud9 environment comes with many useful tools preinstalled, but there are still a few tweaks to these and additional tools you will need to support working with Kubernetes.
+Your AWS Cloud9 environment comes with many useful tools preinstalled, but there are still a few tweaks to these and additional tools you will need to support working with Kubernetes.
 
 ==== Configure the AWS CLI
 
-Your Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user.  **It is not recommended that you change this.** Instead, it is recommended that the logged in user's account is provided the permissions needed to make the required calls for the rest of this workshop.
+Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user.
 
-In the event that you want do not want to use the currently logged in user for these credentials, there are a couple options:
+.Please Note
+*********************
+It is not recommended that you change the default AWS CLI config in your AWS Cloud9 environment. Instead, it is recommended that you provide the logged in user's account the permissions needed to make the required for your project.  More information on this can be found by visiting: https://docs.aws.amazon.com/cloud9/latest/user-guide/credentials.html[Calling AWS Services from an Environment in AWS Cloud9]
+*********************
 
-1. Instance Profile: You can create an Instance Role with the proper permissions and add that role to the ec2 instance hosting your environment
-2. Use the AWC Configure command or environmental variables to permanently store credentials for the AWS CLI.
+For the sake of this workshop, we are going to configure the AWS CLI on your AWS Cloud9 environment using the AWS Configure command.  For this, use the same credentials you created in the "Create admin user and group" section of the https://github.com/aws-samples/aws-workshop-for-kubernetes/blob/master/prereqs.adoc[Prerequesites] page.
 
-For instructions on these two options, visit https://docs.aws.amazon.com/cloud9/latest/user-guide/credentials.html[Calling AWS Services from an Environment in AWS Cloud9].
+  $ aws configure
+  AWS Access Key ID [None]: *****
+  AWS Secret Access Key [None]: *****
+  Default region name [None]: eu-central-1
+  Default output format [None]:
 
-Regardless of your option above, this workshop is designed to be run from the Ireland region (`eu-central-1`).  As such, you will need to to ensure any calls made through the CLI specify the Ireland region and not the default region for your Cloud9 environment (which will likely be us-west-2 or us-east-1).  To do this, you can:
-
-* Include the `--region=eu-central-1` option in any of the workshops requests.
-* Temporarily override the CLI's default region using the following environmental variable: `export AWS_DEFAULT_REGION=eu-central-1`. Please note that this will only persist for the duration of your session.
 
 ==== Verify Docker Version
 
-Docker is presinstalled.  You can verify the version by running the following:
+Docker is preinstalled.  You can verify the version by running the following:
 
   docker --version
 
