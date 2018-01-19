@@ -289,7 +289,7 @@ To verify that your policy is working, create separate test Pods in the `product
 
 ```yaml
 kind: Pod
-version: v1
+apiVersion: v1
 metadata:
   name: nginx
   labels:
@@ -304,7 +304,7 @@ spec:
 
 ```yaml
 kind: Pod
-version: v1
+apiVersion: v1
 metadata:
   name: amazon-linux-pod
   labels:
