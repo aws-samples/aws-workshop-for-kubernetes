@@ -139,6 +139,7 @@ Once your Cloud9 is ready, download the build script and install in your IDE. Th
 - kubectl
 - kops
 - configures AWS CLI and stores variables in bash_profile (for ex: AWS_AVAILABILITY_ZONES, KOPS_STATE_STORE etc)
+- creates an SSH key
 - clone's workshop repository into Cloud9
 
 Run these commands in your Cloud9 IDE
@@ -157,8 +158,26 @@ Go to this link link:../cluster-install[to create Kubernetes cluster using kops]
 
 === Workshop cleanup
 
-==== Delete kubernetes cluster
+==== Delete kubernetes cluster resources
 
-==== Delete CloudFormation templates
+1. In your Cloud9 IDE, check if there are any running kubernetes cluster
+
+  kops get cluster
+
+Delete kubernetes cluster
+
+  kops delete cluster example.cluster.k8s.local --yes
+
+Wait until all resources are deleted by kops
+
+2. Delete S3 bucket
+
+See the link:https://docs.aws.amazon.com/AmazonS3/latest/user-guide/empty-bucket.html[documentation] to delete S3 bucket using AWS Console
+
+==== Delete Cloud9
+
+Go to CloudFormation console, right click template with name 'k8s-workshop' and select #Delete Stack
+
+This should delete all the resources associated with this workshop
 
 ====
