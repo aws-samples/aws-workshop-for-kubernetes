@@ -160,7 +160,7 @@ Go to this link link:../cluster-install[to create Kubernetes cluster using kops]
 
 ==== Delete kubernetes cluster resources
 
-1. In your Cloud9 IDE, check if there are any running kubernetes cluster
+In your Cloud9 IDE, check if there are any running kubernetes cluster
 
   kops get cluster
 
@@ -170,7 +170,7 @@ Delete kubernetes cluster
 
 Wait until all resources are deleted by kops
 
-2. Delete S3 bucket
+Delete S3 bucket
 
 See the link:https://docs.aws.amazon.com/AmazonS3/latest/user-guide/empty-bucket.html[documentation] to delete S3 bucket using AWS Console
 
