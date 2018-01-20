@@ -117,3 +117,69 @@ To launch the template in your account, you will need to download one of the fol
 10. Copy the contents of the build script and paste into the *Terminal* window in the IDE (near the bottom).
 
 At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.
+
+==== Option 2: CLI
+
+Get a list of existing public subnets.
+
+.Command
+[source,bash]
+----
+aws ec2 describe-subnets --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId'
+----
+
+.Output
+[source,output]
+----
+[
+    "subnet-1234abcd",
+    "subnet-5678ef12",
+    ...
+]
+----
+
+Launch the CloudFormation stack, substituting a SubnetId for `<SubnetId>`.
+
+.Command
+[source,bash]
+----
+aws cloudformation create-stack --stack-name "LabIDE" --template-body file://lab-ide-novpc.template --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=SubnetId,ParameterValue=<SubnetId>
+----
+
+If you are using the link:templates/lab-ide-vpc.template[lab-ide-vpc.template], launch the stack using:
+
+.Command
+[source,bash]
+----
+aws cloudformation create-stack --stack-name "LabIDE" --template-body file://lab-ide-vpc.template --capabilities CAPABILITY_NAMED_IAM
+----
+
+Once launched, occasionally poll the status of the stack.
+
+.Command
+[source,bash]
+----
+aws cloudformation describe-stacks --stack-name LabIDE --query "Stacks[0].StackStatus" --output text
+----
+
+When this changes from `CREATE_IN_PROGRESS` to `CREATE_COMPLETE`, get the URL of the Cloud9 IDE.
+
+.Command
+[source,bash]
+----
+aws cloudformation describe-stacks --stack-name LabIDE --query 'Stacks[0].Outputs[?OutputKey==`LabIdeUrl`].OutputValue' --output text
+----
+
+.Output
+[source,output]
+----
+https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
+----
+
+Launch the IDE by copying the URL into your browser.
+
+Download the build script: link:scripts/lab-ide-build.sh[lab-ide-build.sh].
+
+Copy the contents of the build script and paste into the *Terminal* window in the IDE (near the bottom).
+
+At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.
