@@ -94,7 +94,7 @@ To launch the template in your account, you will need to download one of the fol
 * To use an existing Subnet, download link:templates/lab-ide-novpc.template[lab-ide-novpc.template]
 * To use a new VPC/Subnet, download link:templates/lab-ide-vpc.template[lab-ide-vpc.template]
 
-====Option 1: Console
+==== Option 1: Console
 
 1. Log into the AWS CloudFormation Console by visiting https://console.aws.amazon.com/cloudformation/home
 
