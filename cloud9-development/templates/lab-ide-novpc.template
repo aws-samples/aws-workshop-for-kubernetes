@@ -79,6 +79,7 @@
     "AddRoleToInstance": {
       "Description": "Add LabIdeRole to Cloud9 IDE Instance",
       "Type": "Custom::AddRoleToInstance",
+      "DependsOn": ["AddRoleToInstanceFunction"],
       "Properties": {
         "ServiceToken": {
           "Fn::GetAtt": [
