@@ -447,9 +447,6 @@
           ]
         ]
       }
-    },
-    "RunOnIde": {
-      "Value": "curl -sSL https://s3.amazonaws.com/lab-ide-theomazonian/lab-ide-build.sh -o lab-ide-build.sh && chmod u+x lab-ide-build.sh && . ./lab-ide-build.sh && rm lab-ide-build.sh"
     }
   }
 }
