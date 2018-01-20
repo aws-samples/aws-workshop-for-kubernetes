@@ -87,7 +87,7 @@ At this point, you should have everything you need to complete any of the sectio
 
 === Automated Deployment using CloudFormation
 
-You can also use CloudFormation templates to create the Kubernetes development environment. The template will create the Cloud9 IDE, IAM Role required for kops and S3 bucket for kops state store.
+You can also use CloudFormation templates to create the Cloud9 development environment. The template will create the Cloud9 IDE, IAM Role required for kops and S3 bucket for kops state store.
 
 |===
 
@@ -126,7 +126,7 @@ a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation
 
 |===
 
-To open Cloud9 IDE environment, click on Output tab in CloudFormation and click the cloud9 URL or copy and paste the URL into your browser
+To open Cloud9 IDE environment, click on Output tab in CloudFormation Console and open Cloud9 URL
 
 https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
 
@@ -148,7 +148,7 @@ Run these commands in your Cloud9 IDE
   chmod +x lab-ide-build.sh
   . ./lab-ide-build.sh
 
-One last step in Cloud9 is required so that the IDE uses assigned IAM Instance profile. Open Cloud9 preferences and go to AWS Settings to disable AWS managed temporary credential as depicted in the diagram
+One last step is required so that Cloud9 IDE uses assigned IAM Instance profile. Open Cloud9 preferences and go to AWS Settings to disable AWS managed temporary credential as depicted in the diagram
 
 image:cloud9-disable-temp-credentials.png[]
 
