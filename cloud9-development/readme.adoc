@@ -147,7 +147,7 @@ Run these commands in your Cloud9 IDE
   chmod +x lab-ide-build.sh
   . ./lab-ide-build.sh
 
-Go to link:../cluster-install[ for create a Kubernetes cluster using kops]
+Go to this link link:../cluster-install[to create Kubernetes cluster using kops]
 
 
 === Workshop cleanup
