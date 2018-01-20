@@ -133,18 +133,21 @@ https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
 
 ==== Build script
 
-Once your Cloud9 is ready, download the build script and install it in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script will install the following,
+Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script will install the following,
 
 - jq
 - kubectl
 - kops
 - configures AWS CLI and stores variables in bash_profile (for ex: AWS_AVAILABILITY_ZONES, KOPS_STATE_STORE etc)
-- clone's lab repository
+- clone's workshop repository into Cloud9
 
+Run these commands in your Cloud9 IDE
 
-  aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh
+  aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh .
   chmod +x lab-ide-build.sh
   . ./lab-ide-build.sh
+
+Go to link:../cluster-install[ for create a Kubernetes cluster using kops]
 
 
 === Workshop cleanup
