@@ -129,15 +129,17 @@ a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation
 To open Cloud9 IDE environment, click on Output tab in CloudFormation and click the cloud9 URL or copy and paste the URL into your browser
 
 https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
-----
+
+
 ==== Build script
 
-After Cloud9 is ready, download the build script which will prepare your IDE for running tutorials in this workshop. The build script will install following AutomaticStopTimeMinutes
+Once your Cloud9 is ready, download the build script and install it in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script will install the following,
 
 - jq
 - kubectl
 - kops
 - configures AWS CLI and stores variables in bash_profile (for ex: AWS_AVAILABILITY_ZONES, KOPS_STATE_STORE etc)
+- clone's lab repository
 
     aws s3 cp https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-build.sh
     chmod +x lab-ide-build.sh
