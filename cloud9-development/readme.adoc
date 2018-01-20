@@ -84,3 +84,102 @@ The workshop repo has configuration files that are used to create Kubernetes res
   $ git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
 
 At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.
+
+=== Automated Deployment using CloudFormation
+
+You can also use a CloudFormation template to create the Kubernetes Development Environment. These templates will create the Cloud9 IDE with IAM Role as well as the kops state store bucket.
+
+To launch the template in your account, you will need to download one of the following:
+
+* To use an existing Subnet, download link:templates/lab-ide-novpc.template[lab-ide-novpc.template]
+* To use a new VPC/Subnet, download link:templates/lab-ide-vpc.template[lab-ide-vpc.template]
+
+==== Option 1: Console
+
+1. Log into the AWS CloudFormation Console by visiting https://console.aws.amazon.com/cloudformation/home
+
+2. Click on **Create Stack**.
+
+3. Under **Choose a Template**, click to *Upload a template to Amazon S3* and upload the file you downloaded earlier.
+
+4. Click **Next**.
+
+5. Specify a `Stack Name` and optionally a `SubnetId`. Click **Next**.
+
+6. Scroll down to the bottom and click **Next**.
+
+7. Under **Capabilities**, acknowledge that CloudFormation will create IAM resources, and click **Create**.
+
+8. Wait until the stack you just launched has a status of `CREATE_COMPLETE` (you may need to refresh), then check the box next to the new stack and select the **Outputs** tab. This will show the URL to the Cloud9 IDE (`LabIdeUrl`). Click the URL to go into your IDE.
+
+9. Download the build script: link:scripts/lab-ide-build.sh[lab-ide-build.sh].
+
+10. Copy the contents of the build script and paste into the *Terminal* window in the IDE (near the bottom).
+
+At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.
+
+==== Option 2: CLI
+
+Get a list of existing public subnets.
+
+.Command
+[source,bash]
+----
+aws ec2 describe-subnets --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId'
+----
+
+.Output
+[source,output]
+----
+[
+    "subnet-1234abcd",
+    "subnet-5678ef12",
+    ...
+]
+----
+
+Launch the CloudFormation stack, substituting a SubnetId for `<SubnetId>`.
+
+.Command
+[source,bash]
+----
+aws cloudformation create-stack --stack-name "LabIDE" --template-body file://lab-ide-novpc.template --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=SubnetId,ParameterValue=<SubnetId>
+----
+
+If you are using the link:templates/lab-ide-vpc.template[lab-ide-vpc.template], launch the stack using:
+
+.Command
+[source,bash]
+----
+aws cloudformation create-stack --stack-name "LabIDE" --template-body file://lab-ide-vpc.template --capabilities CAPABILITY_NAMED_IAM
+----
+
+Once launched, occasionally poll the status of the stack.
+
+.Command
+[source,bash]
+----
+aws cloudformation describe-stacks --stack-name LabIDE --query "Stacks[0].StackStatus" --output text
+----
+
+When this changes from `CREATE_IN_PROGRESS` to `CREATE_COMPLETE`, get the URL of the Cloud9 IDE.
+
+.Command
+[source,bash]
+----
+aws cloudformation describe-stacks --stack-name LabIDE --query 'Stacks[0].Outputs[?OutputKey==`LabIdeUrl`].OutputValue' --output text
+----
+
+.Output
+[source,output]
+----
+https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
+----
+
+Launch the IDE by copying the URL into your browser.
+
+Download the build script: link:scripts/lab-ide-build.sh[lab-ide-build.sh].
+
+Copy the contents of the build script and paste into the *Terminal* window in the IDE (near the bottom).
+
+At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.

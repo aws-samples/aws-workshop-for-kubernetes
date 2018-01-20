@@ -1,0 +1,452 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Lab IDE using new public subnet for container workshop v0.4",
+  "Metadata": {},
+  "Parameters": {},
+  "Mappings": {
+    "SubnetConfig": {
+      "VPC": {
+        "CIDR": "10.0.0.0/16"
+      },
+      "Public": {
+        "CIDR": "10.0.0.0/24"
+      }
+    }
+  },
+  "Conditions": {},
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "SubnetConfig",
+            "VPC",
+            "CIDR"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "PublicSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "SubnetConfig",
+            "Public",
+            "CIDR"
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "GatewayToInternet": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "GatewayToInternet",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "PublicSubnetRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        },
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        }
+      }
+    },
+    "PublicNetworkAcl": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackName"
+            }
+          },
+          {
+            "Key": "Network",
+            "Value": "Public"
+          }
+        ]
+      }
+    },
+    "InboundSSHPublicNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        },
+        "RuleNumber": "101",
+        "Protocol": "6",
+        "RuleAction": "allow",
+        "Egress": "false",
+        "CidrBlock": "0.0.0.0/0",
+        "PortRange": {
+          "From": "22",
+          "To": "22"
+        }
+      }
+    },
+    "InboundEphemeralPublicNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        },
+        "RuleNumber": "103",
+        "Protocol": "6",
+        "RuleAction": "allow",
+        "Egress": "false",
+        "CidrBlock": "0.0.0.0/0",
+        "PortRange": {
+          "From": "1024",
+          "To": "65535"
+        }
+      }
+    },
+    "OutboundPublicNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        },
+        "RuleNumber": "100",
+        "Protocol": "6",
+        "RuleAction": "allow",
+        "Egress": "true",
+        "CidrBlock": "0.0.0.0/0",
+        "PortRange": {
+          "From": "0",
+          "To": "65535"
+        }
+      }
+    },
+    "PublicSubnetNetworkAclAssociation": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        },
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        }
+      }
+    },
+    "LabIDE": {
+      "Description": "-",
+      "Type": "AWS::Cloud9::EnvironmentEC2",
+      "Properties": {
+        "Description": "Lab IDE for container workshop",
+        "AutomaticStopTimeMinutes": 60,
+        "InstanceType": "t2.micro",
+        "Name": {
+          "Ref": "AWS::StackName"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        }
+      }
+    },
+    "KopsStateStore": {
+      "Description": "-",
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      }
+    },
+    "LabIdeRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
+          "arn:aws:iam::aws:policy/AmazonRoute53FullAccess",
+          "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+          "arn:aws:iam::aws:policy/IAMFullAccess",
+          "arn:aws:iam::aws:policy/AmazonVPCFullAccess"
+        ],
+        "Path": "/"
+      }
+    },
+    "LabIdeInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "LabIdeRole"
+          }
+        ]
+      }
+    },
+    "AddRoleToInstance": {
+      "Description": "Add LabIdeRole to Cloud9 IDE Instance",
+      "Type": "Custom::AddRoleToInstance",
+      "DependsOn": ["AddRoleToInstanceFunction"],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AddRoleToInstanceFunction",
+            "Arn"
+          ]
+        },
+        "Region": {
+          "Ref": "AWS::Region"
+        },
+        "StackName": {
+          "Ref": "AWS::StackName"
+        },
+        "EnvironmentId": {
+          "Ref": "LabIDE"
+        },
+        "LabIdeInstanceProfileName": {
+          "Ref": "LabIdeInstanceProfile"
+        },
+        "LabIdeInstanceProfileArn": {
+          "Fn::GetAtt": [
+            "LabIdeInstanceProfile",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "AddRoleToInstanceFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "ZipFile": {
+            "Fn::Join": [
+              "\n",
+              [
+                "import boto3",
+                "import time",
+                "import traceback",
+                "import cfnresponse",
+                "",
+                "def handler(event, context):",
+                "    responseData = {}",
+                "    ",
+                "    # Immediately respond on Delete (no work to be done)",
+                "    if event['RequestType'] == 'Delete':",
+                "        cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')",
+                "    ",
+                "    try:",
+                "        # Open AWS clients",
+                "        ec2 = boto3.client('ec2')",
+                "        ",
+                "        # Get the InstanceId of the Cloud9 IDE",
+                "        instance = ec2.describe_instances(Filters=[{'Name': 'tag:Name','Values': ['aws-cloud9-'+event['ResourceProperties']['StackName']+'-'+event['ResourceProperties']['EnvironmentId']]}])['Reservations'][0]['Instances'][0]",
+                "        ",
+                "        # Create the IamInstanceProfile request object",
+                "        iam_instance_profile = {",
+                "            'Arn': event['ResourceProperties']['LabIdeInstanceProfileArn'],",
+                "            'Name': event['ResourceProperties']['LabIdeInstanceProfileName']",
+                "        }",
+                "        ",
+                "        # Wait for Instance to become ready before adding Role",
+                "        instance_state = instance['State']['Name']",
+                "        while instance_state != 'running':",
+                "            time.sleep(5)",
+                "            instance_state = ec2.describe_instances(InstanceIds=[instance['InstanceId']])",
+                "        ec2.associate_iam_instance_profile(IamInstanceProfile=iam_instance_profile, InstanceId=instance['InstanceId'])",
+                "        ",
+                "        responseData = {'Success': 'Role added to instance'+instance['InstanceId']+'.'}",
+                "        cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')",
+                "    except Exception as e:",
+                "        responseData = {'Error': traceback.format_exc(e)}",
+                "        cfnresponse.send(event, context, cfnresponse.FAILED, responseData, 'CustomResourcePhysicalID')"
+              ]
+            ]
+          }
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaExecutionRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "python2.7",
+        "Timeout": "30"
+      }
+    },
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "root",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": "arn:aws:logs:*:*:*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "cloudformation:DescribeStacks",
+                    "cloudformation:DescribeStackEvents",
+                    "cloudformation:DescribeStackResource",
+                    "cloudformation:DescribeStackResources",
+                    "ec2:DescribeInstances",
+                    "ec2:AssociateIamInstanceProfile",
+                    "ec2:ReplaceIamInstanceProfileAssociation",
+                    "iam:ListInstanceProfiles",
+                    "iam:PassRole"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "LabIdeUrl": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://console.aws.amazon.com/cloud9/ide/",
+            {
+              "Ref": "LabIDE"
+            }
+          ]
+        ]
+      }
+    }
+  }
+}
