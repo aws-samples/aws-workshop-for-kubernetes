@@ -147,6 +147,11 @@ Run these commands in your Cloud9 IDE
   chmod +x lab-ide-build.sh
   . ./lab-ide-build.sh
 
+One last step in Cloud9 is required so that the IDE uses assigned IAM Instance profile. Open Cloud9 preferences and go to AWS Settings to disable AWS managed temporary credential as depicted in the diagram
+
+image:cloud9-disable-temp-credentials.png[]
+
+
 Go to this link link:../cluster-install[to create Kubernetes cluster using kops]
 
 
