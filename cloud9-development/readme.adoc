@@ -141,7 +141,8 @@ Once your Cloud9 is ready, download the build script and install it in your IDE.
 - configures AWS CLI and stores variables in bash_profile (for ex: AWS_AVAILABILITY_ZONES, KOPS_STATE_STORE etc)
 - clone's lab repository
 
-  aws s3 cp https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-build.sh
+
+  aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh
   chmod +x lab-ide-build.sh
   . ./lab-ide-build.sh
 
