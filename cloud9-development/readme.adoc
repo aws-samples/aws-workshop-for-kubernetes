@@ -170,9 +170,11 @@ Delete kubernetes cluster
 
 Wait until all resources are deleted by kops
 
-Delete S3 bucket
+==== Delete S3 bucket
 
 See the link:https://docs.aws.amazon.com/AmazonS3/latest/user-guide/empty-bucket.html[documentation] to delete S3 bucket using AWS Console
+
+Note: you can get the name of S3 bucket in the Outputs tab in your CloudFormation Console
 
 ==== Delete Cloud9
 
