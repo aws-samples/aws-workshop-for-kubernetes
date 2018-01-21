@@ -79,7 +79,9 @@
     "AddRoleToInstance": {
       "Description": "Add LabIdeRole to Cloud9 IDE Instance",
       "Type": "Custom::AddRoleToInstance",
-      "DependsOn": ["AddRoleToInstanceFunction"],
+      "DependsOn": [
+        "AddRoleToInstanceFunction"
+      ],
       "Properties": {
         "ServiceToken": {
           "Fn::GetAtt": [
@@ -104,6 +106,9 @@
             "LabIdeInstanceProfile",
             "Arn"
           ]
+        },
+        "BucketName": {
+          "Ref": "KopsStateStore"
         }
       }
     },
@@ -123,9 +128,19 @@
                 "def handler(event, context):",
                 "    responseData = {}",
                 "    ",
-                "    # Immediately respond on Delete (no work to be done)",
+                "    # Immediately respond on Delete",
                 "    if event['RequestType'] == 'Delete':",
-                "        cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')",
+                "        # Empty Bucket before CloudFormation deletes it",
+                "        session = boto3.Session()",
+                "        s3 = session.resource(service_name='s3')",
+                "        try:",
+                "            bucket = s3.Bucket('your_bucket_name')",
+                "            bucket.object_versions.delete()",
+                "            ",
+                "            cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')",
+                "        except Exception as e:",
+                "            responseData = {'Error': traceback.format_exc(e)}",
+                "            cfnresponse.send(event, context, cfnresponse.FAILED, responseData, 'CustomResourcePhysicalID')",
                 "    ",
                 "    try:",
                 "        # Open AWS clients",
@@ -216,6 +231,36 @@
                     "iam:PassRole"
                   ],
                   "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:ListObject*",
+                    "s3:GetObject*",
+                    "s3:DeleteObject*"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "KopsStateStore",
+                        "Arn"
+                      ]
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          {
+                            "Fn::GetAtt": [
+                              "KopsStateStore",
+                              "Arn"
+                            ]
+                          },
+                          "/*"
+                        ]
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -225,7 +270,7 @@
     }
   },
   "Outputs": {
-    "LabIdeUrl": {
+    "Cloud9IDE": {
       "Value": {
         "Fn::Join": [
           "",
@@ -237,9 +282,6 @@
           ]
         ]
       }
-    },
-    "KOPSSTATESTORE": {
-      "Value": { "Ref": "KopsStateStore" }
-    }    
+    }
   }
 }
