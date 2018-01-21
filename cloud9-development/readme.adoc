@@ -87,99 +87,99 @@ At this point, you should have everything you need to complete any of the sectio
 
 === Automated Deployment using CloudFormation
 
-You can also use a CloudFormation template to create the Kubernetes Development Environment. These templates will create the Cloud9 IDE with IAM Role as well as the kops state store bucket.
+You can also use CloudFormation templates to create the Cloud9 development environment. The template will create the Cloud9 IDE, IAM Role required for kops and S3 bucket for kops state store.
 
-To launch the template in your account, you will need to download one of the following:
+|===
 
-* To use an existing Subnet, download link:templates/lab-ide-novpc.template[lab-ide-novpc.template]
-* To use a new VPC/Subnet, download link:templates/lab-ide-vpc.template[lab-ide-vpc.template]
+|Region | Launch template with new VPC | Launch template with existing VPC
+| *N. Virginia* (us-east-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-==== Option 1: Console
+| *Ohio* (us-east-2)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-1. Log into the AWS CloudFormation Console by visiting https://console.aws.amazon.com/cloudformation/home
+| *Oregon* (us-west-2)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-2. Click on **Create Stack**.
+| *Ireland* (eu-west-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-3. Under **Choose a Template**, click to *Upload a template to Amazon S3* and upload the file you downloaded earlier.
+| *Frankfurt* (eu-central-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-4. Click **Next**.
+| *Singapore* (ap-southeast-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-5. Specify a `Stack Name` and optionally a `SubnetId`. Click **Next**.
+| *Sydney* (ap-southeast-2)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-6. Scroll down to the bottom and click **Next**.
+| *Tokyo* (ap-northeast-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-7. Under **Capabilities**, acknowledge that CloudFormation will create IAM resources, and click **Create**.
+|===
 
-8. Wait until the stack you just launched has a status of `CREATE_COMPLETE` (you may need to refresh), then check the box next to the new stack and select the **Outputs** tab. This will show the URL to the Cloud9 IDE (`LabIdeUrl`). Click the URL to go into your IDE.
+To open Cloud9 IDE environment, click on Output tab in CloudFormation Console and open Cloud9 URL
 
-9. Download the build script: link:scripts/lab-ide-build.sh[lab-ide-build.sh].
-
-10. Copy the contents of the build script and paste into the *Terminal* window in the IDE (near the bottom).
-
-At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.
-
-==== Option 2: CLI
-
-Get a list of existing public subnets.
-
-.Command
-[source,bash]
-----
-aws ec2 describe-subnets --query 'Subnets[?MapPublicIpOnLaunch==`true`].SubnetId'
-----
-
-.Output
-[source,output]
-----
-[
-    "subnet-1234abcd",
-    "subnet-5678ef12",
-    ...
-]
-----
-
-Launch the CloudFormation stack, substituting a SubnetId for `<SubnetId>`.
-
-.Command
-[source,bash]
-----
-aws cloudformation create-stack --stack-name "LabIDE" --template-body file://lab-ide-novpc.template --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=SubnetId,ParameterValue=<SubnetId>
-----
-
-If you are using the link:templates/lab-ide-vpc.template[lab-ide-vpc.template], launch the stack using:
-
-.Command
-[source,bash]
-----
-aws cloudformation create-stack --stack-name "LabIDE" --template-body file://lab-ide-vpc.template --capabilities CAPABILITY_NAMED_IAM
-----
-
-Once launched, occasionally poll the status of the stack.
-
-.Command
-[source,bash]
-----
-aws cloudformation describe-stacks --stack-name LabIDE --query "Stacks[0].StackStatus" --output text
-----
-
-When this changes from `CREATE_IN_PROGRESS` to `CREATE_COMPLETE`, get the URL of the Cloud9 IDE.
-
-.Command
-[source,bash]
-----
-aws cloudformation describe-stacks --stack-name LabIDE --query 'Stacks[0].Outputs[?OutputKey==`LabIdeUrl`].OutputValue' --output text
-----
-
-.Output
-[source,output]
-----
 https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
-----
 
-Launch the IDE by copying the URL into your browser.
 
-Download the build script: link:scripts/lab-ide-build.sh[lab-ide-build.sh].
+==== Build script
 
-Copy the contents of the build script and paste into the *Terminal* window in the IDE (near the bottom).
+Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script will install the following,
 
-At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.
+- jq
+- kubectl
+- kops
+- configures AWS CLI and stores variables in bash_profile (for ex: AWS_AVAILABILITY_ZONES, KOPS_STATE_STORE etc)
+- creates an SSH key
+- clone's workshop repository into Cloud9
+
+Run these commands in your Cloud9 IDE
+
+  aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh .
+  chmod +x lab-ide-build.sh
+  . ./lab-ide-build.sh
+
+One last step is required so that Cloud9 IDE uses assigned IAM Instance profile. Open Cloud9 preferences and go to AWS Settings to disable AWS managed temporary credential as depicted in the diagram
+
+image:cloud9-disable-temp-credentials.png[]
+
+
+Go to this link link:../cluster-install[to create Kubernetes cluster using kops]
+
+
+=== Workshop cleanup
+
+==== Delete kubernetes cluster resources
+
+In your Cloud9 IDE, check if there are any running kubernetes cluster
+
+  kops get cluster
+
+Delete kubernetes cluster
+
+  kops delete cluster example.cluster.k8s.local --yes
+
+Wait until all resources are deleted by kops
+
+==== Delete S3 bucket
+
+See the link:https://docs.aws.amazon.com/AmazonS3/latest/user-guide/empty-bucket.html[documentation] to delete S3 bucket using AWS Console
+
+Note: you can get the name of S3 bucket name (KOPS_STATE_STORE) in the Outputs tab in your CloudFormation Console
+
+==== Delete Cloud9
+
+Go to CloudFormation console, right click template with name 'k8s-workshop' and select #Delete Stack
+
+This should delete all the resources associated with this workshop
+
+====

@@ -435,7 +435,7 @@
     }
   },
   "Outputs": {
-    "LabIdeUrl": {
+    "Cloud9IDE": {
       "Value": {
         "Fn::Join": [
           "",
@@ -447,6 +447,9 @@
           ]
         ]
       }
+    },
+    "KOPSSTATESTORE": {
+      "Value": { "Ref": "KopsStateStore" }
     }
   }
 }
