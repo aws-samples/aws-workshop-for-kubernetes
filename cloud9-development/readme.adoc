@@ -170,12 +170,6 @@ Delete kubernetes cluster
 
 Wait until all resources are deleted by kops
 
-==== Delete S3 bucket
-
-See the link:https://docs.aws.amazon.com/AmazonS3/latest/user-guide/empty-bucket.html[documentation] to delete S3 bucket using AWS Console
-
-Note: you can get the name of S3 bucket name (KOPS_STATE_STORE) in the Outputs tab in your CloudFormation Console
-
 ==== Delete Cloud9
 
 Go to CloudFormation console, right click template with name 'k8s-workshop' and select #Delete Stack
