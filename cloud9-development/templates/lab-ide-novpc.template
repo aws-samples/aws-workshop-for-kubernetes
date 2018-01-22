@@ -60,7 +60,8 @@
           "arn:aws:iam::aws:policy/AmazonRoute53FullAccess",
           "arn:aws:iam::aws:policy/AmazonS3FullAccess",
           "arn:aws:iam::aws:policy/IAMFullAccess",
-          "arn:aws:iam::aws:policy/AmazonVPCFullAccess"
+          "arn:aws:iam::aws:policy/AmazonVPCFullAccess",
+          "arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess"
         ],
         "Path": "/"
       }
@@ -80,7 +81,8 @@
       "Description": "Add LabIdeRole to Cloud9 IDE Instance",
       "Type": "Custom::AddRoleToInstance",
       "DependsOn": [
-        "AddRoleToInstanceFunction"
+        "AddRoleToInstanceFunction",
+        "KopsStateStore"
       ],
       "Properties": {
         "ServiceToken": {
@@ -120,12 +122,20 @@
             "Fn::Join": [
               "\n",
               [
+                "from __future__ import print_function",
                 "import boto3",
+                "import logging",
+                "import json",
                 "import time",
                 "import traceback",
                 "import cfnresponse",
                 "",
+                "logger = logging.getLogger()",
+                "logger.setLevel(logging.INFO)",
+                "",
                 "def handler(event, context):",
+                "    logger.debug('Event: {}'.format(event))",
+                "    logger.debug('Context: {}'.format(context))",
                 "    responseData = {}",
                 "    ",
                 "    # Immediately respond on Delete",
@@ -134,39 +144,43 @@
                 "        session = boto3.Session()",
                 "        s3 = session.resource(service_name='s3')",
                 "        try:",
-                "            bucket = s3.Bucket('your_bucket_name')",
+                "            bucket = s3.Bucket(event['ResourceProperties']['BucketName'])",
                 "            bucket.object_versions.delete()",
                 "            ",
+                "            logger.info('Bucket '+event['ResourceProperties']['BucketName']+' objects/versions deleted.')",
                 "            cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')",
                 "        except Exception as e:",
+                "            logger.error(e, exc_info=True)",
                 "            responseData = {'Error': traceback.format_exc(e)}",
                 "            cfnresponse.send(event, context, cfnresponse.FAILED, responseData, 'CustomResourcePhysicalID')",
                 "    ",
-                "    try:",
-                "        # Open AWS clients",
-                "        ec2 = boto3.client('ec2')",
-                "        ",
-                "        # Get the InstanceId of the Cloud9 IDE",
-                "        instance = ec2.describe_instances(Filters=[{'Name': 'tag:Name','Values': ['aws-cloud9-'+event['ResourceProperties']['StackName']+'-'+event['ResourceProperties']['EnvironmentId']]}])['Reservations'][0]['Instances'][0]",
-                "        ",
-                "        # Create the IamInstanceProfile request object",
-                "        iam_instance_profile = {",
-                "            'Arn': event['ResourceProperties']['LabIdeInstanceProfileArn'],",
-                "            'Name': event['ResourceProperties']['LabIdeInstanceProfileName']",
-                "        }",
-                "        ",
-                "        # Wait for Instance to become ready before adding Role",
-                "        instance_state = instance['State']['Name']",
-                "        while instance_state != 'running':",
-                "            time.sleep(5)",
-                "            instance_state = ec2.describe_instances(InstanceIds=[instance['InstanceId']])",
-                "        ec2.associate_iam_instance_profile(IamInstanceProfile=iam_instance_profile, InstanceId=instance['InstanceId'])",
-                "        ",
-                "        responseData = {'Success': 'Role added to instance'+instance['InstanceId']+'.'}",
-                "        cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')",
-                "    except Exception as e:",
-                "        responseData = {'Error': traceback.format_exc(e)}",
-                "        cfnresponse.send(event, context, cfnresponse.FAILED, responseData, 'CustomResourcePhysicalID')"
+                "    if event['RequestType'] == 'Create':",
+                "        try:",
+                "            # Open AWS clients",
+                "            ec2 = boto3.client('ec2')",
+                "            ",
+                "            # Get the InstanceId of the Cloud9 IDE",
+                "            instance = ec2.describe_instances(Filters=[{'Name': 'tag:Name','Values': ['aws-cloud9-'+event['ResourceProperties']['StackName']+'-'+event['ResourceProperties']['EnvironmentId']]}])['Reservations'][0]['Instances'][0]",
+                "            ",
+                "            # Create the IamInstanceProfile request object",
+                "            iam_instance_profile = {",
+                "                'Arn': event['ResourceProperties']['LabIdeInstanceProfileArn'],",
+                "                'Name': event['ResourceProperties']['LabIdeInstanceProfileName']",
+                "            }",
+                "            ",
+                "            # Wait for Instance to become ready before adding Role",
+                "            instance_state = instance['State']['Name']",
+                "            while instance_state != 'running':",
+                "                time.sleep(5)",
+                "                instance_state = ec2.describe_instances(InstanceIds=[instance['InstanceId']])",
+                "            ec2.associate_iam_instance_profile(IamInstanceProfile=iam_instance_profile, InstanceId=instance['InstanceId'])",
+                "            ",
+                "            responseData = {'Success': 'Role added to instance'+instance['InstanceId']+'.'}",
+                "            cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')",
+                "        except Exception as e:",
+                "            logger.error(e, exc_info=True)",
+                "            responseData = {'Error': traceback.format_exc(e)}",
+                "            cfnresponse.send(event, context, cfnresponse.FAILED, responseData, 'CustomResourcePhysicalID')"
               ]
             ]
           }
@@ -235,9 +249,7 @@
                 {
                   "Effect": "Allow",
                   "Action": [
-                    "s3:ListObject*",
-                    "s3:GetObject*",
-                    "s3:DeleteObject*"
+                    "s3:*"
                   ],
                   "Resource": [
                     {
