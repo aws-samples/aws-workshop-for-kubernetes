@@ -5,15 +5,17 @@ v1.0, 2018-01-17
 
 Kubernetes https://kubernetes.io/docs/admin/admission-controllers/[Admission Controllers]
 perform *semantic validation* of resources during create, update, and delete operations.
-In Kubernetes 1.8+, you can use OPA to enforce custom policies without recompiling or reconfiguring
+In Kubernetes 1.8+, you can use http://www.openpolicyagent.org/[The Open Policy Agent] to enforce custom policies without recompiling or reconfiguring
 the Kubernetes API server by leveraging
 https://kubernetes.io/docs/admin/extensible-admission-controllers/#external-admission-webhooks[External Admission Webhooks].
+The Open Policy Agent is a general-purpose policy engine that aims to policy-enable
+other projects or services which is integrated either as a library or as a side-car.
 
-For example, you could enforce any of the following policies:
+For example, using OPA with Kubernetes you could enforce any of the following policies:
 
 * All images come from an AWS repository (other than a whitelist)
 * Images are pulled from the same AWS repository in the same region as the cluster
-* Namespaces are assigned to different AWS IAM groups
+* Each namespace is controlled by the users in different AWS IAM groups
 
 
 == Goals
@@ -337,7 +339,7 @@ spec:
     name: amazon-linux
 ```
 
-Create a 'production' namespace.
+Create a `production` namespace.
 ```bash
 kubectl create namespace production
 ```
