@@ -3,13 +3,19 @@
 Doc Writer <tim@styra.com>
 v1.0, 2018-01-17
 
+
 Kubernetes https://kubernetes.io/docs/admin/admission-controllers/[Admission Controllers]
 perform *semantic validation* of resources during create, update, and delete operations.
-In Kubernetes 1.8+, you can use http://www.openpolicyagent.org/[The Open Policy Agent] to enforce custom policies without recompiling or reconfiguring
-the Kubernetes API server by leveraging
-https://kubernetes.io/docs/admin/extensible-admission-controllers/#external-admission-webhooks[External Admission Webhooks].
+In Kubernetes 1.8+, you can use the http://www.openpolicyagent.org/[Open Policy Agent] and
+https://kubernetes.io/docs/admin/extensible-admission-controllers/#external-admission-webhooks[Kubernetes External Admission Webhooks]
+to enforce custom admission control policies without recompiling or reconfiguring
+the Kubernetes API server.
+
 The Open Policy Agent is a general-purpose policy engine that aims to policy-enable
-other projects or services which is integrated either as a library or as a side-car.
+other projects or services.  It provides a rich, declarative policy language
+where policy decisions may be booleans (e.g. allow/deny), strings (e.g. hostnames),
+numbers (e.g. ratelimits), arrays (e.g. destination hosts for a pod), or dictionaries
+(e.g. JSON patch changes to a pod definition).
 
 For example, using OPA with Kubernetes you could enforce any of the following policies:
 
@@ -34,17 +40,19 @@ Keep in mind that External Admission Webhook support in Kubernetes is currently 
 
 . Create the Kubernetes cluster with `kops` and enable the External Admission Webhooks
 . Install the OpenPolicyAgent as an External Admission Webhook
-. Write admission control policies with OPA
+. Write admission control policies with the OpenPolicyAgent
 
 == Step 1: Create Cluster with External Admission Controllers via `kops`
 
 Create a Kubernetes 1.8 cluster with `kops` as shown in the
 link:../cluster-install/readme.adoc[Cluster Install] instructions.
 
-Update the Cluster spec to enable webhooks.
-Remember that the cluster is named `example.cluster.k8s.local`.
+Update the Cluster spec to enable webhooks. (Remember that when you set up
+  the cluster you chose the name `example.cluster.k8s.local`. )
 
-Run `kops edit example.cluster.k8s.local` and specify:
+```bash
+kops edit example.cluster.k8s.local
+```
 
 ```yaml
   kubeAPIServer:
@@ -55,8 +63,7 @@ Run `kops edit example.cluster.k8s.local` and specify:
       - PersistentVolumeLabel
       - DefaultStorageClass
       - DefaultTolerationSeconds
-      - MutatingAdmissionWebhook
-      - ValidatingAdmissionWebhook
+      - GenericAdmissionWebhook
       - ResourceQuota
     runtimeConfig:
       admissionregistration.k8s.io/v1alpha1: "true"
@@ -72,7 +79,9 @@ kops update example.cluster.k8s.local --yes
 
 === 2.1 Generate service-certificate for OPA
 
-First, create the required OpenSSL configuration files:
+First, create the required OpenSSL configuration files.  Put these in your current
+directory; we will only use them once to generate certificates.  You may discard
+them after running the `openssl` commands below.
 
 *client.conf*
 ```bash
@@ -109,21 +118,44 @@ IMPORTANT: The subjectAltName/IP address in the certificate MUST match the one c
 Now create local files that contain the CA and client/server key pairs.  Shortly we will
 hand these keys to OPA and the API server so they can communicate.
 
+Create a certificate authority:
+
 ```bash
-# Create a certificate authority
 openssl genrsa -out ca.key 2048
+```
+
+```bash
 openssl req -x509 -new -nodes -key ca.key -days 100000 -out ca.crt -subj "/CN=admission_ca"
+```
 
-# Create a server certiticate
+Create a server certiticate:
+
+```bash
 openssl genrsa -out server.key 2048
-openssl req -new -key server.key -out server.csr -subj "/CN=admission_server" -config server.conf
-openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 100000 -extensions v3_req -extfile server.conf
+```
 
-# Create a client certiticate
+```bash
+openssl req -new -key server.key -out server.csr -subj "/CN=admission_server" -config server.conf
+```
+
+```bash
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 100000 -extensions v3_req -extfile server.conf
+```
+
+Create a client certiticate:
+
+```bash
 openssl genrsa -out client.key 2048
+```
+
+```bash
 openssl req -new -key client.key -out client.csr -subj "/CN=admission_client" -config client.conf
+```
+
+```bash
 openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 100000 -extensions v3_req -extfile client.conf
 ```
+
 
 === 2.2: Deploy OPA on Kubernetes
 
@@ -165,10 +197,10 @@ kubectl create secret tls opa-server --cert=server.crt --key=server.key -n opa
 ```
 
 Finally, create the Deployment to run OPA as an Admission Controller.
-The deployment contains two containers: OPA and kube-mgmt.  kube-mgmt
-is a sidecar that helps OPA interact with kubernetes.  OPA by itself
-is a general-purpose policy engine and knows nothing about kubernetes,
-so kube-mgmt fills the gap.
+The deployment contains two containers: `opa` and `kube-mgmt`.  `opa` by
+itself is a general-purpose policy engine and knows nothing about Kubernetes.
+kube-mgmt is a collection of Kubernetes-specific code that helps
+OPA interact with kubernetes.
 
 **opa-admission-controller-deployment.yaml**:
 
@@ -253,7 +285,7 @@ kubectl logs -l app=opa -c opa -n opa
 === 3.1 Load a policy into OPA
 To test admission control, create a policy that requires all images
 to come from an AWS repository.  For details on the policy language, see the
-http://www.openpolicyagent.org/docs/(Open Policy Agent) documentation.
+http://www.openpolicyagent.org/docs/[Open Policy Agent] documentation.
 
 **image_source.rego**:
 
@@ -272,9 +304,8 @@ deny[explanation] {
 
 # main is entry point to policy.
 # Boilerplate required by admission webhook.
-# Policy decision is `status`, which is either
-#   {"allowed": true} or
-#   {"allowed": false, "status": {"reason": <string>}}
+# Actual policy decision is `status`, which takes the form
+#   {"allowed": BOOLEAN, "status": {"reason": STRING}}
 main = {
     "apiVersion": "admission.k8s.io/v1alpha1",
     "kind": "AdmissionReview",
@@ -282,7 +313,7 @@ main = {
 }
 
 # Boilerplate: construct 'reason' and 'allowed' variables.
-#  Real policy is collection of 'deny' statements.
+#  Real policy is the collection of 'deny' statements above.
 #  If not denied, allow.
 reason = msg {
     msg = concat(", ", deny)
@@ -303,7 +334,7 @@ policy into OPA.
 
 === 3.2 Check that the policy is working
 
-To verify that your policy is working, create separate test Pods in the `production` namespace.
+To verify that your policy is working, create separate test pods in the `production` namespace.
 
 **nginx-pod.yaml**:
 
@@ -349,20 +380,19 @@ Verify that you can create an amazon-linux pod.
 kubectl -n production create -f amazon-linux-pod.yaml
 ```
 
-Verify that you CANNOT create an nginx pod.
+Verify that you CANNOT create an nginx pod and receive the appropriate error message.
 ```bash
 kubectl -n production create -f nginx-pod.yaml
 ```
-
-You will get an error message:
 ```bash
 Error from server (image 'nginx' not from AWS ECR): error when creating "nginx-pod.yaml":
 ```
 
-You might have a collection of images like `nginx` that
-don't need to come from an AWS repository.  In that case, you can
+This example shows how to ensure ALL images comes from an AWS repository.
+But in reality you might have a collection of images like `nginx` that
+can come from outside of AWS.  In that case, you can
 add a whitelist to the OPA policy and modify the `deny` statement accordingly.
-
+Just update the ConfigMap, and `kube-mgmt` will update OPA with your new policy.
 
 == Wrap Up
 
