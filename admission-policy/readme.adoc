@@ -199,7 +199,7 @@ kubectl create secret tls opa-server --cert=server.crt --key=server.key -n opa
 Finally, create the Deployment to run OPA as an Admission Controller.
 The deployment contains two containers: `opa` and `kube-mgmt`.  `opa` by
 itself is a general-purpose policy engine and knows nothing about Kubernetes.
-kube-mgmt is a collection of Kubernetes-specific code that helps
+`kube-mgmt` is a collection of Kubernetes-specific code that helps
 OPA interact with kubernetes.
 
 **opa-admission-controller-deployment.yaml**:
@@ -287,6 +287,12 @@ To test admission control, create a policy that requires all images
 to come from an AWS repository.  For details on the policy language, see the
 http://www.openpolicyagent.org/docs/[Open Policy Agent] documentation.
 
+NOTE: Below replace the Amazon account ID 123456789 with your own account if your
+want the pod to actually come up.  If you just want to see the admission
+controller in action, you can leave it with the fake ID.  That account ID
+also appears in the image names when you create pods below; just make sure
+the account IDs are the same.
+
 **image_source.rego**:
 
 ```ruby
@@ -334,7 +340,7 @@ policy into OPA.
 
 === 3.2 Check that the policy is working
 
-To verify that your policy is working, create separate test pods in the `production` namespace.
+To verify that your policy is working, create separate test pods.
 
 **nginx-pod.yaml**:
 
@@ -370,29 +376,26 @@ spec:
     name: amazon-linux
 ```
 
-Create a `production` namespace.
-```bash
-kubectl create namespace production
-```
-
 Verify that you can create an amazon-linux pod.
 ```bash
-kubectl -n production create -f amazon-linux-pod.yaml
+kubectl create -f amazon-linux-pod.yaml
 ```
 
 Verify that you CANNOT create an nginx pod and receive the appropriate error message.
 ```bash
-kubectl -n production create -f nginx-pod.yaml
+kubectl create -f nginx-pod.yaml
 ```
 ```bash
 Error from server (image 'nginx' not from AWS ECR): error when creating "nginx-pod.yaml":
 ```
 
-This example shows how to ensure ALL images comes from an AWS repository.
+This example shows how to ensure ALL images come from an AWS repository.
 But in reality you might have a collection of images like `nginx` that
-can come from outside of AWS.  In that case, you can
-add a whitelist to the OPA policy and modify the `deny` statement accordingly.
-Just update the ConfigMap, and `kube-mgmt` will update OPA with your new policy.
+can come from outside of AWS.  Or maybe you only want to apply the policy
+to certain Kubernetes namespaces.  OPA's policy language is flexible enough
+to add image whitelists and control the applicable namespaces.
+Just modify your policy locally, update the ConfigMap, and `kube-mgmt` will
+update OPA with your changes.
 
 == Wrap Up
 
