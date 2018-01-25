@@ -167,6 +167,8 @@ If multiple clusters exist, then you can change the context:
   $ kubectl config use-context <config-name>
 
 
+
+
 image:next-step-arrow.png[ , title="Continue!"] 
 You are now ready to continue on with the workshop!
 
@@ -174,6 +176,8 @@ The next step is link:../103-kubernetes-concepts[to learn about basic Kubernetes
 
 The sections below provide information on other capabilities of Kubernetes clusters.
 You are welcome to read and refer to them should you need to use those capabilities.
+
+== Optional Modules
 
 === (Optional) Create a Kubernetes cluster in a private VPC
 
@@ -221,7 +225,7 @@ If `--dns private` is also specified, a Route53 private hosted zone is created f
 
 Although most of the exercises in this workshop should work on a cluster with a private VPC, some commands won't, specifically those that use a proxy to access internally hosted services.
 
-== (Optional) Turn on an API version for your Cluster
+=== (Optional) Turn on an API version for your Cluster
 
 Note: This section is for Kubebernetes 1.7.x, in 1.8.x the api is `batch/v1beta1`. 
 
@@ -301,7 +305,12 @@ A formatted output is shown below:
 
 The output clearly shows that `--runtime-config=batch/v2alpha1=true` is passed as an option to the API server. This means the cluster is now ready for creating creating APIs with version `batch/v2alpha1`.
 
-== Delete A Cluster
+=== (Optional) Delete A Cluster
+
+Note: If you are going through the workshop paths, please do not delete the cluster you just created!  
+
+This information is to show you how to delete a cluster.
+(We will also provide these instructions at the end of the workshop.)
 
 Any cluster can be deleted as shown:
 
