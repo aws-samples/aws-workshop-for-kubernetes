@@ -1173,7 +1173,7 @@ In another terminal window, watch the status of pods created:
 
 Get logs from one of the pods:
 
-    $ kubectl logs hello-1508884860-cq004
+  $ kubectl logs hello-1508884860-cq004
 	Tue Oct 24 22:41:02 UTC 2017
 	Hello World!
 
