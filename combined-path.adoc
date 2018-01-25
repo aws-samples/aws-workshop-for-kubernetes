@@ -7,7 +7,7 @@ image:resources/images/kubernetes-aws-smile.png[alt="kubernetes and aws logos", 
 This path combines elements from both the Development Path and Operations Path, and is designed to be completed in a shorter amount of time.
 Expect approximately two hours from start to finish.
 
-[width="95%",cols="1*^",grid="cols",options="header"]
+[cols="1*^",grid="cols",options="header"]
 |=====
 |anchor:combo[Combined Path]Combined Path
 |link:01-path-basics/101-start-here[101: Start Here]
