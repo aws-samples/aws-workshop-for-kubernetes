@@ -17,7 +17,7 @@ The kops CLI can be used to create a highly available cluster, with multiple mas
 - Provisioning EC2 instances
 - Creating and configuring AWS resources such as a VPC, Auto Scaling Groups, IAM users, and security groups
 - Installing Kubernetes
-- If required configuring Route53 DNS
+- If required, configuring Route53 DNS
 
 When setting up a cluster you have two options on how the nodes in the cluster communicate:
 
@@ -30,7 +30,7 @@ Instructions for creating a gossip-based cluster are provided below, however, th
 
 kops supports creating a gossip-based cluster, which uses https://github.com/weaveworks/mesh[Weave Mesh] behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and therefore much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
 
-Information on setting up a DNS-based cluster can be found at the bottom of this page in the Appendix. However, setting up a gossip-based cluster allows you to get started quickly.
+Information on setting up a DNS-based cluster can be found at the bottom of this page in the Appendix. However, setting up a gossip-based cluster allows you to get started quickly. If you are unsure which to choose, we recommend using a gossip-based cluster for the workshop.
 
 We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Most workshop exercises will work on both types of cluster, however some modules require using a multi-master cluster (to demonstrate rolling updates, for instance.) If you aren't sure, please create a <<multi-master-multi-node-multi-az-gossip-based-cluster, multi-master cluster.>>
 
@@ -60,7 +60,7 @@ Note: If your 'create cluster' fails with an error like:
 error reading s3://example-kops-state-store-workshop/workshop-prep.cluster.k8s.local/config: Unable to list AWS regions: NoCredentialProviders: no valid providers in chain
 caused by: EnvAccessKeyNotFound: failed to find credentials in the environment."
 ```
-, try setting the following environment variables before executing the 'create cluster' command:
+Try setting the following environment variables before executing the 'create cluster' command:
 ```
 export AWS_DEFAULT_PROFILE=<your_aws_credentials_profile_name>
 export AWS_SDK_LOAD_CONFIG=1
