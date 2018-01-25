@@ -24,13 +24,11 @@ When setting up a cluster you have two options on how the nodes in the cluster c
 . <<create-a-gossip-based-kubernetes-cluster-with-kops, Using the gossip protocol>> - kops has support for a gossip-based cluster. This does not require a domain, subdomain, or Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup, and is the preferred method for creating a cluster for use with this workshop.
 . <<appendix-create-a-dns-based-kubernetes-cluster, Using DNS>> - Creating a Kubernetes cluster that uses DNS for node discovery requires your own domain (or subdomain) and setting up Route 53 hosted zones. This allows the various Kubernetes components to use DNS resolutions find and communicate with each other, and for kubectl to be able to talk directly with the master node(s).
 
-Instructions for creating a gossip-based cluster are provided below, however, the examples in the workshop should work with either option. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.
+Instructions for creating a gossip-based cluster are provided below, however, the examples in the workshop should work with either option. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.  If you are unsure which to choose, we recommend using a gossip-based cluster for the workshop.
 
-=== Create a Gossip Based Kubernetes Cluster with kops
+=== Create a Gossip-based Kubernetes Cluster with kops
 
-kops supports creating a gossip-based cluster, which uses https://github.com/weaveworks/mesh[Weave Mesh] behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and therefore much simpler. This also means a top-level domain or a subdomain is no longer required to create the cluster. To create a cluster using the gossip protocol, indicate this to by using a cluster name with a suffix of `.k8s.local`. In the following steps, we will use example.cluster.k8s.local as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
-
-Information on setting up a DNS-based cluster can be found at the bottom of this page in the Appendix. However, setting up a gossip-based cluster allows you to get started quickly. If you are unsure which to choose, we recommend using a gossip-based cluster for the workshop.
+kops supports creating a gossip-based cluster, which uses https://github.com/weaveworks/mesh[Weave Mesh] behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and therefore much simpler. To create a cluster using the gossip protocol, use a cluster name with a suffix of `.k8s.local`. In the following steps, we will use `example.cluster.k8s.local` as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
 
 We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Most workshop exercises will work on both types of cluster, however some modules require using a multi-master cluster (to demonstrate rolling updates, for instance.) If you aren't sure, please create a <<multi-master-multi-node-multi-az-gossip-based-cluster, multi-master cluster.>>
 

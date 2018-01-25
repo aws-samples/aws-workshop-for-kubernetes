@@ -103,6 +103,7 @@ The workshop repository has configuration files that are used to create Kubernet
 At this point, you should have everything you need to complete any of the sections of the this workshop using your Cloud9 Environment.
 
 anchor:cfn[]
+
 == Automated Deployment using CloudFormation
 
 It is possible to create and configure the Cloud9 development environment via CloudFormation.
@@ -156,7 +157,7 @@ To install the script, run this command - again in the Terminal tab of the Cloud
 
     $ aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh . && chmod +x lab-ide-build.sh && ./lab-ide-build.sh
 
-One last step is required so that Cloud9 IDE uses assigned IAM Instance profile. Open the Cloud9 `Preferences`, go to `AWS Settings`, and disable `AWS managed temporary credentials` as depicted in the diagram
+One last step is required so that Cloud9 IDE uses assigned IAM Instance profile. Open the "AWS Cloud9" menu, go to  "Preferences", go to "AWS Settings", and disable "AWS managed temporary credentials" as depicted in the diagram here:
 
 image:cloud9-disable-temp-credentials.png[]
 
