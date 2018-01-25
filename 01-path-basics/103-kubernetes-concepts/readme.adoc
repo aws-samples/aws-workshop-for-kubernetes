@@ -10,7 +10,10 @@ Kubernetes has a number of abstractions that map to API objects. These Kubernete
 
 This chapter uses a cluster with 3 master nodes and 5 worker nodes as described link:../102-your-first-cluster#multi-master-multi-node-multi-az-gossip-based-cluster[here]. 
 
-All configuration files for this chapter are in the `templates` directory. 
+All configuration files for this chapter are in the `01-path-basics/103-kubernetes-concepts/templates` directory. 
+Please be sure to `cd` into that directory before running the commands below.
+
+    $ cd 01-path-basics/103-kubernetes-concepts/templates
 
 == Kubernetes basic commands
 
@@ -46,22 +49,23 @@ A Pod is the smallest deployable unit that can be created, scheduled, and manage
 
 Each resource in Kubernetes can be defined using a configuration file. For example, an NGINX pod can be defined with configuration file shown in below:
 
-	apiVersion: v1
-	kind: Pod
-	metadata:
-	  name: nginx-pod
-	  labels:
+	  $ cat pod.yaml
+	  apiVersion: v1
+	  kind: Pod
+	  metadata:
 	    name: nginx-pod
-	spec:
-	  containers:
+	    labels:
+	      name: nginx-pod
+	  spec:
+	    containers:
 	  - name: nginx
-	    image: nginx:latest
-	    ports:
-	    - containerPort: 80
+	      image: nginx:latest
+	      ports:
+	      - containerPort: 80
 
 Create the pod as shown below:
 
-	$ kubectl apply -f templates/pod.yaml
+	$ kubectl apply -f pod.yaml
 	pod "nginx-pod" created
 
 Get the list of pod:
@@ -122,6 +126,7 @@ By default, a container in a pod is allocated no memory request/limit and 100m C
 
 Let's assign a memory request and limit to a Pod using the configuration file shown:
 
+	$ cat pod-resources.yaml
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -146,7 +151,7 @@ The only change in this configuration file is the addition of `spec.containers[]
 
 Create the pod:
 
-	$ kubectl apply -f templates/pod-resources.yaml
+	$ kubectl apply -f pod-resources.yaml
 	pod "nginx-pod2" created
 
 Get more details about the requests and limits:
@@ -156,6 +161,7 @@ Get more details about the requests and limits:
 
 NGINX container requires fairly low memory and CPU. And so these request and limit numbers would work well, and the pod is started correctly. Now, let's try to start a WildFly pod using similar numbers. The configuration file for the same is shown:
 
+	$ cat pod-resources1.yaml
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -178,7 +184,7 @@ NGINX container requires fairly low memory and CPU. And so these request and lim
 
 The max amount of memory allocated for the WildFly container in this pod is restricted to 200MB. Let's create this Pod:
 
-	$ kubectl apply -f templates/pod-resources1.yaml
+	$ kubectl apply -f pod-resources1.yaml
 	pod "wildfly-pod" created
 
 Watch the status of the Pod:
@@ -199,11 +205,11 @@ Watch the status of the Pod:
 
 `OOMKilled` shows that the container was terminated because it ran out of memory. 
 
-In `templates/pod-resources2.yaml`, change the value of `spec.containers[].resources.limits.memory` to `300Mi`. Delete the existing Pod, and create a new one:
+In `pod-resources2.yaml`, change the value of `spec.containers[].resources.limits.memory` to `300Mi`. Delete the existing Pod, and create a new one:
 
-	$ kubectl delete -f templates/pod-resources1.yaml
+	$ kubectl delete -f pod-resources1.yaml
 	pod "wildfly-pod" deleted
-	$ kubectl apply -f templates/pod-resources2.yaml
+	$ kubectl apply -f pod-resources2.yaml
 	pod "wildfly-pod" created
 	$ kubectl get -w pod/wildfly-pod
 	NAME          READY     STATUS              RESTARTS   AGE
@@ -241,6 +247,7 @@ Pods that need to stay up can request `Guaranteed` QoS. Pods with less stringent
 
 Here is an example of Pod with `Guaranteed` QoS:
 
+	$ cat pod-guaranteed.yaml
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -262,7 +269,7 @@ Note that no request values are specified here, and will default to limit.
 
 Create this Pod:
 
-	$ kubectl apply -f templates/pod-guaranteed.yaml
+	$ kubectl apply -f pod-guaranteed.yaml
 	pod "nginx-pod-guaranteed" created
 
 Check the resources:
@@ -277,6 +284,7 @@ Check the QoS:
 
 Another Pod with explicit value for limit and request is shown:
 
+	$ cat pod-guaranteed2
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -299,7 +307,7 @@ Another Pod with explicit value for limit and request is shown:
 
 Create this Pod:
 
-	$ kubectl apply -f templates/pod-guaranteed2.yaml
+	$ kubectl apply -f pod-guaranteed2.yaml
 	pod "nginx-pod-guaranteed2" created
 
 Check the resources:
@@ -316,6 +324,7 @@ Check the QoS:
 
 Here is an example of Pod with `Burstable` QoS:
 
+	$ cat pod-burstable
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -340,7 +349,7 @@ Note that both request and limit values are specified here.
 
 Create this Pod:
 
-	$ kubectl apply -f templates/pod-burstable.yaml
+	$ kubectl apply -f pod-burstable.yaml
 	pod "nginx-pod-burstable" created
 
 Check the resources:
