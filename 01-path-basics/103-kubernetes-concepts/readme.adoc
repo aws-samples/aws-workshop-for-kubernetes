@@ -284,7 +284,7 @@ Check the QoS:
 
 Another Pod with explicit value for limit and request is shown:
 
-	$ cat pod-guaranteed2
+	$ cat pod-guaranteed2.yaml
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -324,7 +324,7 @@ Check the QoS:
 
 Here is an example of Pod with `Burstable` QoS:
 
-	$ cat pod-burstable
+	$ cat pod-burstable.yaml
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -407,6 +407,7 @@ A "`desired state`", such as 4 replicas of a pod, can be described in a Deployme
 
 The folowing example will create a Deployment with 3 replicas of NGINX base image. Let's begin with the template:
 
+  $ cat deployment.yaml
 	apiVersion: extensions/v1beta1
 	kind: Deployment # kubernetes object type
 	metadata:
@@ -430,7 +431,7 @@ This deployment will create 3 instances of NGINX image.
 
 Run the following command to create Deployment:
 
-	$ kubectl create -f templates/deployment.yaml --record
+	$ kubectl create -f deployment.yaml --record
 	deployment "nginx-deployment" created
 
 The `--record` flag will track changes made through each revision.
@@ -587,6 +588,7 @@ Pods belong to a service by using a loosely-coupled model where labels are attac
 
 Let's create a Deployment first that will create 3 replicas of a pod:
 
+  $ cat echo-deployment.yaml
 	apiVersion: extensions/v1beta1
 	kind: Deployment
 	metadata:
@@ -610,7 +612,7 @@ This example creates an echo app that responds with HTTP headers from an Elastic
 
 Type the following to create the deployment:
 
-	$ kubectl create -f templates/echo-deployment.yaml --record
+	$ kubectl create -f echo-deployment.yaml --record
 
 Use the `kubectl describe deployment` command to confirm `echo-app` has been deployed:
 
@@ -671,6 +673,7 @@ Each pod in this deployment has `app=echo-pod` label attached to it.
 
 In the following example, we create a service `echo-service`:
 
+	$ cat service.yaml
 	apiVersion: v1
 	kind: Service
 	metadata:
@@ -702,6 +705,7 @@ Let's publish the service load balancer and expose your services, add a `type` f
 
 This template will expose `echo-app` service on an Elastic Load Balancer (ELB):
 
+	$ cat service.yaml
 	apiVersion: v1
 	kind: Service
 	metadata:
@@ -718,7 +722,7 @@ This template will expose `echo-app` service on an Elastic Load Balancer (ELB):
 
 Run the following command to create the service:
 
-	$ kubectl create -f templates/service.yaml --record
+	$ kubectl create -f service.yaml --record
 
 Get more details about the service:
 
@@ -780,11 +784,11 @@ Now, the number of pods in the deployment can be scaled up and down. Or the pods
 
 Run the following command to delete the Service:
 
-    $ kubectl delete -f templates/service.yaml
+    $ kubectl delete -f service.yaml
 
 The backend Deployment needs to be explicitly deleted as well:
 
-    $ kubectl delete -f templates/echo-deployment.yaml
+    $ kubectl delete -f echo-deployment.yaml
 
 == Daemon Set
 
@@ -796,6 +800,7 @@ As new nodes are added to the cluster, pods are started on them. As nodes are re
 
 The folowing is an example DaemonSet that runs a Prometheus container. Let's begin with the template:
 
+	$ cat daemonset.yaml
 	apiVersion: extensions/v1beta1
 	kind: DaemonSet
 	metadata:
@@ -815,7 +820,7 @@ The folowing is an example DaemonSet that runs a Prometheus container. Let's beg
 
 Run the following command to create the ReplicaSet and pods:
 
-	$ kubectl create -f templates/daemonset.yaml --record
+	$ kubectl create -f daemonset.yaml --record
 
 The `--record` flag will track changes made through each revision.
 
@@ -877,10 +882,6 @@ prometheus-daemonset-sjcgh   1/1       Running   0          57s
 
 Verify that the Prometheus pod was successfully deployed to the cluster nodes:
 
-	kubectl get pods -o wide
-
-The output should look as shown:
-
 	$ kubectl get pods -o wide
 	NAME                         READY     STATUS    RESTARTS   AGE       IP            NODE
 	prometheus-daemonset-sjcgh   1/1       Running   0          1m        100.96.7.10   ip-172-20-52-200.ec2.internal
@@ -914,7 +915,7 @@ After the update is performed, we have now configured Prometheus to run on a spe
 
 Run the following command to delete the DaemonSet:
 
-	$ kubectl delete -f templates/daemonset.yaml
+	$ kubectl delete -f daemonset.yaml
 
 == Job
 
@@ -932,6 +933,7 @@ Only one pod per job is started, unless the pod fails. Job is complete as soon a
 
 Here is the job specification:
 
+  $ cat job.yaml
 	apiVersion: batch/v1
 	kind: Job
 	metadata:
@@ -951,7 +953,7 @@ It creates an Ubuntu container, sleeps for 20 seconds and that's it!
 
 Create a job using the command:
 
-	$ kubectl apply -f templates/job.yaml
+	$ kubectl apply -f job.yaml
 	job "wait" created
 
 Look at the job:
@@ -985,16 +987,17 @@ The completed pod is not shown in the `kubectl get pods` command. Instead it can
 
 To delete the job, you can run this command
 
-	$ kubectl delete -f templates/job.yaml
+	$ kubectl delete -f job.yaml
 
 === Parallel Job
 
-Non-parallel job runs only one pod per job. This API is used to run multiple pods in parallel for the job. The number of pods to complete is defined by `.spec.completions` attribute in the configuration file. The number of pods to run in parallel is defined by `.spec.parallelism` attribute in the configuration file. The default value for both of these attributes is 1.
+Non-parallel jobs run only one pod per job. This API is used to run multiple pods in parallel for the job. The number of pods to complete is defined by `.spec.completions` attribute in the configuration file. The number of pods to run in parallel is defined by `.spec.parallelism` attribute in the configuration file. The default value for both of these attributes is 1.
 
 The job is complete when there is one successful pod for each value in the range in 1 to `.spec.completions`. For that reason, it is also called as _fixed completion count_ job.
 
 Here is a job specification:
 
+  $ cat job-parallel.yaml
 	apiVersion: batch/v1
 	kind: Job
 	metadata:
@@ -1016,7 +1019,7 @@ This job specification is similar to the non-parallel job specification. It has 
 
 Create a parallel job using the command:
 
-	$ kubectl apply -f templates/job-parallel.yaml
+	$ kubectl apply -f job-parallel.yaml
 
 Watch the status of the job as shown:
 
@@ -1080,7 +1083,7 @@ Similarly, `kubectl get jobs` shows the status of the job after it has completed
 
 Deleting a job deletes all the pods as well. Delete the job as:
 
-	$ kubectl delete -f templates/job-parallel.yaml
+	$ kubectl delete -f job-parallel.yaml
 
 == Cron Job
 
@@ -1107,6 +1110,7 @@ A Cron Job is a job that runs on a given schedule, written in Cron format. There
 
 Here is the job specification:
 
+  $ cat cronjob.yaml
 	apiVersion: batch/v2alpha1
 	kind: CronJob
 	metadata:
@@ -1133,11 +1137,11 @@ This job prints the current timestamp and the message "`Hello World`" every minu
 
 Create the Cron Job as shown in the command:
 
-	$ kubectl create -f templates/cronjob.yaml --validate=false
+	$ kubectl create -f cronjob.yaml --validate=false
 
 `--validate=false` is required because kubectl CLI version is 1.8. Without this option, you'll get the error:
 
-	error: error validating "templates/cronjob.yaml": error validating data: unknown object type schema.GroupVersionKind{Group:"batch", Version:"v2alpha1", Kind:"CronJob"}; if you choose to ignore these errors, turn validation off with --validate=false
+	error: error validating "cronjob.yaml": error validating data: unknown object type schema.GroupVersionKind{Group:"batch", Version:"v2alpha1", Kind:"CronJob"}; if you choose to ignore these errors, turn validation off with --validate=false
 
 Watch the status of the job as shown:
 
@@ -1177,7 +1181,7 @@ Get logs from one of the pods:
 
 Delete the Cron Job as shown in the following command:
 
-	$ kubectl delete -f templates/cronjob.yaml
+	$ kubectl delete -f cronjob.yaml
 	cronjob "hello" deleted
 
 == Namespaces
@@ -1208,7 +1212,7 @@ By default, all resources in Kubernetes cluster are created in a `default` names
 
 Let's create a Deployment:
 
-	$ kubectl apply -f templates/deployment.yaml
+	$ kubectl apply -f deployment.yaml
 	deployment "nginx-deployment" created
 
  Check its namespace:
@@ -1222,6 +1226,7 @@ A new namespace can be created using a configuration file or `kubectl`.
 
 . The following configuration file can be used to create Namespace:
 
+	$ cat namespace.yaml
 	kind: Namespace
 	apiVersion: v1
 	metadata:
@@ -1231,7 +1236,7 @@ A new namespace can be created using a configuration file or `kubectl`.
 
 . Create a new Namespace:
 
-	$ kubectl apply -f templates/namespace.yaml 
+	$ kubectl apply -f namespace.yaml 
 	namespace "dev" created
 
 . Get the list of Namespaces:
@@ -1260,6 +1265,7 @@ No resource limits.
 +
 . Create a Deployment in this new Namespace using a configuration file:
 +
+  $ deployment-namespace.yaml 
 	apiVersion: extensions/v1beta1
 	kind: Deployment
 	metadata:
@@ -1283,7 +1289,7 @@ The main change is the addition of `namespace: dev`.
 +
 . Create the Deployment:
 
-	$ kubectl apply -f templates/deployment-namespace.yaml 
+	$ kubectl apply -f deployment-namespace.yaml 
 	deployment "nginx-deployment-ns" created
 
 . Deployment in a Namespace can be queried by providing an additional switch `-n` as shown:
@@ -1338,6 +1344,7 @@ A ResourceQuota can be created using a configuration file or `kubectl`.
 
 . The following configuration file can be used to create ResourceQuota:
 
+	$ cat resource-quota.yaml
 	apiVersion: v1
 	kind: ResourceQuota
 	metadata:
@@ -1361,7 +1368,7 @@ This configuration file places the following requirements on the namespace:
 +
 . Create a new ResourceQuota:
 
-	$ kubectl apply -f templates/resource-quota.yaml
+	$ kubectl apply -f resource-quota.yaml
 	resourcequota "quota" created
 +
 Alternatively, a ResourceQuota may be created using the `kubectl` CLI:
@@ -1423,6 +1430,7 @@ The current reason is displayed in the output.
 
 Let's create a Pod with the following configuration file:
 
+	$ cat pod.yaml
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -1438,13 +1446,14 @@ Let's create a Pod with the following configuration file:
 
 You may have to remove a previously running Pod or Deployment before attempting to create this Pod.
 
-	$ kubectl apply -f templates/pod.yaml
-	Error from server (Forbidden): error when creating "templates/pod.yaml": pods "nginx-pod" is forbidden: failed quota: quota: must specify memory
+	$ kubectl apply -f pod.yaml
+	Error from server (Forbidden): error when creating "pod.yaml": pods "nginx-pod" is forbidden: failed quota: quota: must specify memory
 
 The error message indicates that a ResourceQuota is in effect, and that the Pod must explicitly specify memory resources.
 
 Update the configuration file to:
 
+	$ cat pod-memory.yaml
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -1463,7 +1472,7 @@ Update the configuration file to:
 
 There is an explicity memory resource defined here. Now, try to create the pod:
 
-	$ kubectl apply -f templates/pod-memory.yaml
+	$ kubectl apply -f pod-memory.yaml
 	pod "nginx-pod" created
 
 The Pod is successfully created.
