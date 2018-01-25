@@ -10,7 +10,7 @@ This tutorial will walk you through the process of creating a Kubernetes develop
 === AWS Cloud9 Console
 
 [NOTE]
-If you are experienced with Cloud9, kubectl, kops, and git (or if you just want a working development environment quickly), please skip to xref:cfn[automated deployment using CloudFormation.]
+If you are experienced with Cloud9, kubectl, kops, and git (_or if you just want a working development environment quickly_), please skip to xref:cfn[automated deployment using CloudFormation.]
 
 First, Log into the AWS Cloud9 Console. AWS Cloud9 is only available in 5 regions currently. Please choose the region closest to you geographically.
 
@@ -93,6 +93,18 @@ Install kops using the following:
     $ curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
     $ chmod +x kops-linux-amd64
     $ sudo mv kops-linux-amd64 /usr/local/bin/kops
+
+=== Configure an S3 bucket for kops
+
+kops needs a "`state store`" to store configuration information of the cluster. We will use a s3 bucket with versioning enabled. A state store can work with multiple kops clusters.
+
+[NOTE] 
+The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `kops-state-store-` and add a randomly generated string to the end.
+
+    $ export S3_BUCKET=kops-state-store-$(cat /dev/urandom | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
+    $ export KOPS_STATE_STORE=s3://${S3_BUCKET}
+    $ aws s3 mb $KOPS_STATE_STORE
+    $ aws s3api put-bucket-versioning --bucket $S3_BUCKET --versioning-configuration Status=Enabled
 
 === Clone the repository
 
