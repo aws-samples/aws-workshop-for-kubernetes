@@ -141,6 +141,7 @@ To open Cloud9 IDE environment, click on Output tab in CloudFormation Console an
 
 https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
 
+anchor:next[]
 
 == Build Script
 
@@ -161,12 +162,10 @@ One last step is required so that Cloud9 IDE uses assigned IAM Instance profile.
 
 image:cloud9-disable-temp-credentials.png[]
 
-anchor:next[]
 image:next-step-arrow.png[ , title="Continue!"] 
 You are now ready to continue on with the workshop!
 
 The next step is link:../102-your-first-cluster[to create a Kubernetes cluster using kops].
-
 
 == Workshop Cleanup 
 
