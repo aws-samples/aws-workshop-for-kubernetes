@@ -8,7 +8,16 @@ This tutorial will walk you through the process of creating a Kubernetes develop
 
 === Create AWS Cloud9 Environment
 ==== Option 1: AWS Cloud9 Console
-1. Log into the AWS Cloud9 Console by visiting https://console.aws.amazon.com/cloud9/home/create
+1. Log into the AWS Cloud9 Console's Create page by visiting one of the links below.  This will create your development environment in one of the AWS Cloud9 supported regions, but you'll be able to make calls to any service in other regions using the environment.
++
+[options="header"]
+|=======
+|Region |Link
+|Oregon |https://us-west-2.console.aws.amazon.com/cloud9/home/create
+|Northern Virginia |https://us-east-1.console.aws.amazon.com/cloud9/home/create
+|Ohio   |https://us-east-2.console.aws.amazon.com/cloud9/home/create
+|=======
++
 
 2. Provide a name for your environment.  Feel free to use something simple, such as `kubernetes-developmet`.  Then click "Next Step".
 
@@ -35,10 +44,10 @@ Your AWS Cloud9 environment comes with many useful tools preinstalled, but there
 
 Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user.
 
-.Please Note
-*********************
+[NOTE]
+===
 It is not recommended that you change the default AWS CLI config in your AWS Cloud9 environment. Instead, it is recommended that you provide the logged in user's account the permissions needed to make any requests needed by your project.  More information on this can be found by visiting: https://docs.aws.amazon.com/cloud9/latest/user-guide/credentials.html[Calling AWS Services from an Environment in AWS Cloud9]
-*********************
+===
 
 For the sake of this workshop, we are going to configure the AWS CLI on your AWS Cloud9 environment using the AWS Configure command.  For this, use the same credentials you created in the "Create admin user and group" section of the https://github.com/aws-samples/aws-workshop-for-kubernetes/blob/master/prereqs.adoc[Prerequesites] page.
 
