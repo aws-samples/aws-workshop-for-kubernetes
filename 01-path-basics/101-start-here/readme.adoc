@@ -7,7 +7,7 @@
 This tutorial will walk you through the process of creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run and debug containerized workloads with just a web browser.
 
 === Create AWS Cloud9 Environment
-==== Option 1: AWS Cloud9 Console
+==== AWS Cloud9 Console
 1. Log into the AWS Cloud9 Console:
 
 [cols=2*^]
@@ -23,7 +23,6 @@ This tutorial will walk you through the process of creating a Kubernetes develop
 | *Singapore* (ap-southeast-1)
 |link:https://ap-southeast-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in ap-southeast-1]
 |===
-
 
 2. Provide a name for your environment.  Feel free to use something simple, such as `kubernetes-development`.  Then click "Next Step".
 
