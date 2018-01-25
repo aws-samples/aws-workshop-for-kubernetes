@@ -9,9 +9,9 @@ This tutorial will walk you through the process of creating a Kubernetes develop
 == Create AWS Cloud9 Environment
 === AWS Cloud9 Console
 
-1. Log into the AWS Cloud9 Console:
+First, Log into the AWS Cloud9 Console:
 
-[cols="2^"]
+[cols="2*^"]
 |===
 | *N. Virginia* (us-east-1)
 |link:https://us-east-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in us-east-1]
@@ -25,15 +25,17 @@ This tutorial will walk you through the process of creating a Kubernetes develop
 |link:https://ap-southeast-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in ap-southeast-1]
 |===
 
-2. Provide a name for your environment.  Feel free to use something simple, such as `kubernetes-development`.  Then click "Next Step".
+Once there, follow these steps:
 
-3. Change the "Instance Type" to `t2.small (2 GiB RAM + 1 vCPU)`.
+1. Provide a name for your environment.  Feel free to use something simple, such as `kubernetes-development`.  Then click "Next Step".
 
-4. Expand the "Network settings (advanced)" section and make sure you are using the default VPC.  It will have "(default)" next to the name.  If you do not have a default VPC listed, it is recommended that you create a "Single Public Subnet" VPC by clicking the "Create new VPC" button and following the wizard it presents.
+2. Change the "Instance Type" to `t2.small (2 GiB RAM + 1 vCPU)`.
 
-5. If everything is correct, click the "Next Step" button.
+3. Expand the "Network settings (advanced)" section and make sure you are using the default VPC.  It will have "(default)" next to the name.  If you do not have a default VPC listed, it is recommended that you create a "Single Public Subnet" VPC by clicking the "Create new VPC" button and following the wizard it presents.
 
-6. Review the configuration to ensure everything is correct and then click the "Create environment" button.
+4. If everything is correct, click the "Next Step" button.
+
+5. Review the configuration to ensure everything is correct and then click the "Create environment" button.
 
 This will close the wizard and you will be taken to a screen informing you that your new AWS Cloud9 environment is being created.  Once this is completed, the IDE will open to the following screen:
 
