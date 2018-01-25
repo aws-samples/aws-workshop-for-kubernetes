@@ -135,11 +135,45 @@ Note that all masters are spread across different AZs.
 
 Your output may differ slightly from the one shown here based up on the type of cluster you created.
 
+== Kubernetes Cluster Context
+
+You may create multiple Kubernetes clusters. The configuration for each cluster is stored in a configuration file, referred to as "`kubeconfig file`". By default, kubectl looks for a file named `config` in the directory `~/.kube`. The kubectl CLI uses kubeconfig file to find the information it needs to choose a cluster and communicate with the API server of a cluster.
+
+This allows you to deploy your applications to different environments by just changing the context. For example, here is a typical flow for application development:
+
+. Build your application using minikube (See Set up Local Development Environment for more information)
+. Change the context to a test cluster created on AWS
+. Use the same command to deploy to test environment
+. Once satisfied, change the context again to a production cluster on AWS
+. Once again, use the same command to deploy to production environment
+
+Get a summary of available contexts:
+
+  $ kubectl config get-contexts
+  kubectl config get-contexts
+  CURRENT   NAME                          CLUSTER                     AUTHINFO                    NAMESPACE
+  *         example.cluster.k8s.local     example.cluster.k8s.local   example.cluster.k8s.local
+            minikube                      minikube                    minikube
+
+The output shows dfferent contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
+
+View the current context:
+
+  $ kubectl config current-context
+  example.cluster.k8s.local
+
+If multiple clusters exist, then you can change the context:
+
+  $ kubectl config use-context <config-name>
+
+
 image:next-step-arrow.png[ , title="Continue!"] 
 You are now ready to continue on with the workshop!
 
 The next step is link:../103-kubernetes-concepts[to learn about basic Kubernetes Concepts].
 
+The sections below provide information on other capabilities of Kubernetes clusters.
+You are welcome to read and refer to them should you need to use those capabilities.
 
 === (Optional) Create a Kubernetes cluster in a private VPC
 
@@ -187,38 +221,7 @@ If `--dns private` is also specified, a Route53 private hosted zone is created f
 
 Although most of the exercises in this workshop should work on a cluster with a private VPC, some commands won't, specifically those that use a proxy to access internally hosted services.
 
-== Kubernetes Cluster Context
-
-You may create multiple Kubernetes clusters. The configuration for each cluster is stored in a configuration file, referred to as "`kubeconfig file`". By default, kubectl looks for a file named `config` in the directory `~/.kube`. The kubectl CLI uses kubeconfig file to find the information it needs to choose a cluster and communicate with the API server of a cluster.
-
-This allows you to deploy your applications to different environments by just changing the context. For example, here is a typical flow for application development:
-
-. Build your application using minikube (See Set up Local Development Environment for more information)
-. Change the context to a test cluster created on AWS
-. Use the same command to deploy to test environment
-. Once satisfied, change the context again to a production cluster on AWS
-. Once again, use the same command to deploy to production environment
-
-Get a summary of available contexts:
-
-  $ kubectl config get-contexts
-  kubectl config get-contexts
-  CURRENT   NAME                          CLUSTER                     AUTHINFO                    NAMESPACE
-  *         example.cluster.k8s.local     example.cluster.k8s.local   example.cluster.k8s.local
-            minikube                      minikube                    minikube
-
-The output shows dfferent contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
-
-View the current context:
-
-  $ kubectl config current-context
-  example.cluster.k8s.local
-
-If multiple clusters exist, then you can change the context:
-
-  $ kubectl config use-context <config-name>
-
-== Turn on an API version for your Cluster
+== (Optional) Turn on an API version for your Cluster
 
 Note: This section is for Kubebernetes 1.7.x, in 1.8.x the api is `batch/v1beta1`. 
 
@@ -297,10 +300,6 @@ A formatted output is shown below:
     1>>/var/log/kube-apiserver.log 2>&1
 
 The output clearly shows that `--runtime-config=batch/v2alpha1=true` is passed as an option to the API server. This means the cluster is now ready for creating creating APIs with version `batch/v2alpha1`.
-
-== Instance Groups with kops
-
-An instance group, or ig for short, is a kops concept that defines a grouping of similar nodes. In AWS, an instance group maps to an Auto Scaling Group (ASG). Instructions on how to create instance groups can be found link:instance-groups/readme.adoc[here].
 
 == Delete A Cluster
 

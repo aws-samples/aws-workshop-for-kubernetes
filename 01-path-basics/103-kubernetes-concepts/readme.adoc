@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 Kubernetes has a number of abstractions that map to API objects. These Kubernetes API Objects can be used to describe your cluster's desired state which will include info such as applications and workloads running, replicas, container images, networking resources and more. This section explains the key concepts relevant from an application developer perspecitve.
 
@@ -1485,7 +1485,10 @@ https://github.com/kubernetes/kubernetes/issues/55433[kubernetes#55433] provide 
 image:next-step-arrow.png[ , title="Continue!"] 
 You are now ready to continue on with the workshop!
 
+
 If you are on the link:../developer-path.adoc[development path], learn about link:../03-path-application-development/301-local-development[setting up a Local Development Environment].
+
 If you are on the link:../operations-path.adoc[operations path], learn about link:../02-path-working-with-clusters/201-cluster-monitoring[monitoring a Kubernetes Cluster].
+
 If you are on the link:../combined-path.adoc[combined path], learn about link:../02-path-working-with-clusters/201-cluster-monitoring[monitoring a Kubernetes Cluster].
 
