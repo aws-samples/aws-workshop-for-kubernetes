@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 This tutorial will walk you through how to install a Kubernetes cluster on AWS using kops.
 
@@ -135,7 +135,10 @@ Note that all masters are spread across different AZs.
 
 Your output may differ slightly from the one shown here based up on the type of cluster you created.
 
-You are now ready to link:../103-kubernetes-concepts[continue on with the workshop.]
+image::next-step-arrow.png[]
+You are now ready to continue on with the workshop!
+The next step is link:../103-kubernetes-concepts[to learn about basic Kubernetes Concepts].
+
 
 === (Optional) Create a Kubernetes cluster in a private VPC
 

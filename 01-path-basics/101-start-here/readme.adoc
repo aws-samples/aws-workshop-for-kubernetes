@@ -152,13 +152,17 @@ One last step is required so that Cloud9 IDE uses assigned IAM Instance profile.
 
 image:cloud9-disable-temp-credentials.png[]
 
+image::next-step-arrow.png[]
+You are now ready to continue on with the workshop!
+The next step is link:../102-your-first-cluster[to create a Kubernetes cluster using kops].
 
-Go to this link link:../102-your-first-cluster[to create Kubernetes cluster using kops]
 
+== Workshop Cleanup 
 
-=== Workshop cleanup
+Once you have finished with the workshop, please don't forget to spin down your cluster or you will incur additional charges.
+(We will also remind you at the end!)
 
-==== Delete kubernetes cluster resources
+==== Delete Kubernetes cluster resources
 
 In your Cloud9 IDE, check if there are any running kubernetes cluster
 
@@ -170,9 +174,9 @@ Delete kubernetes cluster
 
 Wait until all resources are deleted by kops
 
-==== Delete Cloud9
+==== Delete Cloud9 Envionment
 
-Go to CloudFormation console, right click template with name 'k8s-workshop' and select #Delete Stack
+Go to CloudFormation console, right click template with name 'k8s-workshop' and select 'Delete Stack'
 
 This should delete all the resources associated with this workshop
 
