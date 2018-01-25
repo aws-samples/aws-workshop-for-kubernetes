@@ -450,4 +450,3 @@ Note that all masters are spread across different AZs.
 
 Your output may differ from the one shown here based up on the type of cluster you created.
 
-You are now ready to link:../103-kubernetes-concepts[continue on with the workshop.]
