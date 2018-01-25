@@ -9,20 +9,23 @@ This tutorial will walk you through the process of creating a Kubernetes develop
 == Create AWS Cloud9 Environment
 === AWS Cloud9 Console
 
-First, Log into the AWS Cloud9 Console:
+[NOTE]
+If you are experienced with Cloud9, kubectl, kops, and git (or if you just want a working development environment quickly), please skip to xref:cfn[automated deployment using CloudFormation.]
+
+First, Log into the AWS Cloud9 Console. AWS Cloud9 is only available in 5 regions currently. Please choose the region closest to you geographically.
 
 [cols="2*^"]
 |===
 | *N. Virginia* (us-east-1)
-|link:https://us-east-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in us-east-1]
+|link:https://us-east-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console]
 | *Ohio* (us-east-2)
-|link:https://us-east-2.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in us-east-2]
+|link:https://us-east-2.console.aws.amazon.com/cloud9/home/create[Cloud9 Console]
 | *Oregon* (us-west-2)
-|link:https://us-west-2.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in us-west-2]
+|link:https://us-west-2.console.aws.amazon.com/cloud9/home/create[Cloud9 Console]
 | *Ireland* (eu-west-1)
-|link:https://eu-west-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in eu-west-1]
+|link:https://eu-west-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console]
 | *Singapore* (ap-southeast-1)
-|link:https://ap-southeast-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in ap-southeast-1]
+|link:https://ap-southeast-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console]
 |===
 
 Once there, follow these steps:
@@ -49,37 +52,30 @@ Your AWS Cloud9 environment comes with many useful tools preinstalled, but there
 
 === Configure the AWS CLI
 
-Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user.
+Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user. Make sure you are logged in as a user with link:aws-permissions.adoc[these permissions.]
 
-.Please Note
+[NOTE]
 *********************
 It is not recommended that you change the default AWS CLI config in your AWS Cloud9 environment. Instead, it is recommended that you provide the logged in user's account the permissions needed to make any requests needed by your project.  More information on this can be found by visiting: https://docs.aws.amazon.com/cloud9/latest/user-guide/credentials.html[Calling AWS Services from an Environment in AWS Cloud9]
 *********************
 
-For the sake of this workshop, we are going to configure the AWS CLI on your AWS Cloud9 environment using the AWS Configure command.  For this, use the same credentials you created in the "Create admin user and group" section of the https://github.com/aws-samples/aws-workshop-for-kubernetes/blob/master/prereqs.adoc[Prerequesites] page.
-
-  $ aws configure
-  AWS Access Key ID [None]: *****
-  AWS Secret Access Key [None]: *****
-  Default region name [None]: eu-central-1
-  Default output format [None]:
-
+[NOTE]
+All the commands below should be run in the Terminal section of your Cloud9 GUI.
 
 === Verify Docker Version
 
 Docker is preinstalled.  You can verify the version by running the following:
 
-  docker --version
+    $ docker --version
+    Docker version 17.06.2-ce, build 3dfb8343b139d6342acfd9975d7f1068b5b1c3d3
 
-This will output the following or newer version:
-
-  Docker version 17.06.2-ce, build 3dfb8343b139d6342acfd9975d7f1068b5b1c3d3
+You should have a similar or newer version.  
 
 === Install Kubectl CLI
 
 Install the Kubectl CLI:
 
-    $ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+    $ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.9.2/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
 Add kubectl autocompletion to your current shell:
 
@@ -87,39 +83,37 @@ Add kubectl autocompletion to your current shell:
 
 You can verify that kubectl is installed by executing the following command:
 
-  kubectl version
-
-This should output something similar to the follow:
-
-  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.0", GitCommit:"6e937839ac04a38cac63e6a7a306c5d035fe7b0a", GitTreeState:"clean", BuildDate:"2017-09-28T22:57:57Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+    $ kubectl version --client
+    Client Version: version.Info{Major:"1", Minor:"9", GitVersion:"v1.9.2", GitCommit:"6e937839ac04a38cac63e6a7a306c5d035fe7b0a", GitTreeState:"clean", BuildDate:"2017-09-28T22:57:57Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
 
 === Install kops
 
 Install kops using the following:
 
-  curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
-  chmod +x kops-linux-amd64
-  sudo mv kops-linux-amd64 /usr/local/bin/kops
+    $ curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+    $ chmod +x kops-linux-amd64
+    $ sudo mv kops-linux-amd64 /usr/local/bin/kops
 
-Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
+=== Clone the repository
 
-The latest and prior versions of kops can be downloaded from https://github.com/kubernetes/kops/releases.
+The workshop repository has configuration files that are used to create Kubernetes resources.  You need to clone the repo to have access to those files:
 
-=== Clone the repo
+    $ git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
 
-The workshop repo has configuration files that are used to create Kubernetes resources.  You need to clone the repo to have access to those files:
+At this point, you should have everything you need to complete any of the sections of the this workshop using your Cloud9 Environment.
 
-  $ git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
-
-At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.
-
+anchor:cfn[]
 == Automated Deployment using CloudFormation
 
-You can also use CloudFormation templates to create the Cloud9 development environment. The template will create the Cloud9 IDE, IAM Role required for kops and S3 bucket for kops state store.
+It is possible to create and configure the Cloud9 development environment via CloudFormation.
+
+If you've just completed the section above and have the git repository cloned in your Cloud9 environment, you do *not* need to deploy this CloudFormation template. You are ready to xref:next[move on!]
+
+This CloudFormation template will create the Cloud9 IDE, IAM Role required for kops and S3 bucket for kops state store.
 
 |===
 
-|Region | Launch template with new VPC | Launch template with existing VPC
+|Region | Launch template with a new VPC | Launch template with an existing VPC
 | *N. Virginia* (us-east-1)
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
@@ -149,25 +143,24 @@ https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
 
 == Build Script
 
-Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script will install the following,
+Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script will install the following:
 
 - jq
 - kubectl
 - kops
 - configures AWS CLI and stores variables in bash_profile (for ex: AWS_AVAILABILITY_ZONES, KOPS_STATE_STORE etc)
 - creates an SSH key
-- clone's workshop repository into Cloud9
+- clone the workshop repository into Cloud9
 
-Run these commands in your Cloud9 IDE
+To install the script, run this command - again in the Terminal tab of the Cloud9 IDE:
 
-  aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh .
-  chmod +x lab-ide-build.sh
-  . ./lab-ide-build.sh
+    $ aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh . && chmod +x lab-ide-build.sh && ./lab-ide-build.sh
 
-One last step is required so that Cloud9 IDE uses assigned IAM Instance profile. Open Cloud9 preferences and go to AWS Settings to disable AWS managed temporary credential as depicted in the diagram
+One last step is required so that Cloud9 IDE uses assigned IAM Instance profile. Open the Cloud9 `Preferences`, go to `AWS Settings`, and disable `AWS managed temporary credentials` as depicted in the diagram
 
 image:cloud9-disable-temp-credentials.png[]
 
+anchor:next[]
 image:next-step-arrow.png[ , title="Continue!"] 
 You are now ready to continue on with the workshop!
 
