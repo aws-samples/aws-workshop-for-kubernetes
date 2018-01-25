@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 In this section, we will demonstrate how to integrate service mesh components with a Kubernetes cluster.
 Service mesh is a layer that manages communication between microservices and it is becoming

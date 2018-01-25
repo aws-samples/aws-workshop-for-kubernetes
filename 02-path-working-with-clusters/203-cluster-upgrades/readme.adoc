@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 Upgrading Kubernetes cluster on AWS is easy with kops. In this exercise we will demonstrate upgrading
 Kubernetes cluster using two methods.

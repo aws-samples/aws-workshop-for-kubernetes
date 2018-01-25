@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 There are many options for aggregating and streaming kubernetes logs. In this part of the workshop, we are going to focus on an AWS based deployment which consists of the following:
 
