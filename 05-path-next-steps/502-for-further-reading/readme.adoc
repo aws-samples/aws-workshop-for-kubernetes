@@ -4,4 +4,24 @@
 :linkcss:
 :imagesdir: ../resources/images
 
-TBD
+=== Workshop cleanup
+
+==== Delete kubernetes cluster resources
+
+In your Cloud9 IDE, check if there are any running kubernetes cluster
+
+  kops get cluster
+
+Delete kubernetes cluster
+
+  kops delete cluster example.cluster.k8s.local --yes
+
+Wait until all resources are deleted by kops
+
+==== Delete Cloud9
+
+Go to CloudFormation console, right click template with name 'k8s-workshop' and select #Delete Stack
+
+This should delete all the resources associated with this workshop
+
+====

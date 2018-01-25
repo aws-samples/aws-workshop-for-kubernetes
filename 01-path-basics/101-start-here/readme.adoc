@@ -1,134 +1,179 @@
-= Kubernetes Workshop Prereqs
-:toc:
+= Kubernetes - Setup Cloud9 Development Environment
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../images
+:toc:
 
-Here are the pre-requisites for the link:readme.adoc[Kubernetes on AWS workshop]:
+This tutorial will walk you through the process of creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run and debug containerized workloads with just a web browser.
 
-== AWS Account
+=== Create AWS Cloud9 Environment
+==== Option 1: AWS Cloud9 Console
+1. Log into the AWS Cloud9 Console by visiting https://console.aws.amazon.com/cloud9/home/create
 
-You will be using an AWS Account while you go through the workshop. link:http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/AboutAWSAccounts.html[Create an AWS Account] if you don't already have one.
+2. Provide a name for your environment.  Feel free to use something simple, such as `kubernetes-developmet`.  Then click "Next Step".
 
-Please ensure you followed all sign up steps. If you don't do this, then you likely run into the following error while completing the step to set the AWS Availability Zones:
-```
-An error occurred (OptInRequired) when calling the DescribeAvailabilityZones operation: You are not subscribed to this service. Please go to http://aws.amazon.com to subscribe
-```
-NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator].
 
-== AWS CLI and Kubernetes CLI
+3. Change the "Instance Type" to `t2.small (2 GiB RAM + 1 vCPU)`.
 
-Install the latest version of the link:http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-bundle.html[AWS CLI] and the link:https://kubernetes.io/docs/tasks/tools/install-kubectl/[Kubernetes CLI] on your machine.
+4. Expand the "Network settings (advanced)" section and make sure you are using the default VPC.  It will have "(default)" next to the name.  If you do not have a default VPC listed, it is recommended that you create a "Single Public Subnet" VPC by clicking the "Create new VPC" button and following the wizard it presents.
 
-=== Setup on macOS
+5. If everything is correct, click the "Next Step" button.
 
-Provision and install AWS CLI on a Mac OS via https://brew.sh/[homebrew].
+6. Review the configuration to ensure everything is correct and then click the "Create environment" button.
 
-. Install homebrew and cask
+This will close the wizard and you will be taken to a screen informing you that your new AWS Cloud9 environment is being created.  Once this is completed, the IDE will open to the following screen:
 
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+image:cloud9-development-environment-welcome.png[]
 
-. Install AWS CLI
+Your environment is now ready to be setup for working with Kubernetes and the rest of this workshop.
 
-    brew install awscli
+=== Setup Environment
 
-. Install Kubectl CLI
+Your AWS Cloud9 environment comes with many useful tools preinstalled, but there are still a few tweaks to these and additional tools you will need to support working with Kubernetes.
 
-    $ brew install kubernetes-cli
-+
-If you already have Kubectl CLI installed, then you just need to update it:
-+
-    $ brew upgrade kubernetes-cli    
+==== Configure the AWS CLI
 
-=== Setup on Windows
+Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user.
 
-The Windows 10 Linux subsystem is required if you are using Windows 10.
+.Please Note
+*********************
+It is not recommended that you change the default AWS CLI config in your AWS Cloud9 environment. Instead, it is recommended that you provide the logged in user's account the permissions needed to make any requests needed by your project.  More information on this can be found by visiting: https://docs.aws.amazon.com/cloud9/latest/user-guide/credentials.html[Calling AWS Services from an Environment in AWS Cloud9]
+*********************
 
-Install Windows 10 Linux subsystem as explained at https://msdn.microsoft.com/en-us/commandline/wsl/install_guide.
+For the sake of this workshop, we are going to configure the AWS CLI on your AWS Cloud9 environment using the AWS Configure command.  For this, use the same credentials you created in the "Create admin user and group" section of the https://github.com/aws-samples/aws-workshop-for-kubernetes/blob/master/prereqs.adoc[Prerequesites] page.
 
-The lab has been tested with Windows 10. A similar Unix shell on other Windows machines may work.
+  $ aws configure
+  AWS Access Key ID [None]: *****
+  AWS Secret Access Key [None]: *****
+  Default region name [None]: eu-central-1
+  Default output format [None]:
 
-. http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-windows.html
 
-=== Setup on Linux
+==== Verify Docker Version
 
-. Install the AWS CLI
-+ Follow this document: http://docs.aws.amazon.com/cli/latest/userguide/awscli-install-linux.html
+Docker is preinstalled.  You can verify the version by running the following:
 
-. Install or Upgrade Kubectl CLI:
-+
-    $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-    $ chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+  docker --version
 
-== AWS IAM Permissions
+This will output the following or newer version:
 
-If you already have an AWS Account, you need to create an IAM user to use during the workshop.
-If you have not created an IAM admin user and group yet, please do so in the following section.
-If you already have admin user then skip to <<Create IAM user for workshop, Create IAM user for workshop>>
+  Docker version 17.06.2-ce, build 3dfb8343b139d6342acfd9975d7f1068b5b1c3d3
 
-=== Create admin user and group (optional)
-Please go to https://console.aws.amazon.com/iam/home#/users and click on `Add user`. As a username choose `Administrator`, select the `Programmatic access` checkbox and hit `Next: Permissions`.
+==== Install Kubectl CLI
 
-In the next dialog select `Create group`, choose `Administrators`, select the `AdministratorAccess` policy and click `Create group`.
+Install the Kubectl CLI:
 
-Finally click `Next: Review` and `Create user` in the final dialog.
+    $ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
-Now you see your newly admin user and group together with the `Access key ID`. To see the `Secret access key` once, click on `Show` next to the stars.
+Add kubectl autocompletion to your current shell:
 
-To login from the console run `aws configure` and enter the required values. It will look like this:
+    $ source <(kubectl completion bash)
 
-```
-$ aws configure
-AWS Access Key ID [None]: *****
-AWS Secret Access Key [None]: *****
-Default region name [None]: eu-central-1
-Default output format [None]:
-```
+You can verify that kubectl is installed by executing the following command:
 
-=== Create an IAM user with necessary permissions
+  kubectl version
 
-Run the following commands on CLI to create the needed group and user:
+This should output something similar to the follow:
 
-```
-$ aws iam create-group --group-name k8s-workshop
+  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.0", GitCommit:"6e937839ac04a38cac63e6a7a306c5d035fe7b0a", GitTreeState:"clean", BuildDate:"2017-09-28T22:57:57Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
 
-$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --group-name k8s-workshop
-$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonRoute53FullAccess --group-name k8s-workshop
-$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --group-name k8s-workshop
-$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/IAMFullAccess --group-name k8s-workshop
-$ aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AmazonVPCFullAccess --group-name k8s-workshop
+==== Install kops
 
-$ aws iam create-user --user-name k8s-workshop
+Install kops using the following:
 
-$ aws iam add-user-to-group --user-name k8s-workshop --group-name k8s-workshop
+  curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+  chmod +x kops-linux-amd64
+  sudo mv kops-linux-amd64 /usr/local/bin/kops
 
-$ aws iam create-access-key --user-name k8s-workshop
-```
+Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
 
-Now run `aws configure` again and use the `Access Key ID` and `Secret Access Key` from the newly created user.
+The latest and prior versions of kops can be downloaded from https://github.com/kubernetes/kops/releases.
 
-Please review this link:https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user[link]
-for additional info on IAM permissions
+==== Clone the repo
 
-== AWS Availability Zones
+The workshop repo has configuration files that are used to create Kubernetes resources.  You need to clone the repo to have access to those files:
 
-Different availability zones for this region can be set in the environment variable `AWS_AVAILABILITY_ZONES` using the following command:
+  $ git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
 
-    export AWS_AVAILABILITY_ZONES="$(aws ec2 describe-availability-zones --query 'AvailabilityZones[].ZoneName' --output text | awk -v OFS="," '$1=$1')"
+At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.
 
-Echo the value of the environment variable to confirm:
+=== Automated Deployment using CloudFormation
 
-    echo $AWS_AVAILABILITY_ZONES
-    eu-central-1a,eu-central-1b,eu-central-1c
+You can also use CloudFormation templates to create the Cloud9 development environment. The template will create the Cloud9 IDE, IAM Role required for kops and S3 bucket for kops state store.
 
-Several parts of the workshop require the region or availability zones to be explicitly specified as a CLI option. The region is picked based upon the value set in `aws configure` command. The environment variable `$AWS_AVAILABILITY_ZONES` is used to set the availability zones.
+|===
 
-== Clone the repo
+|Region | Launch template with new VPC | Launch template with existing VPC
+| *N. Virginia* (us-east-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-The workshop repo has configuration files that are used to create Kubernetes resources. You need to clone the repo to have access to those files:
+| *Ohio* (us-east-2)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-	$ git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
+| *Oregon* (us-west-2)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-== Need Help? Found an Issue?
+| *Ireland* (eu-west-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
-Please https://github.com/aws-samples/aws-workshop-for-kubernetes/issues[file a bug] if you run into issues.
+| *Singapore* (ap-southeast-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
+
+|===
+
+To open Cloud9 IDE environment, click on Output tab in CloudFormation Console and open Cloud9 URL
+
+https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
+
+
+==== Build script
+
+Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script will install the following,
+
+- jq
+- kubectl
+- kops
+- configures AWS CLI and stores variables in bash_profile (for ex: AWS_AVAILABILITY_ZONES, KOPS_STATE_STORE etc)
+- creates an SSH key
+- clone's workshop repository into Cloud9
+
+Run these commands in your Cloud9 IDE
+
+  aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh .
+  chmod +x lab-ide-build.sh
+  . ./lab-ide-build.sh
+
+One last step is required so that Cloud9 IDE uses assigned IAM Instance profile. Open Cloud9 preferences and go to AWS Settings to disable AWS managed temporary credential as depicted in the diagram
+
+image:cloud9-disable-temp-credentials.png[]
+
+
+Go to this link link:../102-your-first-cluster[to create Kubernetes cluster using kops]
+
+
+=== Workshop cleanup
+
+==== Delete kubernetes cluster resources
+
+In your Cloud9 IDE, check if there are any running kubernetes cluster
+
+  kops get cluster
+
+Delete kubernetes cluster
+
+  kops delete cluster example.cluster.k8s.local --yes
+
+Wait until all resources are deleted by kops
+
+==== Delete Cloud9
+
+Go to CloudFormation console, right click template with name 'k8s-workshop' and select #Delete Stack
+
+This should delete all the resources associated with this workshop
+
+====

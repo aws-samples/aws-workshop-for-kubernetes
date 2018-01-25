@@ -1,4 +1,4 @@
-= Kubernetes Developer Concepts
+= Kubernetes Concepts
 :toc:
 :icons:
 :linkcss:
@@ -8,11 +8,37 @@ Kubernetes has a number of abstractions that map to API objects. These Kubernete
 
 == Prerequisites
 
-This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described link:../102-your-first-cluster#multi-master-multi-node-multi-az-gossip-based-cluster[here]. 
 
-All configuration files for this chapter are in the `developer-concepts` directory. Make sure you change to that directory before giving any commands in this chapter.
+All configuration files for this chapter are in the `templates` directory. 
 
-== Pod
+== Kubernetes basic commands
+
+Now that we have a cluster up and running we can start issuing some basic commands and deploying some simple resources.
+
+In this part we will familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGiNX pod and execute some commands to help you gain comfort with the Kubernetes environment from an end-user perspective. This helps get developers up and running - taking advantage of the Kubernetes application deployment capabilities - without having to worry about the infrastructure related complexities.
+
+=== Display Nodes
+
+This command will show all the nodes available in your kubernetes cluster:
+
+    $ kubectl get nodes
+
+It will show an output similar to:
+
+    NAME                                           STATUS    ROLES     AGE      VERSION
+    ip-172-20-105-158.us-east-2.compute.internal   Ready     node      2d       v1.7.4
+    ip-172-20-124-26.us-east-2.compute.internal    Ready     master    2d       v1.7.4
+    ip-172-20-127-251.us-east-2.compute.internal   Ready     node      2d       v1.7.4
+    ip-172-20-52-35.us-east-2.compute.internal     Ready     master    2d       v1.7.4
+    ip-172-20-63-150.us-east-2.compute.internal    Ready     node      2d       v1.7.4
+    ip-172-20-71-14.us-east-2.compute.internal     Ready     node      2d       v1.7.4
+    ip-172-20-87-91.us-east-2.compute.internal     Ready     node      2d       v1.7.4
+    ip-172-20-94-153.us-east-2.compute.internal    Ready     master    2d       v1.7.4
+
+If you do not see this output, or receive an error, please ensure that you've followed the steps link:../102-your-first-cluster#multi-master-multi-node-multi-az-gossip-based-cluster[here] and have a validated cluster.
+
+== Pods
 
 A Pod is the smallest deployable unit that can be created, scheduled, and managed. It’s a logical collection of containers that belong to an application. Pods are created in a namespace. All containers in a pod share the namespace, volumes and networking stack. This allows containers in the pod to "`find`" each other and communicate using `localhost`.
 

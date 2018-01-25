@@ -8,105 +8,9 @@ This tutorial will walk you through how to install a Kubernetes cluster on AWS u
 
 https://github.com/kubernetes/kops[kops], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters. kops can also perform rolling upgrades from older versions of Kubernetes to newer ones. kops also manages the cluster add-ons. After the cluster is created, the link:../prereqs.adoc[Kubernetes CLI] can be used to manage resources in the cluster. If you have not gone through the link:../prereqs.adoc[Prerequisites] section, please do so now before continuing.
 
-kops is available on Mac OSX, Linux, or the Windows 10 Linux Subsystem. 
+If you have not set up the link:../101-start-here[Cloud9 Devlopment Environment] yet, please do so before continuing.
 
-== Install kops
-
-There is no need to download a Kubernetes binary distribution for creating a cluster using kops. However, you do need to download the kops CLI. It takes care of downloading the right Kubernetes binary in the cloud, and then provisions and manages the cluster.
-
-==== macOS
-
-Install kops using brew.
-
-    $ brew update && brew install kops
-
-If kops is already installed, then it can be upgraded to the latest version using the following command:
-
-    $ brew upgrade kops
-
-==== Linux / Windows 10 Linux Subsystem
-
-    curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
-    chmod +x kops-linux-amd64
-    sudo mv kops-linux-amd64 /usr/local/bin/kops
-
-kops is available on Mac OSX, Linux, Container image, or using with the Windows 10 Linux Subsystem. Complete installation instructions are available at https://github.com/kubernetes/kops#installing.
-
-Latest and early versions of kops can be downloaded from https://github.com/kubernetes/kops/releases.
-
-You will also need the Kubernetes CLI (kubectl) to manage the resources on the Kubernetes cluster. If you don't have the Kubernetes CLI installed, please follow the instructions link:../getting-started#download-and-install[here] to do so.
-
-=== Create An SSH Key
-
-kops uses a public SSH key while creating a cluster. The location of this file defaults to `~/.ssh/id_rsa.pub`. Please generate an SSH key using `ssh-keygen` command.
-
-    $ ssh-keygen 
-    Generating public/private rsa key pair.
-    Enter file in which to save the key (~/.ssh/id_rsa):
-    Enter passphrase (empty for no passphrase): 
-    Enter same passphrase again: 
-    Your identification has been saved in ~/.ssh/id_rsa
-    Your public key has been saved in ~/.ssh/id_rsa.pub.
-    The key fingerprint is:
-    SHA256:bQXH2zAAcFVtpEwcOL5D1QZnXp3zkiC123456789
-    The key's randomart image is:
-    +---[RSA 2048]----+
-    |      ..oo=B**+ +|
-    |       . o+=B*=+.|
-    |        +..+*O+E=|
-    |       . =o=.o=oo|
-    |        S.*..  o |
-    |         oo      |
-    |           .     |
-    |                 |
-    |                 |
-    +----[SHA256]-----+
-
-Alternatively, you can use the `--ssh-public-key` option to specify a custom location. 
-More details about kops security can be found in the https://github.com/kubernetes/kops/blob/master/docs/security.md[documentation for kops].
-
-== Install AWS cli
-
-Make sure the latest version of the http://docs.aws.amazon.com/cli/latest/userguide/installing.html[AWS CLI]
-is installed. 
-
-   $ pip install --upgrade awscli
-
-== IAM user permissions
-
-The AWS user profile used in this workshop must have these http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html[IAM policies] attached.
-
-    AmazonEC2FullAccess
-    AmazonRoute53FullAccess
-    AmazonS3FullAccess
-    IAMFullAccess
-    AmazonVPCFullAccess
-
-If you are using the AWS user and credentials created as part of the link:prereqs.adoc[Prerequisites], then you should already have these permissions.
-
-Please review these links for additional info on IAM permissions:
-https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user. https://github.com/kubernetes/kops/blob/master/docs/iam_roles.md
-
-== S3 Bucket for kops
-
-kops needs a "`state store`" to store configuration information of the cluster.  For example, how many nodes in the cluster, the instance type of each node, and the Kubernetes version. The state is stored during the initial cluster creation. Any subsequent changes to the cluster are also persisted to this store. Amazon S3 is the recommended storage mechanism when running a cluster in AWS Cloud. Create an S3 bucket and pass that to the kops CLI during cluster creation.  A state store can work with multiple kops clusters.
-
-NOTE: The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `example-state-store-` and add a randomly generated string to the end.
-
-    # create variables for bucket, state store, and cluster names
-    $ export S3_BUCKET=example-state-store-$(cat /dev/urandom | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
-    $ export KOPS_STATE_STORE=s3://${S3_BUCKET}
-
-    # use AWS CLI to create the bucket
-    $ aws s3 mb $KOPS_STATE_STORE
-
-    # enable versioning
-    $ aws s3api put-bucket-versioning \
-      --bucket $S3_BUCKET \
-      --versioning-configuration \
-      Status=Enabled
-
-== Create A Cluster
+== Create A Cluster with kops
 
 The kops CLI can be used to create a highly available cluster, with multiple master nodes spread across multiple Availability Zones. Workers can be spread across multiple zones as well. Some of the tasks that happen behind the scene during cluster creation are:
 
@@ -128,7 +32,7 @@ kops supports creating a gossip-based cluster, which uses https://github.com/wea
 
 Information on setting up a DNS-based cluster can be found at the bottom of this page in the Appendix. However, setting up a gossip-based cluster allows you to get started quickly.
 
-We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Workshop exercises will work on both types of cluster.
+We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Most workshop exercises will work on both types of cluster, however some modules require using a multi-master cluster (to demonstrate rolling updates, for instance.) If you aren't sure, please create a <<multi-master-multi-node-multi-az-gossip-based-cluster, multi-master cluster.>>
 
 ==== Default Gossip Based Cluster
 
@@ -141,7 +45,7 @@ Create a Kubernetes cluster using the following command. This will create a clus
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
-You can find the command for creating the `AWS_AVAILABILITY_ZONES` environment variable at link:../prereqs.adoc#aws-availability-zones[].
+The `AWS_AVAILABILITY_ZONES` environment variable should have been set during the link:../101-start-here[Cloud9 Environment Setup].
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding the `--yes` flag ensures that the cluster is immediately created as well.
 
@@ -198,7 +102,7 @@ A multi-master cluster can be created by using the `--master-count` option and s
 
 The `--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
-As mentioned above, wait for 5-8 minutes for the cluster to be created. Validate the cluster:
+It will take 5-8 minutes for the cluster to be created. Validate the cluster:
 
 ```
 $ kops validate cluster
@@ -230,6 +134,8 @@ Your cluster example.cluster.k8s.local is ready
 Note that all masters are spread across different AZs.
 
 Your output may differ slightly from the one shown here based up on the type of cluster you created.
+
+You are now ready to link:../103-kubernetes-concepts[continue on with the workshop.]
 
 === (Optional) Create a Kubernetes cluster in a private VPC
 
@@ -531,3 +437,5 @@ Your cluster example.cluster.com is ready
 Note that all masters are spread across different AZs.
 
 Your output may differ from the one shown here based up on the type of cluster you created.
+
+You are now ready to link:../103-kubernetes-concepts[continue on with the workshop.]
