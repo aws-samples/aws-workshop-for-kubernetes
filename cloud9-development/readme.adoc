@@ -45,9 +45,7 @@ Your AWS Cloud9 environment comes with many useful tools preinstalled, but there
 Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user.
 
 [NOTE]
-===
 It is not recommended that you change the default AWS CLI config in your AWS Cloud9 environment. Instead, it is recommended that you provide the logged in user's account the permissions needed to make any requests needed by your project.  More information on this can be found by visiting: https://docs.aws.amazon.com/cloud9/latest/user-guide/credentials.html[Calling AWS Services from an Environment in AWS Cloud9]
-===
 
 For the sake of this workshop, we are going to configure the AWS CLI on your AWS Cloud9 environment using the AWS Configure command.  For this, use the same credentials you created in the "Create admin user and group" section of the https://github.com/aws-samples/aws-workshop-for-kubernetes/blob/master/prereqs.adoc[Prerequesites] page.
 
