@@ -11,8 +11,8 @@ It also shows deep integration with several AWS technologies.
 == Paths
 
 There are two main paths. Each path should take approximately 4 hours to complete. 
-- link:developer-path.adoc[For Developers or Development Teams]
-- link:operations-path.adoc[For Operations Engineers or Operations Teams]
+ - link:developer-path.adoc[For Developers or Development Teams]
+ - link:operations-path.adoc[For Operations Engineers or Operations Teams]
 
 For those looking for a more condensed introduction to Kubernetes on AWS, there is also a link:combined-path.adoc[Combined Version], which should take approximately 2 hours to complete.
 
