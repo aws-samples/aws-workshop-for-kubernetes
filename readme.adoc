@@ -8,69 +8,10 @@ This workshop provides instructions to create, manage, and scale a Kubernetes cl
 
 It also shows deep integration with several AWS technologies.
 
-There are two main paths, one for xref:dev[Development Teams], and one for xref:ops[Operations Teams]. Each path should take approximately 4 hours to complete. 
+There are two main paths, one for link:developer-path[Development Teams], and one for link:operations-path[Operations Teams]. 
+Each path should take approximately 4 hours to complete. 
 
-For those looking for a more condensed introduction to Kubernetes on AWS, there is also a xref:combo[Combined Version], which should take approximately 2 hours to complete.
+For those looking for a more condensed introduction to Kubernetes on AWS, there is also a link:combined-path[Combined Version], which should take approximately 2 hours to complete.
 
-[width="80%",cols="1*^",grid="cols",options="header"]
-|=====
-|anchor:dev[Development Teams]Development Teams 
-|link:01-path-basics/101-start-here[101: Start Here]
-|link:01-path-basics/102-your-first-cluster[102: Create a Kubernetes cluster using kops]
-|link:01-path-basics/103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
-|link:03-path-application-development/301-local-development[301: Setting up a Local Development Environment]
-|link:03-path-application-development/302-app-discovery[302: Service Discovery for Microservices]
-|link:03-path-application-development/303-app-update[303: Updating Applications on Kubernetes]
-|link:03-path-application-development/304-app-scaling[304: Scaling Applications on Kubernetes]
-|link:03-path-application-development/305-app-tracing-with-jaeger-and-x-ray[305: Tracing Applications with Jaeger and X-Ray]
-|link:03-path-application-development/306-app-management-with-helm[306: Manage Applications with Helm]
-|link:03-path-application-development/307-statefulsets-and-pvs[307: Store Persistent Data with StatefulSets and PVs]
-|link:04-path-security-and-networking/401-configmaps-and-secrets[401: ConfigMaps and Secrets]
-|link:04-path-security-and-networking/402-authentication-and-authorization[402: Authentication, Authorization, and Access]
-|link:04-path-security-and-networking/403-network-policies[403: Network Policies]
-|link:04-path-security-and-networking/404-ingress-controllers[404: Ingress Controllers]
-|link:04-path-security-and-networking/405-coredns[405: CoreDNS]
-|link:05-path-next-steps/501-k8s-best-practices[501: Best Practices]
-|link:05-path-next-steps/502-for-further-reading[502: For Further Reading]
-|=====
-
-
-[width="80%",cols="1*^",grid="cols",options="header"]
-|=====
-|anchor:ops[Operations Teams]Operations Teams 
-|link:01-path-basics/101-start-here[101: Start Here]
-|link:01-path-basics/102-your-first-cluster[102: Create a Kubernetes cluster using kops]
-|link:01-path-basics/103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
-|link:02-path-working-with-clusters/201-cluster-monitoring[201: Monitoring a Kubernetes Cluster]
-|link:02-path-working-with-clusters/202-service-mesh[202: Leveraging a Service Mesh]
-|link:02-path-working-with-clusters/203-cluster-upgrades[203: Upgrading a Kubernetes Cluster]
-|link:02-path-working-with-clusters/204-cluster-logging-with-EFK[204: Logging with an EFK Stack]
-|link:02-path-working-with-clusters/205-cluster-autoscaling[205: Autoscaling a Kubernetes Cluster]
-|link:02-path-working-with-clusters/206-cloudformation-and-terraform[206: Deploy Kubernetes with Terraform and CloudFormation]
-|link:02-path-working-with-clusters/207-cluster-federation[207: Federate Access to your Cluster (Alpha)]
-|link:04-path-security-and-networking/401-configmaps-and-secrets[401: ConfigMaps and Secrets]
-|link:04-path-security-and-networking/402-authentication-and-authorization[402: Authentication, Authorization, and Access]
-|link:04-path-security-and-networking/403-network-policies[403: Network Policies]
-|link:04-path-security-and-networking/404-ingress-controllers[404: Ingress Controllers]
-|link:04-path-security-and-networking/405-coredns[405: CoreDNS]
-|link:05-path-next-steps/501-k8s-best-practices[501: Best Practices]
-|link:05-path-next-steps/502-for-further-reading[502: For Further Reading]
-|=====
-
-
-[width="80%",cols="1*^",grid="cols",options="header"]
-|=====
-|anchor:combo[Combined Version]Combined Version
-|link:01-path-basics/101-start-here[101: Start Here]
-|link:01-path-basics/102-your-first-cluster[102: Create a Kubernetes cluster using kops]
-|link:01-path-basics/103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
-|link:02-path-working-with-clusters/201-cluster-monitoring[201: Monitoring a Kubernetes Cluster]
-|link:02-path-working-with-clusters/202-service-mesh[202: Leveraging a Service Mesh]
-|link:02-path-working-with-clusters/203-cluster-upgrades[203: Upgrading a Kubernetes Cluster]
-|link:03-path-application-development/302-app-discovery[302: Service Discovery for Microservices]
-|link:03-path-application-development/303-app-update[303: Updating Applications on Kubernetes]
-|link:03-path-application-development/304-app-scaling[304: Scaling Applications on Kubernetes]
-|link:05-path-next-steps/502-for-further-reading[502: For Further Reading]
-|=====
 
 NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator]
