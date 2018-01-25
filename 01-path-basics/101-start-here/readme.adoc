@@ -152,8 +152,9 @@ One last step is required so that Cloud9 IDE uses assigned IAM Instance profile.
 
 image:cloud9-disable-temp-credentials.png[]
 
-image::next-step-arrow.png[]
+image:next-step-arrow.png[ , title="Continue!"] 
 You are now ready to continue on with the workshop!
+
 The next step is link:../102-your-first-cluster[to create a Kubernetes cluster using kops].
 
 

@@ -137,6 +137,7 @@ Your output may differ slightly from the one shown here based up on the type of 
 
 image:next-step-arrow.png[ , title="Continue!"] 
 You are now ready to continue on with the workshop!
+
 The next step is link:../103-kubernetes-concepts[to learn about basic Kubernetes Concepts].
 
 
