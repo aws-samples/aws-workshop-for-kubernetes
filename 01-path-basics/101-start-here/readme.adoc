@@ -8,9 +8,24 @@ This tutorial will walk you through the process of creating a Kubernetes develop
 
 === Create AWS Cloud9 Environment
 ==== Option 1: AWS Cloud9 Console
-1. Log into the AWS Cloud9 Console by visiting https://console.aws.amazon.com/cloud9/home/create
+1. Log into the AWS Cloud9 Console:
 
-2. Provide a name for your environment.  Feel free to use something simple, such as `kubernetes-developmet`.  Then click "Next Step".
+[cols=2*^]
+|===
+| *N. Virginia* (us-east-1)
+|link:https://us-east-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in us-east-1]
+| *Ohio* (us-east-2)
+|link:https://us-east-2.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in us-east-2]
+| *Oregon* (us-west-2)
+|link:https://us-west-2.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in us-west-2]
+| *Ireland* (eu-west-1)
+|link:https://eu-west-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in eu-west-1]
+| *Singapore* (ap-southeast-1)
+|link:https://ap-southeast-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in ap-southeast-1]
+|===
+
+
+2. Provide a name for your environment.  Feel free to use something simple, such as `kubernetes-development`.  Then click "Next Step".
 
 
 3. Change the "Instance Type" to `t2.small (2 GiB RAM + 1 vCPU)`.
