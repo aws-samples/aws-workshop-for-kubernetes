@@ -6,11 +6,12 @@
 
 This tutorial will walk you through the process of creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run and debug containerized workloads with just a web browser.
 
-=== Create AWS Cloud9 Environment
-==== AWS Cloud9 Console
+== Create AWS Cloud9 Environment
+=== AWS Cloud9 Console
+
 1. Log into the AWS Cloud9 Console:
 
-[cols=2*^]
+[cols="2^"]
 |===
 | *N. Virginia* (us-east-1)
 |link:https://us-east-1.console.aws.amazon.com/cloud9/home/create[Cloud9 Console in us-east-1]
@@ -26,7 +27,6 @@ This tutorial will walk you through the process of creating a Kubernetes develop
 
 2. Provide a name for your environment.  Feel free to use something simple, such as `kubernetes-development`.  Then click "Next Step".
 
-
 3. Change the "Instance Type" to `t2.small (2 GiB RAM + 1 vCPU)`.
 
 4. Expand the "Network settings (advanced)" section and make sure you are using the default VPC.  It will have "(default)" next to the name.  If you do not have a default VPC listed, it is recommended that you create a "Single Public Subnet" VPC by clicking the "Create new VPC" button and following the wizard it presents.
@@ -41,11 +41,11 @@ image:cloud9-development-environment-welcome.png[]
 
 Your environment is now ready to be setup for working with Kubernetes and the rest of this workshop.
 
-=== Setup Environment
+=== Set up Environment
 
 Your AWS Cloud9 environment comes with many useful tools preinstalled, but there are still a few tweaks to these and additional tools you will need to support working with Kubernetes.
 
-==== Configure the AWS CLI
+=== Configure the AWS CLI
 
 Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user.
 
@@ -63,7 +63,7 @@ For the sake of this workshop, we are going to configure the AWS CLI on your AWS
   Default output format [None]:
 
 
-==== Verify Docker Version
+=== Verify Docker Version
 
 Docker is preinstalled.  You can verify the version by running the following:
 
@@ -73,7 +73,7 @@ This will output the following or newer version:
 
   Docker version 17.06.2-ce, build 3dfb8343b139d6342acfd9975d7f1068b5b1c3d3
 
-==== Install Kubectl CLI
+=== Install Kubectl CLI
 
 Install the Kubectl CLI:
 
@@ -91,7 +91,7 @@ This should output something similar to the follow:
 
   Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.0", GitCommit:"6e937839ac04a38cac63e6a7a306c5d035fe7b0a", GitTreeState:"clean", BuildDate:"2017-09-28T22:57:57Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
 
-==== Install kops
+=== Install kops
 
 Install kops using the following:
 
@@ -103,7 +103,7 @@ Complete installation instructions are available at https://github.com/kubernete
 
 The latest and prior versions of kops can be downloaded from https://github.com/kubernetes/kops/releases.
 
-==== Clone the repo
+=== Clone the repo
 
 The workshop repo has configuration files that are used to create Kubernetes resources.  You need to clone the repo to have access to those files:
 
@@ -111,7 +111,7 @@ The workshop repo has configuration files that are used to create Kubernetes res
 
 At this point, you should have everything you need to complete any of the section of the this workshop using your Cloud9 Environment.
 
-=== Automated Deployment using CloudFormation
+== Automated Deployment using CloudFormation
 
 You can also use CloudFormation templates to create the Cloud9 development environment. The template will create the Cloud9 IDE, IAM Role required for kops and S3 bucket for kops state store.
 
@@ -145,7 +145,7 @@ To open Cloud9 IDE environment, click on Output tab in CloudFormation Console an
 https://console.aws.amazon.com/cloud9/ide/<EnvironmentId>
 
 
-==== Build script
+== Build Script
 
 Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script will install the following,
 
