@@ -1639,6 +1639,7 @@ https://github.com/kubernetes/kubernetes/issues/55433[kubernetes#55433] provide 
 
 
 You are now ready to continue on with the workshop!
+
 :frame: none
 :grid: none
 :valign: top

@@ -83,6 +83,7 @@ image:cloud9-disable-temp-credentials.png[]
 
 
 You are now ready to continue on with the workshop!
+
 :frame: none
 :grid: none
 :valign: top
