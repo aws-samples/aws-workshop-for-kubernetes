@@ -11,11 +11,11 @@ This workshop provides instructions to create, manage, and scale a Kubernetes cl
 
 It also shows deep integration with several AWS technologies.
 
-We recommend at least 2 hours for the standard workshop path.
+We recommend at least 2 hours to complete the workshop.
 
 Click the button below to start! 
 
-image::button-start-standard.png[link=standard-path.adoc]
+image::button-start-standard.png[link=01-path-basics/101-start-here/]
 
 == Extended Paths
 
@@ -29,10 +29,10 @@ Click on one of the two buttons below to start!
 :grid: none
 :valign: top
 
-[align="center", cols="2*"]
+[align="center", cols="2*", grid="none", frame="none"]
 |=====
-|image:button-start-developer.png[link=developer-path.adoc]
-|image:button-start-operations.png[link=operations-path.adoc]
+|image:button-start-developer.png[link=01-path-basics/101-start-here]
+|image:button-start-operations.png[link=01-path-basics/101-start-here]
 |=====
 
 
