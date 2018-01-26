@@ -56,9 +56,9 @@ Once your Cloud9 is ready, download the build script and install in your IDE. Th
 
 To install the script, run this command in the Terminal tab of the Cloud9 IDE:
 
-    $ aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh . 
-    $ chmod +x lab-ide-build.sh
-    $ . ./lab-ide-build.sh
+    aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh . && \
+    chmod +x lab-ide-build.sh && \
+    . ./lab-ide-build.sh
 
 One last step is required so that Cloud9 IDE uses assigned IAM Instance profile. Open the "AWS Cloud9" menu, go to  "Preferences", go to "AWS Settings", and disable "AWS managed temporary credentials" as depicted in the diagram here:
 
