@@ -1,6 +1,5 @@
 = Kubernetes - Setup Cloud9 Development Environment
 :icons:
-:linkcss:
 :linkattrs:
 :imagesdir: ../../resources/images
 :toc:
