@@ -13,13 +13,13 @@ This section walks you through the creating a Kubernetes development environment
 We can create the Cloud9 development environment via CloudFormation.
 This CloudFormation template will spin up the Cloud9 IDE, as well as configure the IDE environment for the rest of the workshop.
 
-The CloudFormation template can create a new VPC, or be launched into an existing one. 
+The CloudFormation template can create a new VPC, or you can choose an existing VPC if needed.
 If you are unsure, we recommend the "Launch template with an existing VPC" option.
 
 Click on the "Deploy to AWS" button and follow the CloudFormation prompts to begin.
 
 [NOTE]
-AWS Cloud9 is currently only available in 5 regions. 
+AWS Cloud9 is currently available in 5 regions.
 Please choose the region closest to you.
 
 |===
@@ -39,15 +39,15 @@ a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation
 
 | *Ireland* (eu-west-1)
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
 | *Singapore* (ap-southeast-1)
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
 
 |===
 
-To open the Cloud9 IDE environment, click on the "Output" tab in CloudFormation Console and click on the "Cloud9IDE" URL.
+To open the Cloud9 IDE environment, click on the "Outputs" tab in CloudFormation Console and click on the "Cloud9IDE" URL.
 
 image:cloudformation-output-tab.png[CloudFormation Output Tab]
 
@@ -61,7 +61,7 @@ Once your Cloud9 is ready, download the build script and install in your IDE. Th
 
 - jq
 - kubectl _(the Kubernetes CLI, which we'll cover in great detail later in the workshop)_
-- kops _(Kubernetes Operations, which we'll also cover in detail later)_ 
+- kops _(Kubernetes Operations, which we'll also cover in detail later)_
 - configures the AWS CLI and stores necessary environment variables in bash_profile
 - creates an SSH key
 - clone the workshop repository into Cloud9
@@ -97,7 +97,7 @@ You are now ready to continue on with the workshop!
 
 The next step is link:../102-your-first-cluster[to create a Kubernetes cluster using kops].
 
-== Workshop Cleanup 
+== Workshop Cleanup
 
 Once you have finished with the workshop, please don't forget to spin down your cluster or you will incur additional charges.
 (We will also remind you at the end!)
@@ -177,7 +177,7 @@ Docker is preinstalled.  You can verify the version by running the following:
     $ docker --version
     Docker version 17.06.2-ce, build 3dfb8343b139d6342acfd9975d7f1068b5b1c3d3
 
-You should have a similar or newer version.  
+You should have a similar or newer version.
 
 === Install Kubectl CLI
 
@@ -206,7 +206,7 @@ Install kops using the following:
 
 kops needs a "`state store`" to store configuration information of the cluster. We will use a s3 bucket with versioning enabled. A state store can work with multiple kops clusters.
 
-[NOTE] 
+[NOTE]
 The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `kops-state-store-` and add a randomly generated string to the end.
 
     $ export S3_BUCKET=kops-state-store-$(cat /dev/urandom | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
