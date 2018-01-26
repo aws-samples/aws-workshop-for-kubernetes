@@ -4,14 +4,16 @@
 :imagesdir: ../../resources/images
 :toc:
 
-This tutorial will walk you through the process of creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run, and debug containerized workloads with just a web browser.
+This section walks you through the creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run, and debug containerized workloads using just a web browser.
 
 == Create AWS Cloud9 Environment
 === AWS Cloud9 Console
 
-We can create and configure the Cloud9 development environment via CloudFormation.
-This CloudFormation template will create the Cloud9 IDE, the IAM Role required for kops, and the S3 bucket for the kops state store.
+We can create the Cloud9 development environment via CloudFormation.
+This CloudFormation template will spin up the Cloud9 IDE, as well as configure the IDE environment for the rest of the workshop.
 The template can create a new VPC, or be launched into an existing one. 
+If you are unsure, We recommend the "Launch template with an existing VPC" option.
+Click on the "Deploy to AWS" button and follow the CloudFormation prompts to begin.
 
 [NOTE]
 AWS Cloud9 is currently only available in 5 regions. 
@@ -46,14 +48,18 @@ To open the Cloud9 IDE environment, click on the "Output" tab in CloudFormation 
 
 image:cloudformation-output-tab.png[CloudFormation Output Tab]
 
+You should see an environment similar to this:
+
+image:cloud9-development-environment-welcome.png[]
+
 === Build Script
 
-Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script will install the following:
+Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script installs the following:
 
 - jq
-- kubectl
-- kops
-- configures AWS CLI and stores variables in bash_profile (for ex: AWS_AVAILABILITY_ZONES, KOPS_STATE_STORE etc)
+- kubectl _(the Kubernetes CLI, which we'll cover in great detail later in the workshop)_
+- kops _(Kubernetes Operations, which we'll also cover in detail later)_ 
+- configures the AWS CLI and stores necessary environment variables in bash_profile
 - creates an SSH key
 - clone the workshop repository into Cloud9
 

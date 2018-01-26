@@ -10,25 +10,18 @@ https://github.com/kubernetes/kops[kops], short for Kubernetes Operations, is a 
 
 If you have not set up the link:../101-start-here[Cloud9 Devlopment Environment] yet, please do so before continuing.
 
-== Create a cluster with kops
+== Create a Kubernetes Cluster with kops
 
-The kops CLI can be used to create a highly available cluster, with multiple master and worker nodes spread across multiple availability zones. 
-When setting up a cluster you have two options on how the nodes in the cluster communicate:
+kops can be used to create a highly available cluster, with multiple master and worker nodes spread across multiple availability zones. 
+The master and worker nodes within the cluster can use either DNS or the https://github.com/weaveworks/mesh[Weave Mesh, window="_blank"] *gossip* protocol for name resolution.  For this workshop, we will use the gossip protocol.  A gossip-based cluster is easier and quicker to setup, and does not does not require a domain, subdomain, or Route53 hosted zone to be registered. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.
 
-. <<create-a-gossip-based-kubernetes-cluster-with-kops, Using the gossip protocol>> - kops has support for a gossip-based cluster. This does not require a domain, subdomain, or Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup, and is the preferred method for creating a cluster for use with this workshop.
-. <<appendix-create-a-dns-based-kubernetes-cluster, Using DNS>> - Creating a Kubernetes cluster that uses DNS for node discovery requires your own domain (or subdomain) and setting up Route 53 hosted zones. This allows the various Kubernetes components to use DNS resolutions find and communicate with each other, and for kubectl to be able to talk directly with the master node(s).
+To create a cluster using the gossip protocol, simply use a cluster name with a suffix of `.k8s.local`. In the following steps, we will use `example.cluster.k8s.local` as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
 
-Instructions for creating a gossip-based cluster are provided below, however, the examples in the workshop should work with either option. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.  If you are unsure which to choose, we recommend using a gossip-based cluster for the workshop.
+We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Most workshop exercises will work on both types of cluster, however some modules require using a multi-master cluster _(to demonstrate rolling updates, for instance)._ If you aren't sure, please create a xref:multi-master[multi-master cluster].
 
-=== Create a Gossip-based Kubernetes Cluster with kops
+=== Single-Master Cluster
 
-kops supports creating a gossip-based cluster, which uses https://github.com/weaveworks/mesh[Weave Mesh] behind the scenes. This makes the process of creating a Kubernetes cluster using kops DNS-free, and therefore much simpler. To create a cluster using the gossip protocol, use a cluster name with a suffix of `.k8s.local`. In the following steps, we will use `example.cluster.k8s.local` as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
-
-We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Most workshop exercises will work on both types of cluster, however some modules require using a multi-master cluster (to demonstrate rolling updates, for instance.) If you aren't sure, please create a <<multi-master-multi-node-multi-az-gossip-based-cluster, multi-master cluster.>>
-
-==== Default Gossip Based Cluster
-
-By default, `create cluster` command creates a single master node and two worker nodes in the specified zones.
+By default, the `kops create cluster` command creates a single master node and two worker nodes in the specified zones.
 
 Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi-node and multi-az configuration:
 
@@ -41,10 +34,6 @@ The `AWS_AVAILABILITY_ZONES` environment variable should have been set during th
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding the `--yes` flag ensures that the cluster is immediately created as well.
 
-Alternatively, you may not specify the `--yes` flag as part of the `kops create cluster` command. Then you can use `kops edit cluster example.cluster.k8s.local` command to view the current cluster state and make changes. The cluster creation, in that case, is started with the following command:
-
-    $ kops update cluster example.cluster.k8s.local --yes
-
 Once the `kops create cluster` command is issued, it provisions the EC2 instances, sets up Auto Scaling Groups, IAM users, Security Groups, installs Kubernetes on each node, then configures the master and worker nodes. This process can take some time based upon the number of master and worker nodes.
 
 Note: If your 'create cluster' fails with an error like:
@@ -52,11 +41,13 @@ Note: If your 'create cluster' fails with an error like:
 error reading s3://example-kops-state-store/example.cluster.k8s.local/config: Unable to list AWS regions: NoCredentialProviders: no valid providers in chain
 caused by: EnvAccessKeyNotFound: failed to find credentials in the environment."
 ```
-Try setting the following environment variables before executing the 'create cluster' command:
+Please confirm the following environment variables are set before executing the 'create cluster' command:
 ```
-export AWS_DEFAULT_PROFILE=<your_aws_credentials_profile_name>
-export AWS_SDK_LOAD_CONFIG=1
+echo $AWS_DEFAULT_PROFILE
+echo $KOPS_STATE_STORE
+echo $AWS_SDK_LOAD_CONFIG
 ```
+If any of those environment variables are blank, please re-run the "Build Script" section of the link:../101-start-here[Cloud9 Environment Setup].
 
 Wait for 5-8 minutes and then the cluster can be validated as shown:
 
@@ -79,9 +70,10 @@ ip-172-20-75-78.ec2.internal  node  True
 
 Your cluster example.cluster.k8s.local is ready
 ```
-==== Multi-master, multi-node, multi-az Gossip Based Cluster
+=== Multi-Master Cluster
 
-Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in one step by passing the `--yes` flag.
+The command below creates a cluster in a multi-master, multi-node, and multi-az configuration. 
+We can create and build the cluster in one step by passing the `--yes` flag.
 
     $ kops create cluster \
       --name example.cluster.k8s.local \
@@ -90,7 +82,7 @@ Create a cluster with multi-master, multi-node and multi-az configuration. We ca
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
 
-A multi-master cluster can be created by using the `--master-count` option and specifying the number of master nodes. An odd value is recommended. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, `--master-zones` option can be used to explicitly specify the zones for the master nodes.
+A multi-master cluster can be created by using the `--master-count` option and specifying the number of master nodes. An odd value is recommended. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, you can use the `--master-zones` option to explicitly specify the zones for the master nodes.
 
 The `--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
 
@@ -129,13 +121,13 @@ Your output may differ slightly from the one shown here based up on the type of 
 
 == Kubernetes Cluster Context
 
-You may create multiple Kubernetes clusters. The configuration for each cluster is stored in a configuration file, referred to as "`kubeconfig file`". By default, kubectl looks for a file named `config` in the directory `~/.kube`. The kubectl CLI uses kubeconfig file to find the information it needs to choose a cluster and communicate with the API server of a cluster.
+You can manage multiple Kubernetes clusters with _kubectl_, the Kubernetes CLI. We will look more deeply at kubectl in the next section. The configuration for each cluster is stored in a configuration file, referred to as the "`kubeconfig file`". By default, kubectl looks for a file named `config` in the directory `~/.kube`. The kubectl CLI uses kubeconfig file to find the information it needs to choose a cluster and communicate with the API server of a cluster.
 
 This allows you to deploy your applications to different environments by just changing the context. For example, here is a typical flow for application development:
 
-. Build your application using minikube (See Set up Local Development Environment for more information)
+. Build your application using a development environment (perhaps even locally on your laptop)
 . Change the context to a test cluster created on AWS
-. Use the same command to deploy to test environment
+. Use the same command to deploy to the test environment
 . Once satisfied, change the context again to a production cluster on AWS
 . Once again, use the same command to deploy to production environment
 
@@ -145,7 +137,7 @@ Get a summary of available contexts:
   kubectl config get-contexts
   CURRENT   NAME                          CLUSTER                     AUTHINFO                    NAMESPACE
   *         example.cluster.k8s.local     example.cluster.k8s.local   example.cluster.k8s.local
-            minikube                      minikube                    minikube
+            docker-for-desktop            docker-for-desktop-cluster  docker-for-desktop
 
 The output shows dfferent contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
 
