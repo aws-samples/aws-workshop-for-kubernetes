@@ -1,8 +1,9 @@
 = Kubernetes - Setup Cloud9 Development Environment
+:toc:
 :icons:
 :linkattrs:
 :imagesdir: ../../resources/images
-:toc:
+
 
 This section walks you through the creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run, and debug containerized workloads using just a web browser.
 

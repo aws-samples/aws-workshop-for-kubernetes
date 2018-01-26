@@ -1,6 +1,9 @@
-= AWS Workshop for Kubernetes
+= Kubernetes the AWSome Way!
+:icons:
+:linkattrs:
+:imagesdir: resources/images
 
-image:resources/images/kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",width=420]
+image:kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",width=420]
 
 This is a self-paced workshop designed for Development and Operations teams who would like to leverage Kubernetes on Amazon Web Services (AWS).
 
@@ -8,16 +11,29 @@ This workshop provides instructions to create, manage, and scale a Kubernetes cl
 
 It also shows deep integration with several AWS technologies.
 
-== Paths
+We recommend at least 2 hours for the standard workshop path.
 
-There are two main paths. Each path should take approximately 4 hours to complete. 
-[cols="2*^"]
-|=====
-|link:developer-path.adoc[For Developers or Development Teams]
-|link:operations-path.adoc[For Operations Engineers or Operations Teams]
-|=====
+Click the button below to start! 
 
-For those looking for a more condensed introduction to Kubernetes on AWS, there is also a link:combined-path.adoc[Combined Version], which should take approximately 2 hours to complete.
+image::button-start-standard.png[link=standard-path.adoc]
+
+== Extended Paths
+
+The workshop also contains extended paths for Developers or Operations Engineers.
+The extended paths go into much greater detail regarding features and capabilities of Kubernetes specifically for those Teams. 
+We recommend at least 4 hours for each of the extended paths.
+
+Click on one of the two buttons below to start!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2*"]
+|=====
+|image:button-start-developer.png[link=developer-path.adoc]
+|image:button-start-operations.png[link=operations-path.adoc]
+|=====
 
 
 NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator]

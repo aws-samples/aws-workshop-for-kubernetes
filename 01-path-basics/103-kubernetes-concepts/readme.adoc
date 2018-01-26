@@ -2,10 +2,9 @@
 :toc:
 :icons:
 :linkattrs:
-:linkcss:
 :imagesdir: ../../resources/images
 
-== Kubernetes API and CLI
+== Introduction
 
 Now that we have a cluster up and running we can start exploring the Kubernetes CLI via the `kubectl` (pronounced "cube control") command.
 
@@ -41,6 +40,143 @@ It will show an output similar to:
     ip-172-20-94-153.us-east-2.compute.internal    Ready     master    2d       v1.7.4
 
 If you do not see this output, or receive an error, please ensure that you've followed the steps link:../102-your-first-cluster#multi-master[here] and have a validated cluster.
+
+=== Create your first Pod
+
+This command instantiates an nginx container into your cluster, inside a pod:
+
+    $ kubectl run nginx --image=nginx
+    deployment "nginx" created
+
+Get the list of deployments:
+
+    $ kubectl get deployments
+    NAME      DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    nginx     1         1         1            0           41s
+
+Get the list of running pods:
+
+    $ kubectl get pods
+    NAME                     READY     STATUS    RESTARTS   AGE
+    nginx-4217019353-pmkzb   1/1       Running   0          1m
+
+Get additional details for the pod by using the `<pod-name>` from the above output:
+
+```
+$ kubectl describe pod/nginx-4217019353-pmkzb
+kubectl describe pod/nginx-4217019353-pmkzb
+Name:           nginx-4217019353-pmkzb
+Namespace:      default
+Node:           ip-172-20-87-91.us-east-2.compute.internal/172.20.87.91
+Start Time:     Fri, 01 Dec 2017 16:36:48 -0800
+Labels:         pod-template-hash=4217019353
+                run=nginx
+Annotations:    kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"nginx-4217019353","uid":"e161abe9-d6f8-11e7-af8f-06c4465216f2","...
+                kubernetes.io/limit-ranger=LimitRanger plugin set: cpu request for container nginx
+Status:         Running
+IP:             100.96.7.19
+Created By:     ReplicaSet/nginx-4217019353
+Controlled By:  ReplicaSet/nginx-4217019353
+Containers:
+  nginx:
+    Container ID:   docker://2def6a6dc1594c337748abf6160ff81fab9fa6d734aca02b5f1afc4d395edc6b
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:b81f317384d7388708a498555c28a7cce778a8f291d90021208b3eba3fe74887
+    Port:           <none>
+    State:          Running
+      Started:      Fri, 01 Dec 2017 16:36:52 -0800
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        100m
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-cqht0 (ro)
+Conditions:
+  Type           Status
+  Initialized    True
+  Ready          True
+  PodScheduled   True
+Volumes:
+  default-token-cqht0:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-cqht0
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.alpha.kubernetes.io/notReady:NoExecute for 300s
+                 node.alpha.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason                 Age   From                                                 Message
+  ----    ------                 ----  ----                                                 -------
+  Normal  Scheduled              46s   default-scheduler                                    Successfully assigned nginx-4217019353-pmkzb to ip-172-20-87-91.us-east-2.compute.internal
+  Normal  SuccessfulMountVolume  46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  MountVolume.SetUp succeeded for volume "default-token-cqht0"
+  Normal  Pulling                46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  pulling image "nginx"
+  Normal  Pulled                 42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Successfully pulled image "nginx"
+  Normal  Created                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Created container
+  Normal  Started                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Started container
+
+```
+
+By default, pods are created in a `default` namespace. In addition, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
+
+```
+$ kubectl get pods --namespace kube-system
+NAME                                                                  READY     STATUS    RESTARTS   AGE
+dns-controller-3497129722-4pxd6                                       1/1       Running   0          28d
+etcd-server-events-ip-172-20-124-26.us-east-2.compute.internal        1/1       Running   0          28d
+etcd-server-events-ip-172-20-52-35.us-east-2.compute.internal         1/1       Running   0          28d
+etcd-server-events-ip-172-20-94-153.us-east-2.compute.internal        1/1       Running   0          28d
+etcd-server-ip-172-20-124-26.us-east-2.compute.internal               1/1       Running   0          28d
+etcd-server-ip-172-20-52-35.us-east-2.compute.internal                1/1       Running   0          28d
+etcd-server-ip-172-20-94-153.us-east-2.compute.internal               1/1       Running   0          28d
+kube-apiserver-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
+kube-apiserver-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
+kube-apiserver-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
+kube-controller-manager-ip-172-20-124-26.us-east-2.compute.internal   1/1       Running   0          28d
+kube-controller-manager-ip-172-20-52-35.us-east-2.compute.internal    1/1       Running   0          28d
+kube-controller-manager-ip-172-20-94-153.us-east-2.compute.internal   1/1       Running   0          28d
+kube-dns-1311260920-jgl0m                                             3/3       Running   0          28d
+kube-dns-1311260920-tvpmp                                             3/3       Running   0          28d
+kube-dns-autoscaler-1818915203-5kxrb                                  1/1       Running   0          28d
+kube-proxy-ip-172-20-105-158.us-east-2.compute.internal               1/1       Running   0          28d
+kube-proxy-ip-172-20-124-26.us-east-2.compute.internal                1/1       Running   0          28d
+kube-proxy-ip-172-20-127-251.us-east-2.compute.internal               1/1       Running   0          28d
+kube-proxy-ip-172-20-52-35.us-east-2.compute.internal                 1/1       Running   0          28d
+kube-proxy-ip-172-20-63-150.us-east-2.compute.internal                1/1       Running   0          28d
+kube-proxy-ip-172-20-71-14.us-east-2.compute.internal                 1/1       Running   0          28d
+kube-proxy-ip-172-20-87-91.us-east-2.compute.internal                 1/1       Running   0          28d
+kube-proxy-ip-172-20-94-153.us-east-2.compute.internal                1/1       Running   0          28d
+kube-scheduler-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
+kube-scheduler-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
+kube-scheduler-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
+tiller-deploy-1114875906-k2pj2                                        1/1       Running   0          28d
+```
+Again, the exact output may vary but your results should look similar to these.
+
+=== Get logs from the pod
+
+Logs from the pod can be obtained (a fresh nginx does not have logs - check again later once you have accessed the service):
+
+    $ kubectl logs <pod-name>
+
+=== Execute a shell on the running pod
+
+This command will open a TTY to a shell in your pod:
+
+    $ kubectl get pods
+    $ kubectl exec -it <pod-name> /bin/bash
+
+This opens a bash shell and allows you to look around the filesystem of the container.
+
+=== Clean up
+
+Delete all the Kubernetes resources created so far:
+
+    $ kubectl delete deployment/nginx
+
+
+In the next sections, we will go into more detail about Pods, Deployments, and other commonly used Kubernetes objects.
 
 == Pods
 
