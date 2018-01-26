@@ -10,15 +10,9 @@ https://github.com/kubernetes/kops[kops], short for Kubernetes Operations, is a 
 
 If you have not set up the link:../101-start-here[Cloud9 Devlopment Environment] yet, please do so before continuing.
 
-== Create A Cluster with kops
+== Create a cluster with kops
 
-The kops CLI can be used to create a highly available cluster, with multiple master nodes spread across multiple Availability Zones. Workers can be spread across multiple zones as well. Some of the tasks that happen behind the scene during cluster creation are:
-
-- Provisioning EC2 instances
-- Creating and configuring AWS resources such as a VPC, Auto Scaling Groups, IAM users, and security groups
-- Installing Kubernetes
-- If required, configuring Route53 DNS
-
+The kops CLI can be used to create a highly available cluster, with multiple master and worker nodes spread across multiple availability zones. 
 When setting up a cluster you have two options on how the nodes in the cluster communicate:
 
 . <<create-a-gossip-based-kubernetes-cluster-with-kops, Using the gossip protocol>> - kops has support for a gossip-based cluster. This does not require a domain, subdomain, or Route53 hosted zone to be registered. A gossip-based cluster is therefore easier and quicker to setup, and is the preferred method for creating a cluster for use with this workshop.
