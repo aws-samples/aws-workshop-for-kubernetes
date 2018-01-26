@@ -154,9 +154,18 @@ If multiple clusters exist, then you can change the context:
 
   $ kubectl config use-context <config-name>
 
-image:next-step-arrow.png[ , title="Continue!"] 
 You are now ready to continue on with the workshop!
 
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="3", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../103-kubernetes-concepts/]
+|image:button-continue-developer.png[link=../103-kubernetes-concepts/]
+|image:button-continue-operations.png[link=../103-kubernetes-concepts/]
+|=====
 The next step is link:../103-kubernetes-concepts[to learn about basic Kubernetes Concepts].
 
 The sections below provide information on other capabilities of Kubernetes clusters.

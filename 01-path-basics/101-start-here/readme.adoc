@@ -81,8 +81,18 @@ One last step is required so that the Cloud9 IDE uses the assigned IAM Instance 
 
 image:cloud9-disable-temp-credentials.png[]
 
-image:next-step-arrow.png[ , title="Continue!"] 
+
 You are now ready to continue on with the workshop!
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="3", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../102-your-first-cluster/]
+|image:button-continue-developer.png[link=../102-your-first-cluster/]
+|image:button-continue-operations.png[link=../102-your-first-cluster/]
+|=====
 
 The next step is link:../102-your-first-cluster[to create a Kubernetes cluster using kops].
 
