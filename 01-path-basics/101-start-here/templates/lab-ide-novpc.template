@@ -287,9 +287,17 @@
         "Fn::Join": [
           "",
           [
-            "https://console.aws.amazon.com/cloud9/ide/",
+            "https://",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".console.aws.amazon.com/cloud9/ide/",
             {
               "Ref": "LabIDE"
+            },
+            "?region=",
+            {
+              "Ref": "AWS::Region"
             }
           ]
         ]
