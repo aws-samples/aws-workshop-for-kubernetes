@@ -1,0 +1,446 @@
+= Create A Kubernetes Cluster Using kops
+:toc:
+:icons:
+:linkattrs:
+:imagesdir: ../../resources/images
+
+This section will walk you through how to install a Kubernetes cluster on AWS using kops.
+
+https://github.com/kubernetes/kops[kops, window="_blank"], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters. kops can also perform rolling upgrades from older versions of Kubernetes to newer ones, and manage the cluster add-ons.
+
+If you have not set up the link:../101-start-here[Cloud9 Devlopment Environment, window="_blank"] yet, please do so before continuing.
+
+== Create a Kubernetes Cluster with kops
+
+kops can be used to create a highly available cluster, with multiple master and worker nodes spread across multiple availability zones. 
+The master and worker nodes within the cluster can use either DNS or the https://github.com/weaveworks/mesh[Weave Mesh, window="_blank"] *gossip* protocol for name resolution.  For this workshop, we will use the gossip protocol.  A gossip-based cluster is easier and quicker to setup, and does not does not require a domain, subdomain, or Route53 hosted zone to be registered. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.
+
+To create a cluster using the gossip protocol, simply use a cluster name with a suffix of `.k8s.local`. In the following steps, we will use `example.cluster.k8s.local` as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
+
+We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Most workshop exercises will work on both types of cluster, however some modules require using a multi-master cluster _(to demonstrate rolling updates, for instance)._ If you aren't sure, please create a xref:multi-master[multi-master cluster].
+
+=== Single-Master Cluster
+
+By default, the `kops create cluster` command creates a single master node and two worker nodes in the specified zones.
+
+Create a Kubernetes cluster using the following command. Run it in the "bash" terminal tab at the bottom of the Cloud9 IDE. This will create a cluster with a single master, multi-node and multi-az configuration:
+
+    $ kops create cluster \
+      --name example.cluster.k8s.local \
+      --zones $AWS_AVAILABILITY_ZONES \
+      --yes
+
+The `AWS_AVAILABILITY_ZONES` environment variable should have been set during the link:../101-start-here[Cloud9 Environment Setup].
+
+The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding the `--yes` flag ensures that the cluster is immediately created as well.
+
+Once the `kops create cluster` command is issued, it provisions the EC2 instances, sets up Auto Scaling Groups, IAM users, Security Groups, installs Kubernetes on each node, then configures the master and worker nodes. This process can take some time based upon the number of master and worker nodes.
+
+Note: If your 'create cluster' fails with an error like:
+```
+error reading s3://example-kops-state-store/example.cluster.k8s.local/config: Unable to list AWS regions: NoCredentialProviders: no valid providers in chain
+caused by: EnvAccessKeyNotFound: failed to find credentials in the environment."
+```
+Please confirm the following environment variables are set before executing the 'create cluster' command:
+```
+echo $AWS_DEFAULT_PROFILE
+echo $KOPS_STATE_STORE
+echo $AWS_SDK_LOAD_CONFIG
+```
+If any of those environment variables are blank, please re-run the "Build Script" section of the link:../101-start-here[Cloud9 Environment Setup].
+
+Wait for 5-8 minutes and then the cluster can be validated as shown:
+
+```
+$ kops validate cluster
+Using cluster from kubectl context: example.cluster.k8s.local
+
+Validating cluster example.cluster.k8s.local
+
+INSTANCE GROUPS
+NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
+master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
+nodes     Node  t2.medium 2 2 eu-central-1a,eu-central-1b
+
+NODE STATUS
+NAME        ROLE  READY
+ip-172-20-57-94.ec2.internal  master  True
+ip-172-20-63-55.ec2.internal  node  True
+ip-172-20-75-78.ec2.internal  node  True
+
+Your cluster example.cluster.k8s.local is ready
+```
+
+anchor:multi-master[]
+
+=== Multi-Master Cluster
+
+The command below creates a cluster in a multi-master, multi-node, and multi-az configuration.
+Run it in the "bash" terminal tab at the bottom of the Cloud9 IDE.
+We can create and build the cluster in one step by passing the `--yes` flag.
+
+    $ kops create cluster \
+      --name example.cluster.k8s.local \
+      --master-count 3 \
+      --node-count 5 \
+      --zones $AWS_AVAILABILITY_ZONES \
+      --yes
+
+A multi-master cluster can be created by using the `--master-count` option and specifying the number of master nodes. An odd value is recommended. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, you can use the `--master-zones` option to explicitly specify the zones for the master nodes.
+
+The `--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
+
+It will take 5-8 minutes for the cluster to be created. Validate the cluster:
+
+```
+$ kops validate cluster
+Using cluster from kubectl context: example.cluster.k8s.local
+
+Validating cluster example.cluster.k8s.local
+
+INSTANCE GROUPS
+NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
+master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
+master-eu-central-1b Master  m3.medium 1 1 eu-central-1b
+master-eu-central-1c Master  c4.large  1 1 eu-central-1c
+nodes     Node  t2.medium 5 5 eu-central-1a,eu-central-1b,eu-central-1c
+
+NODE STATUS
+NAME        ROLE  READY
+ip-172-20-101-97.ec2.internal node  True
+ip-172-20-119-53.ec2.internal node  True
+ip-172-20-124-138.ec2.internal  master  True
+ip-172-20-35-15.ec2.internal  master  True
+ip-172-20-63-104.ec2.internal node  True
+ip-172-20-69-241.ec2.internal node  True
+ip-172-20-84-65.ec2.internal  node  True
+ip-172-20-93-167.ec2.internal master  True
+
+Your cluster example.cluster.k8s.local is ready
+```
+
+Note that all masters are spread across different AZs.
+
+Your output may differ slightly from the one shown here based up on the type of cluster you created.
+
+== Kubernetes Cluster Context
+
+You can manage multiple Kubernetes clusters with _kubectl_, the Kubernetes CLI. We will look more deeply at kubectl in the next section. The configuration for each cluster is stored in a configuration file, referred to as the "`kubeconfig file`". By default, kubectl looks for a file named `config` in the directory `~/.kube`. The kubectl CLI uses kubeconfig file to find the information it needs to choose a cluster and communicate with the API server of a cluster.
+
+This allows you to deploy your applications to different environments by just changing the context. For example, here is a typical flow for application development:
+
+. Build your application using a development environment (perhaps even locally on your laptop)
+. Change the context to a test cluster created on AWS
+. Use the same command to deploy to the test environment
+. Once satisfied, change the context again to a production cluster on AWS
+. Once again, use the same command to deploy to production environment
+
+Get a summary of available contexts:
+
+  $ kubectl config get-contexts
+  kubectl config get-contexts
+  CURRENT   NAME                          CLUSTER                     AUTHINFO                    NAMESPACE
+  *         example.cluster.k8s.local     example.cluster.k8s.local   example.cluster.k8s.local
+            docker-for-desktop            docker-for-desktop-cluster  docker-for-desktop
+
+The output shows dfferent contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
+
+View the current context:
+
+  $ kubectl config current-context
+  example.cluster.k8s.local
+
+If multiple clusters exist, then you can change the context:
+
+  $ kubectl config use-context <config-name>
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="3", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../103-kubernetes-concepts/]
+|image:button-continue-developer.png[link=../103-kubernetes-concepts/]
+|image:button-continue-operations.png[link=../103-kubernetes-concepts/]
+|=====
+The next step is link:../103-kubernetes-concepts[to learn about basic Kubernetes Concepts].
+
+The sections below provide information on other capabilities of Kubernetes clusters.
+You are welcome to read and refer to them should you need to use those capabilities.
+
+== Optional Modules
+
+=== (Optional) Create a Kubernetes cluster in a private VPC
+
+kops can create a private Kubernetes cluster, where the master and worker nodes are launched in private subnets in a VPC. This is possible with both Gossip and DNS-based clusters. This reduces the attack surface on your instances by protecting them behind security groups inside private subnets. The services hosted in the cluster can still be exposed via internet-facing ELBs if required. It's necessary to run a CNI network provider in the Kubernetes cluster when using a private topology. We have used https://www.projectcalico.org/[Calico] below, though other options such as `kopeio-vxlan`, `weave`, `romano` and others are available.
+
+To print full list of CNI providers:
+
+    kops create cluster --help
+
+Create a gossip-based private cluster with master and worker nodes in private subnets:
+
+    $ kops create cluster \
+      --networking calico \
+      --topology private \
+      --name example.cluster.k8s.local \
+      --zones $AWS_AVAILABILITY_ZONES \
+      --yes
+
+Once the `kops create cluster` command is issued, it provisions the EC2 instances, sets up AutoScaling Groups, IAM users, Security Groups, installs Kubernetes on each node, then configures the master and worker nodes. This process can take some time based upon the number of master and worker nodes.
+
+Wait for 5-8 minutes and then the cluster can be validated as shown:
+
+```
+$ kops validate cluster
+Using cluster from kubectl context: example.cluster.k8s.local
+
+Validating cluster example.cluster.k8s.local
+
+INSTANCE GROUPS
+NAME                    ROLE    MACHINETYPE     MIN     MAX     SUBNETS
+master-eu-central-1a    Master  m3.medium       1       1       eu-central-1a
+nodes                   Node    t2.medium       2       2       eu-central-1a,eu-central-1b,eu-central-1c
+
+NODE STATUS
+NAME                                            ROLE    READY
+ip-172-20-124-144.eu-central-1.compute.internal node    True
+ip-172-20-58-179.eu-central-1.compute.internal  master  True
+ip-172-20-93-220.eu-central-1.compute.internal  node    True
+
+Your cluster example.cluster.k8s.local is ready
+```
+
+It is also possible to create a DNS-based cluster where the master and worker nodes are in private subnets. For more information about creating DNS-based clusters, see Appendix: Create a DNS-based Kubernetes cluster below.
+If `--dns private` is also specified, a Route53 private hosted zone is created for routing the traffic for the domain within one or more VPCs. The Kubernetes API can therefore only be accessed from within the VPC. This is a current issue with kops (see https://github.com/kubernetes/kops/issues/2032). A possible workaround is to mirror the private Route53 hosted zone with a public hosted zone that exposes only the API server ELB endpoint. This workaround is discussed http://kubecloud.io/setup-ha-k8s-kops/[here].
+
+Although most of the exercises in this workshop should work on a cluster with a private VPC, some commands won't, specifically those that use a proxy to access internally hosted services.
+
+=== (Optional) Turn on an API version for your Cluster
+
+Note: This section is for Kubebernetes 1.7.x, in 1.8.x the api is `batch/v1beta1`. 
+
+Kubernetes resources are created with a specific API version. The exact value is defined by the `apiVersion` attribute in the resource configuration file. Some of the values are `v1`, `extensions/v1beta1` or `batch/v1`. By default, resources with `apiVersion` values X, Y, Z are enabled. If a resource has a version with the word `alpha` in it, then that version needs to be explicitly enabled in the cluster. For example, if you are running a Kubernetes cluster of version 1.7.x, then Cron Job resource cannot be created unless `batch/v2alpha1` is explicitly enabled.
+
+This section shows how to turn on an API version for your cluster. It will use `batch/v2alpha1` as an example.
+
+Specific API versions can be turned on or off by passing `--runtime-config=api/<version>` flag while bringing up the API server. To turn on our specific version, we'll need to pass `--runtime-config=batch/v2alpha1=true`.
+
+For a cluster created using kops, this can be done by editing the cluster configuration using the command shown:
+
+    $ kops edit cluster --name example.cluster.k8s.local
+
+This will open up the cluster configuration in a text editor. Update the `spec` attribute such that it looks like as shown:
+
+    spec:
+      kubeAPIServer:
+        runtimeConfig:
+          batch/v2alpha1: "true"
+      api:
+
+Save the changes and exit the editor. Kubernetes cluster needs to re-read the configuration. This can be done by forcing a rolling update of the cluster using the following command:
+
+NOTE: This process can easily take 30-45 minutes. Its recommended to leave the cluster without any updates during that time.
+
+  $ kops rolling-update cluster --yes
+  Using cluster from kubectl context: example.cluster.k8s.local
+
+  NAME                    STATUS  NEEDUPDATE      READY   MIN     MAX     NODES
+  master-eu-central-1a    Ready   0               1       1       1       1
+  nodes                   Ready   0               2       2       2       2
+  I1025 20:50:51.158013     354 instancegroups.go:350] Stopping instance "i-0ba714556f0f892cc", node "ip-172-20-58-179.eu-central-1.compute.internal", in AWS ASG "master-eu-central-1a.masters.example.cluster.k8s.local".
+  I1025 20:55:51.413506     354 instancegroups.go:350] Stopping instance "i-0265a07c3320b266b", node "ip-172-20-93-220.eu-central-1.compute.internal", in AWS ASG "nodes.example.cluster.k8s.local".
+  I1025 20:57:52.448582     354 instancegroups.go:350] Stopping instance "i-09e2efd9f5e9ebfce", node "ip-172-20-124-144.eu-central-1.compute.internal", in AWS ASG "nodes.example.cluster.k8s.local".
+  I1025 20:59:53.325980     354 rollingupdate.go:174] Rolling update completed!
+
+This command will first stop one master node in the cluster, re-read the configuration information and start that master. Then it will do the same for rest of the master nodes. And then it will repeat that for each worker node in the cluster. After all the server and worker nodes have been restarted, the rolling update of the cluster is complete.
+
+Let's verify that the attributes are now successfully passed to the API server. Get the list of pods for the API server using the command shown:
+
+  $ kubectl get pods --all-namespaces | grep kube-apiserver
+  kube-system   kube-apiserver-ip-172-20-117-32.ec2.internal            1/1       Running   0          7m
+  kube-system   kube-apiserver-ip-172-20-62-108.ec2.internal            1/1       Running   6          16m
+  kube-system   kube-apiserver-ip-172-20-79-64.ec2.internal             1/1       Running   2          12m
+
+The output shows three pods, one each for API server, corresponding to the three master nodes. This output is from a cluster with three master nodes. The output may be different if your cluster was created with different number of masters.
+
+Search for the `--runtime-config` option as shown:
+
+  $ kubectl describe --namespace=kube-system pod <pod-name> | grep runtime
+
+`<pod-name>` is name of one of the pods shown above.
+
+A formatted output is shown below:
+
+  /usr/local/bin/kube-apiserver \
+    --address=127.0.0.1 \
+    --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,DefaultTolerationSeconds,ResourceQuota \
+    --allow-privileged=true \
+    --anonymous-auth=false \
+    --apiserver-count=3 \
+    --authorization-mode=AlwaysAllow \
+    --basic-auth-file=/srv/kubernetes/basic_auth.csv \
+    --client-ca-file=/srv/kubernetes/ca.crt \
+    --cloud-provider=aws \
+    --etcd-servers-overrides=/events#http://127.0.0.1:4002 \
+    --etcd-servers=http://127.0.0.1:4001 --insecure-port=8080 --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \
+    --runtime-config=batch/v2alpha1=true \
+    --secure-port=443 \
+    --service-cluster-ip-range=100.64.0.0/13 \
+    --storage-backend=etcd2 \
+    --tls-cert-file=/srv/kubernetes/server.cert \
+    --tls-private-key-file=/srv/kubernetes/server.key \
+    --token-auth-file=/srv/kubernetes/known_tokens.csv \
+    --v=2 \
+    1>>/var/log/kube-apiserver.log 2>&1
+
+The output clearly shows that `--runtime-config=batch/v2alpha1=true` is passed as an option to the API server. This means the cluster is now ready for creating creating APIs with version `batch/v2alpha1`.
+
+=== (Optional) Delete A Cluster
+
+Note: If you are going through the workshop paths, please do not delete the cluster you just created!  
+
+This information is to show you how to delete a cluster.
+(We will also provide these instructions at the end of the workshop.)
+
+Any cluster can be deleted as shown:
+
+    $ kops delete cluster \
+      <cluster-name> \
+      --yes
+
+`<cluster-name>` is the name of the cluster. For example, our `example.cluster.k8s.local` cluster can be deleted as:
+
+    $ kops delete cluster \
+      example.cluster.k8s.local \
+      --yes
+
+If you leave off the `--yes` flag, you will get a listing of all the resources kops will delete.  To confirm deletion, run the command again appending `--yes`.
+
+If you created a private VPC, then an additional cleanup of resources is required as shown below:
+
+    # Find Route53 hosted zone ID from the console or via CLI and delete hosted zone
+    aws route53 delete-hosted-zone --id $ZONEID
+    # Delete VPC if you created earlier
+    $ aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID
+    aws ec2 delete-internet-gateway --internet-gateway-id $IGW
+    aws ec2 delete-vpc --vpc-id $VPCID
+
+To remove the state store S3 bucket:
+
+    aws s3 rb $KOPS_STATE_STORE
+
+== Appendix: Create a DNS-based Kubernetes cluster
+
+To create a DNS-based Kubernetes cluster you'll need a top-level domain or subdomain that meets one of the following scenarios:
+
+. Domain purchased/hosted via AWS
+. A subdomain under a domain purchased/hosted via AWS
+. Setting up Route53 for a domain purchased with another registrar, transfering the domain to Route53
+. Subdomain for clusters in Route53, leaving the domain at another registrar
+
+Then you need to follow the instructions in https://github.com/kubernetes/kops/blob/master/docs/aws.md#configure-dns[configure DNS]. Typically, the first and the last bullets are common scenarios.
+
+==== Single-Master DNS-based cluster
+
+By default, `create cluster` command creates a single master node and two worker nodes in the specified zones.
+
+Create a Kubernetes cluster using the following command. For the purposes of this demonstration, we will use a cluster name of example.cluster.com as our registered DNS. This will create a cluster with a single master, multi-node and multi-az configuration:
+
+    $ kops create cluster \
+      --name example.cluster.com \
+      --zones $AWS_AVAILABILITY_ZONES \
+      --yes
+
+The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
+
+Alternatively, you may leave off the `--yes` option from the `kops create cluster` command. This will allow you to use `kops edit cluster example.cluster.com` command to view the current cluster state and make changes before actually creating the cluster. 
+
+The cluster creation, in that case, is started with the following command:
+
+    $ kops update cluster example.cluster.com --yes
+
+Once the `kops create cluster` or `kops update cluster` command is issued with the `--yes` flag,, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
+
+Wait for 5-8 minutes and then the cluster can be validated as shown:
+
+```
+$ kops validate cluster --name=example.cluster.com
+Validating cluster example.cluster.com
+
+INSTANCE GROUPS
+NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
+master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
+nodes     Node  t2.medium 2 2 eu-central-1a,eu-central-1b
+
+NODE STATUS
+NAME        ROLE  READY
+ip-172-20-51-232.ec2.internal node  True
+ip-172-20-60-192.ec2.internal master  True
+ip-172-20-91-39.ec2.internal  node  True
+
+Your cluster example.cluster.com is ready
+```
+
+Verify the client and server version:
+
+  $ kubectl version
+  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
+  Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+
+It shows that Kubectl CLI version is 1.8.1 and the server version is 1.7.4. Cluster version may changed depending on kops version.
+
+==== Multi-Master DNS-based cluster
+
+Check the list of Availability Zones that exist for your region using the following command:
+
+    $ aws --region <region> ec2 describe-availability-zones
+
+Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in
+one step by passing the `--yes` flag.
+
+    $ kops create cluster \
+      --name example.cluster.com \
+      --master-count 3 \
+      --node-count 5 \
+      --zones $AWS_AVAILABILITY_ZONES \
+      --yes
+
+A multi-master cluster can be created by using the `--master-count` option and specifying the number of master nodes. An odd value is recommended. By default, the master nodes are spread across the AZs specified using the `--zones` option. Alternatively, `--master-zones` option can be used to explicitly specify the zones for the master nodes.
+
+`--zones` option is also used to distribute the worker nodes. The number of workers is specified using the `--node-count` option.
+
+As mentioned above, wait for 5-8 minutes for the cluster to be created. Validate the cluster:
+
+```
+$ kops validate cluster --name=example.cluster.com
+Validating cluster example.cluster.com
+
+INSTANCE GROUPS
+NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
+master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
+master-eu-central-1b Master  m3.medium 1 1 eu-central-1b
+master-eu-central-1c Master  c4.large  1 1 eu-central-1c
+nodes     Node  t2.medium 5 5 eu-central-1a,eu-central-1b,eu-central-1c
+
+NODE STATUS
+NAME        ROLE  READY
+ip-172-20-103-30.ec2.internal master  True
+ip-172-20-105-16.ec2.internal node  True
+ip-172-20-127-147.ec2.internal  node  True
+ip-172-20-35-38.ec2.internal  node  True
+ip-172-20-47-199.ec2.internal node  True
+ip-172-20-61-207.ec2.internal master  True
+ip-172-20-75-78.ec2.internal  master  True
+ip-172-20-94-216.ec2.internal node  True
+
+Your cluster example.cluster.com is ready
+```
+
+Note that all masters are spread across different AZs.
+
+Your output may differ from the one shown here based up on the type of cluster you created.
+

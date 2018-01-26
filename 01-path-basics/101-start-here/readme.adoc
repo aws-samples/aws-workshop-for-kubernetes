@@ -1,0 +1,225 @@
+= Kubernetes - Setup Cloud9 Development Environment
+:toc:
+:icons:
+:linkattrs:
+:imagesdir: ../../resources/images
+
+
+This section walks you through the creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run, and debug containerized workloads using just a web browser.
+
+== Create AWS Cloud9 Environment
+=== AWS Cloud9 Console
+
+We can create the Cloud9 development environment via CloudFormation.
+This CloudFormation template will spin up the Cloud9 IDE, as well as configure the IDE environment for the rest of the workshop.
+
+The CloudFormation template can create a new VPC, or be launched into an existing one. 
+If you are unsure, we recommend the "Launch template with an existing VPC" option.
+
+Click on the "Deploy to AWS" button and follow the CloudFormation prompts to begin.
+
+[NOTE]
+AWS Cloud9 is currently only available in 5 regions. 
+Please choose the region closest to you.
+
+|===
+
+|Region | Launch template with a new VPC | Launch template with an existing VPC
+| *N. Virginia* (us-east-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
+
+| *Ohio* (us-east-2)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
+
+| *Oregon* (us-west-2)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
+
+| *Ireland* (eu-west-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
+
+| *Singapore* (ap-southeast-1)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
+
+|===
+
+To open the Cloud9 IDE environment, click on the "Output" tab in CloudFormation Console and click on the "Cloud9IDE" URL.
+
+image:cloudformation-output-tab.png[CloudFormation Output Tab]
+
+You should see an environment similar to this:
+
+image:cloud9-development-environment-welcome.png[]
+
+=== Build Script
+
+Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script installs the following:
+
+- jq
+- kubectl _(the Kubernetes CLI, which we'll cover in great detail later in the workshop)_
+- kops _(Kubernetes Operations, which we'll also cover in detail later)_ 
+- configures the AWS CLI and stores necessary environment variables in bash_profile
+- creates an SSH key
+- clone the workshop repository into Cloud9
+
+To install the script, run this command in the "bash" terminal tab of the Cloud9 IDE:
+
+    aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh . && \
+    chmod +x lab-ide-build.sh && \
+    . ./lab-ide-build.sh
+
+image:cloud9-run-script.png[Running the script in Cloud9 Terminal]
+
+[NOTE]
+All shell commands _(starting with "$")_ throughout the rest of the workshop should be run in this tab. You may want to resize it upwards to make it larger.
+
+One last step is required so that the Cloud9 IDE uses the assigned IAM Instance profile. Open the "AWS Cloud9" menu, go to "Preferences", go to "AWS Settings", and disable "AWS managed temporary credentials" as depicted in the diagram here:
+
+image:cloud9-disable-temp-credentials.png[]
+
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="3", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../102-your-first-cluster/]
+|image:button-continue-developer.png[link=../102-your-first-cluster/]
+|image:button-continue-operations.png[link=../102-your-first-cluster/]
+|=====
+
+The next step is link:../102-your-first-cluster[to create a Kubernetes cluster using kops].
+
+== Workshop Cleanup 
+
+Once you have finished with the workshop, please don't forget to spin down your cluster or you will incur additional charges.
+(We will also remind you at the end!)
+
+==== Delete Kubernetes cluster resources
+
+In your Cloud9 IDE, check if there are any running kubernetes cluster
+
+   $ kops get cluster
+
+Delete kubernetes cluster
+
+   $ kops delete cluster example.cluster.k8s.local --yes
+
+Wait until all resources are deleted by kops
+
+==== Delete Cloud9 Envionment
+
+Go to CloudFormation console, right click template with name 'k8s-workshop' and select 'Delete Stack'
+
+This should delete all the resources associated with this workshop
+
+
+== Appendix: Manual Cloud9 Configuration
+
+This appendix provides instructions for those who don't want to use the provided CloudFormation template, or who would like to configure Cloud9 manually.
+
+AWS Cloud9 is only available in 5 regions currently. Please choose the region closest to you geographically.
+
+[cols="1*^"]
+|===
+|link:https://us-east-1.console.aws.amazon.com/cloud9/home/create[*N. Virginia* (us-east-1)]
+|link:https://us-east-2.console.aws.amazon.com/cloud9/home/create[*Ohio* (us-east-2)]
+|link:https://us-west-2.console.aws.amazon.com/cloud9/home/create[*Oregon* (us-west-2)]
+|link:https://eu-west-1.console.aws.amazon.com/cloud9/home/create[*Ireland* (eu-west-1)]
+|link:https://ap-southeast-1.console.aws.amazon.com/cloud9/home/create[*Singapore* (ap-southeast-1)]
+|===
+
+Once there, follow these steps:
+
+1. Provide a name for your environment.  Feel free to use something simple, such as `k8s-workshop`.  Then click "Next Step".
+
+2. Change the "Instance Type" to `t2.small (2 GiB RAM + 1 vCPU)`.
+
+3. Expand the "Network settings (advanced)" section and make sure you are using the default VPC.  It will have "(default)" next to the name.  If you do not have a default VPC listed, it is recommended that you create a "Single Public Subnet" VPC by clicking the "Create new VPC" button and following the wizard it presents.
+
+4. If everything is correct, click the "Next Step" button.
+
+5. Review the configuration to ensure everything is correct and then click the "Create environment" button.
+
+This will close the wizard and you will be taken to a screen informing you that your new AWS Cloud9 environment is being created.  Once this is completed, the IDE will open to the following screen:
+
+image:cloud9-development-environment-welcome.png[]
+
+Your environment is now ready to be setup for working with Kubernetes and the rest of this workshop.
+
+=== Set up Environment
+
+Your AWS Cloud9 environment comes with many useful tools preinstalled, but there are still a few tweaks to these and additional tools you will need to support working with Kubernetes.
+
+=== Configure the AWS CLI
+
+Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user. Make sure you are logged in as a user with link:aws-permissions.adoc[these permissions.]
+
+[NOTE]
+*********************
+It is not recommended that you change the default AWS CLI config in your AWS Cloud9 environment. Instead, it is recommended that you provide the logged in user's account the permissions needed to make any requests needed by your project.  More information on this can be found by visiting: https://docs.aws.amazon.com/cloud9/latest/user-guide/credentials.html[Calling AWS Services from an Environment in AWS Cloud9]
+*********************
+
+[NOTE]
+All the commands below should be run in the Terminal section of your Cloud9 GUI.
+
+=== Verify Docker Version
+
+Docker is preinstalled.  You can verify the version by running the following:
+
+    $ docker --version
+    Docker version 17.06.2-ce, build 3dfb8343b139d6342acfd9975d7f1068b5b1c3d3
+
+You should have a similar or newer version.  
+
+=== Install Kubectl CLI
+
+Install the Kubectl CLI:
+
+    $ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.9.2/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+
+Add kubectl autocompletion to your current shell:
+
+    $ source <(kubectl completion bash)
+
+You can verify that kubectl is installed by executing the following command:
+
+    $ kubectl version --client
+    Client Version: version.Info{Major:"1", Minor:"9", GitVersion:"v1.9.2", GitCommit:"6e937839ac04a38cac63e6a7a306c5d035fe7b0a", GitTreeState:"clean", BuildDate:"2017-09-28T22:57:57Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+
+=== Install kops
+
+Install kops using the following:
+
+    $ curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+    $ chmod +x kops-linux-amd64
+    $ sudo mv kops-linux-amd64 /usr/local/bin/kops
+
+=== Configure an S3 bucket for kops
+
+kops needs a "`state store`" to store configuration information of the cluster. We will use a s3 bucket with versioning enabled. A state store can work with multiple kops clusters.
+
+[NOTE] 
+The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `kops-state-store-` and add a randomly generated string to the end.
+
+    $ export S3_BUCKET=kops-state-store-$(cat /dev/urandom | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
+    $ export KOPS_STATE_STORE=s3://${S3_BUCKET}
+    $ aws s3 mb $KOPS_STATE_STORE
+    $ aws s3api put-bucket-versioning --bucket $S3_BUCKET --versioning-configuration Status=Enabled
+
+=== Clone the repository
+
+The workshop repository has configuration files that are used to create Kubernetes resources.  You need to clone the repo to have access to those files:
+
+    $ git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
+
+At this point, you should have everything you need to complete any of the sections of the this workshop using your Cloud9 Environment.
+
+====

@@ -1,0 +1,31 @@
+= AWS Workshop for Kubernetes
+
+image:resources/images/kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",width=420]
+
+== Developer Path
+
+This path is suitable for individual developers or development teams interested in deploying, managing, and scaling cloud-native applications on Kubernetes.
+
+[cols="1*^",grid="cols",options="header"]
+|=====
+|anchor:dev[Developer Path]Developer Path
+|link:01-path-basics/101-start-here[101: Start Here]
+|link:01-path-basics/102-your-first-cluster[102: Create a Kubernetes cluster using kops]
+|link:01-path-basics/103-kubernetes-concepts[103: Introduction to the Kubernetes CLI]
+|link:03-path-application-development/301-local-development[301: Setting up a Local Development Environment]
+|link:03-path-application-development/302-app-discovery[302: Service Discovery for Microservices]
+|link:03-path-application-development/303-app-update[303: Updating Applications on Kubernetes]
+|link:03-path-application-development/304-app-scaling[304: Scaling Applications on Kubernetes]
+|link:03-path-application-development/305-app-tracing-with-jaeger-and-x-ray[305: Tracing Applications with Jaeger and X-Ray]
+|link:03-path-application-development/306-app-management-with-helm[306: Manage Applications with Helm]
+|link:03-path-application-development/307-statefulsets-and-pvs[307: Store Persistent Data with StatefulSets and PVs]
+|link:04-path-security-and-networking/401-configmaps-and-secrets[401: ConfigMaps and Secrets]
+|link:04-path-security-and-networking/402-authentication-and-authorization[402: Authentication, Authorization, and Access]
+|link:04-path-security-and-networking/403-network-policies[403: Network Policies]
+|link:04-path-security-and-networking/404-ingress-controllers[404: Ingress Controllers]
+|link:04-path-security-and-networking/405-coredns[405: CoreDNS]
+|link:05-path-next-steps/501-k8s-best-practices[501: Best Practices]
+|link:05-path-next-steps/502-for-further-reading[502: For Further Reading]
+|=====
+
+NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator]

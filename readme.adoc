@@ -1,64 +1,39 @@
-= AWS Workshop for Kubernetes
+= Kubernetes the AWSome Way!
+:icons:
+:linkattrs:
+:imagesdir: resources/images
 
-image::images/kubernetes-aws-smile.png[kubernetes and aws logos, 400]
+image:kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",width=420]
 
-This is a self-paced workshop that explains how to run and manage a Kubernetes cluster on Amazon Web Services.
-
-It explains how to deploy, scale, and configure applications on this cluster.
-
-This workshop is designed for attendees on Development and Operations teams who would like to get started with Kubernetes on Amazon Web Services (AWS).
+This is a self-paced workshop designed for Development and Operations teams who would like to leverage Kubernetes on Amazon Web Services (AWS).
 
 This workshop provides instructions to create, manage, and scale a Kubernetes cluster on AWS, as well as how to deploy applications, scale them, run stateless and stateful containers, perform service discovery between different microservices, and other similar concepts.
 
 It also shows deep integration with several AWS technologies.
 
-The proposed agenda is to go through the described format to ramp up your knowledge on Kubernetes by following
-the workshop guides.
+We recommend at least 2 hours to complete the workshop.
 
-You are also encouraged to take a detour and explore advanced topics if you feel comfortable
-as you move through the workshop.
+Click the button below to start! 
 
-[cols="1*"]
-|===
-|Beginner (100 level)
+image::button-start-standard.png[link=01-path-basics/101-start-here/]
 
-|link:prereqs.adoc[Prerequisites]
-|link:cluster-install[Create a Kubernetes cluster using kops]
-|link:getting-started[First Steps with the Kubernetes CLI]
-|link:developer-concepts[Kubernetes Developer Concepts]
-|link:local-development[(Optional) Configure a Local Development Environment]
-|===
+== Extended Paths
 
-[cols="1*"]
-|===
-|Intermediate (200 - 300 level)
+The workshop also contains extended paths for Developers or Operations Engineers.
+The extended paths go into much greater detail regarding features and capabilities of Kubernetes specifically for those Teams. 
+We recommend at least 4 hours for each of the extended paths.
 
-| link:config-secrets[Configuration and Secrets Management]
-| link:microservices[Service Discovery with Microservices]
-| link:helm[Deploy Applications using Helm Charts]
-| link:app-update[Updating Applications & Canary Deployment]
-| link:cluster-logging[Logging within a Kubernetes cluster]
-| link:cluster-monitoring[Monitoring within a Kubernetes cluster]
-| link:cluster-upgrade#inplace-upgrade[Upgrading a Kubernetes cluster: In-place Upgrade]
-| Upgrading a Kubernetes cluster: Blue/Green Upgrade
-| link:cluster-scaling[Cluster Scaling]
-| link:app-scaling[Application Autoscaling]
-| link:app-tracing[Application Tracing]
-|===
+Click on one of the two buttons below to start!
 
-[cols="1*"]
-|===
-|Advanced (300 - 400+ level)
+:frame: none
+:grid: none
+:valign: top
 
-| link:statefulsets[StatefulSets with EBS]
-| link:network-policies[Specifying Network Policies]
-| link:coredns[Using CoreDNS for Service Discovery]
-| link:roles[Managing IAM roles with kube2iam]
-| CI/CD Pipeline
-| link:ingress-controllers[ALB Ingress Controller]
-| link:ingress-controllers[Kube AWS Ingress Controller and Skipper]
-| link:ingress-controllers[Nginx Ingress Controller]
-| link:service-mesh[Service Mesh Integration using Linkerd and Istio]
-|===
+[align="center", cols="2*", grid="none", frame="none"]
+|=====
+|image:button-start-developer.png[link=01-path-basics/101-start-here]
+|image:button-start-operations.png[link=01-path-basics/101-start-here]
+|=====
+
 
 NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator]
