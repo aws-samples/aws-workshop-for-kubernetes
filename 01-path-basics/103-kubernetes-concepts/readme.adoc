@@ -1,27 +1,28 @@
 = Kubernetes Concepts
 :toc:
 :icons:
+:linkattrs:
 :linkcss:
 :imagesdir: ../../resources/images
 
-Kubernetes has a number of abstractions that map to API objects. These Kubernetes API Objects can be used to describe your cluster's desired state which will include info such as applications and workloads running, replicas, container images, networking resources and more. This section explains the key concepts relevant from an application developer perspecitve.
+== Kubernetes API and CLI
+
+Now that we have a cluster up and running we can start exploring the Kubernetes CLI via the `kubectl` (pronounced "cube control") command.
+
+`kubectl` interacts with the Kubernetes API Server, which runs on the master nodes in the cluster.
+
+Kubernetes as a platform has a number of abstractions that map to API objects. These Kubernetes API Objects can be used to describe your cluster's desired state - including information such as applications and workloads running, container images, networking resources, and more. This section explains the most-used Kubernetes API concepts and how to interact with them via `kubectl`.
 
 == Prerequisites
 
-This chapter uses a cluster with 3 master nodes and 5 worker nodes as described link:../102-your-first-cluster#multi-master-multi-node-multi-az-gossip-based-cluster[here]. 
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described link:../102-your-first-cluster#multi-master[here]. 
 
 All configuration files for this chapter are in the `01-path-basics/103-kubernetes-concepts/templates` directory. 
 Please be sure to `cd` into that directory before running the commands below.
 
     $ cd 01-path-basics/103-kubernetes-concepts/templates
 
-== Kubernetes basic commands
-
-Now that we have a cluster up and running we can start issuing some basic commands and deploying some simple resources.
-
-In this part we will familiarize ourselves with the `kubectl` CLI tool and basic Kubernetes commands. We will first deploy a basic NGiNX pod and execute some commands to help you gain comfort with the Kubernetes environment from an end-user perspective. This helps get developers up and running - taking advantage of the Kubernetes application deployment capabilities - without having to worry about the infrastructure related complexities.
-
-=== Display Nodes
+== Display Nodes
 
 This command will show all the nodes available in your kubernetes cluster:
 
@@ -39,7 +40,7 @@ It will show an output similar to:
     ip-172-20-87-91.us-east-2.compute.internal     Ready     node      2d       v1.7.4
     ip-172-20-94-153.us-east-2.compute.internal    Ready     master    2d       v1.7.4
 
-If you do not see this output, or receive an error, please ensure that you've followed the steps link:../102-your-first-cluster#multi-master-multi-node-multi-az-gossip-based-cluster[here] and have a validated cluster.
+If you do not see this output, or receive an error, please ensure that you've followed the steps link:../102-your-first-cluster#multi-master[here] and have a validated cluster.
 
 == Pods
 
