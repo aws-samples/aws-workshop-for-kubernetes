@@ -14,7 +14,7 @@ If you have not set up the link:../101-start-here[Cloud9 Devlopment Environment]
 == Create a Kubernetes Cluster with kops
 
 kops can be used to create a highly available cluster, with multiple master and worker nodes spread across multiple availability zones. 
-The master and worker nodes within the cluster can use either DNS or the https://github.com/weaveworks/mesh[Weave Mesh, window="_blank"] *gossip* protocol for name resolution.  For this workshop, we will use the gossip protocol.  A gossip-based cluster is easier and quicker to setup, and does not does not require a domain, subdomain, or Route53 hosted zone to be registered. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.
+The master and worker nodes within the cluster can use either DNS or the https://github.com/weaveworks/mesh[Weave Mesh^] *gossip* protocol for name resolution.  For this workshop, we will use the gossip protocol.  A gossip-based cluster is easier and quicker to setup, and does not does not require a domain, subdomain, or Route53 hosted zone to be registered. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.
 
 To create a cluster using the gossip protocol, simply use a cluster name with a suffix of `.k8s.local`. In the following steps, we will use `example.cluster.k8s.local` as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
 
@@ -71,6 +71,9 @@ ip-172-20-75-78.ec2.internal  node  True
 
 Your cluster example.cluster.k8s.local is ready
 ```
+
+anchor:multi-master[]
+
 === Multi-Master Cluster
 
 The command below creates a cluster in a multi-master, multi-node, and multi-az configuration.

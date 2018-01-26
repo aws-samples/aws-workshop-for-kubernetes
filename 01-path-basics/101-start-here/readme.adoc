@@ -12,8 +12,10 @@ This section walks you through the creating a Kubernetes development environment
 
 We can create the Cloud9 development environment via CloudFormation.
 This CloudFormation template will spin up the Cloud9 IDE, as well as configure the IDE environment for the rest of the workshop.
-The template can create a new VPC, or be launched into an existing one. 
-If you are unsure, We recommend the "Launch template with an existing VPC" option.
+
+The CloudFormation template can create a new VPC, or be launched into an existing one. 
+If you are unsure, we recommend the "Launch template with an existing VPC" option.
+
 Click on the "Deploy to AWS" button and follow the CloudFormation prompts to begin.
 
 [NOTE]
