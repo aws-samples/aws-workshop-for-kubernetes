@@ -9,9 +9,10 @@ This tutorial will walk you through the process of creating a Kubernetes develop
 == Create AWS Cloud9 Environment
 === AWS Cloud9 Console
 
-It is possible to create and configure the Cloud9 development environment via CloudFormation.
-This CloudFormation template will create the Cloud9 IDE, IAM Role required for kops, and the S3 bucket for the kops state store.
+We can create and configure the Cloud9 development environment via CloudFormation.
+This CloudFormation template will create the Cloud9 IDE, the IAM Role required for kops, and the S3 bucket for the kops state store.
 
+[NOTE]
 AWS Cloud9 is only available in 5 regions currently. Please choose the region closest to you geographically.
 
 |===

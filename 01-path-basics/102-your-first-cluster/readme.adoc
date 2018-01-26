@@ -55,7 +55,7 @@ Once the `kops create cluster` command is issued, it provisions the EC2 instance
 
 Note: If your 'create cluster' fails with an error like:
 ```
-error reading s3://example-kops-state-store-workshop/workshop-prep.cluster.k8s.local/config: Unable to list AWS regions: NoCredentialProviders: no valid providers in chain
+error reading s3://example-kops-state-store/example.cluster.k8s.local/config: Unable to list AWS regions: NoCredentialProviders: no valid providers in chain
 caused by: EnvAccessKeyNotFound: failed to find credentials in the environment."
 ```
 Try setting the following environment variables before executing the 'create cluster' command:
@@ -163,9 +163,6 @@ View the current context:
 If multiple clusters exist, then you can change the context:
 
   $ kubectl config use-context <config-name>
-
-
-
 
 image:next-step-arrow.png[ , title="Continue!"] 
 You are now ready to continue on with the workshop!
