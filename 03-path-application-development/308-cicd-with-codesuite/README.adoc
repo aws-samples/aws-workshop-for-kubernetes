@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../images
+:imagesdir: ../../resources/images
 
 = CodeSuite - Continuous Deployment Reference Architecture for Kubernetes
 
@@ -18,6 +18,6 @@ The last of these three are sensitive, the cloudformation parameter is marked wi
 KMS key and stored in parameter store. The Lambda function that authenticates to your Kubernetes API endpoint is assigned an IAM role that has permission to access those keys. The Lambda function builds a config file in the tmpfs directory of the Lambda which is in memory
 so that when the Lambda function terminates the secrets are gone.
 
-image::../../images/cicd.png[Architecture]
+image::cicd.png[Architecture]
 
 Head over the https://github.com/aws-samples/aws-kube-codesuite[repo] to deploy this architecture into your own cluster.
