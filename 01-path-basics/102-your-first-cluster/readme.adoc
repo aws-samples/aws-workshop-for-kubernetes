@@ -2,6 +2,7 @@
 :toc:
 :icons:
 :linkcss:
+:linkattrs:
 :imagesdir: ../../resources/images
 
 This section will walk you through how to install a Kubernetes cluster on AWS using kops.
@@ -23,7 +24,7 @@ We show two examples of creating gossip-based clusters below. You can choose whe
 
 By default, the `kops create cluster` command creates a single master node and two worker nodes in the specified zones.
 
-Create a Kubernetes cluster using the following command. This will create a cluster with a single master, multi-node and multi-az configuration:
+Create a Kubernetes cluster using the following command. Run it in the "bash" terminal tab at the bottom of the Cloud9 IDE. This will create a cluster with a single master, multi-node and multi-az configuration:
 
     $ kops create cluster \
       --name example.cluster.k8s.local \
@@ -72,7 +73,8 @@ Your cluster example.cluster.k8s.local is ready
 ```
 === Multi-Master Cluster
 
-The command below creates a cluster in a multi-master, multi-node, and multi-az configuration. 
+The command below creates a cluster in a multi-master, multi-node, and multi-az configuration.
+Run it in the "bash" terminal tab at the bottom of the Cloud9 IDE.
 We can create and build the cluster in one step by passing the `--yes` flag.
 
     $ kops create cluster \
@@ -331,7 +333,7 @@ To create a DNS-based Kubernetes cluster you'll need a top-level domain or subdo
 
 Then you need to follow the instructions in https://github.com/kubernetes/kops/blob/master/docs/aws.md#configure-dns[configure DNS]. Typically, the first and the last bullets are common scenarios.
 
-==== Default DNS-based cluster
+==== Single-Master DNS-based cluster
 
 By default, `create cluster` command creates a single master node and two worker nodes in the specified zones.
 
@@ -380,7 +382,7 @@ Verify the client and server version:
 
 It shows that Kubectl CLI version is 1.8.1 and the server version is 1.7.4. Cluster version may changed depending on kops version.
 
-==== Multi-master, multi-node, multi-az DNS-based cluster
+==== Multi-Master DNS-based cluster
 
 Check the list of Availability Zones that exist for your region using the following command:
 

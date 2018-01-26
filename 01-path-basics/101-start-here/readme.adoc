@@ -1,6 +1,7 @@
 = Kubernetes - Setup Cloud9 Development Environment
 :icons:
 :linkcss:
+:linkattrs:
 :imagesdir: ../../resources/images
 :toc:
 
@@ -63,13 +64,16 @@ Once your Cloud9 is ready, download the build script and install in your IDE. Th
 - creates an SSH key
 - clone the workshop repository into Cloud9
 
-To install the script, run this command in the Terminal tab of the Cloud9 IDE:
+To install the script, run this command in the "bash" terminal tab of the Cloud9 IDE:
 
     aws s3 cp s3://aws-kubernetes-artifacts/lab-ide-build.sh . && \
     chmod +x lab-ide-build.sh && \
     . ./lab-ide-build.sh
 
 image:cloud9-run-script.png[Running the script in Cloud9 Terminal]
+
+[NOTE]
+All shell commands _(starting with "$")_ throughout the rest of the workshop should be run in this tab. You may want to resize it upwards to make it larger.
 
 One last step is required so that the Cloud9 IDE uses the assigned IAM Instance profile. Open the "AWS Cloud9" menu, go to "Preferences", go to "AWS Settings", and disable "AWS managed temporary credentials" as depicted in the diagram here:
 
