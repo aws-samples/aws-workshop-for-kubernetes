@@ -505,3 +505,14 @@ Delete ConfigMap, Service, PVC using the command:
   persistentvolumeclaim "data-mysql-1" deleted
   persistentvolumeclaim "data-mysql-2" deleted
 
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="1", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../03-path-application-development/308-cicd-workflows/]
+|=====
+    

@@ -531,3 +531,14 @@ https://github.com/zalando-incubator/kube-ingress-aws-controller[Kubernetes Ingr
     deployment "app-ingress-controller" created
 
 
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../../03-path-application-development/304-app-scaling]
+|image:button-continue-developer.png[link=../../03-path-application-development/304-app-scaling]
+|=====

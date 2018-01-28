@@ -1,0 +1,22 @@
+= Continuous Integration, Delivery, and Deployment with Kubernetes
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../../resources/images
+
+There are many different tools for building CI/CD pipelines with the Kubernetes platform.
+
+Please explore the sections below for more information:
+
+* link:308-1-codesuite/[CodeSuite]
+
+Once you've looked at the options above, you are ready to continue with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="1", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../04-path-security-and-networking/401-configmaps-and-secrets]
+|=====

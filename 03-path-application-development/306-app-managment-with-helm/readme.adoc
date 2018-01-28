@@ -185,7 +185,7 @@ For production, it's recommended to setup a https://github.com/arun-gupta/kubern
 
 List the deployed charts
 
-    helm list
+    $ helm list
 
 ```
 NAME    REVISION  UPDATED                   STATUS    CHART         NAMESPACE
@@ -194,6 +194,17 @@ sample  1         Tue Oct 17 03:45:36 2017  DEPLOYED  sample-1.0.0  default
 
 Delete the deployed chart
 
-    helm delete sample
+    $ helm delete sample
 
 
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="1", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../03-path-application-development/307-statefulsets-and-pvs]
+|=====
+    

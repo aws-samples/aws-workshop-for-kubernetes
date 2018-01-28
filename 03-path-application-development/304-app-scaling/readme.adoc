@@ -104,6 +104,18 @@ webapp    Deployment/webapp   0% / 10%   1         10        1         17m
 
 == Cleanup
 
-    kubectl delete hpa webapp
-    kubectl delete deployment load-generator
-    kubectl delete deployment webapp
+    $ kubectl delete hpa/webapp deploy/load-generator deploy/webapp
+
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../../05-path-next-steps/501-for-further-reading]
+|image:button-continue-developer.png[link=../../03-path-application-development/305-app-tracing-with-jaeger-and-x-ray]
+|=====
+    
