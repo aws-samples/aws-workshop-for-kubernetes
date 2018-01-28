@@ -110,3 +110,16 @@ Coming soon
 
 == Integrating external Services
 Coming soon
+
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../05-path-next-steps/502-for-further-reading/]
+|image:button-continue-operations.png[link=../../05-path-next-steps/502-for-further-reading/]
+|=====

@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 
 == What is Network Policy?
@@ -173,5 +173,19 @@ test                100% |******************************************************
 
 Remove all the resources and the namespace using the command:
 
-  \ # kubectl delete ns ns-1
-  namespace "ns-1" deleted
+   $ kubectl delete ns ns-1
+   namespace "ns-1" deleted
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../04-path-security-and-networking/405-ingress-controllers/]
+|image:button-continue-operations.png[link=../../04-path-security-and-networking/405-ingress-controllers/]
+|=====
+
+  

@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 This section will explain how to perform distribute tracing on applications deployed on Kubernetes.
 
@@ -10,3 +10,15 @@ We will cover the following tracing frameworks:
 
 * link:x-ray[X-Ray]
 * link:jaeger[Jaeger]
+
+Once you've explored link:x-ray[X-Ray] and link:jaeger[Jaeger], you are ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="1", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../03-path-application-development/306-app-management-with-helm]
+|=====
+    

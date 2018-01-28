@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../../resources/images
+:imagesdir: ../../../resources/images
 
 = CodeSuite - Continuous Deployment Reference Architecture for Kubernetes
 

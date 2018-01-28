@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 This chapter shows an example of how different microservices within an application can use service discovery to locate each other in the infrastructure rather than via hardcoded IP addresses.
 
@@ -137,3 +137,15 @@ Delete the application with this command:
 
   $ kubectl delete -f templates/app.yml
 
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../../03-path-application-development/303-app-update]
+|image:button-continue-developer.png[link=../../03-path-application-development/303-app-update]
+|=====

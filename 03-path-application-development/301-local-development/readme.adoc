@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 For local development purposes, you can create a one-node cluster using https://github.com/kubernetes/minikube[Minikube].
 Hosted solutions or cloud-based solutions provide the scalability and higher availability for staging or production purposes.
@@ -297,3 +297,15 @@ The cluster can be shutdown using the following command:
     $ minikube stop
     Stopping local Kubernetes cluster...
     Machine stopped.
+
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="1", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../03-path-application-development/302-app-directory]
+|=====

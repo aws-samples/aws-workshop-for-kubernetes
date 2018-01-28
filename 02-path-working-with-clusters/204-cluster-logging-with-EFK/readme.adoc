@@ -237,3 +237,15 @@ kubectl delete ns logging
 aws es delete-elasticsearch-domain --domain-name kubernetes-logs
 aws logs delete-log-group --log-group-name kubernetes-logs
 ```
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="1", grid="none", frame="none"]
+|=====
+|image:button-continue-operations.png[link=../../02-path-working-with-clusters/204-cluster-logging-with-EFK]
+|=====
+

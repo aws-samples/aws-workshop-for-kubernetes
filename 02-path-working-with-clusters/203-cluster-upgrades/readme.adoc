@@ -288,3 +288,14 @@ Upgrading cluster using blue/green method is considered more conservative in nat
 Availability for your application into account. You would setup two k8s cluster, one with 1.6.10
 version and second with 1.7.2 and migrate your pod deployments and services into new cluster.
 
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../../03-path-application-development/302-app-discovery]
+|image:button-continue-operations.png[link=../../02-path-working-with-clusters/204-cluster-logging-with-EFK]
+|=====
