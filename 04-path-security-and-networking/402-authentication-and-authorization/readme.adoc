@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 AWS uses Identity and Access Management (IAM) roles to manage authentication and authorization for AWS Services.  An IAM role is an IAM entity that defines a set of permissions for making AWS service requests. For more information about IAM, please see link:https://aws.amazon.com/iam/details/[here].
 
@@ -404,4 +404,16 @@ Use 'kubectl describe pod/vault-sidecar-79bbc86955-7wpt6' to see all of the cont
 An error occurred (InvalidAccessKeyId) when calling the ListBuckets operation: The AWS Access Key Id you provided does not exist in our records.
 command terminated with exit code 255
 ```
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../04-path-security-and-networking/403-admission-policy/]
+|image:button-continue-operations.png[link=../../04-path-security-and-networking/403-admission-policy/]
+|=====
 

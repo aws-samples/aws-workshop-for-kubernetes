@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 For local development purposes, you can create a one-node cluster using https://github.com/kubernetes/minikube[Minikube].
 Hosted solutions or cloud-based solutions provide the scalability and higher availability for staging or production purposes.

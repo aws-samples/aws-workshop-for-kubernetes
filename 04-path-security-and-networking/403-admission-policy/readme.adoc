@@ -1,8 +1,12 @@
 
 = Admission Control for Kubernetes on AWS
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../../resources/images
+
 Doc Writer <tim@styra.com>
 v1.0, 2018-01-17
-
 
 Kubernetes https://kubernetes.io/docs/admin/admission-controllers/[Admission Controllers]
 perform *semantic validation* of resources during create, update, and delete operations.
@@ -406,3 +410,17 @@ decisions in Kubernetes clusters without modifying or recompiling any
 Kubernetes components. Furthermore, once Kubernetes is configured to use OPA as
 an External Admission Controller, policies can be modified on-the-fly to
 satisfy changing operational requirements.
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../04-path-security-and-networking/404-network-policies/]
+|image:button-continue-operations.png[link=../../04-path-security-and-networking/404-network-policies/]
+|=====
+
+

@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 https://github.com/kubernetes/kubernetes/tree/master/cluster/addons/dns[Kube-DNS] is a Kubernetes cluster add-on that is launched as part of the cluster creation. It schedules a DNS Pod and Service on the cluster, and configures the kubelets to tell other pods and containers to use the DNS service IP's to resolve DNS names. This DNS server utilizes the libraries from SkyDNS to serve DNS requests for Kubernetes Pods and Services.
 
@@ -256,3 +256,16 @@ If you no longer need Kube-DNS, then the Deployment can be deleted:
 	kubectl delete deployment kube-dns -n kube-system
 
 This will delete the pod, and the CoreDNS pod will continue to serve all the DNS requests.
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../05-path-next-steps/501-k8s-best-practices/]
+|image:button-continue-operations.png[link=../../05-path-next-steps/501-k8s-best-practices/]
+|=====
+

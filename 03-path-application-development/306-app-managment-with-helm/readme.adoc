@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 https://github.com/kubernetes/helm[Helm] is a tool for managing https://github.com/kubernetes/charts[Kubernetes charts]. A chart is a collection of files that describe a related set of Kubernetes resources. Read more details in https://github.com/kubernetes/helm/blob/master/docs/charts.md[Charts introduction].
 

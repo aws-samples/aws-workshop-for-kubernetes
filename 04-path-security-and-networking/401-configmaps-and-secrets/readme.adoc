@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 Separating application code from configuration is one of the factors when building an application using https://12factor.net/[12-factor]. This allows the same application to be deployed across multiple environments, such as dev, test, staging and production. It also allows the application to be more portable.
 
@@ -1002,4 +1002,16 @@ More details about the Docker image used in the Pod is at https://github.com/aru
   Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
   vault: HelloWorld
 
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../04-path-security-and-networking/402-authentication-and-authorization/]
+|image:button-continue-operations.png[link=../../04-path-security-and-networking/402-authentication-and-authorization/]
+|=====
 

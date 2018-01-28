@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 This chapter explains how to apply both Nginx and AWS ALB Ingress Controllers to a Kubernetes cluster.
 These controllers allow you to set rules that control the routing of external traffic to the services in your Kubernetes cluster.
@@ -551,7 +551,7 @@ white background to green background. If you modify the
 `zalando.org/backend-weights` annotation you can control the chance
 that you will hit the v1 or the v2 application. Use kubectl annotate to change this:
 
-        kubectl annotate ingress demo-traffic-switching zalando.org/backend-weights='{"demo-app-v1": 20, "demo-app-v2": 80}'
+        $ kubectl annotate ingress demo-traffic-switching zalando.org/backend-weights='{"demo-app-v1": 20, "demo-app-v2": 80}'
 
 
 === Cleanup
@@ -559,3 +559,18 @@ that you will hit the v1 or the v2 application. Use kubectl annotate to change t
         for f in templates/sample*; do kubectl delete -f $f; done
         kubectl delete -f templates/skipper-ingress-daemonset.yaml
         kubectl delete -f templates/kube-aws-ingress-controller-deployment.yaml
+
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../04-path-security-and-networking/406-coredns/]
+|image:button-continue-operations.png[link=../../04-path-security-and-networking/406-coredns/]
+|=====
+
+        

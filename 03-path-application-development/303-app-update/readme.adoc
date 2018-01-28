@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 This chapter explains how an application deployed in a Kubernetes cluster can be updated using link:../developer-concepts#deployment[Deployment]. It also explains Canary Deployment of an application.
 

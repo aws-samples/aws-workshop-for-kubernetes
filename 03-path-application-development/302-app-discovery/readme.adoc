@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 This chapter shows an example of how different microservices within an application can use service discovery to locate each other in the infrastructure rather than via hardcoded IP addresses.
 

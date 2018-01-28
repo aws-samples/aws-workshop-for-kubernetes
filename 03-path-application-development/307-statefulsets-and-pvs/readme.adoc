@@ -2,7 +2,7 @@
 :toc:
 :icons:
 :linkcss:
-:imagesdir: ../resources/images
+:imagesdir: ../../resources/images
 
 In this section, we will review how to launch and manage applications using https://kubernetes.io/docs/concepts/abstractions/controllers/statefulsets/[StatefulSets] and https://kubernetes.io/docs/concepts/storage/persistent-volumes/[Persistent Volumes].
 
