@@ -317,3 +317,16 @@ Convenient link for other dashboards are listed below:
 Remove all the installed components:
 
     kubectl delete -f templates/prometheus/prometheus-bundle.yaml
+
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../../02-path-working-with-clusters/202-service-mesh]
+|image:button-continue-operations.png[link=../../02-path-working-with-clusters/202-service-mesh]
+|=====

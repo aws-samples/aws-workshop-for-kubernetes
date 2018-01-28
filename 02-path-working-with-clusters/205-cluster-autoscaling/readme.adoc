@@ -335,3 +335,13 @@ ip-172-20-44-50.eu-central-1.compute.internal     18m          0%        1076Mi 
 ip-172-20-75-132.eu-central-1.compute.internal    27m          1%        1723Mi          44% 
 ```
 
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="1", grid="none", frame="none"]
+|=====
+|image:button-continue-operations.png[link=../../02-path-working-with-clusters/205-cluster-autoscaling]
+|=====
