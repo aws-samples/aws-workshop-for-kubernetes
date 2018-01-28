@@ -220,11 +220,11 @@ Before running the command below, update the following attributes in file `templ
 
 You can find the name of nodes ASG using this command
 
-  $ aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[].AutoScalingGroupName' 
+  $ aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[].AutoScalingGroupName'
   [
-      "master-eu-central-1a.masters.cluster.k8s.local", 
-      "master-eu-central-1b.masters.cluster.k8s.local", 
-      "master-eu-central-1c.masters.cluster.k8s.local", 
+      "master-eu-central-1a.masters.cluster.k8s.local",
+      "master-eu-central-1b.masters.cluster.k8s.local",
+      "master-eu-central-1c.masters.cluster.k8s.local",
       "nodes.example.cluster.k8s.local"
   ]
 
@@ -289,14 +289,14 @@ If you have deployed Heapster, as described in the link:../cluster-monitoring/RE
 
 ```
 $ kubectl top nodes
-NAME                                             CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
-ip-172-20-109-10.eu-central-1.compute.internal   543m         27%       1722Mi          44%       
-ip-172-20-44-33.eu-central-1.compute.internal    125m         12%       2120Mi          57%       
-ip-172-20-75-132.eu-central-1.compute.internal   607m         30%       1733Mi          44%       
-ip-172-20-41-77.eu-central-1.compute.internal    450m         22%       1703Mi          44%       
-ip-172-20-85-128.eu-central-1.compute.internal   86m          8%        2049Mi          55%       
-ip-172-20-93-108.eu-central-1.compute.internal   534m         26%       1747Mi          45%       
-ip-172-20-106-93.eu-central-1.compute.internal   522m         26%       1734Mi          44%       
+NAME                                             CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%
+ip-172-20-109-10.eu-central-1.compute.internal   543m         27%       1722Mi          44%
+ip-172-20-44-33.eu-central-1.compute.internal    125m         12%       2120Mi          57%
+ip-172-20-75-132.eu-central-1.compute.internal   607m         30%       1733Mi          44%
+ip-172-20-41-77.eu-central-1.compute.internal    450m         22%       1703Mi          44%
+ip-172-20-85-128.eu-central-1.compute.internal   86m          8%        2049Mi          55%
+ip-172-20-93-108.eu-central-1.compute.internal   534m         26%       1747Mi          45%
+ip-172-20-106-93.eu-central-1.compute.internal   522m         26%       1734Mi          44%
 ip-172-20-101-20.eu-central-1.compute.internal   101m         5%        2046Mi          55%
 ```
 
@@ -319,20 +319,20 @@ It takes a few minutes for the additional worker nodes to start and become part 
 
 ```
 $ kubectl top nodes
-NAME                                              CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
-ip-172-20-85-128.eu-central-1.compute.internal    74m          7%        2088Mi          56%       
-ip-172-20-93-108.eu-central-1.compute.internal    25m          1%        1734Mi          44%       
-ip-172-20-109-10.eu-central-1.compute.internal    26m          1%        1716Mi          44%       
-ip-172-20-86-51.eu-central-1.compute.internal     24m          1%        1075Mi          27%       
-ip-172-20-51-221.eu-central-1.compute.internal    21m          1%        1074Mi          27%       
-ip-172-20-61-253.eu-central-1.compute.internal    22m          1%        1075Mi          27%       
-ip-172-20-41-77.eu-central-1.compute.internal     31m          1%        1716Mi          44%       
-ip-172-20-106-93.eu-central-1.compute.internal    27m          1%        1745Mi          45%       
-ip-172-20-101-20.eu-central-1.compute.internal    94m          4%        2078Mi          56%       
-ip-172-20-44-33.eu-central-1.compute.internal     112m         11%       2148Mi          58%       
-ip-172-20-116-218.eu-central-1.compute.internal   22m          1%        1070Mi          27%       
-ip-172-20-44-50.eu-central-1.compute.internal     18m          0%        1076Mi          27%       
-ip-172-20-75-132.eu-central-1.compute.internal    27m          1%        1723Mi          44% 
+NAME                                              CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%
+ip-172-20-85-128.eu-central-1.compute.internal    74m          7%        2088Mi          56%
+ip-172-20-93-108.eu-central-1.compute.internal    25m          1%        1734Mi          44%
+ip-172-20-109-10.eu-central-1.compute.internal    26m          1%        1716Mi          44%
+ip-172-20-86-51.eu-central-1.compute.internal     24m          1%        1075Mi          27%
+ip-172-20-51-221.eu-central-1.compute.internal    21m          1%        1074Mi          27%
+ip-172-20-61-253.eu-central-1.compute.internal    22m          1%        1075Mi          27%
+ip-172-20-41-77.eu-central-1.compute.internal     31m          1%        1716Mi          44%
+ip-172-20-106-93.eu-central-1.compute.internal    27m          1%        1745Mi          45%
+ip-172-20-101-20.eu-central-1.compute.internal    94m          4%        2078Mi          56%
+ip-172-20-44-33.eu-central-1.compute.internal     112m         11%       2148Mi          58%
+ip-172-20-116-218.eu-central-1.compute.internal   22m          1%        1070Mi          27%
+ip-172-20-44-50.eu-central-1.compute.internal     18m          0%        1076Mi          27%
+ip-172-20-75-132.eu-central-1.compute.internal    27m          1%        1723Mi          44%
 ```
 
 You are now ready to continue on with the workshop!
@@ -344,4 +344,5 @@ You are now ready to continue on with the workshop!
 [align="center", cols="1", grid="none", frame="none"]
 |=====
 |image:button-continue-operations.png[link=../../02-path-working-with-clusters/205-cluster-autoscaling]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====

@@ -265,10 +265,10 @@ Create an IAM user with enough permissions to manage IAM resources. We will be u
        --user-name vault-root
   {
       "User": {
-          "UserName": "vault-root", 
-          "Path": "/", 
-          "CreateDate": "2017-11-22T20:13:39.273Z", 
-          "UserId": "AIDAI6SQOXCLURVV2J7BK", 
+          "UserName": "vault-root",
+          "Path": "/",
+          "CreateDate": "2017-11-22T20:13:39.273Z",
+          "UserId": "AIDAI6SQOXCLURVV2J7BK",
           "Arn": "arn:aws:iam::<account-id>:user/vault-root"
       }
   }
@@ -287,10 +287,10 @@ $ aws iam create-access-key \
 
 {
     "AccessKey": {
-        "UserName": "vault-root", 
-        "Status": "Active", 
-        "CreateDate": "2017-11-22T20:14:00.682Z", 
-        "SecretAccessKey": "<secret-key>", 
+        "UserName": "vault-root",
+        "Status": "Active",
+        "CreateDate": "2017-11-22T20:14:00.682Z",
+        "SecretAccessKey": "<secret-key>",
         "AccessKeyId": "<access-key>"
     }
 }
@@ -415,5 +415,6 @@ You are now ready to continue on with the workshop!
 |=====
 |image:button-continue-developer.png[link=../../04-path-security-and-networking/403-admission-policy/]
 |image:button-continue-operations.png[link=../../04-path-security-and-networking/403-admission-policy/]
+|link:../../developer-path.adoc[Go to Developer Index]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====
-

@@ -60,7 +60,7 @@ The output shows that 2 replicas of Kube-DNS pods are running.
 
 Let's get more details about the pods:
 
-	$ kubectl get pods -n kube-system -l k8s-app=kube-dns 
+	$ kubectl get pods -n kube-system -l k8s-app=kube-dns
 	NAME                        READY     STATUS    RESTARTS   AGE
 	kube-dns-1311260920-d8bkh   3/3       Running   0          8m
 	kube-dns-1311260920-v06zv   3/3       Running   0          7m
@@ -267,5 +267,6 @@ You are now ready to continue on with the workshop!
 |=====
 |image:button-continue-developer.png[link=../../05-path-next-steps/501-k8s-best-practices/]
 |image:button-continue-operations.png[link=../../05-path-next-steps/501-k8s-best-practices/]
+|link:../../developer-path.adoc[Go to Developer Index]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====
-

@@ -93,9 +93,9 @@ You are now ready to continue on with the workshop!
 |image:button-continue-standard.png[link=../102-your-first-cluster/]
 |image:button-continue-developer.png[link=../102-your-first-cluster/]
 |image:button-continue-operations.png[link=../102-your-first-cluster/]
-|link:../../standard-path.adoc[Standard path index]
-|link:../../developer-path.adoc[Developer path index]
-|link:../../operations-path.adoc[Operations path index] 
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../developer-path.adoc[Go to Developer Index]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====
 
 The next step is link:../102-your-first-cluster[to create a Kubernetes cluster using kops].

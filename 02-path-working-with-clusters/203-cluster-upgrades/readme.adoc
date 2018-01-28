@@ -14,7 +14,7 @@ with 1.6.10 version and perform an automatic rolling upgrade to 1.7.2 using kops
 
 === Create cluster
 
-Review steps to create link:../prereqs.adoc[prereqs] nad make sure `KOPS_STATE_STORE` and `AWS_AVAILABILITY_ZONES` environment variables are set. More details about creating a cluster are at link:../cluster-install[Create Kubernetes cluster using kops]. 
+Review steps to create link:../prereqs.adoc[prereqs] nad make sure `KOPS_STATE_STORE` and `AWS_AVAILABILITY_ZONES` environment variables are set. More details about creating a cluster are at link:../cluster-install[Create Kubernetes cluster using kops].
 
 In this chapter, we'll create a Kubernetes 1.6.10 version cluster as shown:
 
@@ -102,7 +102,7 @@ I1028 18:19:04.153174   10844 executor.go:91] Tasks: 78 done / 81 total; 3 can r
 I1028 18:19:04.575327   10844 executor.go:91] Tasks: 81 done / 81 total; 0 can run
 Will modify resources:
   LaunchConfiguration/master-eu-central-1a.masters.cluster.k8s.local
-    UserData            
+    UserData
                           ...
                             cat > kube_env.yaml << __EOF_KUBE_ENV
                             Assets:
@@ -113,10 +113,10 @@ Will modify resources:
                             - 1d9788b0f5420e1a219aad2cb8681823fc515e7c@https://storage.googleapis.com/kubernetes-release/network-plugins/cni-0799f5732f2a11b329d9e3d51b9c8f2e3759f2ff.tar.gz
                             - c18ca557507c662e3a072c3475da9bd1bc8a503b@https://kubeupv2.s3.amazonaws.com/kops/1.7.1/linux/amd64/utils.tar.gz
                           ...
-                          
+
 
   LaunchConfiguration/master-eu-central-1b.masters.cluster.k8s.local
-    UserData            
+    UserData
                           ...
                             cat > kube_env.yaml << __EOF_KUBE_ENV
                             Assets:
@@ -127,10 +127,10 @@ Will modify resources:
                             - 1d9788b0f5420e1a219aad2cb8681823fc515e7c@https://storage.googleapis.com/kubernetes-release/network-plugins/cni-0799f5732f2a11b329d9e3d51b9c8f2e3759f2ff.tar.gz
                             - c18ca557507c662e3a072c3475da9bd1bc8a503b@https://kubeupv2.s3.amazonaws.com/kops/1.7.1/linux/amd64/utils.tar.gz
                           ...
-                          
+
 
   LaunchConfiguration/master-eu-central-1c.masters.cluster.k8s.local
-    UserData            
+    UserData
                           ...
                             cat > kube_env.yaml << __EOF_KUBE_ENV
                             Assets:
@@ -141,10 +141,10 @@ Will modify resources:
                             - 1d9788b0f5420e1a219aad2cb8681823fc515e7c@https://storage.googleapis.com/kubernetes-release/network-plugins/cni-0799f5732f2a11b329d9e3d51b9c8f2e3759f2ff.tar.gz
                             - c18ca557507c662e3a072c3475da9bd1bc8a503b@https://kubeupv2.s3.amazonaws.com/kops/1.7.1/linux/amd64/utils.tar.gz
                           ...
-                          
+
 
   LaunchConfiguration/nodes.cluster.k8s.local
-    UserData            
+    UserData
                           ...
                             cat > kube_env.yaml << __EOF_KUBE_ENV
                             Assets:
@@ -155,7 +155,7 @@ Will modify resources:
                             - 1d9788b0f5420e1a219aad2cb8681823fc515e7c@https://storage.googleapis.com/kubernetes-release/network-plugins/cni-0799f5732f2a11b329d9e3d51b9c8f2e3759f2ff.tar.gz
                             - c18ca557507c662e3a072c3475da9bd1bc8a503b@https://kubeupv2.s3.amazonaws.com/kops/1.7.1/linux/amd64/utils.tar.gz
                           ...
-                          
+
 
   LoadBalancer/api.cluster.k8s.local
     Lifecycle              <nil> -> Sync
@@ -298,4 +298,6 @@ You are now ready to continue on with the workshop!
 |=====
 |image:button-continue-standard.png[link=../../03-path-application-development/302-app-discovery]
 |image:button-continue-operations.png[link=../../02-path-working-with-clusters/204-cluster-logging-with-EFK]
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====

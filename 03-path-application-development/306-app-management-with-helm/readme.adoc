@@ -14,7 +14,7 @@ All configuration files for this chapter are in the `helm` directory. Make sure 
 
 == Install Helm
 
-There are two parts to Helm: The Helm client (`helm`) and the Helm server (`tiller`). 
+There are two parts to Helm: The Helm client (`helm`) and the Helm server (`tiller`).
 
 Tiller runs inside of your Kubernetes cluster, and manages releases (installations) of your charts. Helm runs on your laptop, CI/CD, or wherever you want it to run.
 
@@ -39,14 +39,14 @@ Install `tiller`:
 
 ```
 $ helm init
-Creating /Users/argu/.helm 
-Creating /Users/argu/.helm/repository 
-Creating /Users/argu/.helm/repository/cache 
-Creating /Users/argu/.helm/repository/local 
-Creating /Users/argu/.helm/plugins 
-Creating /Users/argu/.helm/starters 
-Creating /Users/argu/.helm/cache/archive 
-Creating /Users/argu/.helm/repository/repositories.yaml 
+Creating /Users/argu/.helm
+Creating /Users/argu/.helm/repository
+Creating /Users/argu/.helm/repository/cache
+Creating /Users/argu/.helm/repository/local
+Creating /Users/argu/.helm/plugins
+Creating /Users/argu/.helm/starters
+Creating /Users/argu/.helm/cache/archive
+Creating /Users/argu/.helm/repository/repositories.yaml
 $HELM_HOME has been configured at /Users/argu/.helm.
 
 Tiller (the Helm server-side component) has been installed into your Kubernetes Cluster.
@@ -206,5 +206,5 @@ You are now ready to continue on with the workshop!
 [align="center", cols="1", grid="none", frame="none"]
 |=====
 |image:button-continue-developer.png[link=../../03-path-application-development/307-statefulsets-and-pvs]
+|link:../../developer-path.adoc[Go to Developer Index]
 |=====
-    
