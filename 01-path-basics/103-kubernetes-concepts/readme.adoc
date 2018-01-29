@@ -211,38 +211,13 @@ Get the list of pod:
 	NAME        READY     STATUS    RESTARTS   AGE
 	nginx-pod   1/1       Running   0          22s
 
-Verify that the pod came up fine (ensure nothing else is running on port 8088):
+Verify that the pod came up fine (ensure nothing else is running on port 8080):
 
-	$ kubectl -n default port-forward $(kubectl -n default get pod -l name=nginx-pod -o jsonpath='{.items[0].metadata.name}') 8088:80
+	$ kubectl -n default port-forward $(kubectl -n default get pod -l name=nginx-pod -o jsonpath='{.items[0].metadata.name}') 8080:80
 
-From a new terminal window run:
+In your Cloud9 IDE, click **Preview** and **Preview Running Application**. This opens up a preview tab and shows the NGINX main page:
 
-	$ curl http://localhost:8088/
-	<!DOCTYPE html>
-	<html>
-	<head>
-	<title>Welcome to nginx!</title>
-	<style>
-	    body {
-	        width: 35em;
-	        margin: 0 auto;
-	        font-family: Tahoma, Verdana, Arial, sans-serif;
-	    }
-	</style>
-	</head>
-	<body>
-	<h1>Welcome to nginx!</h1>
-	<p>If you see this page, the nginx web server is successfully installed and
-	working. Further configuration is required.</p>
-	
-	<p>For online documentation and support please refer to
-	<a href="http://nginx.org/">nginx.org</a>.<br/>
-	Commercial support is available at
-	<a href="http://nginx.com/">nginx.com</a>.</p>
-	
-	<p><em>Thank you for using nginx.</em></p>
-	</body>
-	</html>
+image::nginx-pod-default-page.png[]
 
 If the containers in the pod generate logs, then they can be seen using the command shown:
 
