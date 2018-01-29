@@ -43,7 +43,7 @@ To configure the Nginx Ingress Controller with RBAC roles use the following comm
 To configure with RBAC:
 
 	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/rbac.yaml | kubectl apply -f -
-	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/with-rbac.yaml | kubectl apply -f
+	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/with-rbac.yaml | kubectl apply -f -
 
 The AWS ELB allows you to apply both L4 and L7 network protocols for ingress behind `Type=LoadBalancer`. Layer 4 uses TCP as the listener protocol for ports 80 and 443. Layer 7 uses HTTP for port 80 and terminates TLS at the ELB.
 
