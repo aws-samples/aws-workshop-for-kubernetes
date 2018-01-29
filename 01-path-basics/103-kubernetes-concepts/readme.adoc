@@ -217,13 +217,32 @@ Verify that the pod came up fine (ensure nothing else is running on port 8088):
 
 From a new terminal window run:
 
-	$ open http://localhost:8088/
-
-If you are running a Linux distribution that doesn't support `open`, try `xdg-open`, `gnome-open`, or `gvfs-open` instead.  From an AWS Cloud9 environment, use curl instead.
-
-This opens up a browser window and shows the NGINX main page:
-
-image::nginx-pod-default-page.png[]
+	$ curl http://localhost:8088/
+	<!DOCTYPE html>
+	<html>
+	<head>
+	<title>Welcome to nginx!</title>
+	<style>
+	    body {
+	        width: 35em;
+	        margin: 0 auto;
+	        font-family: Tahoma, Verdana, Arial, sans-serif;
+	    }
+	</style>
+	</head>
+	<body>
+	<h1>Welcome to nginx!</h1>
+	<p>If you see this page, the nginx web server is successfully installed and
+	working. Further configuration is required.</p>
+	
+	<p>For online documentation and support please refer to
+	<a href="http://nginx.org/">nginx.org</a>.<br/>
+	Commercial support is available at
+	<a href="http://nginx.com/">nginx.com</a>.</p>
+	
+	<p><em>Thank you for using nginx.</em></p>
+	</body>
+	</html>
 
 If the containers in the pod generate logs, then they can be seen using the command shown:
 
