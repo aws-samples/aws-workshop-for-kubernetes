@@ -14,9 +14,9 @@ Kubernetes as a platform has a number of abstractions that map to API objects. T
 
 == Prerequisites
 
-This chapter uses a cluster with 3 master nodes and 5 worker nodes as described link:../102-your-first-cluster#multi-master[here]. 
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described link:../102-your-first-cluster#multi-master[here].
 
-All configuration files for this chapter are in the `01-path-basics/103-kubernetes-concepts/templates` directory. 
+All configuration files for this chapter are in the `01-path-basics/103-kubernetes-concepts/templates` directory.
 Please be sure to `cd` into that directory before running the commands below.
 
     $ cd 01-path-basics/103-kubernetes-concepts/templates
@@ -230,7 +230,7 @@ If the containers in the pod generate logs, then they can be seen using the comm
 
 A Container in a Pod can be assigned memory and CPU _request_ and _limit_. Request is the minimum amount of memory/CPU that Kubernetes will give to the container. Limit is the maximum amount of memory/CPU that a container will be allowed to use. The memory/CPU request/limit for the Pod is the sum of the memory/CPU requests/limits for all the Containers in the Pod. Request defaults to limit if not specified. Default value of the limit is the node capacity.
 
-A Pod can be scheduled on a node if the Pod's memory and CPU request can be met. Memory and CPU limits are not taken into consideration for scheduling. 
+A Pod can be scheduled on a node if the Pod's memory and CPU request can be met. Memory and CPU limits are not taken into consideration for scheduling.
 
 Pod can continue to operate on the node if Containers in the Pod does not exceed the memory request. If Containers in the Pod exceeds the memory request then they become target of eviction whenever the node runs out of memory. If Containers in the Pod exceeds the memory limit then they are terminated. If the Pod can be restarted, then kubelet will restart it, just like any other type of runtime failure. A Container might or might not be allowed to exceed its CPU limit for extended periods of time. However, it will not be killed for excessive usage.
 
@@ -337,7 +337,7 @@ Watch the status of the Pod:
 	wildfly-pod   1/1       Running   3         1m
 	wildfly-pod   0/1       OOMKilled   3         1m
 
-`OOMKilled` shows that the container was terminated because it ran out of memory. 
+`OOMKilled` shows that the container was terminated because it ran out of memory.
 
 In `pod-resources2.yaml`, change the value of `spec.containers[].resources.limits.memory` to `300Mi`. Delete the existing Pod, and create a new one:
 
@@ -369,7 +369,7 @@ Kubernetes assigns one of the QoS classes to the Pod:
 
 QoS class is used by Kubernetes for scheduling and evicting Pods.
 
-When every Container in a Pod is given a memory and CPU limit, and optionally non-zero request, and they exactly match, then a Pod is scheduled with `Guaranteed` QoS. This is the higest priority. 
+When every Container in a Pod is given a memory and CPU limit, and optionally non-zero request, and they exactly match, then a Pod is scheduled with `Guaranteed` QoS. This is the higest priority.
 
 A Pod is given `Burstable` QoS class if the Pod does not meet the `Guaranteed` QoS and at least one Container has a memory or CPU request. This is intermediate priority.
 
@@ -703,7 +703,7 @@ If rolling back to a specific revision then enter:
 
 Run the following command to delete the Deployment:
 
-	$ kubectl delete -f templates/deployment.yaml
+	$ kubectl delete -f deployment.yaml
 	deployment "nginx-deployment" deleted
 
 == Service
@@ -1370,7 +1370,7 @@ A new namespace can be created using a configuration file or `kubectl`.
 
 . Create a new Namespace:
 
-	$ kubectl apply -f namespace.yaml 
+	$ kubectl apply -f namespace.yaml
 	namespace "dev" created
 
 . Get the list of Namespaces:
@@ -1399,23 +1399,23 @@ No resource limits.
 +
 . Create a Deployment in this new Namespace using a configuration file:
 +
-  $ deployment-namespace.yaml 
+  $ deployment-namespace.yaml
 	apiVersion: extensions/v1beta1
 	kind: Deployment
 	metadata:
 	  name: nginx-deployment-ns
 	  namespace: dev
 	spec:
-	  replicas: 3 
+	  replicas: 3
 	  template:
 	    metadata:
 	      labels:
-	        app: nginx 
+	        app: nginx
 	    spec:
 	      containers:
-	      - name: nginx 
+	      - name: nginx
 	        image: nginx:1.12.1
-	        ports: 
+	        ports:
 	        - containerPort: 80
 	        - containerPort: 443
 +
@@ -1423,7 +1423,7 @@ The main change is the addition of `namespace: dev`.
 +
 . Create the Deployment:
 
-	$ kubectl apply -f deployment-namespace.yaml 
+	$ kubectl apply -f deployment-namespace.yaml
 	deployment "nginx-deployment-ns" created
 
 . Deployment in a Namespace can be queried by providing an additional switch `-n` as shown:
@@ -1446,7 +1446,7 @@ Alternatively, a namespace can be created using `kubectl` as well.
 
 . Create a Deployment:
 
-	$ kubectl -n dev2 apply -f templates/deployment.yaml 
+	$ kubectl -n dev2 apply -f deployment.yaml
 	deployment "nginx-deployment-ns" created
 
 . Get Deployments in the newly created Namespace:
@@ -1647,7 +1647,3 @@ You are now ready to continue on with the workshop!
 |image:button-continue-developer.png[link=../../03-path-application-development/301-local-development]
 |image:button-continue-operations.png[link=../../02-path-working-with-clusters/201-cluster-monitoring]
 |=====
-
-
-
-
