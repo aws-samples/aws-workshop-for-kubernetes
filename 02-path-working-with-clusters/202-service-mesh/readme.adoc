@@ -475,5 +475,6 @@ You are now ready to continue on with the workshop!
 |=====
 |image:button-continue-standard.png[link=../../02-path-working-with-clusters/203-cluster-upgrades]
 |image:button-continue-operations.png[link=../../02-path-working-with-clusters/203-cluster-upgrades]
-|=====    
-
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../operations-path.adoc[Go to Operations Index]
+|=====

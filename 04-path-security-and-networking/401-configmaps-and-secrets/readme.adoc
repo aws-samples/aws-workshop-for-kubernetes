@@ -157,23 +157,23 @@ Wait for the pod to run:
 Check logs from the pod to verify that Redis has started:
 
   $ kubectl logs redis-pod
-                  _._                                                  
-             _.-``__ ''-._                                             
+                  _._
+             _.-``__ ''-._
         _.-``    `.  `_.  ''-._           Redis 2.8.19 (00000000/0) 64 bit
-    .-`` .-```.  ```\/    _.,_ ''-._                                   
+    .-`` .-```.  ```\/    _.,_ ''-._
    (    '      ,       .-`  | `,    )     Running in stand alone mode
    |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6379
    |    `-._   `._    /     _.-'    |     PID: 6
-    `-._    `-._  `-./  _.-'    _.-'                                   
-   |`-._`-._    `-.__.-'    _.-'_.-'|                                  
-   |    `-._`-._        _.-'_.-'    |           http://redis.io        
-    `-._    `-._`-.__.-'_.-'    _.-'                                   
-   |`-._`-._    `-.__.-'    _.-'_.-'|                                  
-   |    `-._`-._        _.-'_.-'    |                                  
-    `-._    `-._`-.__.-'_.-'    _.-'                                   
-        `-._    `-.__.-'    _.-'                                       
-            `-._        _.-'                                           
-                `-.__.-'                                               
+    `-._    `-._  `-./  _.-'    _.-'
+   |`-._`-._    `-.__.-'    _.-'_.-'|
+   |    `-._`-._        _.-'_.-'    |           http://redis.io
+    `-._    `-._`-.__.-'_.-'    _.-'
+   |`-._`-._    `-.__.-'    _.-'_.-'|
+   |    `-._`-._        _.-'_.-'    |
+    `-._    `-._`-.__.-'_.-'    _.-'
+        `-._    `-.__.-'    _.-'
+            `-._        _.-'
+                `-.__.-'
 
   [6] 22 Oct 18:39:45.386 # Server started, Redis version 2.8.19
   [6] 22 Oct 18:39:45.386 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
@@ -613,9 +613,9 @@ This will create a secret in the Parameter Store using the KMS key.
 $ aws ssm get-parameter --name GREETING
 {
     "Parameter": {
-        "Version": 1, 
-        "Type": "SecureString", 
-        "Name": "GREETING", 
+        "Version": 1,
+        "Type": "SecureString",
+        "Name": "GREETING",
         "Value": "AQICAHghFIWYznvdUrX6qDhd5xLFHpoaQ5WL1EaHqsbkenfFEwHdqTpU8URwKMf2H9XmMyMgAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM0jZaUadELhmiCzj4AgEQgCBXVAZzfjac8P2AFrelnLaXb3z7ssZt2q/npxYAdJ9ABQ=="
     }
 }
@@ -628,9 +628,9 @@ By default, the encrypted value of the secret is shown in the output.
   $ aws ssm get-parameter --name GREETING --with-decryption
   {
       "Parameter": {
-          "Version": 1, 
-          "Type": "SecureString", 
-          "Name": "GREETING", 
+          "Version": 1,
+          "Type": "SecureString",
+          "Name": "GREETING",
           "Value": "Hello"
       }
   }
@@ -792,7 +792,7 @@ Sealed: false
 Key Shares: 1
 Key Threshold: 1
 Unseal Progress: 0
-Unseal Nonce: 
+Unseal Nonce:
 Version: 0.9.0
 Cluster Name: vault-cluster-01043c83
 Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
@@ -813,7 +813,7 @@ High-Availability Enabled: false
   export VAULT_ADDR='<public-ip-address>'
 +
 For example, this command will look like:
-+  
++
   export VAULT_ADDR='http://http://ec2-54-237-223-40.compute-1.amazonaws.com:8200'
 +
 . Verify the status can be seen from your local machine:
@@ -825,7 +825,7 @@ Sealed: false
 Key Shares: 1
 Key Threshold: 1
 Unseal Progress: 0
-Unseal Nonce: 
+Unseal Nonce:
 Version: 0.9.0
 Cluster Name: vault-cluster-01043c83
 Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
@@ -853,7 +853,7 @@ token_policies: [root]
 
 . Create the RBAC role that will be used by the service account to access the TokenReview API:
 
-  $ kubectl apply -f templates/vault-reviewer-rbac.yaml 
+  $ kubectl apply -f templates/vault-reviewer-rbac.yaml
   clusterrolebinding "role-tokenreview-binding" created
 
 . Creat a service account that will be used to login to the auth backend:
@@ -987,7 +987,7 @@ More details about the Docker image used in the Pod is at https://github.com/aru
 
 . Deploy the Pod:
 
-  $ kubectl apply -f templates/pod-vault.yaml 
+  $ kubectl apply -f templates/pod-vault.yaml
   pod "vault-kubernetes" created
 
 . Get the list of Pods:
@@ -1013,5 +1013,6 @@ You are now ready to continue on with the workshop!
 |=====
 |image:button-continue-developer.png[link=../../04-path-security-and-networking/402-authentication-and-authorization/]
 |image:button-continue-operations.png[link=../../04-path-security-and-networking/402-authentication-and-authorization/]
+|link:../../developer-path.adoc[Go to Developer Index]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====
-

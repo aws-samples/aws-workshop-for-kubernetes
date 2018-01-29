@@ -1,7 +1,7 @@
 = Kubernetes the AWSome Way!
 :icons:
 :linkattrs:
-:imagesdir: ../../resources/images
+:imagesdir: resources/images
 
 image:kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",width=420]
 
@@ -35,5 +35,28 @@ This path is suitable for operations teams interested in deploying, managing, an
 |link:05-path-next-steps/501-k8s-best-practices[501: Best Practices]
 |link:05-path-next-steps/502-for-further-reading[502: For Further Reading]
 |=====
+
+== Workshop Cleanup
+
+Once you have finished with the workshop, please don't forget to spin down your cluster or you will incur additional charges.
+(We will also remind you at the end!)
+
+==== Delete Kubernetes cluster resources
+
+In your Cloud9 IDE, check if there are any running kubernetes cluster
+
+   $ kops get cluster
+
+Delete kubernetes cluster
+
+   $ kops delete cluster example.cluster.k8s.local --yes
+
+Wait until all resources are deleted by kops
+
+==== Delete Cloud9 Envionment
+
+Go to CloudFormation console, right click template with name 'k8s-workshop' and select 'Delete Stack'
+
+This should delete all the resources associated with this workshop
 
 NOTE: You will incur charges as you go through these workshop guides as it will exceed the link:http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[limits of AWS free tier]. An estimate of charges (<$20/day) can be seen at this link:https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator]

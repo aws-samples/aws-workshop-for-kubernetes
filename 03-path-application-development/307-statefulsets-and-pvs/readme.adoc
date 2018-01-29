@@ -171,7 +171,7 @@ To test load balancing across slaves, you can run the following command:
   kubectl run mysql-client-loop --image=mysql:5.7 -i -t --rm --restart=Never --\
      bash -ic "while sleep 1; do mysql -h mysql-read -e 'SELECT @@server_id,NOW()'; done"
 
-Each MySQL instance is assigned a unique identifier, and it can be retrieved using `@@server_id`. This command prints the server id serving the request and the timestamp in an infinite loop. 
+Each MySQL instance is assigned a unique identifier, and it can be retrieved using `@@server_id`. This command prints the server id serving the request and the timestamp in an infinite loop.
 
 This command will show the output:
 
@@ -198,7 +198,7 @@ This command will show the output:
 
 You can leave this open in a separate window while you run failure modes in the next section.
 
-Alternatively, you can use `Ctrl`+`C` to terminate the loop. 
+Alternatively, you can use `Ctrl`+`C` to terminate the loop.
 
 == Testing failure modes
 
@@ -514,5 +514,5 @@ You are now ready to continue on with the workshop!
 [align="center", cols="1", grid="none", frame="none"]
 |=====
 |image:button-continue-developer.png[link=../../03-path-application-development/308-cicd-workflows/]
+|link:../../developer-path.adoc[Go to Developer Index]
 |=====
-    
