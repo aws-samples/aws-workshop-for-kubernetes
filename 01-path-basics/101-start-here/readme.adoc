@@ -202,6 +202,12 @@ Install kops using the following:
     $ chmod +x kops-linux-amd64
     $ sudo mv kops-linux-amd64 /usr/local/bin/kops
 
+=== Collect Availability Zones
+
+kops needs to know the availability zones to use when configuring a cluster. We set an environment variable `$AWS_AVAILABILITY_ZONES` based on the region.
+
+    $ export AWS_AVAILABILITY_ZONES="$(aws ec2 describe-availability-zones --query 'AvailabilityZones[].ZoneName' --output text | awk -v OFS="," '$1=$1')"
+
 === Configure an S3 bucket for kops
 
 kops needs a "`state store`" to store configuration information of the cluster. We will use a s3 bucket with versioning enabled. A state store can work with multiple kops clusters.
