@@ -703,7 +703,7 @@ If rolling back to a specific revision then enter:
 
 Run the following command to delete the Deployment:
 
-	$ kubectl delete -f templates/deployment.yaml
+	$ kubectl delete -f deployment.yaml
 	deployment "nginx-deployment" deleted
 
 == Service
