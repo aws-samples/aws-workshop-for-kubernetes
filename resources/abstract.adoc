@@ -1,0 +1,23 @@
+= Workshop Abstract
+
+== Title
+
+Kubernetes the AWSome Way!
+
+== Abstract
+
+Kubernetes is a popular cloud-native open-source orchestration platform for container management, scaling and automated deployment. It includes a rich set of features such as service discovery, multi-tenancy, stateful containers, resource usage monitoring, and rolling updates. This workshop will get you started with operating a Kubernetes cluster on AWS. In addition, it also explains how to deploy applications to this cluster. 
+
+Some of the questions that will be covered in this workshop are:
+
+. How do we create and manage a Kubernetes cluster?
+. How an application is mapped to Kubernetes abstractions?
+. How does service discovery work between different applications?
+. How to scale, generate logs and monitor an application?
+. How to create a CI/CD pipeline?
+. How do we integrate with tools such as Maven?
+. How applications can store configuration data and secrets?
+. How to use IAM for authentication and authorization?
+
+In this code-driven workshop, you will learn how to package, deploy, scale and monitor your application using Kubernetes and the AWS cloud.
+
