@@ -11,10 +11,13 @@
 # Install jq
 sudo yum -y install jq
 
+# Install bash-completion
+sudo yum install bash-completion -y
+
 # Install kubectl
 curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
 chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-source <(kubectl completion bash)
+echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 # Install kops
 curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
