@@ -158,7 +158,7 @@ Again, the exact output may vary but your results should look similar to these.
 
 Logs from the pod can be obtained (a fresh nginx does not have logs - check again later once you have accessed the service):
 
-    $ kubectl logs <pod-name>
+    $ kubectl logs <pod-name> --namespace <namespace-name>
 
 === Execute a shell on the running pod
 
