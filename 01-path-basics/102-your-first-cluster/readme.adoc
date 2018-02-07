@@ -25,7 +25,7 @@ By default, the `kops create cluster` command creates a single master node and t
 
 Create a Kubernetes cluster using the following command. Run it in the "bash" terminal tab at the bottom of the Cloud9 IDE. This will create a cluster with a single master, multi-node and multi-az configuration:
 
-    $ kops create cluster \
+    kops create cluster \
       --name example.cluster.k8s.local \
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
@@ -79,7 +79,7 @@ The command below creates a cluster in a multi-master, multi-node, and multi-az 
 Run it in the "bash" terminal tab at the bottom of the Cloud9 IDE.
 We can create and build the cluster in one step by passing the `--yes` flag.
 
-    $ kops create cluster \
+    kops create cluster \
       --name example.cluster.k8s.local \
       --master-count 3 \
       --node-count 5 \
@@ -92,32 +92,30 @@ The `--zones` option is also used to distribute the worker nodes. The number of 
 
 It will take 5-8 minutes for the cluster to be created. Validate the cluster:
 
-```
-$ kops validate cluster
-Using cluster from kubectl context: example.cluster.k8s.local
+    $ kops validate cluster
+    Using cluster from kubectl context: example.cluster.k8s.local
 
-Validating cluster example.cluster.k8s.local
+    Validating cluster example.cluster.k8s.local
 
-INSTANCE GROUPS
-NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
-master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
-master-eu-central-1b Master  m3.medium 1 1 eu-central-1b
-master-eu-central-1c Master  c4.large  1 1 eu-central-1c
-nodes     Node  t2.medium 5 5 eu-central-1a,eu-central-1b,eu-central-1c
+    INSTANCE GROUPS
+    NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
+    master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
+    master-eu-central-1b Master  m3.medium 1 1 eu-central-1b
+    master-eu-central-1c Master  c4.large  1 1 eu-central-1c
+    nodes     Node  t2.medium 5 5 eu-central-1a,eu-central-1b,eu-central-1c
 
-NODE STATUS
-NAME        ROLE  READY
-ip-172-20-101-97.ec2.internal node  True
-ip-172-20-119-53.ec2.internal node  True
-ip-172-20-124-138.ec2.internal  master  True
-ip-172-20-35-15.ec2.internal  master  True
-ip-172-20-63-104.ec2.internal node  True
-ip-172-20-69-241.ec2.internal node  True
-ip-172-20-84-65.ec2.internal  node  True
-ip-172-20-93-167.ec2.internal master  True
+    NODE STATUS
+    NAME        ROLE  READY
+    ip-172-20-101-97.ec2.internal node  True
+    ip-172-20-119-53.ec2.internal node  True
+    ip-172-20-124-138.ec2.internal  master  True
+    ip-172-20-35-15.ec2.internal  master  True
+    ip-172-20-63-104.ec2.internal node  True
+    ip-172-20-69-241.ec2.internal node  True
+    ip-172-20-84-65.ec2.internal  node  True
+    ip-172-20-93-167.ec2.internal master  True
 
-Your cluster example.cluster.k8s.local is ready
-```
+    Your cluster example.cluster.k8s.local is ready
 
 Note that all masters are spread across different AZs.
 
@@ -152,7 +150,7 @@ View the current context:
 
 If multiple clusters exist, then you can change the context:
 
-  $ kubectl config use-context <config-name>
+  kubectl config use-context <config-name>
 
 You are now ready to continue on with the workshop!
 
@@ -186,7 +184,7 @@ To print full list of CNI providers:
 
 Create a gossip-based private cluster with master and worker nodes in private subnets:
 
-    $ kops create cluster \
+    kops create cluster \
       --networking calico \
       --topology private \
       --name example.cluster.k8s.local \
@@ -197,25 +195,23 @@ Once the `kops create cluster` command is issued, it provisions the EC2 instance
 
 Wait for 5-8 minutes and then the cluster can be validated as shown:
 
-```
-$ kops validate cluster
-Using cluster from kubectl context: example.cluster.k8s.local
+    $ kops validate cluster
+    Using cluster from kubectl context: example.cluster.k8s.local
 
-Validating cluster example.cluster.k8s.local
+    Validating cluster example.cluster.k8s.local
 
-INSTANCE GROUPS
-NAME                    ROLE    MACHINETYPE     MIN     MAX     SUBNETS
-master-eu-central-1a    Master  m3.medium       1       1       eu-central-1a
-nodes                   Node    t2.medium       2       2       eu-central-1a,eu-central-1b,eu-central-1c
+    INSTANCE GROUPS
+    NAME                    ROLE    MACHINETYPE     MIN     MAX     SUBNETS
+    master-eu-central-1a    Master  m3.medium       1       1       eu-central-1a
+    nodes                   Node    t2.medium       2       2       eu-central-1a,eu-central-1b,eu-central-1c
 
-NODE STATUS
-NAME                                            ROLE    READY
-ip-172-20-124-144.eu-central-1.compute.internal node    True
-ip-172-20-58-179.eu-central-1.compute.internal  master  True
-ip-172-20-93-220.eu-central-1.compute.internal  node    True
+    NODE STATUS
+    NAME                                            ROLE    READY
+    ip-172-20-124-144.eu-central-1.compute.internal node    True
+    ip-172-20-58-179.eu-central-1.compute.internal  master  True
+    ip-172-20-93-220.eu-central-1.compute.internal  node    True
 
-Your cluster example.cluster.k8s.local is ready
-```
+    Your cluster example.cluster.k8s.local is ready
 
 It is also possible to create a DNS-based cluster where the master and worker nodes are in private subnets. For more information about creating DNS-based clusters, see Appendix: Create a DNS-based Kubernetes cluster below.
 If `--dns private` is also specified, a Route53 private hosted zone is created for routing the traffic for the domain within one or more VPCs. The Kubernetes API can therefore only be accessed from within the VPC. This is a current issue with kops (see https://github.com/kubernetes/kops/issues/2032). A possible workaround is to mirror the private Route53 hosted zone with a public hosted zone that exposes only the API server ELB endpoint. This workaround is discussed http://kubecloud.io/setup-ha-k8s-kops/[here].
@@ -234,7 +230,7 @@ Specific API versions can be turned on or off by passing `--runtime-config=api/<
 
 For a cluster created using kops, this can be done by editing the cluster configuration using the command shown:
 
-    $ kops edit cluster --name example.cluster.k8s.local
+    kops edit cluster --name example.cluster.k8s.local
 
 This will open up the cluster configuration in a text editor. Update the `spec` attribute such that it looks like as shown:
 
@@ -248,57 +244,57 @@ Save the changes and exit the editor. Kubernetes cluster needs to re-read the co
 
 NOTE: This process can easily take 30-45 minutes. Its recommended to leave the cluster without any updates during that time.
 
-  $ kops rolling-update cluster --yes
-  Using cluster from kubectl context: example.cluster.k8s.local
+    $ kops rolling-update cluster --yes
+    Using cluster from kubectl context: example.cluster.k8s.local
 
-  NAME                    STATUS  NEEDUPDATE      READY   MIN     MAX     NODES
-  master-eu-central-1a    Ready   0               1       1       1       1
-  nodes                   Ready   0               2       2       2       2
-  I1025 20:50:51.158013     354 instancegroups.go:350] Stopping instance "i-0ba714556f0f892cc", node "ip-172-20-58-179.eu-central-1.compute.internal", in AWS ASG "master-eu-central-1a.masters.example.cluster.k8s.local".
-  I1025 20:55:51.413506     354 instancegroups.go:350] Stopping instance "i-0265a07c3320b266b", node "ip-172-20-93-220.eu-central-1.compute.internal", in AWS ASG "nodes.example.cluster.k8s.local".
-  I1025 20:57:52.448582     354 instancegroups.go:350] Stopping instance "i-09e2efd9f5e9ebfce", node "ip-172-20-124-144.eu-central-1.compute.internal", in AWS ASG "nodes.example.cluster.k8s.local".
-  I1025 20:59:53.325980     354 rollingupdate.go:174] Rolling update completed!
+    NAME                    STATUS  NEEDUPDATE      READY   MIN     MAX     NODES
+    master-eu-central-1a    Ready   0               1       1       1       1
+    nodes                   Ready   0               2       2       2       2
+    I1025 20:50:51.158013     354 instancegroups.go:350] Stopping instance "i-0ba714556f0f892cc", node "ip-172-20-58-179.eu-central-1.compute.internal", in AWS ASG "master-eu-central-1a.masters.example.cluster.k8s.local".
+    I1025 20:55:51.413506     354 instancegroups.go:350] Stopping instance "i-0265a07c3320b266b", node "ip-172-20-93-220.eu-central-1.compute.internal", in AWS ASG "nodes.example.cluster.k8s.local".
+    I1025 20:57:52.448582     354 instancegroups.go:350] Stopping instance "i-09e2efd9f5e9ebfce", node "ip-172-20-124-144.eu-central-1.compute.internal", in AWS ASG "nodes.example.cluster.k8s.local".
+    I1025 20:59:53.325980     354 rollingupdate.go:174] Rolling update completed!
 
 This command will first stop one master node in the cluster, re-read the configuration information and start that master. Then it will do the same for rest of the master nodes. And then it will repeat that for each worker node in the cluster. After all the server and worker nodes have been restarted, the rolling update of the cluster is complete.
 
 Let's verify that the attributes are now successfully passed to the API server. Get the list of pods for the API server using the command shown:
 
-  $ kubectl get pods --all-namespaces | grep kube-apiserver
-  kube-system   kube-apiserver-ip-172-20-117-32.ec2.internal            1/1       Running   0          7m
-  kube-system   kube-apiserver-ip-172-20-62-108.ec2.internal            1/1       Running   6          16m
-  kube-system   kube-apiserver-ip-172-20-79-64.ec2.internal             1/1       Running   2          12m
+    $ kubectl get pods --all-namespaces | grep kube-apiserver
+    kube-system   kube-apiserver-ip-172-20-117-32.ec2.internal            1/1       Running   0          7m
+    kube-system   kube-apiserver-ip-172-20-62-108.ec2.internal            1/1       Running   6          16m
+    kube-system   kube-apiserver-ip-172-20-79-64.ec2.internal             1/1       Running   2          12m
 
 The output shows three pods, one each for API server, corresponding to the three master nodes. This output is from a cluster with three master nodes. The output may be different if your cluster was created with different number of masters.
 
 Search for the `--runtime-config` option as shown:
 
-  $ kubectl describe --namespace=kube-system pod <pod-name> | grep runtime
+    kubectl describe --namespace=kube-system pod <pod-name> | grep runtime
 
 `<pod-name>` is name of one of the pods shown above.
 
 A formatted output is shown below:
 
-  /usr/local/bin/kube-apiserver \
-    --address=127.0.0.1 \
-    --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,DefaultTolerationSeconds,ResourceQuota \
-    --allow-privileged=true \
-    --anonymous-auth=false \
-    --apiserver-count=3 \
-    --authorization-mode=AlwaysAllow \
-    --basic-auth-file=/srv/kubernetes/basic_auth.csv \
-    --client-ca-file=/srv/kubernetes/ca.crt \
-    --cloud-provider=aws \
-    --etcd-servers-overrides=/events#http://127.0.0.1:4002 \
-    --etcd-servers=http://127.0.0.1:4001 --insecure-port=8080 --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \
-    --runtime-config=batch/v2alpha1=true \
-    --secure-port=443 \
-    --service-cluster-ip-range=100.64.0.0/13 \
-    --storage-backend=etcd2 \
-    --tls-cert-file=/srv/kubernetes/server.cert \
-    --tls-private-key-file=/srv/kubernetes/server.key \
-    --token-auth-file=/srv/kubernetes/known_tokens.csv \
-    --v=2 \
-    1>>/var/log/kube-apiserver.log 2>&1
+    /usr/local/bin/kube-apiserver \
+      --address=127.0.0.1 \
+      --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,DefaultTolerationSeconds,ResourceQuota \
+      --allow-privileged=true \
+      --anonymous-auth=false \
+      --apiserver-count=3 \
+      --authorization-mode=AlwaysAllow \
+      --basic-auth-file=/srv/kubernetes/basic_auth.csv \
+      --client-ca-file=/srv/kubernetes/ca.crt \
+      --cloud-provider=aws \
+      --etcd-servers-overrides=/events#http://127.0.0.1:4002 \
+      --etcd-servers=http://127.0.0.1:4001 --insecure-port=8080 --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \
+      --runtime-config=batch/v2alpha1=true \
+      --secure-port=443 \
+      --service-cluster-ip-range=100.64.0.0/13 \
+      --storage-backend=etcd2 \
+      --tls-cert-file=/srv/kubernetes/server.cert \
+      --tls-private-key-file=/srv/kubernetes/server.key \
+      --token-auth-file=/srv/kubernetes/known_tokens.csv \
+      --v=2 \
+      1>>/var/log/kube-apiserver.log 2>&1
 
 The output clearly shows that `--runtime-config=batch/v2alpha1=true` is passed as an option to the API server. This means the cluster is now ready for creating creating APIs with version `batch/v2alpha1`.
 
@@ -311,13 +307,13 @@ This information is to show you how to delete a cluster.
 
 Any cluster can be deleted as shown:
 
-    $ kops delete cluster \
+    kops delete cluster \
       <cluster-name> \
       --yes
 
 `<cluster-name>` is the name of the cluster. For example, our `example.cluster.k8s.local` cluster can be deleted as:
 
-    $ kops delete cluster \
+    kops delete cluster \
       example.cluster.k8s.local \
       --yes
 
@@ -328,7 +324,7 @@ If you created a private VPC, then an additional cleanup of resources is require
     # Find Route53 hosted zone ID from the console or via CLI and delete hosted zone
     aws route53 delete-hosted-zone --id $ZONEID
     # Delete VPC if you created earlier
-    $ aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID
+    aws ec2 detach-internet-gateway --internet $IGW --vpc $VPCID
     aws ec2 delete-internet-gateway --internet-gateway-id $IGW
     aws ec2 delete-vpc --vpc-id $VPCID
 
@@ -353,7 +349,7 @@ By default, `create cluster` command creates a single master node and two worker
 
 Create a Kubernetes cluster using the following command. For the purposes of this demonstration, we will use a cluster name of example.cluster.com as our registered DNS. This will create a cluster with a single master, multi-node and multi-az configuration:
 
-    $ kops create cluster \
+    kops create cluster \
       --name example.cluster.com \
       --zones $AWS_AVAILABILITY_ZONES \
       --yes
@@ -364,35 +360,33 @@ Alternatively, you may leave off the `--yes` option from the `kops create cluste
 
 The cluster creation, in that case, is started with the following command:
 
-    $ kops update cluster example.cluster.com --yes
+    kops update cluster example.cluster.com --yes
 
 Once the `kops create cluster` or `kops update cluster` command is issued with the `--yes` flag,, it provisions the EC2 instances, setup Auto Scaling Groups, IAM users, security groups, and install Kubernetes on each node, configures master and worker nodes. This process can take a few minutes based upon the number of master and worker nodes.
 
 Wait for 5-8 minutes and then the cluster can be validated as shown:
 
-```
-$ kops validate cluster --name=example.cluster.com
-Validating cluster example.cluster.com
+    $ kops validate cluster --name=example.cluster.com
+    Validating cluster example.cluster.com
 
-INSTANCE GROUPS
-NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
-master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
-nodes     Node  t2.medium 2 2 eu-central-1a,eu-central-1b
+    INSTANCE GROUPS
+    NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
+    master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
+    nodes     Node  t2.medium 2 2 eu-central-1a,eu-central-1b
 
-NODE STATUS
-NAME        ROLE  READY
-ip-172-20-51-232.ec2.internal node  True
-ip-172-20-60-192.ec2.internal master  True
-ip-172-20-91-39.ec2.internal  node  True
+    NODE STATUS
+    NAME        ROLE  READY
+    ip-172-20-51-232.ec2.internal node  True
+    ip-172-20-60-192.ec2.internal master  True
+    ip-172-20-91-39.ec2.internal  node  True
 
-Your cluster example.cluster.com is ready
-```
+    Your cluster example.cluster.com is ready
 
 Verify the client and server version:
 
-  $ kubectl version
-  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
-  Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+    $ kubectl version
+    Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
+    Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
 
 It shows that Kubectl CLI version is 1.8.1 and the server version is 1.7.4. Cluster version may changed depending on kops version.
 
@@ -400,12 +394,12 @@ It shows that Kubectl CLI version is 1.8.1 and the server version is 1.7.4. Clus
 
 Check the list of Availability Zones that exist for your region using the following command:
 
-    $ aws --region <region> ec2 describe-availability-zones
+    aws --region <region> ec2 describe-availability-zones
 
 Create a cluster with multi-master, multi-node and multi-az configuration. We can create and build the cluster in
 one step by passing the `--yes` flag.
 
-    $ kops create cluster \
+    kops create cluster \
       --name example.cluster.com \
       --master-count 3 \
       --node-count 5 \
@@ -418,30 +412,28 @@ A multi-master cluster can be created by using the `--master-count` option and s
 
 As mentioned above, wait for 5-8 minutes for the cluster to be created. Validate the cluster:
 
-```
-$ kops validate cluster --name=example.cluster.com
-Validating cluster example.cluster.com
+  $ kops validate cluster --name=example.cluster.com
+  Validating cluster example.cluster.com
 
-INSTANCE GROUPS
-NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
-master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
-master-eu-central-1b Master  m3.medium 1 1 eu-central-1b
-master-eu-central-1c Master  c4.large  1 1 eu-central-1c
-nodes     Node  t2.medium 5 5 eu-central-1a,eu-central-1b,eu-central-1c
+  INSTANCE GROUPS
+  NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
+  master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
+  master-eu-central-1b Master  m3.medium 1 1 eu-central-1b
+  master-eu-central-1c Master  c4.large  1 1 eu-central-1c
+  nodes     Node  t2.medium 5 5 eu-central-1a,eu-central-1b,eu-central-1c
 
-NODE STATUS
-NAME        ROLE  READY
-ip-172-20-103-30.ec2.internal master  True
-ip-172-20-105-16.ec2.internal node  True
-ip-172-20-127-147.ec2.internal  node  True
-ip-172-20-35-38.ec2.internal  node  True
-ip-172-20-47-199.ec2.internal node  True
-ip-172-20-61-207.ec2.internal master  True
-ip-172-20-75-78.ec2.internal  master  True
-ip-172-20-94-216.ec2.internal node  True
+  NODE STATUS
+  NAME        ROLE  READY
+  ip-172-20-103-30.ec2.internal master  True
+  ip-172-20-105-16.ec2.internal node  True
+  ip-172-20-127-147.ec2.internal  node  True
+  ip-172-20-35-38.ec2.internal  node  True
+  ip-172-20-47-199.ec2.internal node  True
+  ip-172-20-61-207.ec2.internal master  True
+  ip-172-20-75-78.ec2.internal  master  True
+  ip-172-20-94-216.ec2.internal node  True
 
-Your cluster example.cluster.com is ready
-```
+  Your cluster example.cluster.com is ready
 
 Note that all masters are spread across different AZs.
 

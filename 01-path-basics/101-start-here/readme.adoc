@@ -74,10 +74,7 @@ To install the script, run this command in the "bash" terminal tab of the Cloud9
 
 image:cloud9-run-script.png[Running the script in Cloud9 Terminal]
 
-[NOTE]
-All shell commands _(starting with "$")_ throughout the rest of the workshop should be run in this tab. You may want to resize it upwards to make it larger.
-
-At this point you can restart the Cloud9 IDE terminal session to ensure that the kublectl completion is enabled. Once a new terminal window is opened, type `kubectl get nodes`. You do not have to run the command. It is normal for this command to fail with an error message if you run it. You have not yet created the Kubernetes cluster. We are merely testing to make sure the `kubectl` tool is installed on the command line correctly and can autocomplete.
+At this point you can restart the Cloud9 IDE terminal session to ensure that the kublectl completion is enabled. Once a new terminal window is opened, type `kubectl get nodes` You do not have to run the command. It is normal for this command to fail with an error message if you run it. You have not yet created the Kubernetes cluster. We are merely testing to make sure the `kubectl` tool is installed on the command line correctly and can autocomplete.
 
 One last step is required so that the Cloud9 IDE uses the assigned IAM Instance profile. Open the "AWS Cloud9" menu, go to "Preferences", go to "AWS Settings", and disable "AWS managed temporary credentials" as depicted in the diagram here:
 
@@ -112,11 +109,11 @@ Once you have finished with the workshop, please don't forget to spin down your 
 
 In your Cloud9 IDE, check if there are any running kubernetes cluster
 
-   $ kops get cluster
+   kops get cluster
 
 Delete kubernetes cluster
 
-   $ kops delete cluster example.cluster.k8s.local --yes
+   kops delete cluster example.cluster.k8s.local --yes
 
 Wait until all resources are deleted by kops
 
@@ -189,11 +186,11 @@ You should have a similar or newer version.
 
 Install the Kubectl CLI:
 
-    $ curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.9.2/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+    curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.9.2/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 
 Add kubectl autocompletion to your current shell:
 
-    $ source <(kubectl completion bash)
+    source <(kubectl completion bash)
 
 You can verify that kubectl is installed by executing the following command:
 
@@ -204,9 +201,9 @@ You can verify that kubectl is installed by executing the following command:
 
 Install kops using the following:
 
-    $ curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
-    $ chmod +x kops-linux-amd64
-    $ sudo mv kops-linux-amd64 /usr/local/bin/kops
+    curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+    chmod +x kops-linux-amd64
+    sudo mv kops-linux-amd64 /usr/local/bin/kops
 
 === Collect Availability Zones
 
@@ -221,16 +218,16 @@ kops needs a "`state store`" to store configuration information of the cluster. 
 [NOTE]
 The bucket name must be unique otherwise you will encounter an error on deployment. We will use an example bucket name of `kops-state-store-` and add a randomly generated string to the end.
 
-    $ export S3_BUCKET=kops-state-store-$(cat /dev/urandom | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
-    $ export KOPS_STATE_STORE=s3://${S3_BUCKET}
-    $ aws s3 mb $KOPS_STATE_STORE
-    $ aws s3api put-bucket-versioning --bucket $S3_BUCKET --versioning-configuration Status=Enabled
+    export S3_BUCKET=kops-state-store-$(cat /dev/urandom | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
+    export KOPS_STATE_STORE=s3://${S3_BUCKET}
+    aws s3 mb $KOPS_STATE_STORE
+    aws s3api put-bucket-versioning --bucket $S3_BUCKET --versioning-configuration Status=Enabled
 
 === Clone the repository
 
 The workshop repository has configuration files that are used to create Kubernetes resources.  You need to clone the repo to have access to those files:
 
-    $ git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
+    git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
 
 At this point, you should have everything you need to complete any of the sections of the this workshop using your Cloud9 Environment.
 

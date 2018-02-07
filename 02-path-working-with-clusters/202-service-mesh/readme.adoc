@@ -41,8 +41,7 @@ This chapter uses a cluster with 3 master nodes and 5 worker nodes as described 
 Install linkerd using `kubectl`. This will install linkerd as a DaemonSet (i.e., one instance per
 host) running in the default Kubernetes namespace.
 
-  kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
-  k8s-daemonset/k8s/linkerd.yml
+  $ kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/k8s-daemonset/k8s/linkerd.yml
   configmap "l5d-config" created
   daemonset "l5d" created
   service "l5d" created
@@ -180,7 +179,7 @@ Send a request to v1 of the service. It should reply with 'Hello world'.
 
 After a minute or two, it should reply with `Hello world` as shown:
 
-  Hello (100.96.1.12) world (100.96.1.14)
+    Hello (100.96.1.12) world (100.96.1.14)
 
 Now send a request to v2 of the service by modifying the header in the request.
 
@@ -188,7 +187,7 @@ Now send a request to v2 of the service by modifying the header in the request.
 
 It should reply with 'Hello earth' as shown:
 
-  Hello (100.96.1.11) earth (100.96.2.14)
+    Hello (100.96.1.11) earth (100.96.2.14)
 
 This demonstrates that v1 and v2 of the `world` service are running in the cluster, and you can specify in the
 request header which version of the service to route individual requests to.
@@ -201,15 +200,15 @@ You can look into linkerd configuration files in https://github.com/linkerd/link
 
 Remove the installed components:
 
-  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
-  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
-  k8s-daemonset/k8s/world-v2.yml
-  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
-  k8s-daemonset/k8s/hello-world.yml
-  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
-  k8s-daemonset/k8s/linkerd-ingress.yml
-  kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
-  k8s-daemonset/k8s/linkerd.yml
+    kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-viz/master/k8s/linkerd-viz.yml
+    kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+    k8s-daemonset/k8s/world-v2.yml
+    kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+    k8s-daemonset/k8s/hello-world.yml
+    kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+    k8s-daemonset/k8s/linkerd-ingress.yml
+    kubectl delete -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
+    k8s-daemonset/k8s/linkerd.yml
 
 == Using Istio with Kubernetes
 
@@ -244,12 +243,12 @@ https://istio.io/docs/setup/kubernetes/quick-start.html[Istio quick start]
 
 You should now be able to run the `istioctl` CLI
 
-  $ istioctl version
-  Version: 0.2.10
-  GitRevision: f27f2803f59994367c1cca47467c362b1702d605
-  GitBranch: release-0.2
-  User: sebastienvas@ee792364cfc2
-  GolangVersion: go1.8
+    $ istioctl version
+    Version: 0.2.10
+    GitRevision: f27f2803f59994367c1cca47467c362b1702d605
+    GitBranch: release-0.2
+    User: sebastienvas@ee792364cfc2
+    GolangVersion: go1.8
 
 Install Istio using `kubectl`. This will install Istio into its own namespace, `istio-system`. Change to the
 directory where you downloaded Istio in the step above.
@@ -258,36 +257,34 @@ directory where you downloaded Istio in the step above.
 
 Check the Istio has been installed. Note that Istio is installed into its own namespace.
 
-```
-$ kubectl get all --namespace istio-system
-NAME                   DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deploy/istio-ca        1         1         1            1           1m
-deploy/istio-egress    1         1         1            1           1m
-deploy/istio-ingress   1         1         1            1           1m
-deploy/istio-mixer     1         1         1            1           2m
-deploy/istio-pilot     1         1         1            1           1m
+    $ kubectl get all --namespace istio-system
+    NAME                   DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    deploy/istio-ca        1         1         1            1           1m
+    deploy/istio-egress    1         1         1            1           1m
+    deploy/istio-ingress   1         1         1            1           1m
+    deploy/istio-mixer     1         1         1            1           2m
+    deploy/istio-pilot     1         1         1            1           1m
 
-NAME                          DESIRED   CURRENT   READY     AGE
-rs/istio-ca-2651333813        1         1         1         1m
-rs/istio-egress-2836352731    1         1         1         1m
-rs/istio-ingress-2873642151   1         1         1         1m
-rs/istio-mixer-1999632368     1         1         1         2m
-rs/istio-pilot-1811250569     1         1         1         1m
+    NAME                          DESIRED   CURRENT   READY     AGE
+    rs/istio-ca-2651333813        1         1         1         1m
+    rs/istio-egress-2836352731    1         1         1         1m
+    rs/istio-ingress-2873642151   1         1         1         1m
+    rs/istio-mixer-1999632368     1         1         1         2m
+    rs/istio-pilot-1811250569     1         1         1         1m
 
-NAME                   DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deploy/istio-ca        1         1         1            1           1m
-deploy/istio-egress    1         1         1            1           1m
-deploy/istio-ingress   1         1         1            1           1m
-deploy/istio-mixer     1         1         1            1           2m
-deploy/istio-pilot     1         1         1            1           1m
+    NAME                   DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    deploy/istio-ca        1         1         1            1           1m
+    deploy/istio-egress    1         1         1            1           1m
+    deploy/istio-ingress   1         1         1            1           1m
+    deploy/istio-mixer     1         1         1            1           2m
+    deploy/istio-pilot     1         1         1            1           1m
 
-NAME                                READY     STATUS    RESTARTS   AGE
-po/istio-ca-2651333813-pcr1f        1/1       Running   0          1m
-po/istio-egress-2836352731-sfj7j    1/1       Running   0          1m
-po/istio-ingress-2873642151-vzfxr   1/1       Running   0          1m
-po/istio-mixer-1999632368-nz0mw     2/2       Running   0          2m
-po/istio-pilot-1811250569-mmfdg     1/1       Running   0          1m
-```
+    NAME                                READY     STATUS    RESTARTS   AGE
+    po/istio-ca-2651333813-pcr1f        1/1       Running   0          1m
+    po/istio-egress-2836352731-sfj7j    1/1       Running   0          1m
+    po/istio-ingress-2873642151-vzfxr   1/1       Running   0          1m
+    po/istio-mixer-1999632368-nz0mw     2/2       Running   0          2m
+    po/istio-pilot-1811250569-mmfdg     1/1       Running   0          1m
 
 === Deploying the sample application
 
@@ -302,45 +299,43 @@ the pods.
 
 Let's check that all components were installed
 
-```
-$ kubectl get all
-NAME                    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deploy/details-v1       1         1         1            1           3h
-deploy/productpage-v1   1         1         1            1           3h
-deploy/ratings-v1       1         1         1            1           3h
-deploy/reviews-v1       1         1         1            1           3h
-deploy/reviews-v2       1         1         1            1           3h
-deploy/reviews-v3       1         1         1            1           3h
+    $ kubectl get all
+    NAME                    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    deploy/details-v1       1         1         1            1           3h
+    deploy/productpage-v1   1         1         1            1           3h
+    deploy/ratings-v1       1         1         1            1           3h
+    deploy/reviews-v1       1         1         1            1           3h
+    deploy/reviews-v2       1         1         1            1           3h
+    deploy/reviews-v3       1         1         1            1           3h
 
-NAME                           DESIRED   CURRENT   READY     AGE
-rs/details-v1-39705650         1         1         1         3h
-rs/productpage-v1-1382449686   1         1         1         3h
-rs/ratings-v1-3906799406       1         1         1         3h
-rs/reviews-v1-2953083044       1         1         1         3h
-rs/reviews-v2-348355652        1         1         1         3h
-rs/reviews-v3-4088116596       1         1         1         3h
+    NAME                           DESIRED   CURRENT   READY     AGE
+    rs/details-v1-39705650         1         1         1         3h
+    rs/productpage-v1-1382449686   1         1         1         3h
+    rs/ratings-v1-3906799406       1         1         1         3h
+    rs/reviews-v1-2953083044       1         1         1         3h
+    rs/reviews-v2-348355652        1         1         1         3h
+    rs/reviews-v3-4088116596       1         1         1         3h
 
-NAME                    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deploy/details-v1       1         1         1            1           3h
-deploy/productpage-v1   1         1         1            1           3h
-deploy/ratings-v1       1         1         1            1           3h
-deploy/reviews-v1       1         1         1            1           3h
-deploy/reviews-v2       1         1         1            1           3h
-deploy/reviews-v3       1         1         1            1           3h
+    NAME                    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    deploy/details-v1       1         1         1            1           3h
+    deploy/productpage-v1   1         1         1            1           3h
+    deploy/ratings-v1       1         1         1            1           3h
+    deploy/reviews-v1       1         1         1            1           3h
+    deploy/reviews-v2       1         1         1            1           3h
+    deploy/reviews-v3       1         1         1            1           3h
 
-NAME                                 READY     STATUS    RESTARTS   AGE
-po/details-v1-39705650-vc2x0         2/2       Running   0          3h
-po/productpage-v1-1382449686-b7frw   2/2       Running   0          3h
-po/ratings-v1-3906799406-11pcn       2/2       Running   0          3h
-po/reviews-v1-2953083044-sktvt       2/2       Running   0          3h
-po/reviews-v2-348355652-xbbbv        2/2       Running   0          3h
-po/reviews-v3-4088116596-pkkjk       2/2       Running   0          3h
-```
+    NAME                                 READY     STATUS    RESTARTS   AGE
+    po/details-v1-39705650-vc2x0         2/2       Running   0          3h
+    po/productpage-v1-1382449686-b7frw   2/2       Running   0          3h
+    po/ratings-v1-3906799406-11pcn       2/2       Running   0          3h
+    po/reviews-v1-2953083044-sktvt       2/2       Running   0          3h
+    po/reviews-v2-348355652-xbbbv        2/2       Running   0          3h
+    po/reviews-v3-4088116596-pkkjk       2/2       Running   0          3h
 
 If all components were installed successfully, you should be able to see the product page. This may take a minute or two, first for the Ingress to be created, and secondly for the Ingress to hook up with the services it exposes. Just keep refreshing the browser until the booking product page appears.
 
-  ISTIO_INGRESS=$(kubectl get ingress gateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
-  open http://$ISTIO_INGRESS/productpage
+    ISTIO_INGRESS=$(kubectl get ingress gateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+    open http://$ISTIO_INGRESS/productpage
 
 It looks like as shown:
 
@@ -400,9 +395,9 @@ First, install Prometheus, which will obtain the metrics we need from Istio
 
 Check that Prometheus is running:
 
-  $ kubectl -n istio-system get svc prometheus
-  NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-  prometheus   ClusterIP   100.69.199.148   <none>        9090/TCP   47s
+    $ kubectl -n istio-system get svc prometheus
+    NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+    prometheus   ClusterIP   100.69.199.148   <none>        9090/TCP   47s
 
 Now install the Servicegraph addon; Servicegraph queries Prometheus, which obtains details of the mesh traffic flows
 from Istio
@@ -413,14 +408,14 @@ from Istio
 
 Check that the Servicegraph was deployed:
 
-  $ kubectl -n istio-system get svc servicegraph
-  NAME           TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
-  servicegraph   ClusterIP   100.65.77.1   <none>        8088/TCP   5m
+    $ kubectl -n istio-system get svc servicegraph
+    NAME           TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE
+    servicegraph   ClusterIP   100.65.77.1   <none>        8088/TCP   5m
 
 Generate some traffic to the bookinfo application:
 
-  ISTIO_INGRESS=$(kubectl get ingress gateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
-  open http://$ISTIO_INGRESS/productpage
+    ISTIO_INGRESS=$(kubectl get ingress gateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+    open http://$ISTIO_INGRESS/productpage
 
 View the Servicegraph UI - we'll use port forwarding to access this
 
@@ -451,11 +446,11 @@ all traffic between microservices will now be encrypted.
 
 Remove the installed components
 
-  kubectl delete -f install/kubernetes/addons/servicegraph.yaml
-  kubectl delete -f install/kubernetes/addons/prometheus.yaml
-  kubectl delete -f install/kubernetes/istio-auth.yaml
-  kubectl delete -f install/kubernetes/istio.yaml
-  ./samples/bookinfo/kube/cleanup.sh
+    kubectl delete -f install/kubernetes/addons/servicegraph.yaml
+    kubectl delete -f install/kubernetes/addons/prometheus.yaml
+    kubectl delete -f install/kubernetes/istio-auth.yaml
+    kubectl delete -f install/kubernetes/istio.yaml
+    ./samples/bookinfo/kube/cleanup.sh
 
 Accept the `default` namespace in the cleanup script above.
 

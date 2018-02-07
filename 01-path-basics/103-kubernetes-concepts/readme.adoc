@@ -19,16 +19,13 @@ This chapter uses a cluster with 3 master nodes and 5 worker nodes as described 
 All configuration files for this chapter are in the `01-path-basics/103-kubernetes-concepts/templates` directory.
 Please be sure to `cd` into that directory before running the commands below.
 
-    $ cd 01-path-basics/103-kubernetes-concepts/templates
+    cd 01-path-basics/103-kubernetes-concepts/templates
 
 == Display Nodes
 
 This command will show all the nodes available in your kubernetes cluster:
 
     $ kubectl get nodes
-
-It will show an output similar to:
-
     NAME                                           STATUS    ROLES     AGE      VERSION
     ip-172-20-105-158.us-east-2.compute.internal   Ready     node      2d       v1.7.4
     ip-172-20-124-26.us-east-2.compute.internal    Ready     master    2d       v1.7.4
@@ -62,110 +59,105 @@ Get the list of running pods:
 
 Get additional details for the pod by using the `<pod-name>` from the above output:
 
-```
-$ kubectl describe pod/nginx-4217019353-pmkzb
-kubectl describe pod/nginx-4217019353-pmkzb
-Name:           nginx-4217019353-pmkzb
-Namespace:      default
-Node:           ip-172-20-87-91.us-east-2.compute.internal/172.20.87.91
-Start Time:     Fri, 01 Dec 2017 16:36:48 -0800
-Labels:         pod-template-hash=4217019353
-                run=nginx
-Annotations:    kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"nginx-4217019353","uid":"e161abe9-d6f8-11e7-af8f-06c4465216f2","...
-                kubernetes.io/limit-ranger=LimitRanger plugin set: cpu request for container nginx
-Status:         Running
-IP:             100.96.7.19
-Created By:     ReplicaSet/nginx-4217019353
-Controlled By:  ReplicaSet/nginx-4217019353
-Containers:
-  nginx:
-    Container ID:   docker://2def6a6dc1594c337748abf6160ff81fab9fa6d734aca02b5f1afc4d395edc6b
-    Image:          nginx
-    Image ID:       docker-pullable://nginx@sha256:b81f317384d7388708a498555c28a7cce778a8f291d90021208b3eba3fe74887
-    Port:           <none>
-    State:          Running
-      Started:      Fri, 01 Dec 2017 16:36:52 -0800
-    Ready:          True
-    Restart Count:  0
-    Requests:
-      cpu:        100m
-    Environment:  <none>
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-cqht0 (ro)
-Conditions:
-  Type           Status
-  Initialized    True
-  Ready          True
-  PodScheduled   True
-Volumes:
-  default-token-cqht0:
-    Type:        Secret (a volume populated by a Secret)
-    SecretName:  default-token-cqht0
-    Optional:    false
-QoS Class:       Burstable
-Node-Selectors:  <none>
-Tolerations:     node.alpha.kubernetes.io/notReady:NoExecute for 300s
-                 node.alpha.kubernetes.io/unreachable:NoExecute for 300s
-Events:
-  Type    Reason                 Age   From                                                 Message
-  ----    ------                 ----  ----                                                 -------
-  Normal  Scheduled              46s   default-scheduler                                    Successfully assigned nginx-4217019353-pmkzb to ip-172-20-87-91.us-east-2.compute.internal
-  Normal  SuccessfulMountVolume  46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  MountVolume.SetUp succeeded for volume "default-token-cqht0"
-  Normal  Pulling                46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  pulling image "nginx"
-  Normal  Pulled                 42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Successfully pulled image "nginx"
-  Normal  Created                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Created container
-  Normal  Started                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Started container
-
-```
+    $ kubectl describe pod/<pod-name>
+    Name:           nginx-4217019353-pmkzb
+    Namespace:      default
+    Node:           ip-172-20-87-91.us-east-2.compute.internal/172.20.87.91
+    Start Time:     Fri, 01 Dec 2017 16:36:48 -0800
+    Labels:         pod-template-hash=4217019353
+                    run=nginx
+    Annotations:    kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"nginx-4217019353","uid":"e161abe9-d6f8-11e7-af8f-06c4465216f2","...
+                    kubernetes.io/limit-ranger=LimitRanger plugin set: cpu request for container nginx
+    Status:         Running
+    IP:             100.96.7.19
+    Created By:     ReplicaSet/nginx-4217019353
+    Controlled By:  ReplicaSet/nginx-4217019353
+    Containers:
+      nginx:
+        Container ID:   docker://2def6a6dc1594c337748abf6160ff81fab9fa6d734aca02b5f1afc4d395edc6b
+        Image:          nginx
+        Image ID:       docker-pullable://nginx@sha256:b81f317384d7388708a498555c28a7cce778a8f291d90021208b3eba3fe74887
+        Port:           <none>
+        State:          Running
+          Started:      Fri, 01 Dec 2017 16:36:52 -0800
+        Ready:          True
+        Restart Count:  0
+        Requests:
+          cpu:        100m
+        Environment:  <none>
+        Mounts:
+          /var/run/secrets/kubernetes.io/serviceaccount from default-token-cqht0 (ro)
+    Conditions:
+      Type           Status
+      Initialized    True
+      Ready          True
+      PodScheduled   True
+    Volumes:
+      default-token-cqht0:
+        Type:        Secret (a volume populated by a Secret)
+        SecretName:  default-token-cqht0
+        Optional:    false
+    QoS Class:       Burstable
+    Node-Selectors:  <none>
+    Tolerations:     node.alpha.kubernetes.io/notReady:NoExecute for 300s
+                     node.alpha.kubernetes.io/unreachable:NoExecute for 300s
+    Events:
+      Type    Reason                 Age   From                                                 Message
+      ----    ------                 ----  ----                                                 -------
+      Normal  Scheduled              46s   default-scheduler                                    Successfully assigned nginx-4217019353-pmkzb to ip-172-20-87-91.us-east-2.compute.internal
+      Normal  SuccessfulMountVolume  46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  MountVolume.SetUp succeeded for volume "default-token-cqht0"
+      Normal  Pulling                46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  pulling image "nginx"
+      Normal  Pulled                 42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Successfully pulled image "nginx"
+      Normal  Created                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Created container
+      Normal  Started                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Started container
 
 By default, pods are created in a `default` namespace. In addition, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
 
-```
-$ kubectl get pods --namespace kube-system
-NAME                                                                  READY     STATUS    RESTARTS   AGE
-dns-controller-3497129722-4pxd6                                       1/1       Running   0          28d
-etcd-server-events-ip-172-20-124-26.us-east-2.compute.internal        1/1       Running   0          28d
-etcd-server-events-ip-172-20-52-35.us-east-2.compute.internal         1/1       Running   0          28d
-etcd-server-events-ip-172-20-94-153.us-east-2.compute.internal        1/1       Running   0          28d
-etcd-server-ip-172-20-124-26.us-east-2.compute.internal               1/1       Running   0          28d
-etcd-server-ip-172-20-52-35.us-east-2.compute.internal                1/1       Running   0          28d
-etcd-server-ip-172-20-94-153.us-east-2.compute.internal               1/1       Running   0          28d
-kube-apiserver-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
-kube-apiserver-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
-kube-apiserver-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
-kube-controller-manager-ip-172-20-124-26.us-east-2.compute.internal   1/1       Running   0          28d
-kube-controller-manager-ip-172-20-52-35.us-east-2.compute.internal    1/1       Running   0          28d
-kube-controller-manager-ip-172-20-94-153.us-east-2.compute.internal   1/1       Running   0          28d
-kube-dns-1311260920-jgl0m                                             3/3       Running   0          28d
-kube-dns-1311260920-tvpmp                                             3/3       Running   0          28d
-kube-dns-autoscaler-1818915203-5kxrb                                  1/1       Running   0          28d
-kube-proxy-ip-172-20-105-158.us-east-2.compute.internal               1/1       Running   0          28d
-kube-proxy-ip-172-20-124-26.us-east-2.compute.internal                1/1       Running   0          28d
-kube-proxy-ip-172-20-127-251.us-east-2.compute.internal               1/1       Running   0          28d
-kube-proxy-ip-172-20-52-35.us-east-2.compute.internal                 1/1       Running   0          28d
-kube-proxy-ip-172-20-63-150.us-east-2.compute.internal                1/1       Running   0          28d
-kube-proxy-ip-172-20-71-14.us-east-2.compute.internal                 1/1       Running   0          28d
-kube-proxy-ip-172-20-87-91.us-east-2.compute.internal                 1/1       Running   0          28d
-kube-proxy-ip-172-20-94-153.us-east-2.compute.internal                1/1       Running   0          28d
-kube-scheduler-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
-kube-scheduler-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
-kube-scheduler-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
-tiller-deploy-1114875906-k2pj2                                        1/1       Running   0          28d
-```
+    $ kubectl get pods --namespace kube-system
+    NAME                                                                  READY     STATUS    RESTARTS   AGE
+    dns-controller-3497129722-4pxd6                                       1/1       Running   0          28d
+    etcd-server-events-ip-172-20-124-26.us-east-2.compute.internal        1/1       Running   0          28d
+    etcd-server-events-ip-172-20-52-35.us-east-2.compute.internal         1/1       Running   0          28d
+    etcd-server-events-ip-172-20-94-153.us-east-2.compute.internal        1/1       Running   0          28d
+    etcd-server-ip-172-20-124-26.us-east-2.compute.internal               1/1       Running   0          28d
+    etcd-server-ip-172-20-52-35.us-east-2.compute.internal                1/1       Running   0          28d
+    etcd-server-ip-172-20-94-153.us-east-2.compute.internal               1/1       Running   0          28d
+    kube-apiserver-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
+    kube-apiserver-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
+    kube-apiserver-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
+    kube-controller-manager-ip-172-20-124-26.us-east-2.compute.internal   1/1       Running   0          28d
+    kube-controller-manager-ip-172-20-52-35.us-east-2.compute.internal    1/1       Running   0          28d
+    kube-controller-manager-ip-172-20-94-153.us-east-2.compute.internal   1/1       Running   0          28d
+    kube-dns-1311260920-jgl0m                                             3/3       Running   0          28d
+    kube-dns-1311260920-tvpmp                                             3/3       Running   0          28d
+    kube-dns-autoscaler-1818915203-5kxrb                                  1/1       Running   0          28d
+    kube-proxy-ip-172-20-105-158.us-east-2.compute.internal               1/1       Running   0          28d
+    kube-proxy-ip-172-20-124-26.us-east-2.compute.internal                1/1       Running   0          28d
+    kube-proxy-ip-172-20-127-251.us-east-2.compute.internal               1/1       Running   0          28d
+    kube-proxy-ip-172-20-52-35.us-east-2.compute.internal                 1/1       Running   0          28d
+    kube-proxy-ip-172-20-63-150.us-east-2.compute.internal                1/1       Running   0          28d
+    kube-proxy-ip-172-20-71-14.us-east-2.compute.internal                 1/1       Running   0          28d
+    kube-proxy-ip-172-20-87-91.us-east-2.compute.internal                 1/1       Running   0          28d
+    kube-proxy-ip-172-20-94-153.us-east-2.compute.internal                1/1       Running   0          28d
+    kube-scheduler-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
+    kube-scheduler-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
+    kube-scheduler-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
+    tiller-deploy-1114875906-k2pj2                                        1/1       Running   0          28d
+
 Again, the exact output may vary but your results should look similar to these.
 
 === Get logs from the pod
 
 Logs from the pod can be obtained (a fresh nginx does not have logs - check again later once you have accessed the service):
 
-    $ kubectl logs <pod-name> --namespace <namespace-name>
+    kubectl logs <pod-name> --namespace <namespace-name>
 
 === Execute a shell on the running pod
 
 This command will open a TTY to a shell in your pod:
 
-    $ kubectl get pods
-    $ kubectl exec -it <pod-name> /bin/bash
+    kubectl get pods
+    kubectl exec -it <pod-name> /bin/bash
 
 This opens a bash shell and allows you to look around the filesystem of the container.
 
@@ -173,7 +165,7 @@ This opens a bash shell and allows you to look around the filesystem of the cont
 
 Delete all the Kubernetes resources created so far:
 
-    $ kubectl delete deployment/nginx
+    kubectl delete deployment/nginx
 
 
 In the next sections, we will go into more detail about Pods, Deployments, and other commonly used Kubernetes objects.
@@ -186,34 +178,34 @@ A Pod is the smallest deployable unit that can be created, scheduled, and manage
 
 Each resource in Kubernetes can be defined using a configuration file. For example, an NGINX pod can be defined with configuration file shown in below:
 
-	  $ cat pod.yaml
-	  apiVersion: v1
-	  kind: Pod
-	  metadata:
-	    name: nginx-pod
-	    labels:
-	      name: nginx-pod
-	  spec:
-	    containers:
-	    - name: nginx
-	      image: nginx:latest
-	      ports:
-	      - containerPort: 80
+    $ cat pod.yaml
+     apiVersion: v1
+     kind: Pod
+     metadata:
+       name: nginx-pod
+       labels:
+         name: nginx-pod
+     spec:
+       containers:
+       - name: nginx
+         image: nginx:latest
+         ports:
+         - containerPort: 80
 
 Create the pod as shown below:
 
-	$ kubectl apply -f pod.yaml
-	pod "nginx-pod" created
+    $ kubectl apply -f pod.yaml
+    pod "nginx-pod" created
 
 Get the list of pod:
 
-	$ kubectl get pods
-	NAME        READY     STATUS    RESTARTS   AGE
-	nginx-pod   1/1       Running   0          22s
+    $ kubectl get pods
+    NAME        READY     STATUS    RESTARTS   AGE
+    nginx-pod   1/1       Running   0          22s
 
 Verify that the pod came up fine (ensure nothing else is running on port 8080):
 
-	$ kubectl -n default port-forward $(kubectl -n default get pod -l name=nginx-pod -o jsonpath='{.items[0].metadata.name}') 8080:80
+    kubectl -n default port-forward $(kubectl -n default get pod -l name=nginx-pod -o jsonpath='{.items[0].metadata.name}') 8080:80
 
 In your Cloud9 IDE, click **Preview** and **Preview Running Application**. This opens up a preview tab and shows the NGINX main page:
 
@@ -221,10 +213,10 @@ image::nginx-pod-default-page.png[]
 
 If the containers in the pod generate logs, then they can be seen using the command shown:
 
-	$ kubectl logs nginx-pod
-	127.0.0.1 - - [03/Nov/2017:17:33:30 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36" "-"
-	127.0.0.1 - - [03/Nov/2017:17:33:32 +0000] "GET /favicon.ico HTTP/1.1" 404 571 "http://localhost:8080/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36" "-"
-	2017/11/03 17:33:32 [error] 5#5: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8080", referrer: "http://localhost:8080/"
+    $ kubectl logs nginx-pod
+    127.0.0.1 - - [03/Nov/2017:17:33:30 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36" "-"
+    127.0.0.1 - - [03/Nov/2017:17:33:32 +0000] "GET /favicon.ico HTTP/1.1" 404 571 "http://localhost:8080/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36" "-"
+    2017/11/03 17:33:32 [error] 5#5: *2 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost:8080", referrer: "http://localhost:8080/"
 
 === Memory and CPU resource request
 
@@ -253,109 +245,109 @@ CPU can be requested in _cpu units_. 1 cpu unit is equivalent 1 AWS vCPU. It can
 
 By default, a container in a pod is allocated no memory request/limit and 100m CPU request and no limit. This can be verified using the previously started pod:
 
-	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
-	map[requests:map[cpu:100m]]
+    $ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
+    map[requests:map[cpu:100m]]
 
 ===== Assign memory and CPU
 
 Let's assign a memory request and limit to a Pod using the configuration file shown:
 
-	$ cat pod-resources.yaml
-	apiVersion: v1
-	kind: Pod
-	metadata:
-	  name: nginx-pod2
-	  labels:
-	    name: nginx-pod
-	spec:
-	  containers:
-	  - name: nginx
-	    image: nginx:latest
-	    resources:
-	      limits:
-	        memory: "200Mi"
-	        cpu: 2
-	      requests:
-	        memory: "100Mi"
-	        cpu: 1
-	    ports:
-	    - containerPort: 80
+    $ cat pod-resources.yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: nginx-pod2
+      labels:
+        name: nginx-pod
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "200Mi"
+            cpu: 2
+          requests:
+            memory: "100Mi"
+            cpu: 1
+        ports:
+        - containerPort: 80
 
 The only change in this configuration file is the addition of `spec.containers[].resources` section. The limits are specified in the `limits` section and the requests are specified in the `requests` section.
 
 Create the pod:
 
-	$ kubectl apply -f pod-resources.yaml
-	pod "nginx-pod2" created
+    $ kubectl apply -f pod-resources.yaml
+    pod "nginx-pod2" created
 
 Get more details about the requests and limits:
 
-	$ kubectl get pod/nginx-pod2 -o jsonpath={.spec.containers[].resources}
-	map[limits:map[memory:200Mi cpu:2] requests:map[cpu:1 memory:100Mi]]
+    $ kubectl get pod/nginx-pod2 -o jsonpath={.spec.containers[].resources}
+    map[limits:map[memory:200Mi cpu:2] requests:map[cpu:1 memory:100Mi]]
 
 NGINX container requires fairly low memory and CPU. And so these request and limit numbers would work well, and the pod is started correctly. Now, let's try to start a WildFly pod using similar numbers. The configuration file for the same is shown:
 
-	$ cat pod-resources1.yaml
-	apiVersion: v1
-	kind: Pod
-	metadata:
-	  name: wildfly-pod
-	  labels:
-	    name: wildfly-pod
-	spec:
-	  containers:
-	  - name: wildfly
-	    image: jboss/wildfly:11.0.0.Final
-	    resources:
-	      limits:
-	        memory: "200Mi"
-	        cpu: 2
-	      requests:
-	        memory: "100Mi"
-	        cpu: 1
-	    ports:
-	    - containerPort: 8080
+    $ cat pod-resources1.yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: wildfly-pod
+      labels:
+        name: wildfly-pod
+    spec:
+      containers:
+      - name: wildfly
+        image: jboss/wildfly:11.0.0.Final
+        resources:
+          limits:
+            memory: "200Mi"
+            cpu: 2
+          requests:
+            memory: "100Mi"
+            cpu: 1
+        ports:
+        - containerPort: 8080
 
 The max amount of memory allocated for the WildFly container in this pod is restricted to 200MB. Let's create this Pod:
 
-	$ kubectl apply -f pod-resources1.yaml
-	pod "wildfly-pod" created
+    $ kubectl apply -f pod-resources1.yaml
+    pod "wildfly-pod" created
 
 Watch the status of the Pod:
 
-	$ kubectl get pods -w
-	NAME          READY     STATUS              RESTARTS   AGE
-	wildfly-pod   0/1       ContainerCreating   0          5s
-	wildfly-pod   1/1       Running   0         26s
-	wildfly-pod   0/1       OOMKilled   0         29s
-	wildfly-pod   1/1       Running   1         31s
-	wildfly-pod   0/1       OOMKilled   1         34s
-	wildfly-pod   0/1       CrashLoopBackOff   1         45s
-	wildfly-pod   1/1       Running   2         46s
-	wildfly-pod   0/1       OOMKilled   2         49s
-	wildfly-pod   0/1       CrashLoopBackOff   2         1m
-	wildfly-pod   1/1       Running   3         1m
-	wildfly-pod   0/1       OOMKilled   3         1m
+    $ kubectl get pods -w
+    NAME          READY     STATUS              RESTARTS   AGE
+    wildfly-pod   0/1       ContainerCreating   0          5s
+    wildfly-pod   1/1       Running   0         26s
+    wildfly-pod   0/1       OOMKilled   0         29s
+    wildfly-pod   1/1       Running   1         31s
+    wildfly-pod   0/1       OOMKilled   1         34s
+    wildfly-pod   0/1       CrashLoopBackOff   1         45s
+    wildfly-pod   1/1       Running   2         46s
+    wildfly-pod   0/1       OOMKilled   2         49s
+    wildfly-pod   0/1       CrashLoopBackOff   2         1m
+    wildfly-pod   1/1       Running   3         1m
+    wildfly-pod   0/1       OOMKilled   3         1m
 
 `OOMKilled` shows that the container was terminated because it ran out of memory.
 
 In `pod-resources2.yaml`, change the value of `spec.containers[].resources.limits.memory` to `300Mi`. Delete the existing Pod, and create a new one:
 
-	$ kubectl delete -f pod-resources1.yaml
-	pod "wildfly-pod" deleted
-	$ kubectl apply -f pod-resources2.yaml
-	pod "wildfly-pod" created
-	$ kubectl get -w pod/wildfly-pod
-	NAME          READY     STATUS              RESTARTS   AGE
-	wildfly-pod   0/1       ContainerCreating   0          3s
-	wildfly-pod   1/1       Running   0         25s
+    $ kubectl delete -f pod-resources1.yaml
+    pod "wildfly-pod" deleted
+    $ kubectl apply -f pod-resources2.yaml
+    pod "wildfly-pod" created
+    $ kubectl get -w pod/wildfly-pod
+    NAME          READY     STATUS              RESTARTS   AGE
+    wildfly-pod   0/1       ContainerCreating   0          3s
+    wildfly-pod   1/1       Running   0         25s
 
 Now, the Pod successfully starts.
 
 Get more details about the resources allocated to the Pod:
 
-	$ kubectl get pod/wildfly-pod -o jsonpath={.spec.containers[].resources}
-	map[limits:map[cpu:2 memory:300Mi] requests:map[cpu:1 memory:100Mi]]
+    $ kubectl get pod/wildfly-pod -o jsonpath={.spec.containers[].resources}
+    map[limits:map[cpu:2 memory:300Mi] requests:map[cpu:1 memory:100Mi]]
 
 === Quality of service
 
@@ -381,132 +373,132 @@ Pods that need to stay up can request `Guaranteed` QoS. Pods with less stringent
 
 Here is an example of Pod with `Guaranteed` QoS:
 
-	$ cat pod-guaranteed.yaml
-	apiVersion: v1
-	kind: Pod
-	metadata:
-	  name: nginx-pod-guaranteed
-	  labels:
-	    name: nginx-pod
-	spec:
-	  containers:
-	  - name: nginx
-	    image: nginx:latest
-	    resources:
-	      limits:
-	        memory: "200Mi"
-	        cpu: 1
-	    ports:
-	    - containerPort: 80
+    $ cat pod-guaranteed.yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: nginx-pod-guaranteed
+      labels:
+        name: nginx-pod
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "200Mi"
+            cpu: 1
+        ports:
+        - containerPort: 80
 
 Note that no request values are specified here, and will default to limit.
 
 Create this Pod:
 
-	$ kubectl apply -f pod-guaranteed.yaml
-	pod "nginx-pod-guaranteed" created
+    $ kubectl apply -f pod-guaranteed.yaml
+    pod "nginx-pod-guaranteed" created
 
 Check the resources:
 
-	$ kubectl get pod/nginx-pod-guaranteed -o jsonpath={.spec.containers[].resources}
-	map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:200Mi]]
+    $ kubectl get pod/nginx-pod-guaranteed -o jsonpath={.spec.containers[].resources}
+    map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:200Mi]]
 
 Check the QoS:
 
-	$ kubectl get pod/nginx-pod-guaranteed -o jsonpath={.status.qosClass}
-	Guaranteed
+    $ kubectl get pod/nginx-pod-guaranteed -o jsonpath={.status.qosClass}
+    Guaranteed
 
 Another Pod with explicit value for limit and request is shown:
 
-	$ cat pod-guaranteed2.yaml
-	apiVersion: v1
-	kind: Pod
-	metadata:
-	  name: nginx-pod-guaranteed2
-	  labels:
-	    name: nginx-pod
-	spec:
-	  containers:
-	  - name: nginx
-	    image: nginx:latest
-	    resources:
-	      limits:
-	        memory: "200Mi"
-	        cpu: 1
-	      requests:
-	        memory: "200Mi"
-	        cpu: 1
-	    ports:
-	    - containerPort: 80
+    $ cat pod-guaranteed2.yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: nginx-pod-guaranteed2
+      labels:
+        name: nginx-pod
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "200Mi"
+            cpu: 1
+          requests:
+            memory: "200Mi"
+            cpu: 1
+        ports:
+        - containerPort: 80
 
 Create this Pod:
 
-	$ kubectl apply -f pod-guaranteed2.yaml
-	pod "nginx-pod-guaranteed2" created
+    $ kubectl apply -f pod-guaranteed2.yaml
+    pod "nginx-pod-guaranteed2" created
 
 Check the resources:
 
-	$ kubectl get pod/nginx-pod-guaranteed2 -o jsonpath={.spec.containers[].resources}
-	map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:200Mi]]
+    $ kubectl get pod/nginx-pod-guaranteed2 -o jsonpath={.spec.containers[].resources}
+    map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:200Mi]]
 
 Check the QoS:
 
-	$ kubectl get pod/nginx-pod-guaranteed2 -o jsonpath={.status.qosClass}
-	Guaranteed
+    $ kubectl get pod/nginx-pod-guaranteed2 -o jsonpath={.status.qosClass}
+    Guaranteed
 
 ==== Burstable
 
 Here is an example of Pod with `Burstable` QoS:
 
-	$ cat pod-burstable.yaml
-	apiVersion: v1
-	kind: Pod
-	metadata:
-	  name: nginx-pod-burstable
-	  labels:
-	    name: nginx-pod
-	spec:
-	  containers:
-	  - name: nginx
-	    image: nginx:latest
-	    resources:
-	      limits:
-	        memory: "200Mi"
-	        cpu: 1
-	      requests:
-	        memory: "100Mi"
-	        cpu: 1
-	    ports:
-	    - containerPort: 80
+    $ cat pod-burstable.yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: nginx-pod-burstable
+      labels:
+        name: nginx-pod
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "200Mi"
+            cpu: 1
+          requests:
+            memory: "100Mi"
+            cpu: 1
+        ports:
+        - containerPort: 80
 
 Note that both request and limit values are specified here.
 
 Create this Pod:
 
-	$ kubectl apply -f pod-burstable.yaml
-	pod "nginx-pod-burstable" created
+    $ kubectl apply -f pod-burstable.yaml
+    pod "nginx-pod-burstable" created
 
 Check the resources:
 
-	$ kubectl get pod/nginx-pod-burstable -o jsonpath={.spec.containers[].resources}
-	map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:100Mi]]
+    $ kubectl get pod/nginx-pod-burstable -o jsonpath={.spec.containers[].resources}
+    map[limits:map[cpu:1 memory:200Mi] requests:map[cpu:1 memory:100Mi]]
 
 Check the QoS:
 
-	$ kubectl get pod/nginx-pod-burstable -o jsonpath={.status.qosClass}
-	Burstable
+    $ kubectl get pod/nginx-pod-burstable -o jsonpath={.status.qosClass}
+    Burstable
 
 ==== BestEffort
 
 Check the resources:
 
-	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
-	map[requests:map[cpu:100m]]
+    $ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
+    map[requests:map[cpu:100m]]
 
 Check the QoS:
 
-	$ kubectl get pod/nginx-pod -o jsonpath={.status.qosClass}
-	Burstable
+    $ kubectl get pod/nginx-pod -o jsonpath={.status.qosClass}
+    Burstable
 
 This should be `BestEffort` and filed as https://github.com/kubernetes/kubernetes/issues/55278[kubernetes#55278].
 
@@ -514,24 +506,24 @@ This should be `BestEffort` and filed as https://github.com/kubernetes/kubernete
 
 Get all the Pods that are running:
 
-	$ kubectl get pods
-	NAME                    READY     STATUS    RESTARTS   AGE
-	nginx-pod               1/1       Running   0          6m
-	nginx-pod-burstable     1/1       Running   0          9m
-	nginx-pod-guaranteed    1/1       Running   0          23m
-	nginx-pod-guaranteed2   1/1       Running   0          12m
-	nginx-pod2              1/1       Running   0          6m
-	wildfly-pod             1/1       Running   0          6m
+    $ kubectl get pods
+    NAME                    READY     STATUS    RESTARTS   AGE
+    nginx-pod               1/1       Running   0          6m
+    nginx-pod-burstable     1/1       Running   0          9m
+    nginx-pod-guaranteed    1/1       Running   0          23m
+    nginx-pod-guaranteed2   1/1       Running   0          12m
+    nginx-pod2              1/1       Running   0          6m
+    wildfly-pod             1/1       Running   0          6m
 
 Delete the Pods as shown below:
 
-	$ kubectl delete $(kubectl get pods -o=name)
-	pod "nginx-pod" deleted
-	pod "nginx-pod-burstable" deleted
-	pod "nginx-pod-guaranteed" deleted
-	pod "nginx-pod-guaranteed2" deleted
-	pod "nginx-pod2" deleted
-	pod "wildfly-pod" deleted
+    $ kubectl delete $(kubectl get pods -o=name)
+    pod "nginx-pod" deleted
+    pod "nginx-pod-burstable" deleted
+    pod "nginx-pod-guaranteed" deleted
+    pod "nginx-pod-guaranteed2" deleted
+    pod "nginx-pod2" deleted
+    pod "wildfly-pod" deleted
 
 == Deployment
 
@@ -541,84 +533,84 @@ A "`desired state`", such as 4 replicas of a pod, can be described in a Deployme
 
 The folowing example will create a Deployment with 3 replicas of NGINX base image. Let's begin with the template:
 
-  $ cat deployment.yaml
-	apiVersion: extensions/v1beta1
-	kind: Deployment # kubernetes object type
-	metadata:
-	  name: nginx-deployment # deployment name
-	spec:
-	  replicas: 3 # number of replicas
-	  template:
-	    metadata:
-	      labels:
-	        app: nginx # pod labels
-	    spec:
-	      containers:
-	      - name: nginx # container name
-	        image: nginx:1.12.1 # nginx image
-	        imagePullPolicy: IfNotPresent # if exists, will not pull new image
-	        ports: # container and host port assignments
-	        - containerPort: 80
-	        - containerPort: 443
+    $ cat deployment.yaml
+    apiVersion: extensions/v1beta1
+    kind: Deployment # kubernetes object type
+    metadata:
+      name: nginx-deployment # deployment name
+    spec:
+      replicas: 3 # number of replicas
+      template:
+        metadata:
+          labels:
+            app: nginx # pod labels
+        spec:
+          containers:
+          - name: nginx # container name
+            image: nginx:1.12.1 # nginx image
+            imagePullPolicy: IfNotPresent # if exists, will not pull new image
+            ports: # container and host port assignments
+            - containerPort: 80
+            - containerPort: 443
 
 This deployment will create 3 instances of NGINX image.
 
 Run the following command to create Deployment:
 
-	$ kubectl create -f deployment.yaml --record
-	deployment "nginx-deployment" created
+    $ kubectl create -f deployment.yaml --record
+    deployment "nginx-deployment" created
 
 The `--record` flag will track changes made through each revision.
 
 To monitor deployment rollout status:
 
-	$ kubectl rollout status deployment/nginx-deployment
-	deployment "nginx-deployment" successfully rolled out
+    $ kubectl rollout status deployment/nginx-deployment
+    deployment "nginx-deployment" successfully rolled out
 
 A Deployment creates a ReplicaSet to manage the number of replicas. Let's take a look at existing deployments and replica set.
 
 Get the deployments:
 
-	$ kubectl get deployments
-	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-	nginx-deployment   3         3         3            3           25s
+    $ kubectl get deployments
+    NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    nginx-deployment   3         3         3            3           25s
 
 Get the replica set for the deployment:
 
-	$ kubectl get replicaset
-	NAME                          DESIRED   CURRENT   READY     AGE
-	nginx-deployment-3441592026   3         3         3         1m
+    $ kubectl get replicaset
+    NAME                          DESIRED   CURRENT   READY     AGE
+    nginx-deployment-3441592026   3         3         3         1m
 
 Get the list of running pods:
 
-	$ kubectl get pods
-	NAME                                READY     STATUS    RESTARTS   AGE
-	nginx-deployment-3441592026-ddpf0   1/1       Running   0          2m
-	nginx-deployment-3441592026-kkp8h   1/1       Running   0          2m
-	nginx-deployment-3441592026-lx304   1/1       Running   0          2m
+    $ kubectl get pods
+    NAME                                READY     STATUS    RESTARTS   AGE
+    nginx-deployment-3441592026-ddpf0   1/1       Running   0          2m
+    nginx-deployment-3441592026-kkp8h   1/1       Running   0          2m
+    nginx-deployment-3441592026-lx304   1/1       Running   0          2m
 
 === Scaling a Deployment
 
 Number of replicas for a Deployment can be scaled using the following command:
 
-	$ kubectl scale --replicas=5 deployment/nginx-deployment
-	deployment "nginx-deployment" scaled
+    $ kubectl scale --replicas=5 deployment/nginx-deployment
+    deployment "nginx-deployment" scaled
 
 Verify the deployment:
 
-	$ kubectl get deployments
-	NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-	nginx-deployment   5         5         5            5           2m
+    $ kubectl get deployments
+    NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    nginx-deployment   5         5         5            5           2m
 
 Verify the pods in the deployment:
 
-	$ kubectl get pods
-	NAME                                READY     STATUS    RESTARTS   AGE
-	nginx-deployment-3441592026-36957   1/1       Running   0          44s
-	nginx-deployment-3441592026-8wch5   1/1       Running   0          44s
-	nginx-deployment-3441592026-ddpf0   1/1       Running   0          3m
-	nginx-deployment-3441592026-kkp8h   1/1       Running   0          3m
-	nginx-deployment-3441592026-lx304   1/1       Running   0          3m
+    $ kubectl get pods
+    NAME                                READY     STATUS    RESTARTS   AGE
+    nginx-deployment-3441592026-36957   1/1       Running   0          44s
+    nginx-deployment-3441592026-8wch5   1/1       Running   0          44s
+    nginx-deployment-3441592026-ddpf0   1/1       Running   0          3m
+    nginx-deployment-3441592026-kkp8h   1/1       Running   0          3m
+    nginx-deployment-3441592026-lx304   1/1       Running   0          3m
 
 === Update a Deployment
 
@@ -626,85 +618,83 @@ A more general update to Deployment can be made by making edits to the pod spec.
 
 First, type the following to open up a text editor:
 
-	$ kubectl edit deployment/nginx-deployment
+    $ kubectl edit deployment/nginx-deployment
 
 Next, change the image from `nginx:1.12.1` to `nginx:latest`.
 
 This should perform a rolling update of the deployment. To track the deployment details such as revision, image version, and ports - type in the following:
 
-```
-$ kubectl describe deployments
-Name:                   nginx-deployment
-Namespace:              default
-CreationTimestamp:      Mon, 23 Oct 2017 09:14:36 -0400
-Labels:                 app=nginx
-Annotations:            deployment.kubernetes.io/revision=2
-                        kubernetes.io/change-cause=kubectl edit deployment/nginx-deployment
-Selector:               app=nginx
-Replicas:               5 desired | 5 updated | 5 total | 5 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  1 max unavailable, 1 max surge
-Pod Template:
-  Labels:  app=nginx
-  Containers:
-   nginx:
-    Image:        nginx:latest
-    Ports:        80/TCP, 443/TCP
-    Environment:  <none>
-    Mounts:       <none>
-  Volumes:        <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   nginx-deployment-886641336 (5/5 replicas created)
-Events:
-  Type    Reason             Age                From                   Message
-  ----    ------             ----               ----                   -------
-  Normal  ScalingReplicaSet  4m                 deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 3
-  Normal  ScalingReplicaSet  1m                 deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 5
-  Normal  ScalingReplicaSet  32s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 1
-  Normal  ScalingReplicaSet  32s                deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 4
-  Normal  ScalingReplicaSet  32s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 2
-  Normal  ScalingReplicaSet  29s                deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 3
-  Normal  ScalingReplicaSet  29s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 3
-  Normal  ScalingReplicaSet  28s                deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 2
-  Normal  ScalingReplicaSet  28s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 4
-  Normal  ScalingReplicaSet  25s (x3 over 26s)  deployment-controller  (combined from similar events): Scaled down replica set nginx-deployment-3441592026 to 0
-```
+    $ kubectl describe deployments
+    Name:                   nginx-deployment
+    Namespace:              default
+    CreationTimestamp:      Mon, 23 Oct 2017 09:14:36 -0400
+    Labels:                 app=nginx
+    Annotations:            deployment.kubernetes.io/revision=2
+                            kubernetes.io/change-cause=kubectl edit deployment/nginx-deployment
+    Selector:               app=nginx
+    Replicas:               5 desired | 5 updated | 5 total | 5 available | 0 unavailable
+    StrategyType:           RollingUpdate
+    MinReadySeconds:        0
+    RollingUpdateStrategy:  1 max unavailable, 1 max surge
+    Pod Template:
+      Labels:  app=nginx
+      Containers:
+       nginx:
+        Image:        nginx:latest
+        Ports:        80/TCP, 443/TCP
+        Environment:  <none>
+        Mounts:       <none>
+      Volumes:        <none>
+    Conditions:
+      Type           Status  Reason
+      ----           ------  ------
+      Available      True    MinimumReplicasAvailable
+    OldReplicaSets:  <none>
+    NewReplicaSet:   nginx-deployment-886641336 (5/5 replicas created)
+    Events:
+      Type    Reason             Age                From                   Message
+      ----    ------             ----               ----                   -------
+      Normal  ScalingReplicaSet  4m                 deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 3
+      Normal  ScalingReplicaSet  1m                 deployment-controller  Scaled up replica set nginx-deployment-3441592026 to 5
+      Normal  ScalingReplicaSet  32s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 1
+      Normal  ScalingReplicaSet  32s                deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 4
+      Normal  ScalingReplicaSet  32s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 2
+      Normal  ScalingReplicaSet  29s                deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 3
+      Normal  ScalingReplicaSet  29s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 3
+      Normal  ScalingReplicaSet  28s                deployment-controller  Scaled down replica set nginx-deployment-3441592026 to 2
+      Normal  ScalingReplicaSet  28s                deployment-controller  Scaled up replica set nginx-deployment-886641336 to 4
+      Normal  ScalingReplicaSet  25s (x3 over 26s)  deployment-controller  (combined from similar events): Scaled down replica set nginx-deployment-3441592026 to 0
 
 === Rollback a Deployment
 
 To rollback to a previous version, first check the revision history:
 
-	$ kubectl rollout history deployment/nginx-deployment
-	deployments "nginx-deployment"
-	REVISION  CHANGE-CAUSE
-	1         kubectl scale deployment/nginx-deployment --replicas=5
-	2         kubectl edit deployment/nginx-deployment
+    $ kubectl rollout history deployment/nginx-deployment
+    deployments "nginx-deployment"
+    REVISION  CHANGE-CAUSE
+    1         kubectl scale deployment/nginx-deployment --replicas=5
+    2         kubectl edit deployment/nginx-deployment
 
 If you only want to rollback to the previous revision, enter the following command:
 
-	$ kubectl rollout undo deployment/nginx-deployment
-	deployment "nginx-deployment" rolled back
+    $ kubectl rollout undo deployment/nginx-deployment
+    deployment "nginx-deployment" rolled back
 
 In our case, the deployment will rollback to use the `nginx:1.12.1` image. Check the image name:
 
-	$ kubectl describe deployments | grep Image
-    Image:        nginx:1.12.1
+    $ kubectl get deployments/nginx-deployment -o jsonpath='{.spec.template.spec.containers..image}'
+    nginx:1.12.1
 
 If rolling back to a specific revision then enter:
 
-	$ kubectl rollout undo deployment/nginx-deployment --to-revision=<version>
+    kubectl rollout undo deployment/nginx-deployment --to-revision=<version>
 
 === Delete a Deployment
 
 Run the following command to delete the Deployment:
 
-	$ kubectl delete -f deployment.yaml
-	deployment "nginx-deployment" deleted
+    $ kubectl delete -f deployment.yaml
+    deployment "nginx-deployment" deleted
 
 == Service
 
@@ -722,84 +712,78 @@ Pods belong to a service by using a loosely-coupled model where labels are attac
 
 Let's create a Deployment first that will create 3 replicas of a pod:
 
-  $ cat echo-deployment.yaml
-	apiVersion: extensions/v1beta1
-	kind: Deployment
-	metadata:
-	  name: echo-deployment
-	spec:
-	  replicas: 3
-	  template:
-	    metadata:
-	      labels:
-	        app: echo-pod
-	    spec:
-	      containers:
-	      - name: echoheaders
-	        image: gcr.io/google_containers/echoserver:1.4
-	        imagePullPolicy: IfNotPresent
-	        ports:
-	        - containerPort: 8080
+    $ cat echo-deployment.yaml
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: echo-deployment
+    spec:
+      replicas: 3
+      template:
+        metadata:
+          labels:
+            app: echo-pod
+        spec:
+          containers:
+          - name: echoheaders
+            image: gcr.io/google_containers/echoserver:1.4
+            imagePullPolicy: IfNotPresent
+            ports:
+            - containerPort: 8080
 
 
 This example creates an echo app that responds with HTTP headers from an Elastic Load Balancer.
 
 Type the following to create the deployment:
 
-	$ kubectl create -f echo-deployment.yaml --record
+    kubectl create -f echo-deployment.yaml --record
 
 Use the `kubectl describe deployment` command to confirm `echo-app` has been deployed:
 
-```
-$ kubectl describe deployment
-Name:                   echo-deployment
-Namespace:              default
-CreationTimestamp:      Mon, 23 Oct 2017 10:07:47 -0400
-Labels:                 app=echo-pod
-Annotations:            deployment.kubernetes.io/revision=1
-                        kubernetes.io/change-cause=kubectl create --filename=templates/echo-deployment.yaml --record=true
-Selector:               app=echo-pod
-Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
-StrategyType:           RollingUpdate
-MinReadySeconds:        0
-RollingUpdateStrategy:  1 max unavailable, 1 max surge
-Pod Template:
-  Labels:  app=echo-pod
-  Containers:
-   echoheaders:
-    Image:        gcr.io/google_containers/echoserver:1.4
-    Port:         8080/TCP
-    Environment:  <none>
-    Mounts:       <none>
-  Volumes:        <none>
-Conditions:
-  Type           Status  Reason
-  ----           ------  ------
-  Available      True    MinimumReplicasAvailable
-OldReplicaSets:  <none>
-NewReplicaSet:   echo-deployment-3396249933 (3/3 replicas created)
-Events:
-  Type    Reason             Age   From                   Message
-  ----    ------             ----  ----                   -------
-  Normal  ScalingReplicaSet  10s   deployment-controller  Scaled up replica set echo-deployment-3396249933 to 3
-```
+    $ kubectl describe deployment
+    Name:                   echo-deployment
+    Namespace:              default
+    CreationTimestamp:      Mon, 23 Oct 2017 10:07:47 -0400
+    Labels:                 app=echo-pod
+    Annotations:            deployment.kubernetes.io/revision=1
+                            kubernetes.io/change-cause=kubectl create --filename=templates/echo-deployment.yaml --record=true
+    Selector:               app=echo-pod
+    Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+    StrategyType:           RollingUpdate
+    MinReadySeconds:        0
+    RollingUpdateStrategy:  1 max unavailable, 1 max surge
+    Pod Template:
+      Labels:  app=echo-pod
+      Containers:
+       echoheaders:
+        Image:        gcr.io/google_containers/echoserver:1.4
+        Port:         8080/TCP
+        Environment:  <none>
+        Mounts:       <none>
+      Volumes:        <none>
+    Conditions:
+      Type           Status  Reason
+      ----           ------  ------
+      Available      True    MinimumReplicasAvailable
+    OldReplicaSets:  <none>
+    NewReplicaSet:   echo-deployment-3396249933 (3/3 replicas created)
+    Events:
+      Type    Reason             Age   From                   Message
+      ----    ------             ----  ----                   -------
+      Normal  ScalingReplicaSet  10s   deployment-controller  Scaled up replica set echo-deployment-3396249933 to 3
 
 Get the list of pods:
 
-```
-$ kubectl get pods
-NAME                               READY     STATUS    RESTARTS   AGE
-echo-deployment-3396249933-8slzp   1/1       Running   0          1m
-echo-deployment-3396249933-bjwqj   1/1       Running   0          1m
-echo-deployment-3396249933-r05nr   1/1       Running   0          1m
-```
+    $ kubectl get pods
+    NAME                               READY     STATUS    RESTARTS   AGE
+    echo-deployment-3396249933-8slzp   1/1       Running   0          1m
+    echo-deployment-3396249933-bjwqj   1/1       Running   0          1m
+    echo-deployment-3396249933-r05nr   1/1       Running   0          1m
 
 Check the label for a pod:
 
-```
-$ kubectl describe pods/echo-deployment-3396249933-8slzp | grep Label
-Labels:         app=echo-pod
-```
+    $ kubectl describe pods/echo-deployment-3396249933-8slzp | grep Label
+    Labels:         app=echo-pod
 
 Each pod in this deployment has `app=echo-pod` label attached to it.
 
@@ -807,20 +791,20 @@ Each pod in this deployment has `app=echo-pod` label attached to it.
 
 In the following example, we create a service `echo-service`:
 
-	$ cat service.yaml
-	apiVersion: v1
-	kind: Service
-	metadata:
-	  name: echo-service
-	spec:
-	  selector:
-	    app: echo-pod
-	  ports:
-	  - name: http
-	    protocol: TCP
-	    port: 80
-	    targetPort: 8080
-	  type: LoadBalancer
+    $ cat service.yaml
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: echo-service
+    spec:
+      selector:
+        app: echo-pod
+      ports:
+      - name: http
+        protocol: TCP
+        port: 80
+        targetPort: 8080
+      type: LoadBalancer
 
 The set of pods targeted by the service are determined by the label `app: echo-pod` attached to them. It also defines an inbound port 80 to the target port of 8080 on the container.
 
@@ -839,76 +823,72 @@ Let's publish the service load balancer and expose your services, add a `type` f
 
 This template will expose `echo-app` service on an Elastic Load Balancer (ELB):
 
-	$ cat service.yaml
-	apiVersion: v1
-	kind: Service
-	metadata:
-	  name: echo-service
-	spec:
-	  selector:
-	    app: echo-pod
-	  ports:
-	  - name: http
-	    protocol: TCP
-	    port: 80
-	    targetPort: 8080
-	  type: LoadBalancer
+    $ cat service.yaml
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: echo-service
+    spec:
+      selector:
+        app: echo-pod
+      ports:
+      - name: http
+        protocol: TCP
+        port: 80
+        targetPort: 8080
+      type: LoadBalancer
 
 Run the following command to create the service:
 
-	$ kubectl create -f service.yaml --record
+    kubectl create -f service.yaml --record
 
 Get more details about the service:
 
-```
-$ kubectl get svc
-NAME           TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
-echo-service   LoadBalancer   100.66.161.199   ad0b47976b7fe...   80:30125/TCP   40s
-kubernetes     ClusterIP      100.64.0.1       <none>             443/TCP        1h
-$ kubectl describe service echo-service
-Name:                     echo-service
-Namespace:                default
-Labels:                   <none>
-Annotations:              kubernetes.io/change-cause=kubectl create --filename=templates/service.yaml --record=true
-Selector:                 app=echo-pod
-Type:                     LoadBalancer
-IP:                       100.66.161.199
-LoadBalancer Ingress:     ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
-Port:                     http  80/TCP
-TargetPort:               8080/TCP
-NodePort:                 http  30125/TCP
-Endpoints:                100.96.3.8:8080,100.96.4.9:8080,100.96.5.9:8080
-Session Affinity:         None
-External Traffic Policy:  Cluster
-Events:
-  Type    Reason                Age   From                Message
-  ----    ------                ----  ----                -------
-  Normal  CreatingLoadBalancer  58s   service-controller  Creating load balancer
-  Normal  CreatedLoadBalancer   56s   service-controller  Created load balancer
-```
+    $ kubectl get svc
+    NAME           TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
+    echo-service   LoadBalancer   100.66.161.199   ad0b47976b7fe...   80:30125/TCP   40s
+    kubernetes     ClusterIP      100.64.0.1       <none>             443/TCP        1h
+    $ kubectl describe service echo-service
+    Name:                     echo-service
+    Namespace:                default
+    Labels:                   <none>
+    Annotations:              kubernetes.io/change-cause=kubectl create --filename=templates/service.yaml --record=true
+    Selector:                 app=echo-pod
+    Type:                     LoadBalancer
+    IP:                       100.66.161.199
+    LoadBalancer Ingress:     ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
+    Port:                     http  80/TCP
+    TargetPort:               8080/TCP
+    NodePort:                 http  30125/TCP
+    Endpoints:                100.96.3.8:8080,100.96.4.9:8080,100.96.5.9:8080
+    Session Affinity:         None
+    External Traffic Policy:  Cluster
+    Events:
+      Type    Reason                Age   From                Message
+      ----    ------                ----  ----                -------
+      Normal  CreatingLoadBalancer  58s   service-controller  Creating load balancer
+      Normal  CreatedLoadBalancer   56s   service-controller  Created load balancer
 
 The output shows `LoadBalancer Ingress` as the addres of an Elastic Load Balancer (ELB). It takes about 2-3 minutes for the ELB to be provisioned and be available. Wait for a couple of minutes, and then access the service:
 
-```
-$ curl http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
-CLIENT VALUES:
-client_address=172.20.45.253
-command=GET
-real path=/
-query=nil
-request_version=1.1
-request_uri=http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com:8080/
+    $ curl http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
+    CLIENT VALUES:
+    client_address=172.20.45.253
+    command=GET
+    real path=/
+    query=nil
+    request_version=1.1
+    request_uri=http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com:8080/
 
-SERVER VALUES:
-server_version=nginx: 1.10.0 - lua: 10001
+    SERVER VALUES:
+    server_version=nginx: 1.10.0 - lua: 10001
 
-HEADERS RECEIVED:
-accept=*/*
-host=ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
-user-agent=curl/7.51.0
-BODY:
--no body in request-
-```
+    HEADERS RECEIVED:
+    accept=*/*
+    host=ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
+    user-agent=curl/7.51.0
+    BODY:
+    -no body in request-
 
 Note the `client_address` value shown in the output. This is the IP address of the pod serving the request. Multiple invocations of this command will show different values for this attribute.
 
@@ -918,11 +898,11 @@ Now, the number of pods in the deployment can be scaled up and down. Or the pods
 
 Run the following command to delete the Service:
 
-    $ kubectl delete -f service.yaml
+    kubectl delete -f service.yaml
 
 The backend Deployment needs to be explicitly deleted as well:
 
-    $ kubectl delete -f echo-deployment.yaml
+    kubectl delete -f echo-deployment.yaml
 
 == Daemon Set
 
@@ -934,122 +914,117 @@ As new nodes are added to the cluster, pods are started on them. As nodes are re
 
 The folowing is an example DaemonSet that runs a Prometheus container. Let's begin with the template:
 
-	$ cat daemonset.yaml
-	apiVersion: extensions/v1beta1
-	kind: DaemonSet
-	metadata:
-	  name: prometheus-daemonset
-	spec:
-	  template:
-	    metadata:
-	      labels:
-	        tier: monitoring
-	        name: prometheus-exporter
-	    spec:
-	      containers:
-	      - name: prometheus
-	        image: prom/node-exporter
-	        ports:
-	        - containerPort: 80
+    $ cat daemonset.yaml
+    apiVersion: extensions/v1beta1
+    kind: DaemonSet
+    metadata:
+      name: prometheus-daemonset
+    spec:
+      template:
+        metadata:
+          labels:
+            tier: monitoring
+            name: prometheus-exporter
+        spec:
+          containers:
+          - name: prometheus
+            image: prom/node-exporter
+            ports:
+            - containerPort: 80
 
 Run the following command to create the ReplicaSet and pods:
 
-	$ kubectl create -f daemonset.yaml --record
+    kubectl create -f daemonset.yaml --record
 
 The `--record` flag will track changes made through each revision.
 
 Get basic details about the DaemonSet:
 
-	$ kubectl get daemonsets/prometheus-daemonset
-	NAME                   DESIRED   CURRENT   READY     UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
-	prometheus-daemonset   5         5         5         5            5           <none>          7s
+    $ kubectl get daemonsets/prometheus-daemonset
+    NAME                   DESIRED   CURRENT   READY     UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+    prometheus-daemonset   5         5         5         5            5           <none>          7s
 
 Get more details about the DaemonSet:
 
-```
-$ kubectl describe daemonset/prometheus-daemonset
-Name:           prometheus-daemonset
-Selector:       name=prometheus-exporter,tier=monitoring
-Node-Selector:  <none>
-Labels:         name=prometheus-exporter
-                tier=monitoring
-Annotations:    kubernetes.io/change-cause=kubectl create --filename=templates/daemonset.yaml --record=true
-Desired Number of Nodes Scheduled: 5
-Current Number of Nodes Scheduled: 5
-Number of Nodes Scheduled with Up-to-date Pods: 5
-Number of Nodes Scheduled with Available Pods: 5
-Number of Nodes Misscheduled: 0
-Pods Status:  5 Running / 0 Waiting / 0 Succeeded / 0 Failed
-Pod Template:
-  Labels:  name=prometheus-exporter
-           tier=monitoring
-  Containers:
-   prometheus:
-    Image:        prom/node-exporter
-    Port:         80/TCP
-    Environment:  <none>
-    Mounts:       <none>
-  Volumes:        <none>
-Events:
-  Type    Reason            Age   From        Message
-  ----    ------            ----  ----        -------
-  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-pzfl8
-  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-sjcgh
-  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-ctrg4
-  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-rxg79
-  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-cnbkh
-```
+    $ kubectl describe daemonset/prometheus-daemonset
+    Name:           prometheus-daemonset
+    Selector:       name=prometheus-exporter,tier=monitoring
+    Node-Selector:  <none>
+    Labels:         name=prometheus-exporter
+                    tier=monitoring
+    Annotations:    kubernetes.io/change-cause=kubectl create --filename=templates/daemonset.yaml --record=true
+    Desired Number of Nodes Scheduled: 5
+    Current Number of Nodes Scheduled: 5
+    Number of Nodes Scheduled with Up-to-date Pods: 5
+    Number of Nodes Scheduled with Available Pods: 5
+    Number of Nodes Misscheduled: 0
+    Pods Status:  5 Running / 0 Waiting / 0 Succeeded / 0 Failed
+    Pod Template:
+      Labels:  name=prometheus-exporter
+               tier=monitoring
+      Containers:
+       prometheus:
+        Image:        prom/node-exporter
+        Port:         80/TCP
+        Environment:  <none>
+        Mounts:       <none>
+      Volumes:        <none>
+    Events:
+      Type    Reason            Age   From        Message
+      ----    ------            ----  ----        -------
+      Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-pzfl8
+      Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-sjcgh
+      Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-ctrg4
+      Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-rxg79
+      Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-cnbkh
 
 Get pods in the DaemonSet:
 
-```
-$ kubectl get pods -lname=prometheus-exporter
-NAME                         READY     STATUS    RESTARTS   AGE
-prometheus-daemonset-cnbkh   1/1       Running   0          57s
-prometheus-daemonset-ctrg4   1/1       Running   0          57s
-prometheus-daemonset-pzfl8   1/1       Running   0          57s
-prometheus-daemonset-rxg79   1/1       Running   0          57s
-prometheus-daemonset-sjcgh   1/1       Running   0          57s
-```
+    $ kubectl get pods -lname=prometheus-exporter
+    NAME                         READY     STATUS    RESTARTS   AGE
+    prometheus-daemonset-cnbkh   1/1       Running   0          57s
+    prometheus-daemonset-ctrg4   1/1       Running   0          57s
+    prometheus-daemonset-pzfl8   1/1       Running   0          57s
+    prometheus-daemonset-rxg79   1/1       Running   0          57s
+    prometheus-daemonset-sjcgh   1/1       Running   0          57s
 
 === Limit DaemonSets to specific nodes
 
 Verify that the Prometheus pod was successfully deployed to the cluster nodes:
 
-	$ kubectl get pods -o wide
-	NAME                         READY     STATUS    RESTARTS   AGE       IP            NODE
-	prometheus-daemonset-sjcgh   1/1       Running   0          1m        100.96.7.10   ip-172-20-52-200.ec2.internal
-	prometheus-daemonset-cnbkh   1/1       Running   0          1m        100.96.3.10   ip-172-20-57-5.ec2.internal
-	prometheus-daemonset-ctrg4   1/1       Running   0          1m        100.96.6.10   ip-172-20-64-152.ec2.internal
-	prometheus-daemonset-pzfl8   1/1       Running   0          1m        100.96.5.10   ip-172-20-125-181.ec2.internal
-	prometheus-daemonset-rxg79   1/1       Running   0          1m        100.96.4.9    ip-172-20-107-81.ec2.internal
+    $ kubectl get pods -o wide
+    NAME                         READY     STATUS    RESTARTS   AGE       IP            NODE
+    prometheus-daemonset-sjcgh   1/1       Running   0          1m        100.96.7.10   ip-172-20-52-200.ec2.internal
+    prometheus-daemonset-cnbkh   1/1       Running   0          1m        100.96.3.10   ip-172-20-57-5.ec2.internal
+    prometheus-daemonset-ctrg4   1/1       Running   0          1m        100.96.6.10   ip-172-20-64-152.ec2.internal
+    prometheus-daemonset-pzfl8   1/1       Running   0          1m        100.96.5.10   ip-172-20-125-181.ec2.internal
+    prometheus-daemonset-rxg79   1/1       Running   0          1m        100.96.4.9    ip-172-20-107-81.ec2.internal
 
 Rename one of the node labels as follows:
 
-	$ kubectl label node ip-172-20-52-200.ec2.internal app=prometheus-node
-	node "ip-172-20-52-200.ec2.internal" labeled
+    $ kubectl label node ip-172-20-52-200.ec2.internal app=prometheus-node
+    node "ip-172-20-52-200.ec2.internal" labeled
 
 Next, edit the DaemonSet template using the command shown:
 
-	$ kubectl edit ds/prometheus-daemonset
+    kubectl edit ds/prometheus-daemonset
 
 Change the `spec.template.spec` to include a `nodeSelector` that matches the changed label:
-```
-      nodeSelector:
-        app: prometheus-node
-```
+
+    nodeSelector:
+      app: prometheus-node
 
 After the update is performed, we have now configured Prometheus to run on a specific node:
 
-	$ kubectl get ds/prometheus-daemonset
-	NAME                   DESIRED   CURRENT   READY     UP-TO-DATE   AVAILABLE   NODE SELECTOR         AGE
-	prometheus-daemonset   1         1         1         0            1           app=prometheus-node   2m
+    $ kubectl get ds/prometheus-daemonset
+    NAME                   DESIRED   CURRENT   READY     UP-TO-DATE   AVAILABLE   NODE SELECTOR         AGE
+    prometheus-daemonset   1         1         1         0            1           app=prometheus-node   2m
 
 === Delete a DaemonSet
 
 Run the following command to delete the DaemonSet:
 
-	$ kubectl delete -f daemonset.yaml
+    kubectl delete -f daemonset.yaml
 
 == Job
 
@@ -1067,61 +1042,61 @@ Only one pod per job is started, unless the pod fails. Job is complete as soon a
 
 Here is the job specification:
 
-  $ cat job.yaml
-	apiVersion: batch/v1
-	kind: Job
-	metadata:
-	  name: wait
-	spec:
-	  template:
-	    metadata:
-	      name: wait
-	    spec:
-	      containers:
-	      - name: wait
-	        image: ubuntu
-	        command: ["sleep",  "20"]
-	      restartPolicy: Never
+    $ cat job.yaml
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: wait
+    spec:
+      template:
+        metadata:
+          name: wait
+        spec:
+          containers:
+          - name: wait
+            image: ubuntu
+            command: ["sleep",  "20"]
+          restartPolicy: Never
 
 It creates an Ubuntu container, sleeps for 20 seconds and that's it!
 
 Create a job using the command:
 
-	$ kubectl apply -f job.yaml
-	job "wait" created
+    $ kubectl apply -f job.yaml
+    job "wait" created
 
 Look at the job:
 
-	$ kubectl get jobs
-	NAME      DESIRED   SUCCESSFUL   AGE
-	wait      1         0            0s
+    $ kubectl get jobs
+    NAME      DESIRED   SUCCESSFUL   AGE
+    wait      1         0            0s
 
 The output shows that the job is not successful yet. Watch the pod status to confirm:
 
-	$ kubectl get -w pods
-	NAME         READY     STATUS    RESTARTS   AGE
-	wait-lk49x   1/1       Running   0          7s
-	wait-lk49x   0/1       Completed   0         24s
+    $ kubectl get -w pods
+    NAME         READY     STATUS    RESTARTS   AGE
+    wait-lk49x   1/1       Running   0          7s
+    wait-lk49x   0/1       Completed   0         24s
 
 To begin with, it shows that the pod for the job is running. The pod successfully exits after a few seconds and shows the `Completed` status.
 
 Now, watch the job status again:
 
-	$ kubectl get jobs
-	NAME      DESIRED   SUCCESSFUL   AGE
-	wait      1         1            1m
+    $ kubectl get jobs
+    NAME      DESIRED   SUCCESSFUL   AGE
+    wait      1         1            1m
 
 The output shows that the job was successfully executed.
 
 The completed pod is not shown in the `kubectl get pods` command. Instead it can be shown by passing an additional option as shown below:
 
-	$ kubectl get pods --show-all
-	NAME         READY     STATUS      RESTARTS   AGE
-	wait-lk49x   0/1       Completed   0          1m
+    $ kubectl get pods --show-all
+    NAME         READY     STATUS      RESTARTS   AGE
+    wait-lk49x   0/1       Completed   0          1m
 
 To delete the job, you can run this command
 
-	$ kubectl delete -f job.yaml
+     kubectl delete -f job.yaml
 
 === Parallel Job
 
@@ -1131,93 +1106,93 @@ The job is complete when there is one successful pod for each value in the range
 
 Here is a job specification:
 
-  $ cat job-parallel.yaml
-	apiVersion: batch/v1
-	kind: Job
-	metadata:
-	  name: wait
-	spec:
-	  completions: 6
-	  parallelism: 2
-	  template:
-	    metadata:
-	      name: wait
-	    spec:
-	      containers:
-	      - name: wait
-	        image: ubuntu
-	        command: ["sleep",  "20"]
-	      restartPolicy: Never
+    $ cat job-parallel.yaml
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: wait
+    spec:
+      completions: 6
+      parallelism: 2
+      template:
+        metadata:
+          name: wait
+        spec:
+          containers:
+          - name: wait
+            image: ubuntu
+            command: ["sleep",  "20"]
+          restartPolicy: Never
 
 This job specification is similar to the non-parallel job specification. It has two new attributes added: `.spec.completions` and `.spec.parallelism`. This means the job will be complete when six pods have successfully completed. A maximum of two pods will run in parallel at a given time.
 
 Create a parallel job using the command:
 
-	$ kubectl apply -f job-parallel.yaml
+    kubectl apply -f job-parallel.yaml
 
 Watch the status of the job as shown:
 
-	$ kubectl get -w jobs
-	NAME      DESIRED   SUCCESSFUL   AGE
-	wait      6         0            2s
-	wait      6         1         22s
-	wait      6         2         22s
-	wait      6         3         43s
-	wait      6         4         43s
-	wait      6         5         1m
-	wait      6         6         1m
+    $ kubectl get -w jobs
+    NAME      DESIRED   SUCCESSFUL   AGE
+    wait      6         0            2s
+    wait      6         1         22s
+    wait      6         2         22s
+    wait      6         3         43s
+    wait      6         4         43s
+    wait      6         5         1m
+    wait      6         6         1m
 
 The output shows that 2 pods are created about every 20 seconds.
 
 In another terminal window, watch the status of pods created:
 
-	$ kubectl get -w pods -l job-name=wait
-	NAME         READY     STATUS    RESTARTS   AGE
-	wait-f7kgb   1/1       Running   0          5s
-	wait-smp4t   1/1       Running   0          5s
-	wait-smp4t   0/1       Completed   0         22s
-	wait-jbdp7   0/1       Pending   0         0s
-	wait-jbdp7   0/1       Pending   0         0s
-	wait-jbdp7   0/1       ContainerCreating   0         0s
-	wait-f7kgb   0/1       Completed   0         22s
-	wait-r5v8n   0/1       Pending   0         0s
-	wait-r5v8n   0/1       Pending   0         0s
-	wait-r5v8n   0/1       ContainerCreating   0         0s
-	wait-r5v8n   1/1       Running   0         1s
-	wait-jbdp7   1/1       Running   0         1s
-	wait-r5v8n   0/1       Completed   0         21s
-	wait-ngrgl   0/1       Pending   0         0s
-	wait-ngrgl   0/1       Pending   0         0s
-	wait-ngrgl   0/1       ContainerCreating   0         0s
-	wait-jbdp7   0/1       Completed   0         21s
-	wait-6l22s   0/1       Pending   0         0s
-	wait-6l22s   0/1       Pending   0         0s
-	wait-6l22s   0/1       ContainerCreating   0         0s
-	wait-ngrgl   1/1       Running   0         1s
-	wait-6l22s   1/1       Running   0         1s
-	wait-ngrgl   0/1       Completed   0         21s
-	wait-6l22s   0/1       Completed   0         21s
+    $ kubectl get -w pods -l job-name=wait
+    NAME         READY     STATUS    RESTARTS   AGE
+    wait-f7kgb   1/1       Running   0          5s
+    wait-smp4t   1/1       Running   0          5s
+    wait-smp4t   0/1       Completed   0         22s
+    wait-jbdp7   0/1       Pending   0         0s
+    wait-jbdp7   0/1       Pending   0         0s
+    wait-jbdp7   0/1       ContainerCreating   0         0s
+    wait-f7kgb   0/1       Completed   0         22s
+    wait-r5v8n   0/1       Pending   0         0s
+    wait-r5v8n   0/1       Pending   0         0s
+    wait-r5v8n   0/1       ContainerCreating   0         0s
+    wait-r5v8n   1/1       Running   0         1s
+    wait-jbdp7   1/1       Running   0         1s
+    wait-r5v8n   0/1       Completed   0         21s
+    wait-ngrgl   0/1       Pending   0         0s
+    wait-ngrgl   0/1       Pending   0         0s
+    wait-ngrgl   0/1       ContainerCreating   0         0s
+    wait-jbdp7   0/1       Completed   0         21s
+    wait-6l22s   0/1       Pending   0         0s
+    wait-6l22s   0/1       Pending   0         0s
+    wait-6l22s   0/1       ContainerCreating   0         0s
+    wait-ngrgl   1/1       Running   0         1s
+    wait-6l22s   1/1       Running   0         1s
+    wait-ngrgl   0/1       Completed   0         21s
+    wait-6l22s   0/1       Completed   0         21s
 
 After all the pods have completed, `kubectl get pods` will not show the list of completed pods. The command to show the list of pods is shown below:
 
-	$ kubectl get pods -a
-	NAME         READY     STATUS      RESTARTS   AGE
-	wait-6l22s   0/1       Completed   0          1m
-	wait-f7kgb   0/1       Completed   0          2m
-	wait-jbdp7   0/1       Completed   0          2m
-	wait-ngrgl   0/1       Completed   0          1m
-	wait-r5v8n   0/1       Completed   0          2m
-	wait-smp4t   0/1       Completed   0          2m
+    $ kubectl get pods -a
+    NAME         READY     STATUS      RESTARTS   AGE
+    wait-6l22s   0/1       Completed   0          1m
+    wait-f7kgb   0/1       Completed   0          2m
+    wait-jbdp7   0/1       Completed   0          2m
+    wait-ngrgl   0/1       Completed   0          1m
+    wait-r5v8n   0/1       Completed   0          2m
+    wait-smp4t   0/1       Completed   0          2m
 
 Similarly, `kubectl get jobs` shows the status of the job after it has completed:
 
-	$ kubectl get jobs
-	NAME      DESIRED   SUCCESSFUL   AGE
-	wait      6         6            3m
+    $ kubectl get jobs
+    NAME      DESIRED   SUCCESSFUL   AGE
+    wait      6         6            3m
 
 Deleting a job deletes all the pods as well. Delete the job as:
 
-	$ kubectl delete -f job-parallel.yaml
+    kubectl delete -f job-parallel.yaml
 
 == Cron Job
 
@@ -1225,9 +1200,9 @@ Deleting a job deletes all the pods as well. Delete the job as:
 
 For Kubernetes cluster versions < 1.8, Cron Job can be created with API version `batch/v2alpha1`. You can check the cluster version using this command,
 
-  $ kubectl version
-  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
-  Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+    $ kubectl version
+    Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
+    Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
 
 Notice that the server version is at v1.7.4. In this case, you need to explicitly enable API version `batch/v2alpha1` in Kubernetes cluster and perform a rolling-update. These steps are explained in link:../cluster-install#turn-on-an-api-version-for-your-cluster[Turn on an API version for your cluster].
 
@@ -1244,34 +1219,34 @@ A Cron Job is a job that runs on a given schedule, written in Cron format. There
 
 Here is the job specification:
 
-  $ cat cronjob.yaml
-	apiVersion: batch/v2alpha1
-	kind: CronJob
-	metadata:
-	  name: hello
-	spec:
-	  schedule: "*/1 * * * *"
-	  jobTemplate:
-	    spec:
-	      template:
-	        metadata:
-	          labels:
-	            app: hello-cronpod
-	        spec:
-	          containers:
-	          - name: hello
-	            image: busybox
-	            args:
-	            - /bin/sh
-	            - -c
-	            - date; echo Hello World!
-	          restartPolicy: OnFailure
+    $ cat cronjob.yaml
+    apiVersion: batch/v2alpha1
+    kind: CronJob
+    metadata:
+      name: hello
+    spec:
+      schedule: "*/1 * * * *"
+      jobTemplate:
+        spec:
+          template:
+            metadata:
+              labels:
+                app: hello-cronpod
+            spec:
+              containers:
+              - name: hello
+                image: busybox
+                args:
+                - /bin/sh
+                - -c
+                - date; echo Hello World!
+              restartPolicy: OnFailure
 
 This job prints the current timestamp and the message "`Hello World`" every minute.
 
 Create the Cron Job as shown in the command:
 
-	$ kubectl create -f cronjob.yaml --validate=false
+    kubectl create -f cronjob.yaml --validate=false
 
 `--validate=false` is required because kubectl CLI version is 1.8. Without this option, you'll get the error:
 
@@ -1279,44 +1254,44 @@ Create the Cron Job as shown in the command:
 
 Watch the status of the job as shown:
 
-	$ kubectl get -w cronjobs
-	NAME      SCHEDULE      SUSPEND   ACTIVE    LAST SCHEDULE   AGE
-	hello     */1 * * * *   False     0         <none>
-	hello     */1 * * * *   False     0         <none>
-	hello     */1 * * * *   False     1         Tue, 24 Oct 2017 15:41:00 -0700
-	hello     */1 * * * *   False     0         Tue, 24 Oct 2017 15:41:00 -0700
-	hello     */1 * * * *   False     1         Tue, 24 Oct 2017 15:42:00 -0700
-	hello     */1 * * * *   False     0         Tue, 24 Oct 2017 15:42:00 -0700
+    $ kubectl get -w cronjobs
+    NAME      SCHEDULE      SUSPEND   ACTIVE    LAST SCHEDULE   AGE
+    hello     */1 * * * *   False     0         <none>
+    hello     */1 * * * *   False     0         <none>
+    hello     */1 * * * *   False     1         Tue, 24 Oct 2017 15:41:00 -0700
+    hello     */1 * * * *   False     0         Tue, 24 Oct 2017 15:41:00 -0700
+    hello     */1 * * * *   False     1         Tue, 24 Oct 2017 15:42:00 -0700
+    hello     */1 * * * *   False     0         Tue, 24 Oct 2017 15:42:00 -0700
 
 In another terminal window, watch the status of pods created:
 
-	$ kubectl get -w pods -l app=hello-cronpod
-	NAME                     READY     STATUS    RESTARTS   AGE
-	hello-1508884860-cq004   0/1       Pending   0          0s
-	hello-1508884860-cq004   0/1       Pending   0         0s
-	hello-1508884860-cq004   0/1       ContainerCreating   0         0s
-	hello-1508884860-cq004   0/1       Completed   0         1s
-	hello-1508884920-wl5bx   0/1       Pending   0         0s
-	hello-1508884920-wl5bx   0/1       Pending   0         0s
-	hello-1508884920-wl5bx   0/1       ContainerCreating   0         0s
-	hello-1508884920-wl5bx   0/1       Completed   0         2s
-	hello-1508884980-45ktd   0/1       Pending   0         0s
-	hello-1508884980-45ktd   0/1       Pending   0         0s
-	hello-1508884980-45ktd   0/1       ContainerCreating   0         0s
-	hello-1508884980-45ktd   0/1       Completed   0         2s
+    $ kubectl get -w pods -l app=hello-cronpod
+    NAME                     READY     STATUS    RESTARTS   AGE
+    hello-1508884860-cq004   0/1       Pending   0          0s
+    hello-1508884860-cq004   0/1       Pending   0         0s
+    hello-1508884860-cq004   0/1       ContainerCreating   0         0s
+    hello-1508884860-cq004   0/1       Completed   0         1s
+    hello-1508884920-wl5bx   0/1       Pending   0         0s
+    hello-1508884920-wl5bx   0/1       Pending   0         0s
+    hello-1508884920-wl5bx   0/1       ContainerCreating   0         0s
+    hello-1508884920-wl5bx   0/1       Completed   0         2s
+    hello-1508884980-45ktd   0/1       Pending   0         0s
+    hello-1508884980-45ktd   0/1       Pending   0         0s
+    hello-1508884980-45ktd   0/1       ContainerCreating   0         0s
+    hello-1508884980-45ktd   0/1       Completed   0         2s
 
 Get logs from one of the pods:
 
-  $ kubectl logs hello-1508884860-cq004
-	Tue Oct 24 22:41:02 UTC 2017
-	Hello World!
+    $ kubectl logs hello-1508884860-cq004
+    Tue Oct 24 22:41:02 UTC 2017
+    Hello World!
 
 === Delete Cron Job
 
 Delete the Cron Job as shown in the following command:
 
-	$ kubectl delete -f cronjob.yaml
-	cronjob "hello" deleted
+    $ kubectl delete -f cronjob.yaml
+    cronjob "hello" deleted
 
 == Namespaces
 
@@ -1332,11 +1307,11 @@ This allows a Kubernetes cluster to share resources by multiple groups and provi
 
 The list of namespaces can be displayed using the command:
 
-	$ kubectl get namespace
-	NAME          STATUS    AGE
-	default       Active    2m
-	kube-public   Active    2m
-	kube-system   Active    2m
+    $ kubectl get namespace
+    NAME          STATUS    AGE
+    default       Active    2m
+    kube-public   Active    2m
+    kube-system   Active    2m
 
 By default, all resources in Kubernetes cluster are created in a `default` namespace.
 
@@ -1346,13 +1321,13 @@ By default, all resources in Kubernetes cluster are created in a `default` names
 
 Let's create a Deployment:
 
-	$ kubectl apply -f deployment.yaml
-	deployment "nginx-deployment" created
+    $ kubectl apply -f deployment.yaml
+    deployment "nginx-deployment" created
 
- Check its namespace:
+Check its namespace:
 
-	$ kubectl get deployment -o jsonpath={.items[].metadata.namespace}
-	default
+    $ kubectl get deployment -o jsonpath={.items[].metadata.namespace}
+    default
 
 === Custom namespace
 
@@ -1360,42 +1335,41 @@ A new namespace can be created using a configuration file or `kubectl`.
 
 . The following configuration file can be used to create Namespace:
 
-	$ cat namespace.yaml
-	kind: Namespace
-	apiVersion: v1
-	metadata:
-	  name: dev
-	  labels:
-	    name: dev
+    $ cat namespace.yaml
+    kind: Namespace
+    apiVersion: v1
+    metadata:
+      name: dev
+      labels:
+        name: dev
 
 . Create a new Namespace:
 
-	$ kubectl apply -f namespace.yaml
-	namespace "dev" created
+    $ kubectl apply -f namespace.yaml
+    namespace "dev" created
 
 . Get the list of Namespaces:
 
-	$ kubectl get ns
-	NAME          STATUS    AGE
-	default       Active    3h
-	dev           Active    12s
-	kube-public   Active    3h
-	kube-system   Active    3h
+    $ kubectl get ns
+    NAME          STATUS    AGE
+    default       Active    3h
+    dev           Active    12s
+    kube-public   Active    3h
+    kube-system   Active    3h
 
 . Get more details about the Namespace:
 +
-```
-$ kubectl describe ns/dev
-Name:         dev
-Labels:       name=dev
-Annotations:  kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"labels":{"name":"dev"},"name":"dev","namespace":""}}
 
-Status:  Active
+    $ kubectl describe ns/dev
+    Name:         dev
+    Labels:       name=dev
+    Annotations:  kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"labels":{"name":"dev"},"name":"dev","namespace":""}}
 
-No resource quota.
+    Status:  Active
 
-No resource limits.
-```
+    No resource quota.
+
+    No resource limits.
 +
 . Create a Deployment in this new Namespace using a configuration file:
 +

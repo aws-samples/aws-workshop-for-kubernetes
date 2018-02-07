@@ -48,19 +48,19 @@ The simplest method to do this would be to access the application in an infinite
 
 First, deploy a busybox container, label it `load-generator` and attach to it's prompt:
 
-    $ kubectl run -i --tty load-generator --image=busybox /bin/sh
+    kubectl run -i --tty load-generator --image=busybox /bin/sh
 
 At the `load-generator` command prompt, run a continuous request of the webapp
 
-    $ while true; do wget -q -O- http://webapp.default.svc.cluster.local:8080; done
+    while true; do wget -q -O- http://webapp.default.svc.cluster.local:8080; done
 
 If for any reason you get disconnected from the load-generator container, you can re-attach to it with the following command.
 
-    $ kubectl attach $(kubectl get pod | grep load | awk '{print $1}') -c load-generator -i -t
+    kubectl attach $(kubectl get pod | grep load | awk '{print $1}') -c load-generator -i -t
 
 In a different terminal window, check the status of the Horizontal Pod Autoscaler.
 
-    $ kubectl get hpa -w
+    kubectl get hpa -w
 
 You will see output similar to the following over successive queries of the hpa resource:
 
@@ -82,30 +82,27 @@ In the terminal window that is running the load generator, hit `Ctrl`+`C` to ter
 
 NOTE: It takes a few minutes for the number of replicas to scale down.
 
-```
-$ kubectl get hpa -w
-NAME      REFERENCE           TARGETS     MINPODS   MAXPODS   REPLICAS   AGE
-webapp    Deployment/webapp   51% / 10%   1         10        4          10m
-webapp    Deployment/webapp   51% / 10%   1         10        4         10m
-webapp    Deployment/webapp   27% / 10%   1         10        4         11m
-webapp    Deployment/webapp   27% / 10%   1         10        8         11m
-webapp    Deployment/webapp   0% / 10%   1         10        8         12m
-webapp    Deployment/webapp   0% / 10%   1         10        8         12m
-webapp    Deployment/webapp   0% / 10%   1         10        8         13m
-webapp    Deployment/webapp   0% / 10%   1         10        8         13m
-webapp    Deployment/webapp   0% / 10%   1         10        8         14m
-webapp    Deployment/webapp   0% / 10%   1         10        8         14m
-webapp    Deployment/webapp   0% / 10%   1         10        8         15m
-webapp    Deployment/webapp   0% / 10%   1         10        8         15m
-webapp    Deployment/webapp   0% / 10%   1         10        8         16m
-webapp    Deployment/webapp   0% / 10%   1         10        1         16m
-webapp    Deployment/webapp   0% / 10%   1         10        1         17m
-```
+    $ kubectl get hpa -w
+    NAME      REFERENCE           TARGETS     MINPODS   MAXPODS   REPLICAS   AGE
+    webapp    Deployment/webapp   51% / 10%   1         10        4          10m
+    webapp    Deployment/webapp   51% / 10%   1         10        4         10m
+    webapp    Deployment/webapp   27% / 10%   1         10        4         11m
+    webapp    Deployment/webapp   27% / 10%   1         10        8         11m
+    webapp    Deployment/webapp   0% / 10%   1         10        8         12m
+    webapp    Deployment/webapp   0% / 10%   1         10        8         12m
+    webapp    Deployment/webapp   0% / 10%   1         10        8         13m
+    webapp    Deployment/webapp   0% / 10%   1         10        8         13m
+    webapp    Deployment/webapp   0% / 10%   1         10        8         14m
+    webapp    Deployment/webapp   0% / 10%   1         10        8         14m
+    webapp    Deployment/webapp   0% / 10%   1         10        8         15m
+    webapp    Deployment/webapp   0% / 10%   1         10        8         15m
+    webapp    Deployment/webapp   0% / 10%   1         10        8         16m
+    webapp    Deployment/webapp   0% / 10%   1         10        1         16m
+    webapp    Deployment/webapp   0% / 10%   1         10        1         17m
 
 == Cleanup
 
-    $ kubectl delete hpa/webapp deploy/load-generator deploy/webapp
-
+    kubectl delete hpa/webapp deploy/load-generator deploy/webapp
 
 You are now ready to continue on with the workshop!
 

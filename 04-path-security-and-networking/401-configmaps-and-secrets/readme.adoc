@@ -54,30 +54,28 @@ Get the list of ConfigMaps:
 
 Get more details about the created ConfigMap:
 
-```
-$ kubectl get configmap/redis-config -o yaml
-apiVersion: v1
-items:
-- apiVersion: v1
-  data:
-    redis-config: |
-      maxmemory 2mb
-      maxmemory-policy allkeys-lru
-  kind: ConfigMap
-  metadata:
-    creationTimestamp: 2017-10-22T18:38:27Z
-    labels:
-      k8s-app: redis
-    name: redis-config
-    namespace: default
-    resourceVersion: "302238"
-    selfLink: /api/v1/namespaces/default/configmaps/redis-config
-    uid: 316309d0-b758-11e7-8c3f-06329c8974cc
-kind: List
-metadata:
-  resourceVersion: ""
-  selfLink: ""
-```
+    $ kubectl get configmap/redis-config -o yaml
+    apiVersion: v1
+    items:
+    - apiVersion: v1
+      data:
+        redis-config: |
+          maxmemory 2mb
+          maxmemory-policy allkeys-lru
+      kind: ConfigMap
+      metadata:
+        creationTimestamp: 2017-10-22T18:38:27Z
+        labels:
+          k8s-app: redis
+        name: redis-config
+        namespace: default
+        resourceVersion: "302238"
+        selfLink: /api/v1/namespaces/default/configmaps/redis-config
+        uid: 316309d0-b758-11e7-8c3f-06329c8974cc
+    kind: List
+    metadata:
+      resourceVersion: ""
+      selfLink: ""
 
 The configuration information is shown as key/value pairs in the `data` key.
 
@@ -156,29 +154,29 @@ Wait for the pod to run:
 
 Check logs from the pod to verify that Redis has started:
 
-  $ kubectl logs redis-pod
-                  _._
-             _.-``__ ''-._
-        _.-``    `.  `_.  ''-._           Redis 2.8.19 (00000000/0) 64 bit
-    .-`` .-```.  ```\/    _.,_ ''-._
-   (    '      ,       .-`  | `,    )     Running in stand alone mode
-   |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6379
-   |    `-._   `._    /     _.-'    |     PID: 6
-    `-._    `-._  `-./  _.-'    _.-'
-   |`-._`-._    `-.__.-'    _.-'_.-'|
-   |    `-._`-._        _.-'_.-'    |           http://redis.io
-    `-._    `-._`-.__.-'_.-'    _.-'
-   |`-._`-._    `-.__.-'    _.-'_.-'|
-   |    `-._`-._        _.-'_.-'    |
-    `-._    `-._`-.__.-'_.-'    _.-'
-        `-._    `-.__.-'    _.-'
-            `-._        _.-'
-                `-.__.-'
+    $ kubectl logs redis-pod
+                    _._
+               _.-``__ ''-._
+          _.-``    `.  `_.  ''-._           Redis 2.8.19 (00000000/0) 64 bit
+      .-`` .-```.  ```\/    _.,_ ''-._
+     (    '      ,       .-`  | `,    )     Running in stand alone mode
+     |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6379
+     |    `-._   `._    /     _.-'    |     PID: 6
+      `-._    `-._  `-./  _.-'    _.-'
+     |`-._`-._    `-.__.-'    _.-'_.-'|
+     |    `-._`-._        _.-'_.-'    |           http://redis.io
+      `-._    `-._`-.__.-'_.-'    _.-'
+     |`-._`-._    `-.__.-'    _.-'_.-'|
+     |    `-._`-._        _.-'_.-'    |
+      `-._    `-._`-.__.-'_.-'    _.-'
+          `-._    `-.__.-'    _.-'
+              `-._        _.-'
+                  `-.__.-'
 
-  [6] 22 Oct 18:39:45.386 # Server started, Redis version 2.8.19
-  [6] 22 Oct 18:39:45.386 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
-  [6] 22 Oct 18:39:45.386 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
-  [6] 22 Oct 18:39:45.386 * The server is now ready to accept connections on port 6379
+    [6] 22 Oct 18:39:45.386 # Server started, Redis version 2.8.19
+    [6] 22 Oct 18:39:45.386 # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
+    [6] 22 Oct 18:39:45.386 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
+    [6] 22 Oct 18:39:45.386 * The server is now ready to accept connections on port 6379
 
 Validate that your redis cluster picked up the appropriate configuration:
 
@@ -208,111 +206,111 @@ The data from ConfigMap can be used to initialize environment variables in a pod
 
 . Create a ConfigMap:
 
-  $ kubectl create configmap hello-config --from-literal=COUNT=2
-  configmap "hello-config" created
+    $ kubectl create configmap hello-config --from-literal=COUNT=2
+    configmap "hello-config" created
 
 . Get more details about this ConfigMap:
 
-  $ kubectl get configmap/hello-config -o yaml
-  apiVersion: v1
-  data:
-    COUNT: "2"
-  kind: ConfigMap
-  metadata:
-    creationTimestamp: 2017-10-26T21:40:10Z
-    name: hello-config
-    namespace: default
-    resourceVersion: "92516"
-    selfLink: /api/v1/namespaces/default/configmaps/hello-config
-    uid: 3dacb22f-ba96-11e7-ab9c-123f969a2ce2
+    $ kubectl get configmap/hello-config -o yaml
+    apiVersion: v1
+    data:
+      COUNT: "2"
+    kind: ConfigMap
+    metadata:
+      creationTimestamp: 2017-10-26T21:40:10Z
+      name: hello-config
+      namespace: default
+      resourceVersion: "92516"
+      selfLink: /api/v1/namespaces/default/configmaps/hello-config
+      uid: 3dacb22f-ba96-11e7-ab9c-123f969a2ce2
 
 . Use this ConfigMap to create a pod:
 
-  $ kubectl apply -f templates/app-pod.yaml
-  pod "app-pod" created
+    $ kubectl apply -f templates/app-pod.yaml
+    pod "app-pod" created
 +
 The pod configuration file looks like:
 +
-  apiVersion: v1
-  kind: Pod
-  metadata:
-    labels:
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      labels:
+        name: app-pod
       name: app-pod
-    name: app-pod
-  spec:
-    containers:
-    - name: app
-      image: arungupta/print-hello:latest
-      env:
-      - name: COUNT
-        valueFrom:
-          configMapKeyRef:
-            name: hello-config
-            key: COUNT
-      ports:
-      - containerPort: 8080
+    spec:
+      containers:
+      - name: app
+        image: arungupta/print-hello:latest
+        env:
+        - name: COUNT
+          valueFrom:
+            configMapKeyRef:
+              name: hello-config
+              key: COUNT
+        ports:
+        - containerPort: 8080
 
 . Observe logs from the pod:
 
-  $ kubectl logs -f app-pod
-  npm info it worked if it ends with ok
-  npm info using npm@3.10.10
-  npm info using node@v6.11.4
-  npm info lifecycle webapp@1.0.0~prestart: webapp@1.0.0
-  npm info lifecycle webapp@1.0.0~start: webapp@1.0.0
+    $ kubectl logs -f app-pod
+    npm info it worked if it ends with ok
+    npm info using npm@3.10.10
+    npm info using node@v6.11.4
+    npm info lifecycle webapp@1.0.0~prestart: webapp@1.0.0
+    npm info lifecycle webapp@1.0.0~start: webapp@1.0.0
 
-  > webapp@1.0.0 start /usr/src/app
-  > node server.js
+    > webapp@1.0.0 start /usr/src/app
+    > node server.js
 
-  Running on http://0.0.0.0:8080
+    Running on http://0.0.0.0:8080
 
 . In a new terminal, expose the pod as a Service:
 
-  $ kubectl expose pod app-pod --port=80 --target-port=8080 --name=app
-  service "app" exposed
+    $ kubectl expose pod app-pod --port=80 --target-port=8080 --name=app
+    service "app" exposed
 
 . Start Kubernetes proxy:
 
-  kubectl proxy
+    kubectl proxy
 
 . In a new terminal, access the service as:
 
-  $ curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
-  printed 2 times
+    $ curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
+    printed 2 times
 +
 The pod logs are refreshed as well:
 +
-  Hello world 0
-  Hello world 1
+    Hello world 0
+    Hello world 1
 
 ==== Change the ConfigMap and verify pod logs
 
 . Edit the ConfigMap:
 
-  $ kubectl edit configmap/hello-config
+    $ kubectl edit configmap/hello-config
 
 . Change the value to `4`
 . Terminate the pod:
 
-  $ kubectl delete pod/app-pod
-  pod "app-pod" deleted
+    $ kubectl delete pod/app-pod
+    pod "app-pod" deleted
 
 . Run the pod again:
 
-  kubectl create -f templates/app-pod.yaml
-  pod "app-pod" created
+    $ kubectl create -f templates/app-pod.yaml
+    pod "app-pod" created
 
 . Access the service again:
 
-  curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
-  printed 4 times
+    curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
+    printed 4 times
 
 . Logs from the pod are refreshed:
 
-  Hello world 0
-  Hello world 1
-  Hello world 2
-  Hello world 3
+    Hello world 0
+    Hello world 1
+    Hello world 2
+    Hello world 3
 
 == Secrets using Kubernetes Secrets
 
@@ -327,44 +325,42 @@ First encode the secrets you want to apply, for this example we will use the use
 
 Both of these values are already written in the file `./templates/secret.yaml`. The configuration looks like:
 
-```
-apiVersion: v1
-kind: Secret
-metadata:
-  name: mysecret
-type: Opaque
-data:
-  username: YWRtaW4=
-  password: cGFzc3dvcmQ=
-```
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: mysecret
+    type: Opaque
+    data:
+      username: YWRtaW4=
+      password: cGFzc3dvcmQ=
 
 You can now insert this secret in the Kubernetes cluster with the following command:
 
-  kubectl apply -f ./templates/secret.yaml
+    kubectl apply -f ./templates/secret.yaml
 
 The list of created secrets can be seen as:
 
-  $ kubectl get secrets
-  NAME                  TYPE                                  DATA      AGE
-  default-token-4cqsx   kubernetes.io/service-account-token   3         8h
-  mysecret              Opaque                                2         6s
+    $ kubectl get secrets
+    NAME                  TYPE                                  DATA      AGE
+    default-token-4cqsx   kubernetes.io/service-account-token   3         8h
+    mysecret              Opaque                                2         6s
 
 The values of the secret are displayed as `Opaque`.
 
 Get more details about the secret:
 
-  $ kubectl describe secrets/mysecret
-  Name:         mysecret
-  Namespace:    default
-  Labels:       <none>
-  Annotations:  <none>
+    $ kubectl describe secrets/mysecret
+    Name:         mysecret
+    Namespace:    default
+    Labels:       <none>
+    Annotations:  <none>
 
-  Type:  Opaque
+    Type:  Opaque
 
-  Data
-  ====
-  password:  8 bytes
-  username:  5 bytes
+    Data
+    ====
+    password:  8 bytes
+    username:  5 bytes
 
 Once again, the values of the secret are not shown.
 
@@ -477,87 +473,87 @@ image::aws-kms-key-usage-perms.png[]
 +
 . Preview key policy:
 
-  {
-    "Id": "key-consolepolicy-3",
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Sid": "Enable IAM User Permissions",
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "arn:aws:iam::<account-id>:root"
-          ]
+    {
+      "Id": "key-consolepolicy-3",
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "Enable IAM User Permissions",
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": [
+              "arn:aws:iam::<account-id>:root"
+            ]
+          },
+          "Action": "kms:*",
+          "Resource": "*"
         },
-        "Action": "kms:*",
-        "Resource": "*"
-      },
-      {
-        "Sid": "Allow access for Key Administrators",
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "arn:aws:iam::<account-id>:user/arun",
-            "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
-          ]
+        {
+          "Sid": "Allow access for Key Administrators",
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": [
+              "arn:aws:iam::<account-id>:user/arun",
+              "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
+            ]
+          },
+          "Action": [
+            "kms:Create*",
+            "kms:Describe*",
+            "kms:Enable*",
+            "kms:List*",
+            "kms:Put*",
+            "kms:Update*",
+            "kms:Revoke*",
+            "kms:Disable*",
+            "kms:Get*",
+            "kms:Delete*",
+            "kms:TagResource",
+            "kms:UntagResource",
+            "kms:ScheduleKeyDeletion",
+            "kms:CancelKeyDeletion"
+          ],
+          "Resource": "*"
         },
-        "Action": [
-          "kms:Create*",
-          "kms:Describe*",
-          "kms:Enable*",
-          "kms:List*",
-          "kms:Put*",
-          "kms:Update*",
-          "kms:Revoke*",
-          "kms:Disable*",
-          "kms:Get*",
-          "kms:Delete*",
-          "kms:TagResource",
-          "kms:UntagResource",
-          "kms:ScheduleKeyDeletion",
-          "kms:CancelKeyDeletion"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Sid": "Allow use of the key",
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
-          ]
+        {
+          "Sid": "Allow use of the key",
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": [
+              "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
+            ]
+          },
+          "Action": [
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey*",
+            "kms:DescribeKey"
+          ],
+          "Resource": "*"
         },
-        "Action": [
-          "kms:Encrypt",
-          "kms:Decrypt",
-          "kms:ReEncrypt*",
-          "kms:GenerateDataKey*",
-          "kms:DescribeKey"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Sid": "Allow attachment of persistent resources",
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": [
-            "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
-          ]
-        },
-        "Action": [
-          "kms:CreateGrant",
-          "kms:ListGrants",
-          "kms:RevokeGrant"
-        ],
-        "Resource": "*",
-        "Condition": {
-          "Bool": {
-            "kms:GrantIsForAWSResource": true
+        {
+          "Sid": "Allow attachment of persistent resources",
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": [
+              "arn:aws:iam::<account-id>:role/nodes.example.cluster.k8s.local"
+            ]
+          },
+          "Action": [
+            "kms:CreateGrant",
+            "kms:ListGrants",
+            "kms:RevokeGrant"
+          ],
+          "Resource": "*",
+          "Condition": {
+            "Bool": {
+              "kms:GrantIsForAWSResource": true
+            }
           }
         }
-      }
-    ]
-  }
+      ]
+    }
 
 . Click on `Finish`.
 . Select `IAM`, `Encryption Keys`, `k8s-key` and copy the ARN of the key.
@@ -596,55 +592,53 @@ Only the value of the secure string parameter is encrypted. The name of the para
 
 . A secret in AWS Parameter is created as a secure string. Create a secure string:
 +
-  $ aws ssm put-parameter \
-    --name GREETING \
-    --value Hello \
-    --type SecureString \
-    --key-id arn:aws:kms:<region>:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
-  {
-      "Version": 1
-  }
+    $ aws ssm put-parameter \
+      --name GREETING \
+      --value Hello \
+      --type SecureString \
+      --key-id arn:aws:kms:<region>:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
+    {
+        "Version": 1
+    }
 +
 This will create a secret in the Parameter Store using the KMS key.
 +
 . Get the value of the created secret:
 +
-```
-$ aws ssm get-parameter --name GREETING
-{
-    "Parameter": {
-        "Version": 1,
-        "Type": "SecureString",
-        "Name": "GREETING",
-        "Value": "AQICAHghFIWYznvdUrX6qDhd5xLFHpoaQ5WL1EaHqsbkenfFEwHdqTpU8URwKMf2H9XmMyMgAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM0jZaUadELhmiCzj4AgEQgCBXVAZzfjac8P2AFrelnLaXb3z7ssZt2q/npxYAdJ9ABQ=="
+    $ aws ssm get-parameter --name GREETING
+    {
+        "Parameter": {
+            "Version": 1,
+            "Type": "SecureString",
+            "Name": "GREETING",
+            "Value": "AQICAHghFIWYznvdUrX6qDhd5xLFHpoaQ5WL1EaHqsbkenfFEwHdqTpU8URwKMf2H9XmMyMgAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM0jZaUadELhmiCzj4AgEQgCBXVAZzfjac8P2AFrelnLaXb3z7ssZt2q/npxYAdJ9ABQ=="
+        }
     }
-}
-```
 +
 By default, the encrypted value of the secret is shown in the output.
 +
 . Decrypted value of the secret can be obtained:
 
-  $ aws ssm get-parameter --name GREETING --with-decryption
-  {
-      "Parameter": {
-          "Version": 1,
-          "Type": "SecureString",
-          "Name": "GREETING",
-          "Value": "Hello"
-      }
-  }
+    $ aws ssm get-parameter --name GREETING --with-decryption
+    {
+        "Parameter": {
+            "Version": 1,
+            "Type": "SecureString",
+            "Name": "GREETING",
+            "Value": "Hello"
+        }
+    }
 
 . Create another secret:
 
-  $ aws ssm put-parameter \
-    --name NAME \
-    --value World \
-    --type SecureString \
-    --key-id arn:aws:kms:<region>:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
-  {
-      "Version": 1
-  }
+    $ aws ssm put-parameter \
+      --name NAME \
+      --value World \
+      --type SecureString \
+      --key-id arn:aws:kms:<region>:<account-id>:key/414a963b-7fe4-4a61-b19f-ea408b9bda3b
+    {
+        "Version": 1
+    }
 +
 These two secrets will be consumed in the Pod.
 
@@ -654,25 +648,25 @@ The directory `images/parameter-store-kubernetes` contains a Java application th
 
 The Pod configuration is shown:
 
-  apiVersion: v1
-  kind: Pod
-  metadata:
-    name: pod-parameter-store
-  spec:
-    containers:
-    - name: pod-parameter-store
-      image: arungupta/parameter-store-kubernetes:latest
-    restartPolicy: Never
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: pod-parameter-store
+    spec:
+      containers:
+      - name: pod-parameter-store
+        image: arungupta/parameter-store-kubernetes:latest
+      restartPolicy: Never
 
 Create the Pod:
 
-  $ kubectl apply -f templates/pod-parameter-store.yaml
-  pod "pod-parameter-store" configured
+    $ kubectl apply -f templates/pod-parameter-store.yaml
+    pod "pod-parameter-store" configured
 
 Check the logs of the Pod:
 
-  $ kubectl logs pod-parameter-store
-  parameter store: HelloWorld
+    $ kubectl logs pod-parameter-store
+    parameter store: HelloWorld
 
 This shows that the Java application has been able to read both the NAME and GREETING secrets from AWS Parameter Store.
 
@@ -691,9 +685,7 @@ We need an EC2 instance for hosting Vault server. This server needs to be access
 .. Configure security group to allow 8200 (not TLS by default, more config required for TLS)
 .. SSH into the machine:
 +
-```
-ssh -i ~/.ssh/arun-us-east1.pem ec2-user@ec2-54-237-223-40.compute-1.amazonaws.com
-```
+    ssh -i ~/.ssh/arun-us-east1.pem ec2-user@ec2-54-237-223-40.compute-1.amazonaws.com
 +
 . Note down the private IP address of the EC2 console. This is needed to start our Vault server.
 
@@ -701,165 +693,155 @@ ssh -i ~/.ssh/arun-us-east1.pem ec2-user@ec2-54-237-223-40.compute-1.amazonaws.c
 
 . Download Vault server:
 
-  wget https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip
+    wget https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip
 
 . Unzip Vault: `unzip vault_0.9.0_linux_amd64.zip`
 . Start Vault server:
 +
-```
-[ec2-user@ip-172-31-26-180 ~]$ ./vault server -dev-listen-address=ip-172-31-26-180.ec2.internal:8200 -dev &
-[1] 26687
-[ec2-user@ip-172-31-26-180 ~]$ ==> Vault server configuration:
+    [ec2-user@ip-172-31-26-180 ~]$ ./vault server -dev-listen-address=ip-172-31-26-180.ec2.internal:8200 -dev &
+    [1] 26687
+    [ec2-user@ip-172-31-26-180 ~]$ ==> Vault server configuration:
 
-                     Cgo: disabled
-         Cluster Address: https://ip-172-31-26-180.ec2.internal:8201
-              Listener 1: tcp (addr: "ip-172-31-26-180.ec2.internal:8200", cluster address: "172.31.26.180:8201", tls: "disabled")
-               Log Level: info
-                   Mlock: supported: true, enabled: false
-        Redirect Address: http://ip-172-31-26-180.ec2.internal:8200
-                 Storage: inmem
-                 Version: Vault v0.9.0
-             Version Sha: bdac1854478538052ba5b7ec9a9ec688d35a3335
+                         Cgo: disabled
+             Cluster Address: https://ip-172-31-26-180.ec2.internal:8201
+                  Listener 1: tcp (addr: "ip-172-31-26-180.ec2.internal:8200", cluster address: "172.31.26.180:8201", tls: "disabled")
+                   Log Level: info
+                       Mlock: supported: true, enabled: false
+            Redirect Address: http://ip-172-31-26-180.ec2.internal:8200
+                     Storage: inmem
+                     Version: Vault v0.9.0
+                 Version Sha: bdac1854478538052ba5b7ec9a9ec688d35a3335
 
-==> WARNING: Dev mode is enabled!
+    ==> WARNING: Dev mode is enabled!
 
-In this mode, Vault is completely in-memory and unsealed.
-Vault is configured to only have a single unseal key. The root
-token has already been authenticated with the CLI, so you can
-immediately begin using the Vault CLI.
+    In this mode, Vault is completely in-memory and unsealed.
+    Vault is configured to only have a single unseal key. The root
+    token has already been authenticated with the CLI, so you can
+    immediately begin using the Vault CLI.
 
-The only step you need to take is to set the following
-environment variables:
+    The only step you need to take is to set the following
+    environment variables:
 
-    export VAULT_ADDR='http://ip-172-31-26-180.ec2.internal:8200'
+        export VAULT_ADDR='http://ip-172-31-26-180.ec2.internal:8200'
 
-The unseal key and root token are reproduced below in case you
-want to seal/unseal the Vault or play with authentication.
+    The unseal key and root token are reproduced below in case you
+    want to seal/unseal the Vault or play with authentication.
 
-Unseal Key: ZBfexpmasu0r4iba+t8tTlm4L5FQJ+JagglEhbfpxkU=
-Root Token: 4e93b3c6-c459-f166-e7e9-6c48044cfdb6
+    Unseal Key: ZBfexpmasu0r4iba+t8tTlm4L5FQJ+JagglEhbfpxkU=
+    Root Token: 4e93b3c6-c459-f166-e7e9-6c48044cfdb6
 
-==> Vault server started! Log data will stream in below:
+    ==> Vault server started! Log data will stream in below:
 
-2017/11/20 03:34:06.457231 [INFO ] core: security barrier not initialized
-2017/11/20 03:34:06.457349 [INFO ] core: security barrier initialized: shares=1 threshold=1
-2017/11/20 03:34:06.457475 [INFO ] core: post-unseal setup starting
-2017/11/20 03:34:06.470532 [INFO ] core: loaded wrapping token key
-2017/11/20 03:34:06.470542 [INFO ] core: successfully setup plugin catalog: plugin-directory=
-2017/11/20 03:34:06.471226 [INFO ] core: successfully mounted backend: type=kv path=secret/
-2017/11/20 03:34:06.471239 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
-2017/11/20 03:34:06.471348 [INFO ] core: successfully mounted backend: type=system path=sys/
-2017/11/20 03:34:06.471530 [INFO ] core: successfully mounted backend: type=identity path=identity/
-2017/11/20 03:34:06.475065 [INFO ] expiration: restoring leases
-2017/11/20 03:34:06.475241 [INFO ] rollback: starting rollback manager
-2017/11/20 03:34:06.475583 [INFO ] expiration: lease restore complete
-2017/11/20 03:34:06.475583 [INFO ] identity: entities restored
-2017/11/20 03:34:06.475628 [INFO ] identity: groups restored
-2017/11/20 03:34:06.475641 [INFO ] core: post-unseal setup complete
-2017/11/20 03:34:06.475778 [INFO ] core: root token generated
-2017/11/20 03:34:06.475782 [INFO ] core: pre-seal teardown starting
-2017/11/20 03:34:06.475783 [INFO ] core: cluster listeners not running
-2017/11/20 03:34:06.475790 [INFO ] rollback: stopping rollback manager
-2017/11/20 03:34:06.475848 [INFO ] core: pre-seal teardown complete
-2017/11/20 03:34:06.475905 [INFO ] core: vault is unsealed
-2017/11/20 03:34:06.475919 [INFO ] core: post-unseal setup starting
-2017/11/20 03:34:06.475965 [INFO ] core: loaded wrapping token key
-2017/11/20 03:34:06.475967 [INFO ] core: successfully setup plugin catalog: plugin-directory=
-2017/11/20 03:34:06.476108 [INFO ] core: successfully mounted backend: type=kv path=secret/
-2017/11/20 03:34:06.476186 [INFO ] core: successfully mounted backend: type=system path=sys/
-2017/11/20 03:34:06.476318 [INFO ] core: successfully mounted backend: type=identity path=identity/
-2017/11/20 03:34:06.476328 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
-2017/11/20 03:34:06.476889 [INFO ] expiration: restoring leases
-2017/11/20 03:34:06.476945 [INFO ] rollback: starting rollback manager
-2017/11/20 03:34:06.477008 [INFO ] identity: entities restored
-2017/11/20 03:34:06.477015 [INFO ] identity: groups restored
-2017/11/20 03:34:06.477022 [INFO ] core: post-unseal setup complete
-2017/11/20 03:34:06.477105 [INFO ] expiration: lease restore complete
-```
+    2017/11/20 03:34:06.457231 [INFO ] core: security barrier not initialized
+    2017/11/20 03:34:06.457349 [INFO ] core: security barrier initialized: shares=1 threshold=1
+    2017/11/20 03:34:06.457475 [INFO ] core: post-unseal setup starting
+    2017/11/20 03:34:06.470532 [INFO ] core: loaded wrapping token key
+    2017/11/20 03:34:06.470542 [INFO ] core: successfully setup plugin catalog: plugin-directory=
+    2017/11/20 03:34:06.471226 [INFO ] core: successfully mounted backend: type=kv path=secret/
+    2017/11/20 03:34:06.471239 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
+    2017/11/20 03:34:06.471348 [INFO ] core: successfully mounted backend: type=system path=sys/
+    2017/11/20 03:34:06.471530 [INFO ] core: successfully mounted backend: type=identity path=identity/
+    2017/11/20 03:34:06.475065 [INFO ] expiration: restoring leases
+    2017/11/20 03:34:06.475241 [INFO ] rollback: starting rollback manager
+    2017/11/20 03:34:06.475583 [INFO ] expiration: lease restore complete
+    2017/11/20 03:34:06.475583 [INFO ] identity: entities restored
+    2017/11/20 03:34:06.475628 [INFO ] identity: groups restored
+    2017/11/20 03:34:06.475641 [INFO ] core: post-unseal setup complete
+    2017/11/20 03:34:06.475778 [INFO ] core: root token generated
+    2017/11/20 03:34:06.475782 [INFO ] core: pre-seal teardown starting
+    2017/11/20 03:34:06.475783 [INFO ] core: cluster listeners not running
+    2017/11/20 03:34:06.475790 [INFO ] rollback: stopping rollback manager
+    2017/11/20 03:34:06.475848 [INFO ] core: pre-seal teardown complete
+    2017/11/20 03:34:06.475905 [INFO ] core: vault is unsealed
+    2017/11/20 03:34:06.475919 [INFO ] core: post-unseal setup starting
+    2017/11/20 03:34:06.475965 [INFO ] core: loaded wrapping token key
+    2017/11/20 03:34:06.475967 [INFO ] core: successfully setup plugin catalog: plugin-directory=
+    2017/11/20 03:34:06.476108 [INFO ] core: successfully mounted backend: type=kv path=secret/
+    2017/11/20 03:34:06.476186 [INFO ] core: successfully mounted backend: type=system path=sys/
+    2017/11/20 03:34:06.476318 [INFO ] core: successfully mounted backend: type=identity path=identity/
+    2017/11/20 03:34:06.476328 [INFO ] core: successfully mounted backend: type=cubbyhole path=cubbyhole/
+    2017/11/20 03:34:06.476889 [INFO ] expiration: restoring leases
+    2017/11/20 03:34:06.476945 [INFO ] rollback: starting rollback manager
+    2017/11/20 03:34:06.477008 [INFO ] identity: entities restored
+    2017/11/20 03:34:06.477015 [INFO ] identity: groups restored
+    2017/11/20 03:34:06.477022 [INFO ] core: post-unseal setup complete
+    2017/11/20 03:34:06.477105 [INFO ] expiration: lease restore complete
 +
 . Run the command to configure Vault CLI to identify the server:
 +
-```
-export VAULT_ADDR='http://ip-172-31-26-180.ec2.internal:8200'
-```
+    export VAULT_ADDR='http://ip-172-31-26-180.ec2.internal:8200'
 +
 . Check status:
 +
-```
-[ec2-user@ip-172-31-26-180 ~]$ ./vault status
-Type: shamir
-Sealed: false
-Key Shares: 1
-Key Threshold: 1
-Unseal Progress: 0
-Unseal Nonce:
-Version: 0.9.0
-Cluster Name: vault-cluster-01043c83
-Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
+    [ec2-user@ip-172-31-26-180 ~]$ ./vault status
+    Type: shamir
+    Sealed: false
+    Key Shares: 1
+    Key Threshold: 1
+    Unseal Progress: 0
+    Unseal Nonce:
+    Version: 0.9.0
+    Cluster Name: vault-cluster-01043c83
+    Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
 
-High-Availability Enabled: false
-```
+    High-Availability Enabled: false
 
 === Configure Vault CLI on your local machine
 
 . Download Vault server:
 
-  wget https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip
+    wget https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip
 
 . Unzip Vault: `unzip vault_0.9.0_linux_amd64.zip`
 
 . Find public IP address of the EC2 instance and setup an environment variable:
 
-  export VAULT_ADDR='<public-ip-address>'
+    export VAULT_ADDR='<public-ip-address>'
 +
 For example, this command will look like:
 +
-  export VAULT_ADDR='http://http://ec2-54-237-223-40.compute-1.amazonaws.com:8200'
+    export VAULT_ADDR='http://http://ec2-54-237-223-40.compute-1.amazonaws.com:8200'
 +
 . Verify the status can be seen from your local machine:
 +
-```
-$ vault status
-Type: shamir
-Sealed: false
-Key Shares: 1
-Key Threshold: 1
-Unseal Progress: 0
-Unseal Nonce:
-Version: 0.9.0
-Cluster Name: vault-cluster-01043c83
-Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
+    $ vault status
+    Type: shamir
+    Sealed: false
+    Key Shares: 1
+    Key Threshold: 1
+    Unseal Progress: 0
+    Unseal Nonce:
+    Version: 0.9.0
+    Cluster Name: vault-cluster-01043c83
+    Cluster ID: 89ccbeb4-8af1-7dca-77bb-38f39c423a39
 
-High-Availability Enabled: false
-```
+    High-Availability Enabled: false
 
 . Authenticate against Vault using the root token from the output when starting vault:
 +
-```
-vault auth
-Token (will be hidden):
-Successfully authenticated! You are now logged in.
-token: 4e93b3c6-c459-f166-e7e9-6c48044cfdb6
-token_duration: 0
-token_policies: [root]
-```
+    vault auth
+    Token (will be hidden):
+    Successfully authenticated! You are now logged in.
+    token: 4e93b3c6-c459-f166-e7e9-6c48044cfdb6
+    token_duration: 0
+    token_policies: [root]
 
 === Configure Kubernetes Service Account
 
 . Create the service account to verify service account token during login:
 
-  $ kubectl create -f templates/vault-reviewer.yaml
-  serviceaccount "vault-reviewer" created
+    $ kubectl create -f templates/vault-reviewer.yaml
+    serviceaccount "vault-reviewer" created
 
 . Create the RBAC role that will be used by the service account to access the TokenReview API:
 
-  $ kubectl apply -f templates/vault-reviewer-rbac.yaml
-  clusterrolebinding "role-tokenreview-binding" created
+    $ kubectl apply -f templates/vault-reviewer-rbac.yaml
+    clusterrolebinding "role-tokenreview-binding" created
 
 . Creat a service account that will be used to login to the auth backend:
 
-  $ kubectl create -f templates/vault-auth.yaml
-  serviceaccount "vault-auth" created
+    $ kubectl create -f templates/vault-auth.yaml
+    serviceaccount "vault-auth" created
 
 === Configure Kubernetes Auth backend
 
@@ -867,89 +849,89 @@ Service account token, Kubernetes API server address and the certificate used to
 
 . On the local machine, read the service account token:
 
-  kubectl get secret \
-  $(kubectl get serviceaccount vault-reviewer -o jsonpath={.secrets[0].name}) \
-  -o jsonpath={.data.token} | base64 -D -
-  export REVIEWER_TOKEN=$(kubectl get secret \
-  $(kubectl get serviceaccount vault-reviewer \
-  -o jsonpath={.secrets[0].name}) -o jsonpath={.data.token} | base64 -D -)
-  && echo $REVIEWER_TOKEN
-  eyJ . . . reg
+    kubectl get secret \
+    $(kubectl get serviceaccount vault-reviewer -o jsonpath={.secrets[0].name}) \
+    -o jsonpath={.data.token} | base64 -D -
+    export REVIEWER_TOKEN=$(kubectl get secret \
+    $(kubectl get serviceaccount vault-reviewer \
+    -o jsonpath={.secrets[0].name}) -o jsonpath={.data.token} | base64 -D -)
+    && echo $REVIEWER_TOKEN
+    eyJ . . . reg
 
 . Get the API server address:
 
-  $ kubectl config view -o jsonpath='{.clusters[*].cluster.server}'
-  https://api-example-cluster-k8s-l-1dt7vk-41321592.us-east-1.elb.amazonaws.com https://192.168.99.100:8443
+    $ kubectl config view -o jsonpath='{.clusters[*].cluster.server}'
+    https://api-example-cluster-k8s-l-1dt7vk-41321592.us-east-1.elb.amazonaws.com https://192.168.99.100:8443
 +
 This is the address of API servers currently configured. The first one is for the cluster created by kops. Second one is for the minikube server, if its running. The first one is relevant for our case.
 +
 . Extract the certificate
 .. Find the default secret token:
 
-  $ kubectl get secrets | grep default
-  default-token-kvjn9          kubernetes.io/service-account-token   3         4d
+    $ kubectl get secrets | grep default
+    default-token-kvjn9          kubernetes.io/service-account-token   3         4d
 
 .. Use the default token name to extract the certificate:
 
-  $ kubectl get secrets default-token-kvjn9 -o jsonpath="{.data['ca\.crt']}" | base64 -D > ~/.kube/kops.crt
+    kubectl get secrets default-token-kvjn9 -o jsonpath="{.data['ca\.crt']}" | base64 -D > ~/.kube/kops.crt
 
 . Now that all the required values are available, configure the Kubernetes auth backend.
 .. Mount the Kubernetes auth backend:
 
-  $ vault auth-enable kubernetes
-  Successfully enabled 'kubernetes' at 'kubernetes'!
+    $ vault auth-enable kubernetes
+    Successfully enabled 'kubernetes' at 'kubernetes'!
 
 .. Configure the auth backend:
 
-  $ vault write auth/kubernetes/config \
-    token_reviewer_jwt=$REVIEWER_TOKEN  \
-    kubernetes_host=<api-server> \
-    kubernetes_ca_cert=@~/.kube/kops.crt
+    vault write auth/kubernetes/config \
+      token_reviewer_jwt=$REVIEWER_TOKEN  \
+      kubernetes_host=<api-server> \
+      kubernetes_ca_cert=@~/.kube/kops.crt
 +
 For example, here is how our command will look like:
 
-  $ vault write auth/kubernetes/config \
-    token_reviewer_jwt=eyJ . . . reg  \
-    kubernetes_host=https://api-example-cluster-k8s-l-1dt7vk-41321592.us-east-1.elb.amazonaws.com \
-    kubernetes_ca_cert=@~/.kube/kops.crt
-  Success! Data written to: auth/kubernetes/config
+    $ vault write auth/kubernetes/config \
+      token_reviewer_jwt=eyJ . . . reg  \
+      kubernetes_host=https://api-example-cluster-k8s-l-1dt7vk-41321592.us-east-1.elb.amazonaws.com \
+      kubernetes_ca_cert=@~/.kube/kops.crt
+    Success! Data written to: auth/kubernetes/config
 
 . Create a role with service account name `vault-auth` in the `default` namespace:
 
-  $ vault write auth/kubernetes/role/demo \
-    bound_service_account_names=vault-auth \
-    bound_service_account_namespaces=default \
-    policies=kube-auth \
-    period=60s
-  Success! Data written to: auth/kubernetes/role/demo
+    $ vault write auth/kubernetes/role/demo \
+      bound_service_account_names=vault-auth \
+      bound_service_account_namespaces=default \
+      policies=kube-auth \
+      period=60s
+    Success! Data written to: auth/kubernetes/role/demo
 
 . Read the role:
 
-  $ vault read auth/kubernetes/role/demo
-  Key                               Value
-  ---                               -----
-  bound_service_account_names       [vault-auth]
-  bound_service_account_namespaces  [default]
-  max_ttl                           0
-  num_uses                          0
-  period                            60
-  policies                          [kube-auth]
-  ttl                               0
+    $ vault read auth/kubernetes/role/demo
+    Key                               Value
+    ---                               -----
+    bound_service_account_names       [vault-auth]
+    bound_service_account_namespaces  [default]
+    max_ttl                           0
+    num_uses                          0
+    period                            60
+    policies                          [kube-auth]
+    ttl                               0
 
 . Create a policy for this role
 
-  $ vault policy-write kube-auth templates/kube-auth.hcl
-  Policy 'kube-auth' written.
+    $ vault policy-write kube-auth templates/kube-auth.hcl
+    Policy 'kube-auth' written.
 
 . Write secrets to Vault:
 
-  $ vault write secret/creds GREETING=Hello NAME=World
-  Success! Data written to: secret/creds
+    $ vault write secret/creds GREETING=Hello NAME=World
+    Success! Data written to: secret/creds
 
 . Check that this value can be read:
 
-  $ vault read -field=GREETING secret/creds
-  Hello
+    $ vault read -field=GREETING secret/creds
+    Hello
 
 === Deploy a Pod using secrets from Vault
 
@@ -964,43 +946,43 @@ More details about the Docker image used in the Pod is at https://github.com/aru
 
 . The Pod configuration file looks like:
 
-  apiVersion: v1
-  kind: Pod
-  metadata:
-    name: vault-kubernetes
-  spec:
-    containers:
-    - name: vault-kubernetes
-      image: arungupta/vault-kubernetes:latest
-      env:
-        - name: VAULT_ADDR
-          valueFrom:
-            configMapKeyRef:
-              name: vault
-              key: address
-    restartPolicy: Never
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: vault-kubernetes
+    spec:
+      containers:
+      - name: vault-kubernetes
+        image: arungupta/vault-kubernetes:latest
+        env:
+          - name: VAULT_ADDR
+            valueFrom:
+              configMapKeyRef:
+                name: vault
+                key: address
+      restartPolicy: Never
 
 . Create the ConfigMap:
 
-  $ kubectl create configmap vault --from-literal=address=$VAULT_ADDR
-  configmap "vault" created
+    $ kubectl create configmap vault --from-literal=address=$VAULT_ADDR
+    configmap "vault" created
 
 . Deploy the Pod:
 
-  $ kubectl apply -f templates/pod-vault.yaml
-  pod "vault-kubernetes" created
+    $ kubectl apply -f templates/pod-vault.yaml
+    pod "vault-kubernetes" created
 
 . Get the list of Pods:
 
-  $ kubectl get pods --show-all
-  NAME               READY     STATUS      RESTARTS   AGE
-  vault-kubernetes   0/1       Completed   0          20s
+    $ kubectl get pods --show-all
+    NAME               READY     STATUS      RESTARTS   AGE
+    vault-kubernetes   0/1       Completed   0          20s
 
 . Get logs from the completed Pod:
 
-  $ kubectl logs vault-kubernetes
-  Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
-  vault: HelloWorld
+    $ kubectl logs vault-kubernetes
+    Connecting to Vault: http://ec2-54-237-223-40.compute-1.amazonaws.com:8200
+    vault: HelloWorld
 
 
 You are now ready to continue on with the workshop!
