@@ -47,5 +47,7 @@ echo "export AWS_AVAILABILITY_ZONES KOPS_STATE_STORE" >> ~/.bash_profile
 # Create SSH key
 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
-# Download lab Repository
-git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
+if [ ! -d "aws-workshop-for-kubernetes/" ]; then
+  # Download lab Repository
+  git clone https://github.com/aws-samples/aws-workshop-for-kubernetes
+fi
