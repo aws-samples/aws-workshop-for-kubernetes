@@ -186,6 +186,6 @@ You are now ready to continue on with the workshop!
 |=====
 |image:button-continue-developer.png[link=../../04-path-security-and-networking/405-ingress-controllers/]
 |image:button-continue-operations.png[link=../../04-path-security-and-networking/405-ingress-controllers/]
+|link:../../developer-path.adoc[Go to Developer Index]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====
-
-  

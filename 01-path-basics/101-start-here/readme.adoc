@@ -77,6 +77,8 @@ image:cloud9-run-script.png[Running the script in Cloud9 Terminal]
 [NOTE]
 All shell commands _(starting with "$")_ throughout the rest of the workshop should be run in this tab. You may want to resize it upwards to make it larger.
 
+At this point you can restart the Cloud9 IDE terminal session to ensure that the kublectl completion is enabled. Once a new terminal window is opened, type $ kubectl get nodes.
+
 One last step is required so that the Cloud9 IDE uses the assigned IAM Instance profile. Open the "AWS Cloud9" menu, go to "Preferences", go to "AWS Settings", and disable "AWS managed temporary credentials" as depicted in the diagram here:
 
 image:cloud9-disable-temp-credentials.png[]
@@ -93,9 +95,13 @@ You are now ready to continue on with the workshop!
 |image:button-continue-standard.png[link=../102-your-first-cluster/]
 |image:button-continue-developer.png[link=../102-your-first-cluster/]
 |image:button-continue-operations.png[link=../102-your-first-cluster/]
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../developer-path.adoc[Go to Developer Index]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====
 
 The next step is link:../102-your-first-cluster[to create a Kubernetes cluster using kops].
+
 
 == Workshop Cleanup
 

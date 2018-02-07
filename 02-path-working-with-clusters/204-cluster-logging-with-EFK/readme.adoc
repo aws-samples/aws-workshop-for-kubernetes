@@ -75,7 +75,7 @@ Fluentd log group name and stream name are configured in the file `templates/flu
         num_threads 8
       </match>
 
-It uses the default log group name of `kubernetes-logs` and the log stream name of `fluentd-cloudwatch`. 
+It uses the default log group name of `kubernetes-logs` and the log stream name of `fluentd-cloudwatch`.
 
 If you've followed the instructions in this chapter as is, then no change is required in this configuration file. However if a different log group name is used in the previous command or a different log stream name is needed, then that needs to be configured in this configuration file.
 
@@ -247,5 +247,5 @@ You are now ready to continue on with the workshop!
 [align="center", cols="1", grid="none", frame="none"]
 |=====
 |image:button-continue-operations.png[link=../../02-path-working-with-clusters/204-cluster-logging-with-EFK]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====
-

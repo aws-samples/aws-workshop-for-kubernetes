@@ -12,7 +12,7 @@ If you have not set up the link:../101-start-here[Cloud9 Devlopment Environment,
 
 == Create a Kubernetes Cluster with kops
 
-kops can be used to create a highly available cluster, with multiple master and worker nodes spread across multiple availability zones. 
+kops can be used to create a highly available cluster, with multiple master and worker nodes spread across multiple availability zones.
 The master and worker nodes within the cluster can use either DNS or the https://github.com/weaveworks/mesh[Weave Mesh, window="_blank"] *gossip* protocol for name resolution.  For this workshop, we will use the gossip protocol.  A gossip-based cluster is easier and quicker to setup, and does not does not require a domain, subdomain, or Route53 hosted zone to be registered. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.
 
 To create a cluster using the gossip protocol, simply use a cluster name with a suffix of `.k8s.local`. In the following steps, we will use `example.cluster.k8s.local` as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
@@ -165,6 +165,9 @@ You are now ready to continue on with the workshop!
 |image:button-continue-standard.png[link=../103-kubernetes-concepts/]
 |image:button-continue-developer.png[link=../103-kubernetes-concepts/]
 |image:button-continue-operations.png[link=../103-kubernetes-concepts/]
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../developer-path.adoc[Go to Developer Index]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====
 The next step is link:../103-kubernetes-concepts[to learn about basic Kubernetes Concepts].
 
@@ -221,7 +224,7 @@ Although most of the exercises in this workshop should work on a cluster with a 
 
 === (Optional) Turn on an API version for your Cluster
 
-Note: This section is for Kubebernetes 1.7.x, in 1.8.x the api is `batch/v1beta1`. 
+Note: This section is for Kubebernetes 1.7.x, in 1.8.x the api is `batch/v1beta1`.
 
 Kubernetes resources are created with a specific API version. The exact value is defined by the `apiVersion` attribute in the resource configuration file. Some of the values are `v1`, `extensions/v1beta1` or `batch/v1`. By default, resources with `apiVersion` values X, Y, Z are enabled. If a resource has a version with the word `alpha` in it, then that version needs to be explicitly enabled in the cluster. For example, if you are running a Kubernetes cluster of version 1.7.x, then Cron Job resource cannot be created unless `batch/v2alpha1` is explicitly enabled.
 
@@ -301,7 +304,7 @@ The output clearly shows that `--runtime-config=batch/v2alpha1=true` is passed a
 
 === (Optional) Delete A Cluster
 
-Note: If you are going through the workshop paths, please do not delete the cluster you just created!  
+Note: If you are going through the workshop paths, please do not delete the cluster you just created!
 
 This information is to show you how to delete a cluster.
 (We will also provide these instructions at the end of the workshop.)
@@ -357,7 +360,7 @@ Create a Kubernetes cluster using the following command. For the purposes of thi
 
 The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding `--yes` option ensures that the cluster is immediately created as well.
 
-Alternatively, you may leave off the `--yes` option from the `kops create cluster` command. This will allow you to use `kops edit cluster example.cluster.com` command to view the current cluster state and make changes before actually creating the cluster. 
+Alternatively, you may leave off the `--yes` option from the `kops create cluster` command. This will allow you to use `kops edit cluster example.cluster.com` command to view the current cluster state and make changes before actually creating the cluster.
 
 The cluster creation, in that case, is started with the following command:
 
@@ -443,4 +446,3 @@ Your cluster example.cluster.com is ready
 Note that all masters are spread across different AZs.
 
 Your output may differ from the one shown here based up on the type of cluster you created.
-

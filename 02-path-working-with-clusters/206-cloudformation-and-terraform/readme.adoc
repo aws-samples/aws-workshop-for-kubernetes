@@ -32,7 +32,7 @@ The following is an explanation of the input parameters:
 	MasterInstanceType: EC2 instance type of master. # Defaulted to c4.xlarge
 	NetworkProvider: Container networking provider. # Defaulted to none
 	NodeInstanceType: EC2 instance type of nodes. # Defaulted to c4.large
-	Nodes: Number of k8s nodes. # Defaulted to 3 
+	Nodes: Number of k8s nodes. # Defaulted to 3
 
 NOTE: https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/[kubeadm] is used to create the cluster. Currently, it allows to create a single master, with a single etcd database running on it. This means your cluster is not highly available.
 
@@ -50,4 +50,5 @@ You are now ready to continue on with the workshop!
 [align="center", cols="1", grid="none", frame="none"]
 |=====
 |image:button-continue-operations.png[link=../../04-path-security-and-networking/401-configmaps-and-secrets]
+|link:../../operations-path.adoc[Go to Operations Index]
 |=====

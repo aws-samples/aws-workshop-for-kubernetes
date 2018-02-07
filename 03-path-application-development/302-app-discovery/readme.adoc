@@ -34,7 +34,7 @@ The `webapp` service needs to be configured with the environment variables below
 . `GREETER_SERVICE_PORT`
 . `GREETER_SERVICE_PATH`
 
-The configuration file with three different services is defined at link:templates/app.yml[app.yml]. 
+The configuration file with three different services is defined at link:templates/app.yml[app.yml].
 
 The replica set for the `webapp` service has the following environment variables:
 
@@ -65,8 +65,8 @@ An ingress load balancer for `webapp` service is created by using the following 
 
 [source, yml]
 ----
-spec: 
-  selector: 
+spec:
+  selector:
     app: webapp-pod
   ports:
     - name: web
@@ -130,7 +130,7 @@ Access the application using the following URLs with `curl` or via a browser:
 
   $ kubectl get svc/webapp-service -o jsonpath={.status.loadBalancer.ingress[0].hostname}
   a5427e128847211e782280a896fc2bfc-283874069.us-east-1.elb.amazonaws.com
-  
+
 === Delete Application
 
 Delete the application with this command:
@@ -148,4 +148,6 @@ You are now ready to continue on with the workshop!
 |=====
 |image:button-continue-standard.png[link=../../03-path-application-development/303-app-update]
 |image:button-continue-developer.png[link=../../03-path-application-development/303-app-update]
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../developer-path.adoc[Go to Developer Index]
 |=====

@@ -188,7 +188,7 @@ Pods are updated in a rolling update fashion.
 
 Two optional properties can be used to define how rolling update is performed:
 
-. `.spec.strategy.rollingUpdate.maxSurge` specifies the maximum number of pods that can be created over the desired number of pods. The value can be an absolute number or percentage. Default value is `25%`. 
+. `.spec.strategy.rollingUpdate.maxSurge` specifies the maximum number of pods that can be created over the desired number of pods. The value can be an absolute number or percentage. Default value is `25%`.
 . `.spec.strategy.rollingUpdate.maxUnavailable` specifies the maximum number of pods that can be unavailable during the update process.
 
 The configuration file looks like:
@@ -453,17 +453,17 @@ Let's verify.
 
 . Deploy `v1` version of Deployment:
 
-    $ kubectl apply -f templates/app-v1.yaml 
+    $ kubectl apply -f templates/app-v1.yaml
     deployment "app-v1" created
 
 . Deploy `v2` version of Deployment:
 
-    $ kubectl apply -f templates/app-v2.yaml 
+    $ kubectl apply -f templates/app-v2.yaml
     deployment "app-v2" created
 
 . Deploy Service:
 
-    $ kubectl apply -f templates/app-service.yaml 
+    $ kubectl apply -f templates/app-service.yaml
     service "app-service" created
 
 . Check the list of pods for this service:
@@ -527,7 +527,7 @@ Achieving the right percentage of traffic using Deployments and Services require
 
 https://github.com/zalando-incubator/kube-ingress-aws-controller[Kubernetes Ingress Controller for AWS], by Zalando, is an ingress controller for Kubernetes.
 
-    $ kubectl apply -f templates/ingress-controller.yaml 
+    $ kubectl apply -f templates/ingress-controller.yaml
     deployment "app-ingress-controller" created
 
 
@@ -541,4 +541,6 @@ You are now ready to continue on with the workshop!
 |=====
 |image:button-continue-standard.png[link=../../03-path-application-development/304-app-scaling]
 |image:button-continue-developer.png[link=../../03-path-application-development/304-app-scaling]
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../developer-path.adoc[Go to Developer Index]
 |=====
