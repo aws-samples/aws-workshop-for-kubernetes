@@ -195,7 +195,7 @@ Each resource in Kubernetes can be defined using a configuration file. For examp
 	      name: nginx-pod
 	  spec:
 	    containers:
-	  - name: nginx
+	    - name: nginx
 	      image: nginx:latest
 	      ports:
 	      - containerPort: 80
