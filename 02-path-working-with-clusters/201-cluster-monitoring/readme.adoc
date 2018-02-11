@@ -47,9 +47,9 @@ If you are using v1.8 or above, deploy the Dashboard using the following command
 
 Dashboard can be seen using the following command:
 
-    kubectl proxy
+    kubectl proxy --port 8080
 
-Now, Dashboard is accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/.
+Now, if you ran 'kubectl proxy' localy Dashboard is accessible at http://localhost:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/. Otherwise, if you are in AWS Clou9 environment you sould click on 'Preview' to see dashboard in browser. 
 
 Starting with Kubernetes 1.7, Dashboard supports authentication. Read more about it at https://github.com/kubernetes/dashboard/wiki/Access-control#introduction. We'll use a bearer token for authentication.
 
