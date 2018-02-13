@@ -40,4 +40,4 @@ NOTE: You will incur charges as you go through these workshop guides as it will 
 
 === Participation
 
-You can share this workshop via https://amzn.to/k8s-on-aws. Issues are encouraged, PR's are preferred!
+You can share this workshop via https://amzn.to/k8s-on-aws. We encourage participation; if you find anything, please submit an issue. If you want to help raise the bar, submit a PR!
