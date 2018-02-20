@@ -77,7 +77,7 @@ image:cloud9-run-script.png[Running the script in Cloud9 Terminal]
 [NOTE]
 All shell commands _(starting with "$")_ throughout the rest of the workshop should be run in this tab. You may want to resize it upwards to make it larger.
 
-At this point you can restart the Cloud9 IDE terminal session to ensure that the kublectl completion is enabled. Once a new terminal window is opened, type $ kubectl get nodes.
+At this point you can restart the Cloud9 IDE terminal session to ensure that the kublectl completion is enabled. Once a new terminal window is opened, type `kubectl get nodes`. You do not have to run the command. It is normal for this command to fail with an error message if you run it. You have not yet created the Kubernetes cluster. We are merely testing to make sure the `kubectl` tool is installed on the command line correctly and can autocomplete.
 
 One last step is required so that the Cloud9 IDE uses the assigned IAM Instance profile. Open the "AWS Cloud9" menu, go to "Preferences", go to "AWS Settings", and disable "AWS managed temporary credentials" as depicted in the diagram here:
 
