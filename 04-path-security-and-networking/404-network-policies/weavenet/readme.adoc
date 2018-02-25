@@ -11,24 +11,24 @@ This exercise will walk you through configuring Weave Net and applying a Network
 
 This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster], except we ask kops to use Weave Net as shown below:
 
-  kops create cluster \
-    --name example2.cluster.k8s.local \
-    --master-count 3 \
-    --node-count 5 \
-    --zones ${AWS_AVAILABILITY_ZONES} \
-    --networking weave \
-    --yes
+    kops create cluster \
+      --name example2.cluster.k8s.local \
+      --master-count 3 \
+      --node-count 5 \
+      --zones ${AWS_AVAILABILITY_ZONES} \
+      --networking weave \
+      --yes
 
 It uses `--networking weave` which tells the cluster to use Weave Net instead of the default networking provided by kubenet. Note, the name here is `example2.cluster.k8s.local` instead of the usual `example.cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
 
 To check the network configuration is using Weave Net, view the cluster configuration using the following command:
 
-  kops edit cluster example2.cluster.k8s.local
+    kops edit cluster example2.cluster.k8s.local
 
 This will show the following fragment under `.spec`:
 
-  networking:
-    weave: {}
+    networking:
+      weave: {}
 
 Quit the edit without making any changes; this step was just to check.
 
@@ -38,23 +38,20 @@ This chapter also uses some files from the repo; please `cd` into `network-polic
 kops 1.7.x comes with Weave Net 2.0.5 out-of-the-box which does not support the latest network-policy updates for kubernetes 1.7.
 In order to make this work, we need to update Weave Net via:
 
-```
-$ kubectl apply -f templates/weavenet-update.yaml
-clusterrole "weave-net" configured
-serviceaccount "weave-net" unchanged
-clusterrolebinding "weave-net" configured
-role "weave-net" created
-rolebinding "weave-net" created
-daemonset "weave-net" configured
-```
+    $ kubectl apply -f templates/weavenet-update.yaml
+    clusterrole "weave-net" configured
+    serviceaccount "weave-net" unchanged
+    clusterrolebinding "weave-net" configured
+    role "weave-net" created
+    rolebinding "weave-net" created
+    daemonset "weave-net" configured
 
 After this, wait for the Weave Net pods to be updated via:
-```
-$ kubectl rollout status ds/weave-net -n kube-system
-Waiting for rollout to finish: 0 out of 8 new pods have been updated...
-Waiting for rollout to finish: 1 out of 8 new pods have been updated...
-[...]
-Waiting for rollout to finish: 7 of 8 updated pods are available...
-daemon set "weave-net" successfully rolled out
-```
+
+    $ kubectl rollout status ds/weave-net -n kube-system
+    Waiting for rollout to finish: 0 out of 8 new pods have been updated...
+    Waiting for rollout to finish: 1 out of 8 new pods have been updated...
+    [...]
+    Waiting for rollout to finish: 7 of 8 updated pods are available...
+    daemon set "weave-net" successfully rolled out
 

@@ -54,29 +54,24 @@ link:../cluster-install/readme.adoc[Cluster Install] instructions.
 Update the Cluster spec to enable webhooks. (Remember that when you set up
   the cluster you chose the name `example.cluster.k8s.local`. )
 
-```bash
-kops edit example.cluster.k8s.local
-```
+    kops edit example.cluster.k8s.local
 
-```yaml
-  kubeAPIServer:
-    admissionControl:
-      - NamespaceLifecycle
-      - LimitRanger
-      - ServiceAccount
-      - PersistentVolumeLabel
-      - DefaultStorageClass
-      - DefaultTolerationSeconds
-      - GenericAdmissionWebhook
-      - ResourceQuota
-    runtimeConfig:
-      admissionregistration.k8s.io/v1alpha1: "true"
-```
+    kubeAPIServer:
+      admissionControl:
+        - NamespaceLifecycle
+        - LimitRanger
+        - ServiceAccount
+        - PersistentVolumeLabel
+        - DefaultStorageClass
+        - DefaultTolerationSeconds
+        - GenericAdmissionWebhook
+        - ResourceQuota
+      runtimeConfig:
+        admissionregistration.k8s.io/v1alpha1: "true"
 
 Then update `kops`.
-```bash
-kops update example.cluster.k8s.local --yes
-```
+
+    kops update example.cluster.k8s.local --yes
 
 
 == Step 2: Deploy OPA on Kubernetes
@@ -88,34 +83,32 @@ directory; we will only use them once to generate certificates.  You may discard
 them after running the `openssl` commands below.
 
 *client.conf*
-```bash
-[req]
-req_extensions = v3_req
-distinguished_name = req_distinguished_name
-[req_distinguished_name]
-[ v3_req ]
-basicConstraints = CA:FALSE
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-extendedKeyUsage = clientAuth, serverAuth
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = opa.opa.cluster.svc.local
-```
+
+    [req]
+    req_extensions = v3_req
+    distinguished_name = req_distinguished_name
+    [req_distinguished_name]
+    [ v3_req ]
+    basicConstraints = CA:FALSE
+    keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+    extendedKeyUsage = clientAuth, serverAuth
+    subjectAltName = @alt_names
+    [alt_names]
+    DNS.1 = opa.opa.cluster.svc.local
 
 *server.conf*
-```bash
-[req]
-req_extensions = v3_req
-distinguished_name = req_distinguished_name
-[req_distinguished_name]
-[ v3_req ]
-basicConstraints = CA:FALSE
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-extendedKeyUsage = clientAuth, serverAuth
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = opa.opa.cluster.svc.local
-```
+
+    [req]
+    req_extensions = v3_req
+    distinguished_name = req_distinguished_name
+    [req_distinguished_name]
+    [ v3_req ]
+    basicConstraints = CA:FALSE
+    keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+    extendedKeyUsage = clientAuth, serverAuth
+    subjectAltName = @alt_names
+    [alt_names]
+    DNS.1 = opa.opa.cluster.svc.local
 
 IMPORTANT: The subjectAltName/IP address in the certificate MUST match the one configured on the Kubernetes Service.
 
@@ -124,81 +117,57 @@ hand these keys to OPA and the API server so they can communicate.
 
 Create a certificate authority:
 
-```bash
-openssl genrsa -out ca.key 2048
-```
+    openssl genrsa -out ca.key 2048
 
-```bash
-openssl req -x509 -new -nodes -key ca.key -days 100000 -out ca.crt -subj "/CN=admission_ca"
-```
+    openssl req -x509 -new -nodes -key ca.key -days 100000 -out ca.crt -subj "/CN=admission_ca"
 
 Create a server certiticate:
 
-```bash
-openssl genrsa -out server.key 2048
-```
+    openssl genrsa -out server.key 2048
 
-```bash
-openssl req -new -key server.key -out server.csr -subj "/CN=admission_server" -config server.conf
-```
+    openssl req -new -key server.key -out server.csr -subj "/CN=admission_server" -config server.conf
 
-```bash
-openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 100000 -extensions v3_req -extfile server.conf
-```
+    openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 100000 -extensions v3_req -extfile server.conf
 
 Create a client certiticate:
 
-```bash
-openssl genrsa -out client.key 2048
-```
+    openssl genrsa -out client.key 2048
 
-```bash
-openssl req -new -key client.key -out client.csr -subj "/CN=admission_client" -config client.conf
-```
+    openssl req -new -key client.key -out client.csr -subj "/CN=admission_client" -config client.conf
 
-```bash
-openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 100000 -extensions v3_req -extfile client.conf
-```
+    openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 100000 -extensions v3_req -extfile client.conf
 
 
 === 2.2: Deploy OPA on Kubernetes
 
 First, create a namespace to deploy OPA into.
 
-```bash
-kubectl create namespace opa
-```
+    kubectl create namespace opa
 
 Create a Service to expose the OPA API. The Kubernetes API server will lookup
 the Service and execute webhook requests against it.
 
 **opa-admission-controller-service.yaml**:
 
-```yaml
-kind: Service
-apiVersion: v1
-metadata:
-  name: opa
-spec:
-  selector:
-    app: opa
-  ports:
-  - name: https
-    protocol: TCP
-    port: 443
-    targetPort: 443
-```
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: opa
+    spec:
+      selector:
+        app: opa
+      ports:
+      - name: https
+        protocol: TCP
+        port: 443
+        targetPort: 443
 
-```bash
-kubectl create -f opa-admission-controller-service.yaml -n opa
-```
+    kubectl create -f opa-admission-controller-service.yaml -n opa
 
 Next, create Secrets containing the TLS credentials for OPA:
 
-```bash
-kubectl create secret generic opa-ca --from-file=ca.crt -n opa
-kubectl create secret tls opa-server --cert=server.crt --key=server.key -n opa
-```
+    kubectl create secret generic opa-ca --from-file=ca.crt -n opa
+    kubectl create secret tls opa-server --cert=server.crt --key=server.key -n opa
 
 Finally, create the Deployment to run OPA as an Admission Controller.
 The deployment contains two containers: `opa` and `kube-mgmt`.  `opa` by
@@ -208,81 +177,73 @@ OPA interact with kubernetes.
 
 **opa-admission-controller-deployment.yaml**:
 
-```yaml
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  labels:
-    app: opa
-  name: opa
-spec:
-  replicas: 1
-  template:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
     metadata:
       labels:
         app: opa
       name: opa
     spec:
-      containers:
-        - name: opa
-          image: openpolicyagent/opa:0.5.13
-          args:
-            - "run"
-            - "--server"
-            - "--tls-cert-file=/certs/tls.crt"
-            - "--tls-private-key-file=/certs/tls.key"
-            - "--addr=0.0.0.0:443"
-            - "--insecure-addr=127.0.0.1:8181"
-          volumeMounts:
-            - readOnly: true
-              mountPath: /certs
-              name: opa-server
-        - name: kube-mgmt
-          image: openpolicyagent/kube-mgmt:0.4
-          args:
-            - "--replicate=v1/pods"
-            - "--register-admission-controller"
-            - "--admission-controller-ca-cert-file=/certs/ca.crt"
-            - "--admission-controller-service-name=opa"
-            - "--admission-controller-service-namespace=$(MY_POD_NAMESPACE)"
-          volumeMounts:
-            - readOnly: true
-              mountPath: /certs
-              name: opa-ca
-          env:
-            - name: MY_POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-      volumes:
-        - name: opa-server
-          secret:
-            secretName: opa-server
-        - name: opa-ca
-          secret:
-            secretName: opa-ca
-```
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: opa
+          name: opa
+        spec:
+          containers:
+            - name: opa
+              image: openpolicyagent/opa:0.5.13
+              args:
+                - "run"
+                - "--server"
+                - "--tls-cert-file=/certs/tls.crt"
+                - "--tls-private-key-file=/certs/tls.key"
+                - "--addr=0.0.0.0:443"
+                - "--insecure-addr=127.0.0.1:8181"
+              volumeMounts:
+                - readOnly: true
+                  mountPath: /certs
+                  name: opa-server
+            - name: kube-mgmt
+              image: openpolicyagent/kube-mgmt:0.4
+              args:
+                - "--replicate=v1/pods"
+                - "--register-admission-controller"
+                - "--admission-controller-ca-cert-file=/certs/ca.crt"
+                - "--admission-controller-service-name=opa"
+                - "--admission-controller-service-namespace=$(MY_POD_NAMESPACE)"
+              volumeMounts:
+                - readOnly: true
+                  mountPath: /certs
+                  name: opa-ca
+              env:
+                - name: MY_POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+          volumes:
+            - name: opa-server
+              secret:
+                secretName: opa-server
+            - name: opa-ca
+              secret:
+                secretName: opa-ca
 
-```bash
-kubectl create -f opa-admission-controller-deployment.yaml -n opa
-```
+    kubectl create -f opa-admission-controller-deployment.yaml -n opa
 
 When OPA starts, the sidecar (`kube-mgmt`) will register it as an External
 Admission Controller. To verify that registration succeeded, query
  the Kubernetes API for the list of External Admission Controllers.
 
-```bash
-kubectl describe externaladmissionhookconfigurations admission.openpolicyagent.org
-```
+    kubectl describe externaladmissionhookconfigurations admission.openpolicyagent.org
 
 
 
 Finally, you can follow the OPA logs to see the webhook requests being issued
 by the Kubernetes API server:
 
-```
-kubectl logs -l app=opa -c opa -n opa
-```
+    kubectl logs -l app=opa -c opa -n opa
 
 == Step 3:  Enforce Kubernetes Admission Control with OPA
 
@@ -299,45 +260,40 @@ the account IDs are the same.
 
 **image_source.rego**:
 
-```ruby
-package system
+    package system
 
-# Deny requests that include container images not from ECR.
-deny[explanation] {
-    image_name = input.spec.object.Spec.Containers[_].Image
-    image_name_parts = split(image_name, "/")
-    repo_name = image_name_parts[0]
-    not startswith(repo_name, "12345678.dkr.ecr.us-west-2.amazonaws.com")
-    explanation = sprintf("image '%v' not from AWS ECR", [image_name])
-}
+    # Deny requests that include container images not from ECR.
+    deny[explanation] {
+        image_name = input.spec.object.Spec.Containers[_].Image
+        image_name_parts = split(image_name, "/")
+        repo_name = image_name_parts[0]
+        not startswith(repo_name, "12345678.dkr.ecr.us-west-2.amazonaws.com")
+        explanation = sprintf("image '%v' not from AWS ECR", [image_name])
+    }
 
 
-# main is entry point to policy.
-# Boilerplate required by admission webhook.
-# Actual policy decision is `status`, which takes the form
-#   {"allowed": BOOLEAN, "status": {"reason": STRING}}
-main = {
-    "apiVersion": "admission.k8s.io/v1alpha1",
-    "kind": "AdmissionReview",
-    "status": {"allowed": allowed, "status": {"reason": reason}}
-}
+    # main is entry point to policy.
+    # Boilerplate required by admission webhook.
+    # Actual policy decision is `status`, which takes the form
+    #   {"allowed": BOOLEAN, "status": {"reason": STRING}}
+    main = {
+        "apiVersion": "admission.k8s.io/v1alpha1",
+        "kind": "AdmissionReview",
+        "status": {"allowed": allowed, "status": {"reason": reason}}
+    }
 
-# Boilerplate: construct 'reason' and 'allowed' variables.
-#  Real policy is the collection of 'deny' statements above.
-#  If not denied, allow.
-reason = msg {
-    msg = concat(", ", deny)
-}
-default allowed = true
-allowed = false { n = count(deny); n > 0 }
-
-```
+    # Boilerplate: construct 'reason' and 'allowed' variables.
+    #  Real policy is the collection of 'deny' statements above.
+    #  If not denied, allow.
+    reason = msg {
+        msg = concat(", ", deny)
+    }
+    default allowed = true
+    allowed = false { n = count(deny); n > 0 }
 
 Store the policy in Kubernetes as a ConfigMap.
 
-```bash
-kubectl create configmap image-source --from-file=image_source.rego -n opa
-```
+    kubectl create configmap image-source --from-file=image_source.rego -n opa
 
 The OPA sidecar will notice the ConfigMap and automatically load the contained
 policy into OPA.
@@ -348,18 +304,16 @@ To verify that your policy is working, create separate test pods.
 
 **nginx-pod.yaml**:
 
-```yaml
-kind: Pod
-version: v1
-metadata:
-  name: nginx
-  labels:
-    app: nginx
-spec:
-  containers:
-  - image: nginx
-    name: nginx
-```
+    kind: Pod
+    version: v1
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
 
 NOTE: Below replace the Amazon account ID 123456789 with your own account if your
 want the pod to actually come up.  If you just want to see the admission
@@ -367,31 +321,25 @@ controller in action, you can leave it with the fake ID.
 
 **amazon-linux-pod.yaml**:
 
-```yaml
-kind: Pod
-version: v1
-metadata:
-  name: amazon-linux-pod
-  labels:
-    app: amazon-linux
-spec:
-  containers:
-  - image: 123456789.dkr.ecr.us-west-2.amazonaws.com/amazon-linux
-    name: amazon-linux
-```
+    kind: Pod
+    version: v1
+    metadata:
+      name: amazon-linux-pod
+      labels:
+        app: amazon-linux
+    spec:
+      containers:
+      - image: 123456789.dkr.ecr.us-west-2.amazonaws.com/amazon-linux
+        name: amazon-linux
 
 Verify that you can create an amazon-linux pod.
-```bash
-kubectl create -f amazon-linux-pod.yaml
-```
+
+    kubectl create -f amazon-linux-pod.yaml
 
 Verify that you CANNOT create an nginx pod and receive the appropriate error message.
-```bash
-kubectl create -f nginx-pod.yaml
-```
-```bash
-Error from server (image 'nginx' not from AWS ECR): error when creating "nginx-pod.yaml":
-```
+
+    $ kubectl create -f nginx-pod.yaml
+    Error from server (image 'nginx' not from AWS ECR): error when creating "nginx-pod.yaml":
 
 This example shows how to ensure ALL images come from an AWS repository.
 But in reality you might have a collection of images like `nginx` that

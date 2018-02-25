@@ -35,8 +35,6 @@ We will use the all-in-one setup, which will deploy the Jaeger agent, collector 
 
 Deploy the Jaeger all-in-one pod into your cluster:
 
-    kubectl apply -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
-
     $ kubectl apply -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
     deployment "jaeger-deployment" created
     service "jaeger-query" created
@@ -75,4 +73,6 @@ then the 'DAG' tab. Jaeger will show you the different microservices invoked by 
 image::jaeger-dag.png[]
 
 == Cleanup
-	$ kubectl delete -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
+
+    kubectl delete -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
+

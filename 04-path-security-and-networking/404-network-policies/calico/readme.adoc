@@ -10,26 +10,26 @@ This chapter uses a cluster with 3 master nodes and 5 worker nodes as described 
 
 Alternatively, you can create a new cluster and use kops CLI options to specify the networking mode as shown below:
 
-  kops create cluster \
-    --name example2.cluster.k8s.local \
-    --master-count 1 \
-    --node-count 2 \
-    --zones ${AWS_AVAILABILITY_ZONES} \
-    --networking calico \
-    --yes
+    kops create cluster \
+      --name example2.cluster.k8s.local \
+      --master-count 1 \
+      --node-count 2 \
+      --zones ${AWS_AVAILABILITY_ZONES} \
+      --networking calico \
+      --yes
 
 This will create a 1 master node and 2 worker nodes cluster. It uses `--networking calico` which tells the cluster to use calico networking instead of the default networking provided by kubenet. Note, the name here is `example2.cluster.k8s.local` instead of the usual `example.cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
 
 View the cluster configuration using the following command:
 
-  kops edit cluster example2.cluster.k8s.local
+      kops edit cluster example2.cluster.k8s.local
 
 This will show the following fragment under `.spec`:
 
-  networking:
-    calico: {
-      crossSubnet: true
-    }
+    networking:
+      calico: {
+        crossSubnet: true
+      }
 
 Rest of the chapter goes with the presumption that you are using an existing cluster.
 
@@ -41,162 +41,151 @@ All configuration files for this chapter are in the `calico` directory. Make sur
 
 Edit the Kubernetes cluster configuration using the command:
 
-  kops edit cluster example.cluster.k8s.local
+    kops edit cluster example.cluster.k8s.local
 
 By default, Kubernetes uses `kubenet` for networking. This is captured in the configuration file as:
 
-  networking:
-    kubenet: {}
+    networking:
+      kubenet: {}
 
 Update the networking configuration to use `calico` by setting the following property:
 
-  networking:
-    calico:
-      crossSubnet: true
+    networking:
+      calico:
+        crossSubnet: true
 
 View changes that will be applied to the cluster:
 
-  kops update cluster example.cluster.k8s.local
+    kops update cluster example.cluster.k8s.local
 
 It shows output as:
 
-```
-I1025 15:55:45.512183    3454 apply_cluster.go:420] Gossip DNS: skipping DNS validation
-W1025 15:55:45.534000    3454 firewall.go:202] Opening etcd port on masters for access from the nodes, for calico.  This is unsafe in untrusted environments.
-I1025 15:55:45.536302    3454 executor.go:91] Tasks: 0 done / 72 total; 34 can run
-I1025 15:55:46.365905    3454 executor.go:91] Tasks: 34 done / 72 total; 14 can run
-I1025 15:55:46.841194    3454 executor.go:91] Tasks: 48 done / 72 total; 20 can run
-I1025 15:55:47.760698    3454 executor.go:91] Tasks: 68 done / 72 total; 3 can run
-I1025 15:55:48.379152    3454 executor.go:91] Tasks: 71 done / 72 total; 1 can run
-I1025 15:55:48.511060    3454 executor.go:91] Tasks: 72 done / 72 total; 0 can run
-Will create resources:
-  ManagedFile/cluster.k8s.local-addons-networking.projectcalico.org-k8s-1.6
-    Location              addons/networking.projectcalico.org/k8s-1.6.yaml
+    I1025 15:55:45.512183    3454 apply_cluster.go:420] Gossip DNS: skipping DNS validation
+    W1025 15:55:45.534000    3454 firewall.go:202] Opening etcd port on masters for access from the nodes, for calico.  This is unsafe in untrusted environments.
+    I1025 15:55:45.536302    3454 executor.go:91] Tasks: 0 done / 72 total; 34 can run
+    I1025 15:55:46.365905    3454 executor.go:91] Tasks: 34 done / 72 total; 14 can run
+    I1025 15:55:46.841194    3454 executor.go:91] Tasks: 48 done / 72 total; 20 can run
+    I1025 15:55:47.760698    3454 executor.go:91] Tasks: 68 done / 72 total; 3 can run
+    I1025 15:55:48.379152    3454 executor.go:91] Tasks: 71 done / 72 total; 1 can run
+    I1025 15:55:48.511060    3454 executor.go:91] Tasks: 72 done / 72 total; 0 can run
+    Will create resources:
+      ManagedFile/cluster.k8s.local-addons-networking.projectcalico.org-k8s-1.6
+        Location              addons/networking.projectcalico.org/k8s-1.6.yaml
 
-  ManagedFile/cluster.k8s.local-addons-networking.projectcalico.org-pre-k8s-1.6
-    Location              addons/networking.projectcalico.org/pre-k8s-1.6.yaml
+      ManagedFile/cluster.k8s.local-addons-networking.projectcalico.org-pre-k8s-1.6
+        Location              addons/networking.projectcalico.org/pre-k8s-1.6.yaml
 
-  SecurityGroupRule/node-to-master-protocol-ipip
-    SecurityGroup         name:masters.cluster.k8s.local id:sg-887938fa
-    Protocol              4
-    SourceGroup           name:nodes.cluster.k8s.local id:sg-ec74359e
+      SecurityGroupRule/node-to-master-protocol-ipip
+        SecurityGroup         name:masters.cluster.k8s.local id:sg-887938fa
+        Protocol              4
+        SourceGroup           name:nodes.cluster.k8s.local id:sg-ec74359e
 
-  SecurityGroupRule/node-to-master-tcp-1-4001
-    SecurityGroup         name:masters.cluster.k8s.local id:sg-887938fa
-    Protocol              tcp
-    FromPort              1
-    ToPort                4001
-    SourceGroup           name:nodes.cluster.k8s.local id:sg-ec74359e
+      SecurityGroupRule/node-to-master-tcp-1-4001
+        SecurityGroup         name:masters.cluster.k8s.local id:sg-887938fa
+        Protocol              tcp
+        FromPort              1
+        ToPort                4001
+        SourceGroup           name:nodes.cluster.k8s.local id:sg-ec74359e
 
-Will modify resources:
-  LaunchConfiguration/master-us-east-1d.masters.cluster.k8s.local
-    UserData
-                          ...
-                            - _aws
-                            - _kubernetes_master
-                          + - _networking_cni
-                            channels:
-                            - s3://kubernetes-aws-io/cluster.k8s.local/addons/bootstrap-channel.yaml
-                          ...
-
-
-  LaunchConfiguration/nodes.cluster.k8s.local
-    UserData
-                          ...
-                            - _automatic_upgrades
-                            - _aws
-                          + - _networking_cni
-                            channels:
-                            - s3://kubernetes-aws-io/cluster.k8s.local/addons/bootstrap-channel.yaml
-                          ...
+    Will modify resources:
+      LaunchConfiguration/master-us-east-1d.masters.cluster.k8s.local
+        UserData
+                              ...
+                                - _aws
+                                - _kubernetes_master
+                              + - _networking_cni
+                                channels:
+                                - s3://kubernetes-aws-io/cluster.k8s.local/addons/bootstrap-channel.yaml
+                              ...
 
 
-  LoadBalancer/api.cluster.k8s.local
-    Lifecycle              <nil> -> Sync
-
-  LoadBalancerAttachment/api-master-us-east-1d
-    Lifecycle              <nil> -> Sync
-
-  ManagedFile/cluster.k8s.local-addons-bootstrap
-    Contents
-                          ...
-                                  k8s-addon: storage-aws.addons.k8s.io
-                                version: 1.6.0
-                          +   - id: pre-k8s-1.6
-                          +     kubernetesVersion: <1.6.0
-                          +     manifest: networking.projectcalico.org/pre-k8s-1.6.yaml
-                          +     name: networking.projectcalico.org
-                          +     selector:
-                          +       role.kubernetes.io/networking: "1"
-                          +     version: 2.1.2-kops.1
-                          +   - id: k8s-1.6
-                          +     kubernetesVersion: '>=1.6.0'
-                          +     manifest: networking.projectcalico.org/k8s-1.6.yaml
-                          +     name: networking.projectcalico.org
-                          +     selector:
-                          +       role.kubernetes.io/networking: "1"
-                          +     version: 2.1.2-kops.1
+      LaunchConfiguration/nodes.cluster.k8s.local
+        UserData
+                              ...
+                                - _automatic_upgrades
+                                - _aws
+                              + - _networking_cni
+                                channels:
+                                - s3://kubernetes-aws-io/cluster.k8s.local/addons/bootstrap-channel.yaml
+                              ...
 
 
-Must specify --yes to apply changes
-```
+      LoadBalancer/api.cluster.k8s.local
+        Lifecycle              <nil> -> Sync
+
+      LoadBalancerAttachment/api-master-us-east-1d
+        Lifecycle              <nil> -> Sync
+
+      ManagedFile/cluster.k8s.local-addons-bootstrap
+        Contents
+                              ...
+                                      k8s-addon: storage-aws.addons.k8s.io
+                                    version: 1.6.0
+                              +   - id: pre-k8s-1.6
+                              +     kubernetesVersion: <1.6.0
+                              +     manifest: networking.projectcalico.org/pre-k8s-1.6.yaml
+                              +     name: networking.projectcalico.org
+                              +     selector:
+                              +       role.kubernetes.io/networking: "1"
+                              +     version: 2.1.2-kops.1
+                              +   - id: k8s-1.6
+                              +     kubernetesVersion: '>=1.6.0'
+                              +     manifest: networking.projectcalico.org/k8s-1.6.yaml
+                              +     name: networking.projectcalico.org
+                              +     selector:
+                              +       role.kubernetes.io/networking: "1"
+                              +     version: 2.1.2-kops.1
+
+
+    Must specify --yes to apply changes
 
 Apply the changes using the command:
 
-  kops update cluster example.cluster.k8s.local --yes
+    kops update cluster example.cluster.k8s.local --yes
 
 It shows the output:
 
-```
-I1025 15:56:26.679683    3458 apply_cluster.go:420] Gossip DNS: skipping DNS validation
-W1025 15:56:26.701541    3458 firewall.go:202] Opening etcd port on masters for access from the nodes, for calico.  This is unsafe in untrusted environments.
-I1025 15:56:27.214980    3458 executor.go:91] Tasks: 0 done / 72 total; 34 can run
-I1025 15:56:27.973367    3458 executor.go:91] Tasks: 34 done / 72 total; 14 can run
-I1025 15:56:28.427597    3458 executor.go:91] Tasks: 48 done / 72 total; 20 can run
-I1025 15:56:30.010284    3458 executor.go:91] Tasks: 68 done / 72 total; 3 can run
-I1025 15:56:30.626483    3458 executor.go:91] Tasks: 71 done / 72 total; 1 can run
-I1025 15:56:30.934673    3458 executor.go:91] Tasks: 72 done / 72 total; 0 can run
-I1025 15:56:31.545416    3458 update_cluster.go:247] Exporting kubecfg for cluster
-kops has set your kubectl context to example.cluster.k8s.local
+    I1025 15:56:26.679683    3458 apply_cluster.go:420] Gossip DNS: skipping DNS validation
+    W1025 15:56:26.701541    3458 firewall.go:202] Opening etcd port on masters for access from the nodes, for calico.  This is unsafe in untrusted environments.
+    I1025 15:56:27.214980    3458 executor.go:91] Tasks: 0 done / 72 total; 34 can run
+    I1025 15:56:27.973367    3458 executor.go:91] Tasks: 34 done / 72 total; 14 can run
+    I1025 15:56:28.427597    3458 executor.go:91] Tasks: 48 done / 72 total; 20 can run
+    I1025 15:56:30.010284    3458 executor.go:91] Tasks: 68 done / 72 total; 3 can run
+    I1025 15:56:30.626483    3458 executor.go:91] Tasks: 71 done / 72 total; 1 can run
+    I1025 15:56:30.934673    3458 executor.go:91] Tasks: 72 done / 72 total; 0 can run
+    I1025 15:56:31.545416    3458 update_cluster.go:247] Exporting kubecfg for cluster
+    kops has set your kubectl context to example.cluster.k8s.local
 
-Cluster changes have been applied to the cloud.
+    Cluster changes have been applied to the cloud.
 
 
-Changes may require instances to restart: kops rolling-update cluster
-```
+    Changes may require instances to restart: kops rolling-update cluster
 
 Determine if any of the nodes will require a restart using the command:
 
-  kops rolling-update cluster example.cluster.k8s.local
+    kops rolling-update cluster example.cluster.k8s.local
 
 Output from this command is shown:
 
-```
-$ kops rolling-update cluster example.cluster.k8s.local
-NAME              STATUS      NEEDUPDATE  READY MIN MAX NODES
-master-us-east-1d NeedsUpdate 1           0     1   1   1
-nodes             NeedsUpdate 2           0     2   2   2
+    $ kops rolling-update cluster example.cluster.k8s.local
+    NAME              STATUS      NEEDUPDATE  READY MIN MAX NODES
+    master-us-east-1d NeedsUpdate 1           0     1   1   1
+    nodes             NeedsUpdate 2           0     2   2   2
 
-Must specify --yes to rolling-update.
-```
+    Must specify --yes to rolling-update.
 
 The `STATUS` column shows that both master and worker nodes need to be updated.
 
 Perform the rolling update using the command shown:
 
-  kops rolling-update cluster example.cluster.k8s.local --yes
-
-Output from this command is shown:
-
-```
-NAME              STATUS      NEEDUPDATE  READY MIN MAX NODES
-master-us-east-1d NeedsUpdate 1           0     1   1   1
-nodes             NeedsUpdate 2           0     2   2   2
-I1025 16:16:31.978851    3733 instancegroups.go:350] Stopping instance "i-0cdcb2e51e5656b44", node "ip-172-20-44-219.ec2.internal", in AWS ASG "master-us-east-1d.masters.cluster.k8s.local".
-I1025 16:21:32.411639    3733 instancegroups.go:350] Stopping instance "i-060b2c9652e2075ac", node "ip-172-20-54-182.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
-I1025 16:23:32.973648    3733 instancegroups.go:350] Stopping instance "i-0baffcbc9a758a6c4", node "ip-172-20-94-82.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
-I1025 16:25:33.784129    3733 rollingupdate.go:174] Rolling update completed!
-```
+    $ kops rolling-update cluster example.cluster.k8s.local --yes
+    NAME              STATUS      NEEDUPDATE  READY MIN MAX NODES
+    master-us-east-1d NeedsUpdate 1           0     1   1   1
+    nodes             NeedsUpdate 2           0     2   2   2
+    I1025 16:16:31.978851    3733 instancegroups.go:350] Stopping instance "i-0cdcb2e51e5656b44", node "ip-172-20-44-219.ec2.internal", in AWS ASG "master-us-east-1d.masters.cluster.k8s.local".
+    I1025 16:21:32.411639    3733 instancegroups.go:350] Stopping instance "i-060b2c9652e2075ac", node "ip-172-20-54-182.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+    I1025 16:23:32.973648    3733 instancegroups.go:350] Stopping instance "i-0baffcbc9a758a6c4", node "ip-172-20-94-82.ec2.internal", in AWS ASG "nodes.cluster.k8s.local".
+    I1025 16:25:33.784129    3733 rollingupdate.go:174] Rolling update completed!
 
 == Advanced Topics
 

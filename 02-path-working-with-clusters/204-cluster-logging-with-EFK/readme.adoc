@@ -83,19 +83,18 @@ If you've followed the instructions in this chapter as is, then no change is req
 
 You will need to create an IAM user and set the `AWS_ACCESS_KEY`, `AWS_SECRET_KEY` and `AWS_REGION` in the `templates/fluentd-ds.yaml` file. Other options to accomplish this (in a production environment) are to use either kubernetes secrets or EC2 IAM roles.
 
-  env:
-  - name: FLUENTD_CONFIG
-    value: fluentd-standalone.conf
-  - name: AWS_REGION
-    value: $REGION
-  - name: AWS_ACCESS_KEY
-    value: $ACCESS_KEY
-  - name: AWS_SECRET_KEY
-    value: $SECRET_KEY
+    env:
+    - name: FLUENTD_CONFIG
+      value: fluentd-standalone.conf
+    - name: AWS_REGION
+      value: $REGION
+    - name: AWS_ACCESS_KEY
+      value: $ACCESS_KEY
+    - name: AWS_SECRET_KEY
+      value: $SECRET_KEY
 
 If creating an IAM user, the associated policy needs the following permissions
 
-```
     {
         "Version": "2012-10-17",
         "Statement": [
@@ -129,7 +128,6 @@ If creating an IAM user, the associated policy needs the following permissions
             }
         ]
     }
-```
 
 === Create Kubernetes resources
 
@@ -232,11 +230,9 @@ Begin using the capabilites to search and visuzalize your Kubernetes cluster met
 
 Delete the resources created during this chapter:
 
-```
-kubectl delete ns logging
-aws es delete-elasticsearch-domain --domain-name kubernetes-logs
-aws logs delete-log-group --log-group-name kubernetes-logs
-```
+    kubectl delete ns logging
+    aws es delete-elasticsearch-domain --domain-name kubernetes-logs
+    aws logs delete-log-group --log-group-name kubernetes-logs
 
 You are now ready to continue on with the workshop!
 
