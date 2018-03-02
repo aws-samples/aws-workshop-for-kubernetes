@@ -1245,7 +1245,7 @@ A Cron Job is a job that runs on a given schedule, written in Cron format. There
 Here is the job specification:
 
   $ cat cronjob.yaml
-	apiVersion: batch/v2alpha1
+	apiVersion: batch/v1beta1
 	kind: CronJob
 	metadata:
 	  name: hello
