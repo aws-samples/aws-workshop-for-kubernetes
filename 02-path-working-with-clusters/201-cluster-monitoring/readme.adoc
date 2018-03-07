@@ -47,9 +47,13 @@ If you are using v1.8 or above, deploy the Dashboard using the following command
 
 Dashboard can be seen using the following command:
 
-    kubectl proxy
+    kubectl proxy --address 0.0.0.0 --accept-hosts '.*' --port 8080
 
-Now, Dashboard is accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/.
+Now, Dashboard is accessible via `Preview`, `Preview Running Application` as:
+
+    https://ENVIRONMENT_ID.vfs.cloud9.REGION_ID.amazonaws.com/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+
+Where `ENVIRONMENT_ID` is your Cloud9 IDE environment id (you should see it once click the built-in browser address bar) and `REGION_ID` is AWS region id (e.g. us-east-1).
 
 Starting with Kubernetes 1.7, Dashboard supports authentication. Read more about it at https://github.com/kubernetes/dashboard/wiki/Access-control#introduction. We'll use a bearer token for authentication.
 
@@ -152,9 +156,9 @@ Execute this command to install Heapster, InfluxDB and Grafana:
   deployment "monitoring-influxdb" created
   service "monitoring-influxdb" created
 
-Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance running in the cluster. Grafana dashboard, accessible at http://localhost:8001/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1, now shows the information about the cluster.
+Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance running in the cluster. Grafana dashboard, accessible at https://ENVIRONMENT_ID.vfs.cloud9.REGION_ID.amazonaws.com/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1, now shows the information about the cluster.
 
-NOTE: Grafana dashboard will not be available if Kubernetes proxy is not running. If proxy is not running, it can be started with the command `kubectl proxy`.
+NOTE: Grafana dashboard will not be available if Kubernetes proxy is not running. If proxy is not running, it can be started with the command `kubectl proxy --address 0.0.0.0 --accept-hosts '.*' --port 8080`.
 
 === Grafana dashboard
 
