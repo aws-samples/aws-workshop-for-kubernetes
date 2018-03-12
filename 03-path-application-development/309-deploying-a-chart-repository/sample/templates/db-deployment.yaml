@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+spec:
+  replicas: {{ .Values.db.replicas }}
+  template:
+    metadata:
+      labels:
+        app: mysql-pod
+    spec:
+      containers:
+      - name: mysql
+        image: {{ .Values.db.image }}
+        ports:
+        - containerPort: {{ .Values.db.port }}
+        env:
+        - name: MYSQL_DATABASE
+          value: {{ .Values.db.database }}
+        - name: MYSQL_USER
+          value: {{ .Values.db.user }}
+        - name: MYSQL_PASSWORD
+          value: {{ .Values.db.password }}
+        - name: MYSQL_ROOT_PASSWORD
+          value: {{ .Values.db.root }}
