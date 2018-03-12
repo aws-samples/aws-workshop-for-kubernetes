@@ -3,4 +3,5 @@
 **/target
 **/.idea
 **/dependency-reduced-pom.xml
-
+**/journal.json
+**/chaostoolkit.log

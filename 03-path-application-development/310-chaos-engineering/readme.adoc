@@ -1,0 +1,297 @@
+= Applying Chaos Engineering
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../../resources/images
+
+This chapter explores how you can conduct Chaos Engineering against your application running in Kubernetes.
+
+== Prerequisites
+
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
+
+All configuration files for this chapter are in the `experiments` directory. Make sure you change to that directory before executing any commands from this chapter.
+
+You will need to link:http://chaostoolkit.org/reference/usage/install/[install the open source Chaos Toolkit] to run the examples in this chapter.
+
+== Introduction to Chaos Engineering
+
+Chaos Engineering is the discipline of working with the link:http://principlesofchaos.org/[uncertainty of distributed systems at scale]. Modern distributed systems naturally become more complex in order to accomodate essential system size, distribution and the desirable benefit of increased speed of system change.
+
+Given the number of variables involved, it is difficult in the extreme to formally, and before-time, prove that a system is faultless, especially when the system is constantly changing. Chaos Engineering is an answer to this challenge as it specifically provides a means of improving confidence in the system's availability under various production conditions.
+
+An empirical process, Chaos Engineering experiments exercise a distributed system to see what weaknesses can be found.
+
+=== The Chaos Engineering Process
+
+The link:http://principlesofchaos.org/["Principles of Chaos"] define the practical process that Chaos Engineering executes as:
+
+1. Start by defining ‘steady state’ as some measurable output of a system that indicates normal behavior.
+2. Hypothesize that this steady state will continue in both the control group and the experimental group.
+3. Introduce variables that reflect real world events like servers that crash, hard drives that malfunction, network connections that are severed, etc.
+4. Try to disprove the hypothesis by looking for a difference in steady state between the control group and the experimental group.
+
+In this chapter we will explore implementing this process using the free and open source link:http://chaostoolkit.org/[Chaos Toolkit].
+
+== Application Architecture Recap
+
+The sample application already created by the pre-requisites uses three services:
+
+[.thumb]
+image::services.png[]
+
+. `webapp`: Web application microservice uses `greeter` and `name` microservice to generate a greeting for a person.
+. `greeter`: A microservice returns a greeting based upon `greet` name/value keypair in the URL.
+. `name`: A microservice that returns person's name based upon `id` name/value keypair in the URL.
+
+These services are built as Docker images and deployed in Kubernetes. All services are built as Node.js applications. The source code for the services is at https://github.com/arun-gupta/container-service-discovery/tree/master/services.
+
+=== Deploy the Application
+
+To deploy the application so that it can be a subject of a chaos experiment, execute the following:
+
+. Deploy the application:
+
+  $ kubectl create -f templates/app.yml
+
+Wait for approximately 3 mins for the load balancer to accept request.
+
+== Creating the Experiment
+
+A link:http://chaostoolkit.org/[Chaos Toolkit] experiment is defined using a link:http://chaostoolkit.org/reference/api/experiment/[JSON file format].
+
+In addition the experiment also begins with some header information that describes the experiment being conducted:
+
+[source, JSON]
+----
+{
+    "version": "1.0.0",
+    "title": "Terminating the greeting service should not impact users",
+    "description": "How does the greeting service unavailbility impacts our users? Do they see an error or does the webapp gets slower?",
+    "tags": [
+        "kubernetes",
+        "aws"
+    ],
+    "configuration": {
+        "web_app_url": {
+            "type": "env",
+            "key": "WEBAPP_URL"
+        }
+    },
+----
+
+The `version` describes the version of the experiment definition being followed. `title` and `description` describe the experimental hypothesis being explored.
+
+It is typical to build up a catalogue of experiments when exploring the weaknesses in a system, and so `tags` are used to provide searchable labels to make that catalogue more easily navigable.
+
+Finally `configuration` is used to supply configuration parameters to the experiment, in this case populating the `web_app_url` configuration parameter with the contents of the `WEBAPP_URL` environment variable.
+
+=== Defining Steady-state
+
+Steady-State defines how a system should observably respond, often within a tolerance, in order to be characterised as behaving "Normally". 
+
+For the sample application, steady-state could be defined as:
+
+"The root URL of the `webapp` microservice should always respond with a `200 OK` link:https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html[HTTP Status Code] within a timeout of 3 seconds."
+
+Using the link:http://chaostoolkit.org/[Chaos Toolkit's] JSON experiment definition format, this steady-state can be defined as:
+
+[source, JSON]
+----
+    "steady-state-hypothesis": {
+        "title": "Services are all available and healthy",
+        "probes": [
+            {
+                "type": "probe",
+                "name": "application-should-be-alive-and-healthy",
+                "tolerance": true,
+                "provider": {
+                    "type": "python",
+                    "module": "chaosk8s.pod.probes",
+                    "func": "pods_in_phase",
+                    "arguments": {
+                        "label_selector": "app=webapp-pod",
+                        "phase": "Running",
+                        "ns": "default"
+                    }
+                }
+            },
+            {
+                "type": "probe",
+                "name": "application-must-respond-normally",
+                "tolerance": 200,
+                "provider": {
+                    "type": "http",
+                    "url": "${web_app_url}",
+                    "timeout": 3
+                }
+            }
+        ]
+    },
+----
+
+Steady-state begins with a `title`, which describes what the steady-state represents. Then a collection of `probes` are defined that describe how the steady-state can be observed.
+
+In this case the probes detect that all the pods are in the `running` phase, and that the URL, supplied by the `web_app_url` configuration parameter, returns the specified status code, `200`, within the specified timeout, `3` seconds.
+
+=== Defining the Experimental Method
+
+Step 3 of the chaos engineering process is:
+
+3. Introduce variables that reflect real world events like servers that crash, hard drives that malfunction, network connections that are severed, etc.
+
+These _variables_ are introduced through the link:http://chaostoolkit.org/[Chaos Toolkit's] experimental `method`:
+
+[source, JSON]
+----
+    "method": [
+        {
+            "type": "action",
+            "name": "terminate-greeting-service",
+            "provider": {
+                "type": "python",
+                "module": "chaosk8s.pod.actions",
+                "func": "terminate_pods",
+                "arguments": {
+                    "label_selector": "app=greeter-pod",
+                    "ns": "default"
+                }
+            }
+        },
+        {
+            "type": "probe",
+            "name": "fetch-application-logs",
+            "provider": {
+                "type": "python",
+                "module": "chaosk8s.pod.probes",
+                "func": "read_pod_logs",
+                "arguments": {
+                    "label_selector": "app=webapp-pod",
+                    "last": "20s",
+                    "ns": "default"
+                }
+            }
+        }
+    ],
+----
+
+This experiment's method first has an `action` that kills all pods that have the label of `app=greeter-pod`. Often link:http://chaostoolkit.org/[Chaos Toolkit] experimental methods only contain actions, as it is the actions that manipulate the real-world variables of the distributed system.
+
+In this experiment's case there is _also_ a `probe` in the method. Probes in an experiment's method give us a chance to collate more information as the real-world variables are being manipulated by the experiment. The `probe` here extends the output of the experiment with the logs from pods labelled with `app==webapp-pod`.
+
+=== Rollbacks
+
+It is sometimes useful to supply an additional set of actions at the end of an experiment so that any actions in the method that were undertaken can be explicitly reversed. These are contained in a `rollback` section, but as Kubernetes will recover from this experiment's actions anyway there are no rollback actions required in this case:
+
+[source, JSON]
+----
+    "rollbacks": []
+}
+----
+
+This completes the experiment definition.
+
+== Running the Experiment
+
+With your cluster running you will first need to ensure you populate the `WEBAPP_URL` environment variable with the URL of your cluster's `webapp-service` endpoint.
+
+  $ export WEBAPP_URL="http://$(kubectl get svc/webapp-service -o jsonpath={.status.loadBalancer.ingress[0].ip})/"
+
+Now you can run the link:./experiments/experiment.json[experiment] using the link:http://chaostoolkit.org/[Chaos Toolkit's] `chaos run` command:
+
+  $ chaos run experiment.json
+  [2018-03-10 14:42:38 INFO] Validating the experiment's syntax
+  [2018-03-10 14:42:38 INFO] Experiment looks valid
+  [2018-03-10 14:42:38 INFO] Running experiment: Terminate the greeting service should not impact users
+  [2018-03-10 14:42:38 INFO] Steady state hypothesis: Services are all available and healthy
+  [2018-03-10 14:42:38 INFO] Probe: application-should-be-alive-and-healthy
+  [2018-03-10 14:42:38 INFO] Probe: application-must-respond-normally
+  [2018-03-10 14:42:39 INFO] Steady state hypothesis is met!
+  [2018-03-10 14:42:39 INFO] Action: terminate-greeting-service
+  [2018-03-10 14:42:40 INFO] Probe: fetch-application-logs
+  [2018-03-10 14:42:41 INFO] Steady state hypothesis: Services are all available and healthy
+  [2018-03-10 14:42:41 INFO] Probe: application-should-be-alive-and-healthy
+  [2018-03-10 14:42:42 INFO] Probe: application-must-respond-normally
+  [2018-03-10 14:42:45 ERROR]   => failed: activity took too long to complete
+  [2018-03-10 14:42:45 CRITICAL] Steady state probe 'application-must-respond-normally' is not in the given tolerance so failing this experiment
+  [2018-03-10 14:42:45 INFO] Let's rollback...
+  [2018-03-10 14:42:45 INFO] No declared rollbacks, let's move on.
+  [2018-03-10 14:42:45 INFO] Experiment ended with status: failed
+
+The output of the `chaos run` command shows that the experiment was run _but_ there is a weakness in the system. When the `greeting-service` is killed the `webapp-service` endpoint returns a response that is greater than the 3 seconds allowed as the tolerance for the system to be observed as still in steady-state.
+
+=== Inspecting the details in the Journal
+
+More detail on the weaknesses discovered can be inspected by opening the `journal.json` file that is produced after every experiment execution. For example, the `journal.json` contains the log details retrieved during the experiment's method execution:
+
+[source, JSON]
+----
+{
+    "activity": {
+    "type": "probe",
+    "name": "application-must-respond-normally",
+    "tolerance": 200,
+    "provider": {
+        "type": "http",
+        "url": "${web_app_url}",
+        "timeout": 3
+    }
+    },
+    "output": null,
+    "status": "failed",
+    "exception": [
+    "Traceback (most recent call last):\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/urllib3/connectionpool.py\", line 387, in _make_request\n    six.raise_from(e, None)\n",
+    "  File \"<string>\", line 2, in raise_from\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/urllib3/connectionpool.py\", line 383, in _make_request\n    httplib_response = conn.getresponse()\n",
+    "  File \"/usr/local/Cellar/python/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/http/client.py\", line 1331, in getresponse\n    response.begin()\n",
+    "  File \"/usr/local/Cellar/python/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/http/client.py\", line 297, in begin\n    version, status, reason = self._read_status()\n",
+    "  File \"/usr/local/Cellar/python/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/http/client.py\", line 258, in _read_status\n    line = str(self.fp.readline(_MAXLINE + 1), \"iso-8859-1\")\n",
+    "  File \"/usr/local/Cellar/python/3.6.4_2/Frameworks/Python.framework/Versions/3.6/lib/python3.6/socket.py\", line 586, in readinto\n    return self._sock.recv_into(b)\n",
+    "socket.timeout: timed out\n",
+    "\nDuring handling of the above exception, another exception occurred:\n\n",
+    "Traceback (most recent call last):\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/requests/adapters.py\", line 440, in send\n    timeout=timeout\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/urllib3/connectionpool.py\", line 639, in urlopen\n    _stacktrace=sys.exc_info()[2])\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/urllib3/util/retry.py\", line 357, in increment\n    raise six.reraise(type(error), error, _stacktrace)\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/urllib3/packages/six.py\", line 686, in reraise\n    raise value\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/urllib3/connectionpool.py\", line 601, in urlopen\n    chunked=chunked)\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/urllib3/connectionpool.py\", line 389, in _make_request\n    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/urllib3/connectionpool.py\", line 309, in _raise_timeout\n    raise ReadTimeoutError(self, url, \"Read timed out. (read timeout=%s)\" % timeout_value)\n",
+    "urllib3.exceptions.ReadTimeoutError: HTTPConnectionPool(host='35.230.7.162', port=80): Read timed out. (read timeout=3)\n",
+    "\nDuring handling of the above exception, another exception occurred:\n\n",
+    "Traceback (most recent call last):\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/chaoslib/provider/http.py\", line 48, in run_http_activity\n    verify=verify_tls)\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/requests/api.py\", line 72, in get\n    return request('get', url, params=params, **kwargs)\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/requests/api.py\", line 58, in request\n    return session.request(method=method, url=url, **kwargs)\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/requests/sessions.py\", line 508, in request\n    resp = self.send(prep, **send_kwargs)\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/requests/sessions.py\", line 618, in send\n    r = adapter.send(request, **kwargs)\n",
+    "  File \"/Users/russellmiles/.venvs/chaostk/lib/python3.6/site-packages/requests/adapters.py\", line 521, in send\n    raise ReadTimeout(e, request=request)\n",
+    "requests.exceptions.ReadTimeout: HTTPConnectionPool(host='35.230.7.162', port=80): Read timed out. (read timeout=3)\n",
+    "\nDuring handling of the above exception, another exception occurred:\n\n",
+    "chaoslib.exceptions.FailedActivity: activity took too long to complete\n"
+    ],
+    "start": "2018-03-10T14:42:42.120249",
+    "end": "2018-03-10T14:42:45.280973",
+    "duration": 3.160724,
+    "tolerance_met": false
+}
+----
+
+=== Learning from the Experiment
+
+Now that, through chaos engineering, a weakness has been identified, it is now time to discuss and decide on how to overcome that weakness. This is the final part of the learning loop that chaos engineering provides: experiment->discover->diagnose->decide->fix.
+
+In the case here, the weakness could be overcome at several levels. For example, at the platform infrastructure level, additional instances of the `greeter` service could be enabled and provided as a High Availability failover option. At the Application level, a circuit breaker could be implemented in the client code in the `webapp-service` to protect it against delayed invocations of the `greeter-service`.
+
+You've now completed your first Chaos Engineering exercise and are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="1", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../04-path-security-and-networking/401-configmaps-and-secrets]
+|link:../../developer-path.adoc[Go to Developer Index]
+|=====
