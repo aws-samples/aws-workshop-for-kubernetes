@@ -50,8 +50,6 @@ These services are built as Docker images and deployed in Kubernetes. All servic
 
 To deploy the application so that it can be a subject of a chaos experiment, execute the following:
 
-. Deploy the application:
-
   $ kubectl create -f templates/app.yml
 
 Wait for approximately 3 mins for the load balancer to accept request.
