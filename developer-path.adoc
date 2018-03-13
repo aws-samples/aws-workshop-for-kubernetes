@@ -27,6 +27,7 @@ This path is suitable for individual developers or development teams interested 
 |link:03-path-application-development/305-app-tracing-with-jaeger-and-x-ray[305: Tracing Applications with Jaeger and X-Ray]
 |link:03-path-application-development/306-app-management-with-helm[306: Manage Applications with Helm]
 |link:03-path-application-development/307-statefulsets-and-pvs[307: Store Persistent Data with StatefulSets and PVs]
+|link:03-path-application-development/310-chaos-engineering[310: Applying Chaos Engineering]
 |link:04-path-security-and-networking/401-configmaps-and-secrets[401: ConfigMaps and Secrets]
 |link:04-path-security-and-networking/402-authentication-and-authorization[402: Authentication, Authorization, and Access]
 |link:04-path-security-and-networking/403-admission-policy[403: Admission Control for Kubernetes on AWS]
