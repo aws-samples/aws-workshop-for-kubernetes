@@ -239,7 +239,7 @@ you'll need to download Istio. Istio can also automatically inject the sidecar; 
 https://istio.io/docs/setup/kubernetes/quick-start.html[Istio quick start]
 
     curl -L https://git.io/getLatestIstio | sh -
-    cd istio-0.2.10
+    cd istio-*
     export PATH=$PWD/bin:$PATH
 
 You should now be able to run the `istioctl` CLI
