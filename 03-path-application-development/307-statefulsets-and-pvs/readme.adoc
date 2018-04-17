@@ -454,7 +454,7 @@ If the loop is still running, then it will print an output as shown:
 You can also verify if the slaves have the same data set:
 
   kubectl run mysql-client --image=mysql:5.7 -i -t --rm --restart=Never --\
-  mysql -h mysql-3.mysql -e "SELECT * FROM test.messages"
+   mysql -h mysql-3.mysql -e "SELECT * FROM test.messages"
 
 It still shows the same result:
 
