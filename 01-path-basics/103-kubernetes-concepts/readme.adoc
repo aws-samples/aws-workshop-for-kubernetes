@@ -369,7 +369,7 @@ Kubernetes assigns one of the QoS classes to the Pod:
 
 QoS class is used by Kubernetes for scheduling and evicting Pods.
 
-When every Container in a Pod is given a memory and CPU limit, and optionally non-zero request, and they exactly match, then a Pod is scheduled with `Guaranteed` QoS. This is the higest priority.
+When every Container in a Pod is given a memory and CPU limit, and optionally non-zero request, and they exactly match, then a Pod is scheduled with `Guaranteed` QoS. This is the highest priority.
 
 A Pod is given `Burstable` QoS class if the Pod does not meet the `Guaranteed` QoS and at least one Container has a memory or CPU request. This is intermediate priority.
 
