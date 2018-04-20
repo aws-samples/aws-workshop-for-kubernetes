@@ -321,7 +321,7 @@ To verify that your policy is working, create separate test pods.
 
 ```yaml
 kind: Pod
-version: v1
+apiVersion: v1
 metadata:
   name: nginx
   labels:
@@ -340,7 +340,7 @@ controller in action, you can leave it with the fake ID.
 
 ```yaml
 kind: Pod
-version: v1
+apiVersion: v1
 metadata:
   name: amazon-linux-pod
   labels:
