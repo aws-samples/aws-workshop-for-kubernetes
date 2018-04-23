@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: fluentd
-        image: quay.io/coreos/fluentd-kubernetes:v0.12-cloudwatch
+        image: quay.io/coreos/fluentd-kubernetes:v0.12.33-cloudwatch
         imagePullPolicy: Always
         command: ["fluentd", "-c", "/fluentd/etc/fluentd.conf", "-p", "/fluentd/plugins"]
         env:
