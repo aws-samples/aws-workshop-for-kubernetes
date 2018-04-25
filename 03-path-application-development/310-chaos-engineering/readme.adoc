@@ -26,10 +26,10 @@ An empirical process, Chaos Engineering experiments exercise a distributed syste
 
 The link:http://principlesofchaos.org/["Principles of Chaos"] define the practical process that Chaos Engineering executes as:
 
-1. Start by defining ‘steady state’ as some measurable output of a system that indicates normal behavior.
-2. Hypothesize that this steady state will continue in both the control group and the experimental group.
-3. Introduce variables that reflect real world events like servers that crash, hard drives that malfunction, network connections that are severed, etc.
-4. Try to disprove the hypothesis by looking for a difference in steady state between the control group and the experimental group.
+. Start by defining ‘steady state’ as some measurable output of a system that indicates normal behavior.
+. Hypothesize that this steady state will continue in both the control group and the experimental group.
+. Introduce variables that reflect real world events like servers that crash, hard drives that malfunction, network connections that are severed, etc.
+. Try to disprove the hypothesis by looking for a difference in steady state between the control group and the experimental group.
 
 In this chapter we will explore implementing this process using the free and open source link:http://chaostoolkit.org/[Chaos Toolkit].
 
@@ -58,7 +58,17 @@ Wait for approximately 3 mins for the load balancer to accept request.
 
 A link:http://chaostoolkit.org/[Chaos Toolkit] experiment is defined using a link:http://chaostoolkit.org/reference/api/experiment/[JSON file format].
 
-In addition the experiment also begins with some header information that describes the experiment being conducted:
+Each experiment consists of:
+
+. Header
+. Steady-state
+. Method & Probes
+
+Let's look at how each of these are defined next.
+
+=== Header
+
+The experiment begins with some header information that describes the experiment being conducted:
 
 [source, JSON]
 ----
@@ -80,7 +90,7 @@ In addition the experiment also begins with some header information that describ
 
 The `version` describes the version of the experiment definition being followed. `title` and `description` describe the experimental hypothesis being explored.
 
-It is typical to build up a catalogue of experiments when exploring the weaknesses in a system, and so `tags` are used to provide searchable labels to make that catalogue more easily navigable.
+It is typical to build up a catalog of experiments when exploring the weaknesses in a system, and so `tags` are used to provide searchable labels to make that catalogue more easily navigable.
 
 Finally `configuration` is used to supply configuration parameters to the experiment, in this case populating the `web_app_url` configuration parameter with the contents of the `WEBAPP_URL` environment variable.
 
@@ -90,9 +100,11 @@ Steady-State defines how a system should observably respond, often within a tole
 
 For the sample application, steady-state could be defined as:
 
-"The root URL of the `webapp` microservice should always respond with a `200 OK` link:https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html[HTTP Status Code] within a timeout of 3 seconds."
+***********
+The root URL of the `webapp` microservice should always respond with a `200 OK` link:https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html[HTTP Status Code] within a timeout of 3 seconds.
+***********
 
-Using the link:http://chaostoolkit.org/[Chaos Toolkit's] JSON experiment definition format, this steady-state can be defined as:
+Using the http://chaostoolkit.org/reference/api/experiment/#steady-state-hypothesis[Chaos Toolkit's JSON experiment definition format], steady-state hypothesis can be defined as:
 
 [source, JSON]
 ----
@@ -132,13 +144,11 @@ Steady-state begins with a `title`, which describes what the steady-state repres
 
 In this case the probes detect that all the pods are in the `running` phase, and that the URL, supplied by the `web_app_url` configuration parameter, returns the specified status code, `200`, within the specified timeout, `3` seconds.
 
-=== Defining the Experimental Method
+=== Method & Probes
 
-Step 3 of the chaos engineering process is:
+The last step of the Chaos Engineering process is to introduce variables that reflect real world events like servers that crash, hard drives that malfunction, network connections that are severed, etc.
 
-3. Introduce variables that reflect real world events like servers that crash, hard drives that malfunction, network connections that are severed, etc.
-
-These _variables_ are introduced through the link:http://chaostoolkit.org/[Chaos Toolkit's] experimental `method`:
+These _variables_ are introduced using `method`:
 
 [source, JSON]
 ----
@@ -173,9 +183,13 @@ These _variables_ are introduced through the link:http://chaostoolkit.org/[Chaos
     ],
 ----
 
-This experiment's method first has an `action` that kills all pods that have the label of `app=greeter-pod`. Often link:http://chaostoolkit.org/[Chaos Toolkit] experimental methods only contain actions, as it is the actions that manipulate the real-world variables of the distributed system.
+This experiment's method first has an `action` that kills all pods that have the label of `app=greeter-pod`. Often Chaos Toolkit experimental methods only contain actions, as it is the actions that manipulate the real-world variables of the distributed system.
 
 In this experiment's case there is _also_ a `probe` in the method. Probes in an experiment's method give us a chance to collate more information as the real-world variables are being manipulated by the experiment. The `probe` here extends the output of the experiment with the logs from pods labelled with `app==webapp-pod`.
+
+Install the Kubernetes extension for Chaos Toolkit:
+
+    pip install chaostoolkit-kubernetes
 
 === Rollbacks
 
@@ -193,9 +207,9 @@ This completes the experiment definition.
 
 With your cluster running you will first need to ensure you populate the `WEBAPP_URL` environment variable with the URL of your cluster's `webapp-service` endpoint.
 
-  $ export WEBAPP_URL="http://$(kubectl get svc/webapp-service -o jsonpath={.status.loadBalancer.ingress[0].ip})/"
+  $ export WEBAPP_URL="http://$(kubectl get svc/webapp-service -o jsonpath={.status.loadBalancer.ingress[0].hostname})/"
 
-Now you can run the link:./experiments/experiment.json[experiment] using the link:http://chaostoolkit.org/[Chaos Toolkit's] `chaos run` command:
+Now you can run the link:./experiments/experiment.json[experiment] using the `chaos run` command:
 
   $ chaos run experiment.json
   [2018-03-10 14:42:38 INFO] Validating the experiment's syntax
