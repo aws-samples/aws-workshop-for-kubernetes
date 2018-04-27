@@ -209,9 +209,11 @@ With your cluster running you will first need to ensure you populate the `WEBAPP
 
   $ export WEBAPP_URL="http://$(kubectl get svc/webapp-service -o jsonpath={.status.loadBalancer.ingress[0].hostname})/"
 
+NOTE: Amazon EKS uses a non-default Service Account for authenticating with the Kubernetes cluster. Until upstream `kubectl` supports the needed authentication mechanism, a Service Account with the required RBAC privileges needs to be created and configured in the context. This can be done using the script https://gist.github.com/mreferre/6aae10ddc313dd28b72bdc9961949978. In addition, `chaos` CLI need to pick up the right context by using the command `export KUBERNETES_CONTEXT=user1-eks-cluster`. More discussion on this topic at https://github.com/aws-samples/aws-workshop-for-kubernetes/issues/428.
+
 Now you can run the link:./experiments/experiment.json[experiment] using the `chaos run` command:
 
-  $ chaos run experiment.json
+  $ chaos run experiments/experiment.json
   [2018-03-10 14:42:38 INFO] Validating the experiment's syntax
   [2018-03-10 14:42:38 INFO] Experiment looks valid
   [2018-03-10 14:42:38 INFO] Running experiment: Terminate the greeting service should not impact users
