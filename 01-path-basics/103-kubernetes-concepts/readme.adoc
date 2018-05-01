@@ -1446,7 +1446,7 @@ Alternatively, a namespace can be created using `kubectl` as well.
 
 . Create a Deployment:
 
-	$ kubectl -n dev2 apply -f templates/deployment.yaml
+	$ kubectl -n dev2 apply -f deployment.yaml
 	deployment "nginx-deployment-ns" created
 
 . Get Deployments in the newly created Namespace:
