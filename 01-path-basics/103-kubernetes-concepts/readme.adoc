@@ -1399,7 +1399,7 @@ No resource limits.
 +
 . Create a Deployment in this new Namespace using a configuration file:
 +
-  $ deployment-namespace.yaml
+	$ cat deployment-namespace.yaml
 	apiVersion: extensions/v1beta1
 	kind: Deployment
 	metadata:
