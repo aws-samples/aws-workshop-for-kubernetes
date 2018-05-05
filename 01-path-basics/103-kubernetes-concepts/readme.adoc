@@ -861,7 +861,7 @@ Run the following command to create the service:
 Get more details about the service:
 
 ```
-$ kubectl get svc
+$ kubectl get service
 NAME           TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
 echo-service   LoadBalancer   100.66.161.199   ad0b47976b7fe...   80:30125/TCP   40s
 kubernetes     ClusterIP      100.64.0.1       <none>             443/TCP        1h
