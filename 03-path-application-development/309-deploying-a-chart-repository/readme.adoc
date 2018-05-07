@@ -1,0 +1,429 @@
+= Deploying a Chart Repository for Helm Charts
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../../resources/images
+
+You learned about using `helm` in the module
+link:../../03-path-application-development/306-app-management-with-helm/readme.adoc[306
+Application Management with Helm] this module will teach you how to deploy your
+own Chart Repository to your Kubernetes cluster so that you can deploy custom
+applications.
+
+== Prerequisites
+
+This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
+
+All configuration files for this chapter are in the `sample` directory. Make
+sure to `cd` into this directory before running any commands.
+
+This chapter expects that you have gone through 
+link:../../03-path-application-development/306-app-management-with-helm/readme.adoc[306
+Application Management with Helm] meaning you should have installed `helm`.
+
+== ChartMuseum
+
+Chart Museum is an Open Source Chart Repository, it helps you to deploy your
+custom charts to an Amazon S3 bucket and allows you to easily access your charts
+like you would a `stable` release from something like 
+link:https://hub.kubeapps.com/[Kubeapps]. 
+
+=== Installing ChartMuseum
+
+To install `chartmuseum` you first need to add the incubator helm repo.
+
+    $ helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com
+    "incubator" has been added to your repositories
+
+After you have added the incubator repo, you can install like any other `helm`
+package.
+
+    helm install incubator/chartmuseum --name chartmuseum \
+      --set env.open.DISABLE_API=false \
+      --set image.tag=latest
+
+This will deploy the `chartmuseum` using the standard configuration without
+long term storage for your charts.
+
+IMPORTANT: If you do not include `--set env.open.DISABLE_API=false` the `/api/*`
+endpoints won't be routable meaning you can't deploy or list charts against the
+api.
+
+Once you have this installed you can use `kubectl port-forward` to get access to
+the service.
+
+    $ kubectl port-forward $(kubectl get po -l app=chartmuseum -o jsonpath="{.items..metadata.name}") 8080:8080
+    Forwarding from 127.0.0.1:8080 -> 8080
+    Forwarding from [::1]:8080 -> 8080
+
+Now that we have this port-forwarded we can try packaging and pushing our
+sample project.
+
+    $ cd sample/
+    $ helm package .
+    Successfully packaged chart and saved it to: /03-path-application-development/309-deploying-a-chart-repository/sample/sample-1.0.0.tgz
+
+Then we can test pushing our first chart to the new repo.
+
+    $ curl --data-binary "@sample-1.0.0.tgz" http://localhost:8080/api/charts
+    {"saved":true}
+
+Now that we have this repo with a chart we can configure out local environment
+to look through that repo, then we can deploy our chart. 
+
+First lets check if the chart is deployed.
+
+    $ curl http://localhost:8080/api/charts
+    {
+      "sample": [
+        {
+          "name": "sample",
+          "home": "https://github.com/aws-samples/aws-workshop-for-kubernetes",
+          "sources": [
+            "https://github.com/aws-samples/aws-workshop-for-kubernetes"
+          ],
+          "version": "1.0.0",
+          "description": "My first Helm chart",
+          "keywords": [
+            "java",
+            "javaee",
+            "mysql",
+            "wildfly",
+            "wildfly swarm"
+          ],
+          "maintainers": [
+            {
+              "name": "Arun Gupta",
+              "email": "arun.gupta@gmail.com"
+            }
+          ],
+          "urls": [
+            "charts\/sample-1.0.0.tgz"
+          ],
+          "created": "2018-03-10T00:20:00Z",
+          "digest": "9ee14a033addb5c9b54ae3714bd595fc652a4305535ab643406dfa83a016c9c5"
+        }
+      ]
+    }
+
+This output represents the pushed chart from the `sample/` repo. Next we're
+going to make the storage more reliable by using S3.
+
+==== Accessing the Charts
+
+To access the repo within the `helm` cli add it as a repository.
+
+    helm repo add chartmuseum http://localhost:8080
+
+Now if you use `helm install chartmuseum/sample` or `helm search
+chartmuseum/sample` you will see the chart you just pushed.
+
+== Extending ChartMuseum to be Reliable
+
+Now that you have `chartmuseum` running in your cluster we need to make a couple
+edits, first we should use the built in mechanisms for storage, exposing, and 
+authentication. This will help make the service more reliable because the
+container won't be bound to a specific host since the storage will be off
+loaded, and the service will be load balanced meaning we can run multiple
+copies.
+
+=== Using S3 for Storage
+
+With the default deploy the charts are stored on a mounted volume, for a
+Kubernetes deployment where you don't always run on the same node this can cause
+issues where the server can't find the charts. To fix this we need to create an
+Amazon S3 Bucket for our charts.
+
+    $ export CHART_BUCKET=s3://example-chart-store-$(cat /dev/random | LC_ALL=C tr -dc "[:alpha:]" | tr '[:upper:]' '[:lower:]' | head -c 32)
+    $ aws s3 mb $CHART_BUCKET
+    make_bucket: example-chart-store-zohaenqynbcctothqpmacoicaytzjach
+
+Now that the bucket has been created we need to edit the node IAM policy to
+allow access to read, write, delete.
+
+    kops edit cluster example.cluster.k8s.local
+
+You will need to add `additionalPolicies` that will allow all nodes to have
+access to the bucket, to do so use:
+
+    additionalPolicies:
+      node: |
+        [
+          {
+            "Sid": "AllowListObjects",
+            "Effect": "Allow",
+            "Action": [
+              "s3:ListBucket"
+            ],
+            "Resource": "arn:aws:s3:::$BUCKET_NAME"
+          },
+          {
+            "Sid": "AllowObjectsCRUD",
+            "Effect": "Allow",
+            "Action": [
+              "s3:DeleteObject",
+              "s3:GetObject",
+              "s3:PutObject"
+            ],
+            "Resource": "arn:aws:s3:::$BUCKET_NAME/*"
+          }
+        ]
+
+WARNING: Make sure to replace `$BUCKET_NAME` in each of the statements with the
+`$CHART_BUCKET` without `s3://`
+
+After you have saved the file you can update the cluster thus adding the new
+policies to the nodes.
+
+    kops update cluster example.cluster.k8s.local --yes
+
+Then we can upgrade the chart with the updated values `helm upgrade` cli like so.
+
+    helm upgrade chartmuseum incubator/chartmuseum \
+      --reuse-values \
+      --set env.open.STORAGE=amazon \
+      --set env.open.STORAGE_AMAZON_BUCKET=$BUCKET_NAME \
+      --set env.open.STORAGE_AMAZON_PREFIX="" \
+      --set env.open.STORAGE_AMAZON_REGION=eu-west-1 \
+
+
+This will deploy a cluster but it won't be publicly accessible, yet. You will still
+need to `kubectl port-forward` to access the repo.
+
+    kubectl port-forward $(kubectl get po -l app=chartmuseum -o jsonpath="{.items..metadata.name}") 8080:8080
+
+With port `8080` forwarded you can now open your browser and view the landing
+page.
+
+    # on macOS
+    open http://localhost:8080
+
+Now that you have access to the server you can add the repo to your local `helm`
+client so that you can deploy a repo into it.
+
+    helm repo add chartmuseum http://localhost:8080
+
+Then we can test packaging the sample application.
+
+
+With this packaged chart we then can push it to the port-forwarded repo.
+
+    $ curl --data-binary "@sample-1.0.0.tgz" http://localhost:8080/api/charts
+    {"saved":true}
+
+To verify the package was added properly you can `curl` the list endpoint.
+
+    $ curl http://localhost:8080/api/charts
+    {
+      "sample": [
+        {
+          "name": "sample",
+          "home": "https://github.com/aws-samples/aws-workshop-for-kubernetes",
+          "sources": [
+            "https://github.com/aws-samples/aws-workshop-for-kubernetes"
+          ],
+          "version": "1.0.0",
+          "description": "My first Helm chart",
+          "keywords": [
+            "java",
+            "javaee",
+            "mysql",
+            "wildfly",
+            "wildfly swarm"
+          ],
+          "maintainers": [
+            {
+              "name": "Arun Gupta",
+              "email": "arun.gupta@gmail.com"
+            }
+          ],
+          "urls": [
+            "charts\/sample-1.0.0.tgz"
+          ],
+          "created": "2018-03-10T00:20:00Z",
+          "digest": "9ee14a033addb5c9b54ae3714bd595fc652a4305535ab643406dfa83a016c9c5"
+        }
+      ]
+    }
+
+IMPORTANT: You will notice there is only one chart here even though you've
+deployed the chart twice, this is because the original chart was deployed to the
+local volume which is unaccessible now.
+
+==== Accessing the Charts
+
+To access the repo within the `helm` cli add it as a repository.
+
+    helm repo add chartmuseum http://localhost:8080
+
+Now if you use `helm install chartmuseum/sample` or `helm search
+chartmuseum/sample` you will see the chart you just pushed.
+
+=== Exposing Using a Load Balancer
+
+Up until now we've been using port-forwarding to get access to the service
+running in Kubernetes, by making a couple tweaks we can expose this using an ELB
+and type `LoadBalancer` in the `helm` variables.
+
+Now lets upgrade the `chartmuseum` adding `--set service.type=LoadBalancer` and
+`--set service.externalPort=80` to expose using an ELB.
+
+
+    helm upgrade chartmuseum incubator/chartmuseum \
+      --reuse-values \
+      --set service.type=LoadBalancer \
+      --set service.externalPort=80
+
+Once that deploys you can use `kubectl get svc` to find the exposed Load
+Balancer.
+
+    open http://$(kubectl get svc -l app=chartmuseum -o jsonpath="{.items..status.loadBalancer.ingress..hostname}")
+
+This will open the browser showing the app. We can then test that the API is
+still configured properly.
+
+    $ curl http://$(kubectl get svc -l app=chartmuseum -o jsonpath="{.items..status.loadBalancer.ingress..hostname}")/api/charts
+    {
+      "sample": [
+        {
+          "name": "sample",
+          "home": "https://github.com/aws-samples/aws-workshop-for-kubernetes",
+          "sources": [
+            "https://github.com/aws-samples/aws-workshop-for-kubernetes"
+          ],
+          "version": "1.0.0",
+          "description": "My first Helm chart",
+          "keywords": [
+            "java",
+            "javaee",
+            "mysql",
+            "wildfly",
+            "wildfly swarm"
+          ],
+          "maintainers": [
+            {
+              "name": "Arun Gupta",
+              "email": "arun.gupta@gmail.com"
+            }
+          ],
+          "urls": [
+            "charts\/sample-1.0.0.tgz"
+          ],
+          "created": "2018-03-10T00:20:00Z",
+          "digest": "9ee14a033addb5c9b54ae3714bd595fc652a4305535ab643406dfa83a016c9c5"
+        }
+      ]
+    }
+
+==== Accessing the Charts
+
+To access the repo within the `helm` cli add it as a repository.
+
+    $ helm repo add chartmuseum http://$(kubectl get svc -l app=chartmuseum -o jsonpath="{.items..status.loadBalancer.ingress..hostname}")
+    "chartmuseum" has been added to your repositories
+
+Now if you use `helm install chartmuseum/sample` or `helm search
+chartmuseum/sample` you will see the chart you just pushed.
+
+=== Authentication
+
+Now that we have our remote storage in-place and our external routing, we need
+to lock down who has access to the service. This can be done directly with the 
+`helm` chart by adding a couple variables.
+
+WARNING: The rest of this tutorial expects that you need public access to your
+`helm` repo. If you use CI/CD you can use your build pipelines within the
+cluster to only connect to the internal registry, removing the need for
+`chartmuseum` to be public.
+
+Then upgrade the cluster using `--set env.secret.BASIC_AUTH_USER` and `--set
+env.secret.BASIC_AUTH_PASS`
+
+    helm upgrade chartmuseum incubator/chartmuseum \
+      --reuse-values \
+      --set env.secret.BASIC_AUTH_USER=user \
+      --set env.secret.BASIC_AUTH_PASS=password
+
+Once this successfully deploys you can use the same command from above to curl
+the `chartmuseum` which should error. 
+
+    $ curl -I http://$(kubectl get svc -l app=chartmuseum -o jsonpath="{.items..status.loadBalancer.ingress..hostname}")/api/charts
+    HTTP/1.1 404 Not Found
+    Content-Type: text/plain
+    X-Request-Id: d254b5d3-5b8a-4e78-9968-1e67434c190a
+    Date: Fri, 09 Mar 2018 19:54:40 GMT
+    Content-Length: 18
+
+Resubmitting again using the auth basic header succeeds.
+
+    $ curl -H "Authorization:Basic dXNlcjpwYXNzd29yZA==" http://$(kubectl get svc -l app=chartmuseum -o jsonpath="{.items..status.loadBalancer.ingress..hostname}")/api/charts
+    {
+      "sample": [
+        {
+          "name": "sample",
+          "home": "https://github.com/aws-samples/aws-workshop-for-kubernetes",
+          "sources": [
+            "https://github.com/aws-samples/aws-workshop-for-kubernetes"
+          ],
+          "version": "1.0.0",
+          "description": "My first Helm chart",
+          "keywords": [
+            "java",
+            "javaee",
+            "mysql",
+            "wildfly",
+            "wildfly swarm"
+          ],
+          "maintainers": [
+            {
+              "name": "Arun Gupta",
+              "email": "arun.gupta@gmail.com"
+            }
+          ],
+          "urls": [
+            "charts\/sample-1.0.0.tgz"
+          ],
+          "created": "2018-03-10T00:20:00Z",
+          "digest": "9ee14a033addb5c9b54ae3714bd595fc652a4305535ab643406dfa83a016c9c5"
+        }
+      ]
+    }
+
+==== Accessing the Charts
+
+To access the repo within the `helm` cli add it as a repository.
+
+First lets try adding the repo without the user to verify authentication.
+
+    $ helm repo add chartmuseum http://$(kubectl get svc -l app=chartmuseum -o jsonpath="{.items..status.loadBalancer.ingress..hostname}")
+    Error: Looks like "http://xxx-xxx.us-east-2.elb.amazonaws.com" is not a
+    valid chart repository or cannot be reached: Failed to fetch
+    http://xxx-xxx.us-east-2.elb.amazonaws.com/index.yaml : 401 Unauthorized
+
+Next we'll add the credentials to the url and try again.
+
+    $ helm repo add chartmuseum http://user:password@$(kubectl get svc -l app=chartmuseum -o jsonpath="{.items..status.loadBalancer.ingress..hostname}")
+    "chartmuseum" has been added to your repositories
+
+Now if you use `helm install chartmuseum/sample` or `helm search
+chartmuseum/sample` you will see the chart you just pushed.
+
+== Cleanup
+
+To cleanup `chartmuseum` and the local chart repos you can just use the cli.
+
+    helm del chartmuseum --purge
+    helm del monocular --purge
+    helm repo rm chartmuseum
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="1", grid="none", frame="none"]
+|=====
+|image:button-continue-developer.png[link=../../03-path-application-development/310-chaos-engineering]
+|link:../../developer-path.adoc[Go to Developer Index]
+|=====

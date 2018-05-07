@@ -1,0 +1,75 @@
+{
+    "version": "1.0.0",
+    "title": "Terminating the greeting service should not impact users",
+    "description": "How does the greeting service unavailbility impacts our users? Do they see an error or does the webapp gets slower?",
+    "tags": [
+        "kubernetes",
+        "aws"
+    ],
+    "configuration": {
+        "web_app_url": {
+            "type": "env",
+            "key": "WEBAPP_URL"
+        }
+    },
+    "steady-state-hypothesis": {
+        "title": "Services are all available and healthy",
+        "probes": [
+            {
+                "type": "probe",
+                "name": "application-should-be-alive-and-healthy",
+                "tolerance": true,
+                "provider": {
+                    "type": "python",
+                    "module": "chaosk8s.pod.probes",
+                    "func": "pods_in_phase",
+                    "arguments": {
+                        "label_selector": "app=webapp-pod",
+                        "phase": "Running",
+                        "ns": "default"
+                    }
+                }
+            },
+            {
+                "type": "probe",
+                "name": "application-must-respond-normally",
+                "tolerance": 200,
+                "provider": {
+                    "type": "http",
+                    "url": "${web_app_url}",
+                    "timeout": 3
+                }
+            }
+        ]
+    },
+    "method": [
+        {
+            "type": "action",
+            "name": "terminate-greeting-service",
+            "provider": {
+                "type": "python",
+                "module": "chaosk8s.pod.actions",
+                "func": "terminate_pods",
+                "arguments": {
+                    "label_selector": "app=greeter-pod",
+                    "ns": "default"
+                }
+            }
+        },
+        {
+            "type": "probe",
+            "name": "fetch-application-logs",
+            "provider": {
+                "type": "python",
+                "module": "chaosk8s.pod.probes",
+                "func": "read_pod_logs",
+                "arguments": {
+                    "label_selector": "app=webapp-pod",
+                    "last": "20s",
+                    "ns": "default"
+                }
+            }
+        }
+    ],
+    "rollbacks": []
+}

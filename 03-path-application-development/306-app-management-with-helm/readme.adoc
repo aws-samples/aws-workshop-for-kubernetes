@@ -155,11 +155,11 @@ webapp-deployment-372583675-hlcbg   1/1       Running   0          1m
 
 Start a proxy. Since the webapp service does not expose a public endpoint, proxy will allow you to access your service endpoint via the Kubernetes API:
 
-  kubectl proxy
+  kubectl proxy --address 0.0.0.0 --accept-hosts '.*' --port 8080
 
 Access the application using:
 
-  curl http://localhost:8001/api/v1/proxy/namespaces/default/services/webapp/resources/employees
+  curl -k https://ENVIRONMENT_ID.vfs.cloud9.REGION_ID.amazonaws.com/api/v1/proxy/namespaces/default/services/webapp/resources/employees
 
 This shows the output:
 

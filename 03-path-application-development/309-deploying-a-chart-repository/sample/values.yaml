@@ -1,0 +1,13 @@
+webapp: 
+  image: arungupta/docker-javaee:dockerconeu17
+  port: 8080
+  replicaCount: 1
+
+db:
+  image: mysql:8
+  database: employees
+  user: mysql
+  password: mysql
+  root: supersecret
+  port: 3306
+  replicas: 1

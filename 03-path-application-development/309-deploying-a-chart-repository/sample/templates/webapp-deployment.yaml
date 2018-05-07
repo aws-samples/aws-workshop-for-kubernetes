@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+spec:
+  replicas: {{ .Values.webapp.replicas }}
+  template:
+    metadata:
+      labels:
+        app: webapp-pod
+    spec:
+      containers:
+      - name: webapp
+        image: {{ .Values.webapp.image }}
+        ports:
+        - containerPort: {{ .Values.webapp.port }}

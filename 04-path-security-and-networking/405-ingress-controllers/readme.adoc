@@ -36,7 +36,7 @@ First, apply the initial setup commands:
 
 RBAC roles, or Role Based Access Control, are methods for controlling access to resources based on roles and permissions of individual users. RBAC must be enabled on the api server with the flag, `--authorization-mode=RBAC`. A `Role` can be used to restrict access to a single namespace. Alternatively, a `ClusterRole` can apply access permissions to a particular namespace or across all namespaces. In addition, `RoleBinding` binds the permissions granted by a role to a single user or set of users. `ClusterRoleBinding` can grant these permissions cluster wide and across all namespaces.
 
-To configure the Nginx Ingress Controller with RBAC roles use the following command:
+To configure the Nginx Ingress Controller without RBAC roles use the following command:
 
 	curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/without-rbac.yaml | kubectl apply -f -
 
@@ -301,6 +301,7 @@ kube-aws-ingress-controller, which we will use:
     "autoscaling:DetachLoadBalancers",
     "autoscaling:DetachLoadBalancerTargetGroups",
     "autoscaling:AttachLoadBalancerTargetGroups",
+    "autoscaling:DescribeLoadBalancerTargetGroups",
     "cloudformation:*",
     "elasticloadbalancing:*",
     "elasticloadbalancingv2:*",
@@ -338,6 +339,7 @@ and add this to your node policy:
             "autoscaling:DetachLoadBalancers",
             "autoscaling:DetachLoadBalancerTargetGroups",
             "autoscaling:AttachLoadBalancerTargetGroups",
+            "autoscaling:DescribeLoadBalancerTargetGroups",
             "cloudformation:*",
             "elasticloadbalancing:*",
             "elasticloadbalancingv2:*",

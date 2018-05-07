@@ -158,6 +158,10 @@ If you haven't already deployed the "`hello-world`" application, deploy it now.
     kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
     k8s-daemonset/k8s/hello-world.yml
 
+Delete the previous linkerd Daemonset, as we're going to update the ConfigMap and install a new one:
+
+    $ kubectl delete ds/l5d
+
 Deploy the linkerd ingress so we can access the application externally.
 
     $ kubectl apply -f https://raw.githubusercontent.com/linkerd/linkerd-examples/master/\
@@ -239,7 +243,7 @@ you'll need to download Istio. Istio can also automatically inject the sidecar; 
 https://istio.io/docs/setup/kubernetes/quick-start.html[Istio quick start]
 
     curl -L https://git.io/getLatestIstio | sh -
-    cd istio-0.2.10
+    cd istio-*
     export PATH=$PWD/bin:$PATH
 
 You should now be able to run the `istioctl` CLI
