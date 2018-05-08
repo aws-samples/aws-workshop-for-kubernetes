@@ -20,7 +20,7 @@ spec:
       serviceAccountName: heapster
       containers:
       - name: heapster
-        image: gcr.io/google_containers/heapster-amd64:v1.4.0
+        image: k8s.gcr.io/heapster-amd64:v1.4.0
         imagePullPolicy: IfNotPresent
         command:
         - /heapster
