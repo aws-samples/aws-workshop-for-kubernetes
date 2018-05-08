@@ -736,7 +736,7 @@ Let's create a Deployment first that will create 3 replicas of a pod:
 	    spec:
 	      containers:
 	      - name: echoheaders
-	        image: k8s.gcr.io/echoserver:1.4
+	        image: k8s.gcr.io/echoserver:1.10
 	        imagePullPolicy: IfNotPresent
 	        ports:
 	        - containerPort: 8080
@@ -767,7 +767,7 @@ Pod Template:
   Labels:  app=echo-pod
   Containers:
    echoheaders:
-    Image:        k8s.gcr.io/echoserver:1.4
+    Image:        k8s.gcr.io/echoserver:1.10
     Port:         8080/TCP
     Environment:  <none>
     Mounts:       <none>
