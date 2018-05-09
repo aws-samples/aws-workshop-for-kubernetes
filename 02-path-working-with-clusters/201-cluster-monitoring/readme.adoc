@@ -94,16 +94,16 @@ It shows the output as:
   statefulset-controller-token-kmgzg       kubernetes.io/service-account-token   3         3h
   ttl-controller-token-vbnhf               kubernetes.io/service-account-token   3         3h
 
-We can login using any secret with type 'kubernetes.io/service-account-token', though each of them have different privileges. In our case, we'll use the token from secret `default-token-7vh0x` to login. Use the following command to get the token for this secret:
+We can login using the secret with type 'kubernetes.io/namespace-controller-token'. In our case, we'll use the token from secret `namespace-controller-token-423gh` to login. Use the following command to get the token for this secret:
 
-    kubectl -n kube-system describe secret default-token-7vh0x
+    kubectl -n kube-system describe secret namespace-controller-token-423gh
 
-Note you'll need to replace `default-token-7vh0x` with the default-token from your output list.
+Note you'll need to replace `namespace-controller-token-423gh` with the namespace-controller-token from your output list.
 
 It shows the output:
 
 ```
-Name:         default-token-7vh0x
+Name:         namespace-controller-token-423gh
 Namespace:    kube-system
 Labels:       <none>
 Annotations:  kubernetes.io/service-account.name=default
