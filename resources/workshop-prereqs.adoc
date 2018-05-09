@@ -1,0 +1,17 @@
+:linkattrs:
+
+= Workshop Prereqs
+
+Each attendee needs an https://aws.amazon.com/resources/create-account/[AWS Account] to get
+started with the workshop. We recommend to create an Account at least few days before the event.
+Here is the info on creating and activating your AWS Account: https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/
+
+As an additional step, we recommend to go through 101 documentation and create your Cloud9
+environment so that you can get started quickly with your learning paths. Here is the info on
+creating Cloud9 for this workshop: link:../01-path-basics/101-start-here[101 start here]
+
+ProTip! If you are already familiar with Kubernetes cluster concepts, follow 102 and link:../01-path-basics/102-your-first-cluster[create your first cluster]
+
+Note: you will incur charges as you go through the workshop guides because it will exceed the
+limits of http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-limits.html[AWS free tier].
+An estimate of charges (<$20/day) can be seen at this https://calculator.s3.amazonaws.com/index.html#r=FRA&s=EC2&key=calc-E6DBD6F1-C45D-4827-93F8-D9B18C5994B0[simple monthly calculator]
