@@ -1,17 +1,17 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: echo-deployment 
+  name: echo-deployment
 spec:
-  replicas: 3 
+  replicas: 3
   template:
     metadata:
       labels:
         app: echo-pod
     spec:
       containers:
-      - name: echoheaders 
-        image: gcr.io/google_containers/echoserver:1.4
-        imagePullPolicy: IfNotPresent 
-        ports: 
+      - name: echoheaders
+        image: k8s.gcr.io/echoserver:1.10
+        imagePullPolicy: IfNotPresent
+        ports:
         - containerPort: 8080
