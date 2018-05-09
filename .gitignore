@@ -3,4 +3,7 @@
 **/target
 **/.idea
 **/dependency-reduced-pom.xml
-
+**/journal.json
+**/chaostoolkit.log
+03-path-application-development/306-app-management-with-helm/sample/*.tgz
+03-path-application-development/309-deploying-a-chart-repository/sample/*.tgz

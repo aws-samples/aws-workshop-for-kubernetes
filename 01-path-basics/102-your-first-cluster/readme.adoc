@@ -8,7 +8,7 @@ This section will walk you through how to install a Kubernetes cluster on AWS us
 
 https://github.com/kubernetes/kops[kops, window="_blank"], short for Kubernetes Operations, is a set of tools for installing, operating, and deleting Kubernetes clusters. kops can also perform rolling upgrades from older versions of Kubernetes to newer ones, and manage the cluster add-ons.
 
-If you have not set up the link:../101-start-here[Cloud9 Devlopment Environment, window="_blank"] yet, please do so before continuing.
+If you have not set up the link:../101-start-here[Cloud9 Development Environment, window="_blank"] yet, please do so before continuing.
 
 == Create a Kubernetes Cluster with kops
 
@@ -248,6 +248,7 @@ Save the changes and exit the editor. Kubernetes cluster needs to re-read the co
 
 NOTE: This process can easily take 30-45 minutes. Its recommended to leave the cluster without any updates during that time.
 
+  $ kops update cluster --yes
   $ kops rolling-update cluster --yes
   Using cluster from kubectl context: example.cluster.k8s.local
 

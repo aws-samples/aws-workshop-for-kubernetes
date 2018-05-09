@@ -87,21 +87,6 @@ First, create the required OpenSSL configuration files.  Put these in your curre
 directory; we will only use them once to generate certificates.  You may discard
 them after running the `openssl` commands below.
 
-*client.conf*
-```bash
-[req]
-req_extensions = v3_req
-distinguished_name = req_distinguished_name
-[req_distinguished_name]
-[ v3_req ]
-basicConstraints = CA:FALSE
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-extendedKeyUsage = clientAuth, serverAuth
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = opa.opa.cluster.svc.local
-```
-
 *server.conf*
 ```bash
 [req]
@@ -112,15 +97,9 @@ distinguished_name = req_distinguished_name
 basicConstraints = CA:FALSE
 keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 extendedKeyUsage = clientAuth, serverAuth
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = opa.opa.cluster.svc.local
 ```
 
-IMPORTANT: The subjectAltName/IP address in the certificate MUST match the one configured on the Kubernetes Service.
-
-Now create local files that contain the CA and client/server key pairs.  Shortly we will
-hand these keys to OPA and the API server so they can communicate.
+Now create local files that contain the CA and server key pair.
 
 Create a certificate authority:
 
@@ -132,34 +111,20 @@ openssl genrsa -out ca.key 2048
 openssl req -x509 -new -nodes -key ca.key -days 100000 -out ca.crt -subj "/CN=admission_ca"
 ```
 
-Create a server certiticate:
+Create a server certiticate.
+IMPORTANT: the CN must match the name of the service used to expose the external admission controller.
 
 ```bash
 openssl genrsa -out server.key 2048
 ```
 
 ```bash
-openssl req -new -key server.key -out server.csr -subj "/CN=admission_server" -config server.conf
+openssl req -new -key server.key -out server.csr -subj "/CN=opa.opa.svc" -config server.conf
 ```
 
 ```bash
 openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 100000 -extensions v3_req -extfile server.conf
 ```
-
-Create a client certiticate:
-
-```bash
-openssl genrsa -out client.key 2048
-```
-
-```bash
-openssl req -new -key client.key -out client.csr -subj "/CN=admission_client" -config client.conf
-```
-
-```bash
-openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 100000 -extensions v3_req -extfile client.conf
-```
-
 
 === 2.2: Deploy OPA on Kubernetes
 
@@ -238,9 +203,11 @@ spec:
               mountPath: /certs
               name: opa-server
         - name: kube-mgmt
-          image: openpolicyagent/kube-mgmt:0.4
+          image: openpolicyagent/kube-mgmt:0.5
           args:
             - "--replicate=v1/pods"
+            - "--pod-name=$(MY_POD_NAME)"
+            - "--pod-namespace=$(MY_POD_NAMESPACE)"
             - "--register-admission-controller"
             - "--admission-controller-ca-cert-file=/certs/ca.crt"
             - "--admission-controller-service-name=opa"
@@ -250,6 +217,10 @@ spec:
               mountPath: /certs
               name: opa-ca
           env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: MY_POD_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -350,7 +321,7 @@ To verify that your policy is working, create separate test pods.
 
 ```yaml
 kind: Pod
-version: v1
+apiVersion: v1
 metadata:
   name: nginx
   labels:
@@ -369,7 +340,7 @@ controller in action, you can leave it with the fake ID.
 
 ```yaml
 kind: Pod
-version: v1
+apiVersion: v1
 metadata:
   name: amazon-linux-pod
   labels:

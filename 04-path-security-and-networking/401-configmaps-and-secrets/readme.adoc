@@ -273,11 +273,11 @@ The pod configuration file looks like:
 
 . Start Kubernetes proxy:
 
-  kubectl proxy
+  kubectl proxy --address 0.0.0.0 --accept-hosts '.*' --port 8080
 
 . In a new terminal, access the service as:
 
-  $ curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
+  $ curl -k https://ENVIRONMENT_ID.vfs.cloud9.REGION_ID.amazonaws.com/api/v1/proxy/namespaces/default/services/app/
   printed 2 times
 +
 The pod logs are refreshed as well:
@@ -304,7 +304,7 @@ The pod logs are refreshed as well:
 
 . Access the service again:
 
-  curl http://localhost:8001/api/v1/proxy/namespaces/default/services/app/
+  $ curl -k https://ENVIRONMENT_ID.vfs.cloud9.REGION_ID.amazonaws.com/api/v1/proxy/namespaces/default/services/app/
   printed 4 times
 
 . Logs from the pod are refreshed:

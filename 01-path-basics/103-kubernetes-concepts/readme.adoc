@@ -369,7 +369,7 @@ Kubernetes assigns one of the QoS classes to the Pod:
 
 QoS class is used by Kubernetes for scheduling and evicting Pods.
 
-When every Container in a Pod is given a memory and CPU limit, and optionally non-zero request, and they exactly match, then a Pod is scheduled with `Guaranteed` QoS. This is the higest priority.
+When every Container in a Pod is given a memory and CPU limit, and optionally non-zero request, and they exactly match, then a Pod is scheduled with `Guaranteed` QoS. This is the highest priority.
 
 A Pod is given `Burstable` QoS class if the Pod does not meet the `Guaranteed` QoS and at least one Container has a memory or CPU request. This is intermediate priority.
 
@@ -861,7 +861,7 @@ Run the following command to create the service:
 Get more details about the service:
 
 ```
-$ kubectl get svc
+$ kubectl get service
 NAME           TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
 echo-service   LoadBalancer   100.66.161.199   ad0b47976b7fe...   80:30125/TCP   40s
 kubernetes     ClusterIP      100.64.0.1       <none>             443/TCP        1h
@@ -1245,7 +1245,7 @@ A Cron Job is a job that runs on a given schedule, written in Cron format. There
 Here is the job specification:
 
   $ cat cronjob.yaml
-	apiVersion: batch/v2alpha1
+	apiVersion: batch/v1beta1
 	kind: CronJob
 	metadata:
 	  name: hello
@@ -1399,7 +1399,7 @@ No resource limits.
 +
 . Create a Deployment in this new Namespace using a configuration file:
 +
-  $ deployment-namespace.yaml
+  $ cat deployment-namespace.yaml
 	apiVersion: extensions/v1beta1
 	kind: Deployment
 	metadata:
@@ -1446,7 +1446,7 @@ Alternatively, a namespace can be created using `kubectl` as well.
 
 . Create a Deployment:
 
-	$ kubectl -n dev2 apply -f templates/deployment.yaml
+	$ kubectl -n dev2 apply -f deployment.yaml
 	deployment "nginx-deployment-ns" created
 
 . Get Deployments in the newly created Namespace:
@@ -1634,6 +1634,8 @@ Note, how CPU and memory resources have incremented values.
 
 https://github.com/kubernetes/kubernetes/issues/55433[kubernetes#55433] provide more details on how an explicit CPU resource is not needed to create a Pod with ResourceQuota.
 
+$ kubectl delete quota/quota
+$ kubectl delete quota/quota2
 
 You are now ready to continue on with the workshop!
 
