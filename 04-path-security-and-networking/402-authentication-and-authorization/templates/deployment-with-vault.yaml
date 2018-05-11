@@ -1,5 +1,5 @@
-apiVersion: apps/v1beta1
-kind: Deployment 
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: vault-sidecar
 spec:
@@ -11,7 +11,7 @@ spec:
     spec:
       serviceAccountName: vault-auth
       containers:
-        - name: aws-cli 
+        - name: aws-cli
           image: cgswong/aws:aws
           command:
             - "sleep"
@@ -31,5 +31,5 @@ spec:
               mountPath: "/root/.aws/"
       volumes:
         - name: app-secrets
-          emptyDir: 
+          emptyDir:
             medium: "Memory"

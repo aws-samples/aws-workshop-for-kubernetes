@@ -33,12 +33,15 @@ Let's look at these two deployment strategies.
 
 All existing pods are killed before the new ones are created. The configuration file looks like:
 
-    apiVersion: extensions/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: app-recreate
     spec:
       replicas: 5
+      selector:
+        matchLabels:
+          name: app-recreate
       strategy:
         type: Recreate
       template:
@@ -193,12 +196,15 @@ Two optional properties can be used to define how rolling update is performed:
 
 The configuration file looks like:
 
-    apiVersion: extensions/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: app-rolling
     spec:
       replicas: 5
+      selector:
+        matchLabels:
+          name: app-rolling
       strategy:
         type: RollingUpdate
         rollingUpdate:
@@ -389,12 +395,16 @@ Two Deployments with image for different versions are used togther. Both Deploym
 
 Let's look at version `v1` of the Deployment:
 
-    apiVersion: extensions/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: app-v1
     spec:
       replicas: 2
+      selector:
+        matchLabels:
+          name: app
+          version: v1
       template:
         metadata:
           labels:
@@ -411,12 +421,16 @@ It uses `arungupta/app-upgrade:v1` image. It has two labels `name: app` and `ver
 
 Let's look at version `v2` of the Deployment:
 
-    apiVersion: extensions/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: app-v2
     spec:
       replicas: 2
+      selector:
+        matchLabels:
+          name: app
+          version: v2
       template:
         metadata:
           labels:

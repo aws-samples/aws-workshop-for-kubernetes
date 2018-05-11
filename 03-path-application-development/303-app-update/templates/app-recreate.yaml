@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app-recreate
 spec:
   replicas: 5
+  selector:
+    matchLabels:
+      name: app-recreate
   strategy:
     type: Recreate
   template:

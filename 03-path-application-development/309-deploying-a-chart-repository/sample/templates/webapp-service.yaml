@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
-metadata: 
+metadata:
   name: webapp
-spec: 
-  selector: 
+spec:
+  selector:
     app: webapp-pod
   ports:
     - port: {{ .Values.webapp.port }}

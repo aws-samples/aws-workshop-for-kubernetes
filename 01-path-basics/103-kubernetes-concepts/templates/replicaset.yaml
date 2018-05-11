@@ -1,17 +1,20 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
   name: nginx-replicaset
 spec:
-  replicas: 3 
+  replicas: 3
+  selector:
+    matchLabels:
+      name: nginx-replica
   template:
     metadata:
       labels:
         name: nginx-replica
     spec:
       containers:
-      - name: nginx-replica 
-        image: nginx:1.12.1 
+      - name: nginx-replica
+        image: nginx:1.12.1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80

@@ -4,7 +4,7 @@ metadata:
   name: kube-state-metrics
   namespace: monitoring
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: kube-state-metrics
@@ -23,7 +23,7 @@ rules:
   - replicasets
   verbs: ["list", "watch"]
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: kube-state-metrics
@@ -72,12 +72,15 @@ spec:
     targetPort: 10252
     protocol: TCP
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: node-exporter
   namespace: monitoring
 spec:
+  selector:
+    matchLabels:
+      app: node-exporter
   template:
     metadata:
       labels:
@@ -139,13 +142,16 @@ spec:
   selector:
     app: node-exporter
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kube-state-metrics
   namespace: monitoring
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: kube-state-metrics
   template:
     metadata:
       labels:

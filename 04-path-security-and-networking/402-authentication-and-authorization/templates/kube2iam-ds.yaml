@@ -1,10 +1,13 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: kube2iam
   labels:
     app: kube2iam
 spec:
+  selector:
+    matchLabels:
+      name: kube2iam
   template:
     metadata:
       labels:
@@ -15,10 +18,10 @@ spec:
         - image: jtblin/kube2iam:0.8.1
           name: kube2iam
           args:
-            - "--auto-discover-base-arn" 
+            - "--auto-discover-base-arn"
             - "--host-interface=cbr0"
-            - "--host-ip=$(HOST_IP)"  
-            - "--iptables=true"      
+            - "--host-ip=$(HOST_IP)"
+            - "--iptables=true"
           env:
             - name: HOST_IP
               valueFrom:

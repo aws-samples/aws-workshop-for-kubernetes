@@ -1,19 +1,22 @@
 apiVersion: v1
 kind: Service
-metadata: 
+metadata:
   name: name-service
-spec: 
-  selector: 
+spec:
+  selector:
     app: name-pod
   ports:
     - port: 8080
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: name-deployment
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: name-pod
   template:
     metadata:
       labels:
@@ -32,20 +35,23 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: 
+metadata:
   name: greeter-service
-spec: 
-  selector: 
+spec:
+  selector:
     app: greeter-pod
   ports:
     - port: 8080
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: greeter-deployment
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: greeter-pod
   template:
     metadata:
       labels:
@@ -64,10 +70,10 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: 
+metadata:
   name: webapp-service
-spec: 
-  selector: 
+spec:
+  selector:
     app: webapp-pod
   ports:
     - name: web
@@ -75,12 +81,15 @@ spec:
       targetPort: 8080
   type: LoadBalancer
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: webapp-deployment
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: webapp-pod
   template:
     metadata:
       labels:

@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: webapp-deployment
 spec:
   replicas: {{ .Values.webapp.replicas }}
+  selector:
+    matchLabels:
+      app: webapp-pod
   template:
     metadata:
       labels:
