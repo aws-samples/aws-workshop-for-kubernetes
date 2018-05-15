@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app-rolling
 spec:
   replicas: 5
+  selector:
+    matchLabels:
+      name: app-rolling
   strategy:
     type: RollingUpdate
     rollingUpdate:

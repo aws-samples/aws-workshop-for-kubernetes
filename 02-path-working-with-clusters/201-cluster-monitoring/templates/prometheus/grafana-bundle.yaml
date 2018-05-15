@@ -5595,13 +5595,16 @@ data:
         "url": "http://prometheus-operated.monitoring.svc:9090"
     }
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
   namespace: monitoring
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
   template:
     metadata:
       labels:

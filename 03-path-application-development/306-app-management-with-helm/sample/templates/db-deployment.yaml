@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql-deployment
 spec:
   replicas: {{ .Values.db.replicas }}
+  selector:
+    matchLabels:
+      app: mysql-pod
   template:
     metadata:
       labels:

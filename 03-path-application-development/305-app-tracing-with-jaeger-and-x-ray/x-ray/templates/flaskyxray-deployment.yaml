@@ -1,9 +1,12 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flaskxray-deployment 
+  name: flaskxray-deployment
 spec:
   replicas: 5
+  selector:
+    matchLabels:
+      app: flaskxray-pod
   template:
     metadata:
       labels:
@@ -18,8 +21,8 @@ spec:
           value: 172.17.0.1:2000
         - name: AWS_XRAY_CONTEXT_MISSING
           value: LOG_ERROR
-        imagePullPolicy: IfNotPresent 
-        ports: 
+        imagePullPolicy: IfNotPresent
+        ports:
         - containerPort: 5000
         resources:
             requests:
