@@ -143,7 +143,7 @@ Get a summary of available contexts:
   *         example.cluster.k8s.local     example.cluster.k8s.local   example.cluster.k8s.local
             docker-for-desktop            docker-for-desktop-cluster  docker-for-desktop
 
-The output shows dfferent contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
+The output shows different contexts, one per cluster, that are available to kubectl. `NAME` column shows the context name. `*` indicates the current context.
 
 View the current context:
 
