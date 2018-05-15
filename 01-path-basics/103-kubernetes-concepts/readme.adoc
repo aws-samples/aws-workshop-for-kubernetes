@@ -165,7 +165,7 @@ Logs from the pod can be obtained (a fresh nginx does not have logs - check agai
 This command will open a TTY to a shell in your pod:
 
     $ kubectl get pods
-    $ kubectl exec -it <pod-name> /bin/bash
+    $ kubectl exec <pod-name> -it /bin/bash
 
 This opens a bash shell and allows you to look around the filesystem of the container.
 
