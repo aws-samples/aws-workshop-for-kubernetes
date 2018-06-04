@@ -10,7 +10,9 @@ This chapter shows an example of how different microservices within an applicati
 
 This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../../01-path-basics/102-your-first-cluster#multi-master-cluster[multi-master cluster].
 
-All configuration files for this chapter are in the `microservices` directory. Make sure you change to that directory before giving any commands in this chapter.
+All configuration files for this chapter are in the `app-discovery` directory. Make sure you change to that directory before giving any commands in this chapter.  On Cloud9:
+
+    cd ~/environment/aws-workshop-for-kubernetes/03-path-application-development/302-app-discovery
 
 === Application Architecture
 
@@ -121,12 +123,12 @@ Wait for ~3 mins for the load balancer to accept request.
 
 Access the application using the following URLs with `curl` or via a browser:
 
-  http://<host>
-  http://<host>?greet=ho
-  http://<host>?id=1
-  http://<host>?greet=ho&id=1
+  http://<ingress>
+  http://<ingress>?greet=ho
+  http://<ingress>?id=1
+  http://<ingress>?greet=ho&id=1
 
-`<host>` is the value of the ingress load balancer's address:
+`<ingress>` is the value of the ingress load balancer's address:
 
   $ kubectl get svc/webapp-service -o jsonpath={.status.loadBalancer.ingress[0].hostname}
   a5427e128847211e782280a896fc2bfc-283874069.us-east-1.elb.amazonaws.com
