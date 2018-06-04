@@ -277,7 +277,7 @@ The pod configuration file looks like:
 
 . In a new terminal, access the service as:
 
-  $ curl -k https://ENVIRONMENT_ID.vfs.cloud9.REGION_ID.amazonaws.com/api/v1/proxy/namespaces/default/services/app/
+  $ curl -k http://localhost:8080/api/v1/proxy/namespaces/default/services/app/
   printed 2 times
 +
 The pod logs are refreshed as well:
