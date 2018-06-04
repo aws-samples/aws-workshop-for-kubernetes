@@ -6,9 +6,7 @@
 
 https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/[Horizontal Pod Autoscaling] (HPA) is a Kubernetes feature to dynamically increase/decrease the number of pod replicas based on resource utilization metrics.
 
-https://github.com/kubernetes/heapster[Heapster] is an open source project that collects cluster metrics, and Kubernetes integrates with it to determine CPU consumption. Heapster's default backend, referred to as a "`sink`", is https://github.com/influxdata/influxdb[InfluxDB]. Additional sinks are supported including Elasticsearch.
-
-Kubernetes currently has beta support for custom metrics from multiple sources, and not just Heapster. This is enabled via the API Server Aggregation feature, and this documentation will be updated when the feature is live to show HPA with additional types of metrics.
+As of k8s version 1.9, the direction for HPA is to use the Metrics Server rather than https://github.com/kubernetes/heapster[Heapster].
 
 HPA can automatically scale pods deployed in a replication controller, deployment, or a replica set. For additional information on how HPA works, check out the Kubernetes https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/[community documentation].
 
@@ -16,12 +14,9 @@ HPA can automatically scale pods deployed in a replication controller, deploymen
 
 This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
 
-Deploy Heapster using the steps described in the link:../../02-path-working-with-clusters/201-cluster-monitoring#installation[Cluster Monitoring] lab. You can deploy Heapster using the configuration file `cluster-monitoring/heapster/templates/heapster.yaml`:
+Deploy the metrics server:
 
-    $ kubectl create -f templates/heapster/heapster.yaml
-    serviceaccount "heapster" created
-    deployment "heapster" created
-    service "heapster" created
+    $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/metrics-server/v1.8.x.yaml
 
 == Deploy an application
 
