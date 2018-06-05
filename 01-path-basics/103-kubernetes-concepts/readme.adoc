@@ -19,7 +19,7 @@ This chapter uses a cluster with 3 master nodes and 5 worker nodes as described 
 All configuration files for this chapter are in the `01-path-basics/103-kubernetes-concepts/templates` directory.
 Please be sure to `cd` into that directory before running the commands below.
 
-    $ cd 01-path-basics/103-kubernetes-concepts/templates
+    $ cd ~/environment/aws-workshop-for-kubernetes/01-path-basics/103-kubernetes-concepts/templates
 
 == Display Nodes
 
