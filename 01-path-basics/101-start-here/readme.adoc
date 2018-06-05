@@ -5,7 +5,7 @@
 :imagesdir: ../../resources/images
 
 
-This section walks you through the creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run, and debug containerized workloads using just a web browser.
+This section walks you through creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run, and debug containerized workloads using just a web browser.
 
 == Create AWS Cloud9 Environment
 === AWS Cloud9 Console
@@ -16,7 +16,7 @@ This CloudFormation template will spin up the Cloud9 IDE, as well as configure t
 The CloudFormation template can create a new VPC, or you can choose an existing VPC if needed.
 If you are unsure, we recommend the "Launch template with an existing VPC" option.
 
-Click on the "Deploy to AWS" button and follow the CloudFormation prompts to begin.
+Click on the "Deploy to AWS" button and follow the CloudFormation prompts to begin.  On the last page, be sure to click the checkbox "I acknowledge that AWS CloudFormation might create IAM resources."
 
 [NOTE]
 AWS Cloud9 is currently available in 5 regions.
@@ -77,7 +77,7 @@ image:cloud9-run-script.png[Running the script in Cloud9 Terminal]
 [NOTE]
 All shell commands _(starting with "$")_ throughout the rest of the workshop should be run in this tab. You may want to resize it upwards to make it larger.
 
-At this point you can restart the Cloud9 IDE terminal session to ensure that the kublectl completion is enabled. Once a new terminal window is opened, type `kubectl get nodes`. You do not have to run the command. It is normal for this command to fail with an error message if you run it. You have not yet created the Kubernetes cluster. We are merely testing to make sure the `kubectl` tool is installed on the command line correctly and can autocomplete.
+At this point you can open a new Cloud9 IDE terminal session to ensure that the kublectl completion is enabled. Once a new terminal window is opened, type `kubectl get n` and hit `Tab`.  The completion should offer a choice of items including `node`. You do not have to run the command. It is normal for this command to fail with an error message if you run it. You have not yet created the Kubernetes cluster. We are merely testing to make sure the `kubectl` tool is installed on the command line correctly and can autocomplete.
 
 One last step is required so that the Cloud9 IDE uses the assigned IAM Instance profile. Open the "AWS Cloud9" menu, go to "Preferences", go to "AWS Settings", and disable "AWS managed temporary credentials" as depicted in the diagram here:
 
