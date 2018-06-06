@@ -339,6 +339,10 @@ Watch the status of the Pod:
 
 `OOMKilled` shows that the container was terminated because it ran out of memory.
 
+To correct this, we'll need to re-create the pod with higher memory limits.  
+
+Although it may be instinctive to simply adjust the memory limit in the existing pod definition and re-apply it, https://github.com/kubernetes/kubernetes/issues/39060#issuecomment-268449812[Kubernetes does not currently support changing resource limits on running pods], so we'll need to first delete the existing pod, then recreate it.
+
 In `pod-resources2.yaml`, change the value of `spec.containers[].resources.limits.memory` to `300Mi`. Delete the existing Pod, and create a new one:
 
 	$ kubectl delete -f pod-resources1.yaml
