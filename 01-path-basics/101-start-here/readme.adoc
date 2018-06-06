@@ -69,6 +69,7 @@ Once your Cloud9 is ready, download the build script and install in your IDE. Th
 - kubectl _(the Kubernetes CLI, which we'll cover in great detail later in the workshop)_
 - heptio/authenticator _(for authentication to the EKS cluster)_
 - updates/configures the AWS CLI and stores necessary environment variables in bash_profile
+- kops _(Kubernetes Operations, which we'll also cover in detail later)_
 - creates an SSH key
 - clone the workshop repository into Cloud9
 
@@ -106,7 +107,7 @@ You are now ready to continue on with the workshop!
 |link:../../operations-path.adoc[Go to Operations Index]
 |=====
 
-The next step is link:../102-your-first-cluster[to create a Kubernetes cluster using EKS].
+The next step is link:../102-your-first-cluster[to create a Kubernetes cluster].
 
 
 == Workshop Cleanup
@@ -115,6 +116,8 @@ Once you have finished with the workshop, please don't forget to spin down your 
 (We will also remind you at the end!)
 
 Ensure that you have deleted all services, etc from the `default` namespace before proceeding.
+
+=== Using EKS
 
 ==== Delete EKS worker nodeds
 
@@ -132,7 +135,21 @@ Delete EKS cluster
 
 Wait until all resources are deleted by kops
 
-==== Delete Cloud9 Envionment
+=== Using kops
+
+==== Delete Kubernetes cluster resources
+
+In your Cloud9 IDE, check if there are any running kubernetes cluster
+
+   $ kops get cluster
+
+Delete kubernetes cluster
+
+   $ kops delete cluster example.cluster.k8s.local --yes
+
+Wait until all resources are deleted by kops
+
+=== Delete Cloud9 Envionment
 
 Go to CloudFormation console, right click template with name 'k8s-workshop' and select 'Delete Stack'
 

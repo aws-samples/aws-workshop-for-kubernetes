@@ -16,6 +16,9 @@ Kubernetes as a platform has a number of abstractions that map to API objects. T
 
 This chapter uses an EKS cluster with worker nodes as described link:../102-your-first-cluster[here].
 
+[NOTE]
+This lab and future labs can be completed using the EKS cluster or the multi-master kops cluster. Some of the outputs may vary slightly if using the kops cluster.
+
 All configuration files for this chapter are in the `01-path-basics/103-kubernetes-concepts/templates` directory.
 Please be sure to `cd` into that directory before running the commands below.
 
