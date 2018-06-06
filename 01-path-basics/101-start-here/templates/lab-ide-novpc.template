@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Lab IDE using existing Subnet for container workshop v0.4",
+  "Description": "Lab IDE using existing Subnet for container workshop v0.5",
   "Metadata": {},
   "Parameters": {
     "SubnetId": {
@@ -12,6 +12,18 @@
   "Mappings": {},
   "Conditions": {},
   "Resources": {
+    "EksVpc": {
+      "Type" : "AWS::CloudFormation::Stack",
+      "Properties" : {
+        "TemplateURL" : "https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/amazon-eks-vpc-sample.yaml"
+      }
+    },
+    "EksServiceRole": {
+      "Type" : "AWS::CloudFormation::Stack",
+      "Properties" : {
+        "TemplateURL" : "https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/amazon-eks-service-role.yaml"
+      }
+    },
     "LabIDE": {
       "Description": "-",
       "Type": "AWS::Cloud9::EnvironmentEC2",
@@ -55,6 +67,25 @@
             }
           ]
         },
+        "Policies": [
+          {
+            "PolicyName": "eks-service",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "eks:*",
+                    "cloudformation:CreateStack",
+                    "cloudformation:UpdateStack"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ],
         "ManagedPolicyArns": [
           "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
           "arn:aws:iam::aws:policy/AmazonRoute53FullAccess",
@@ -301,6 +332,26 @@
             }
           ]
         ]
+      }
+    },
+    "EksServiceRoleArn": {
+      "Value": {
+        "Fn::GetAtt": ["EksServiceRole", "Outputs.RoleArn"]
+      }
+    },
+    "EksVpcId": {
+      "Value": {
+        "Fn::GetAtt": ["EksVpc", "Outputs.VpcId"]
+      }
+    },
+    "EksVpcSubnetIds": {
+      "Value": {
+        "Fn::GetAtt": ["EksVpc", "Outputs.SubnetIds"]
+      }
+    },
+    "EksVpcSecurityGroups": {
+      "Value": {
+        "Fn::GetAtt": ["EksVpc", "Outputs.SecurityGroups"]
       }
     }
   }
