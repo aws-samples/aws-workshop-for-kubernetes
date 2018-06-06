@@ -14,7 +14,7 @@ Kubernetes as a platform has a number of abstractions that map to API objects. T
 
 == Prerequisites
 
-This chapter uses an EKS cluster with 3 worker nodes as described link:../102-your-first-cluster[here].
+This chapter uses an EKS cluster with worker nodes as described link:../102-your-first-cluster[here].
 
 All configuration files for this chapter are in the `01-path-basics/103-kubernetes-concepts/templates` directory.
 Please be sure to `cd` into that directory before running the commands below.

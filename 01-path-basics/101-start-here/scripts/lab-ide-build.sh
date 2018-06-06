@@ -18,13 +18,12 @@ sudo -H pip install -U awscli
 sudo yum install bash-completion -y
 
 # Install kubectl
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+curl -o kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/kubectl
 chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 # Install Heptio Authenticator
-go get -u github.com/heptio/authenticator/cmd/heptio-authenticator-aws
-export PATH=$PATH:$HOME/go/bin
+curl -o heptio-authenticator-aws https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws
+chmod +x ./heptio-authenticator-aws && sudo mv heptio-authenticator-aws /usr/local/bin/
 
 # Configure AWS CLI
 availability_zone=$(curl http://169.254.169.254/latest/meta-data/placement/availability-zone)
