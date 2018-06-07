@@ -141,6 +141,7 @@ The next step is link:../103-kubernetes-concepts[to learn about basic Kubernetes
 The sections below provide information on other capabilities of Kubernetes clusters.
 You are welcome to read and refer to them should you need to use those capabilities.
 
+anchor:multi-master[]
 == Alternative: Create a Kubernetes Cluster with kops
 
 This section will walk you through how to install a Kubernetes cluster on AWS using kops.
@@ -151,64 +152,6 @@ kops can be used to create a highly available cluster, with multiple master and 
 The master and worker nodes within the cluster can use either DNS or the https://github.com/weaveworks/mesh[Weave Mesh, window="_blank"] *gossip* protocol for name resolution.  For this workshop, we will use the gossip protocol.  A gossip-based cluster is easier and quicker to setup, and does not require a domain, subdomain, or Route53 hosted zone to be registered. Instructions for creating a DNS-based cluster are provided as an appendix at the bottom of this page.
 
 To create a cluster using the gossip protocol, simply use a cluster name with a suffix of `.k8s.local`. In the following steps, we will use `example.cluster.k8s.local` as a sample gossip cluster name. You may choose a different name as long as it ends with `.k8s.local`.
-
-We show two examples of creating gossip-based clusters below. You can choose whether to create a single-master or multi-master cluster. Most workshop exercises will work on both types of cluster, however some modules require using a multi-master cluster _(to demonstrate rolling updates, for instance)._ If you aren't sure, please create a xref:multi-master[multi-master cluster].
-
-=== Single-Master Cluster
-
-By default, the `kops create cluster` command creates a single master node and two worker nodes in the specified zones.
-
-Create a Kubernetes cluster using the following command. Run it in the "bash" terminal tab at the bottom of the Cloud9 IDE. This will create a cluster with a single master, multi-node and multi-az configuration:
-
-    $ kops create cluster \
-      --name example.cluster.k8s.local \
-      --zones $AWS_AVAILABILITY_ZONES \
-      --yes
-
-The `AWS_AVAILABILITY_ZONES` environment variable should have been set during the link:../101-start-here[Cloud9 Environment Setup].
-
-The `create cluster` command only creates and stores the cluster config in the S3 bucket. Adding the `--yes` flag ensures that the cluster is immediately created as well.
-
-Once the `kops create cluster` command is issued, it provisions the EC2 instances, sets up Auto Scaling Groups, IAM users, Security Groups, installs Kubernetes on each node, then configures the master and worker nodes. This process can take some time based upon the number of master and worker nodes.
-
-Note: If your 'create cluster' fails with an error like:
-```
-error reading s3://example-kops-state-store/example.cluster.k8s.local/config: Unable to list AWS regions: NoCredentialProviders: no valid providers in chain
-caused by: EnvAccessKeyNotFound: failed to find credentials in the environment."
-```
-Please confirm the following environment variables are set before executing the 'create cluster' command:
-```
-echo $AWS_DEFAULT_PROFILE
-echo $KOPS_STATE_STORE
-echo $AWS_SDK_LOAD_CONFIG
-```
-If any of those environment variables are blank, please re-run the "Build Script" section of the link:../101-start-here[Cloud9 Environment Setup].
-
-Wait for 5-8 minutes and then the cluster can be validated as shown:
-
-```
-$ kops validate cluster
-Using cluster from kubectl context: example.cluster.k8s.local
-
-Validating cluster example.cluster.k8s.local
-
-INSTANCE GROUPS
-NAME      ROLE  MACHINETYPE MIN MAX SUBNETS
-master-eu-central-1a Master  m3.medium 1 1 eu-central-1a
-nodes     Node  t2.medium 2 2 eu-central-1a,eu-central-1b
-
-NODE STATUS
-NAME        ROLE  READY
-ip-172-20-57-94.ec2.internal  master  True
-ip-172-20-63-55.ec2.internal  node  True
-ip-172-20-75-78.ec2.internal  node  True
-
-Your cluster example.cluster.k8s.local is ready
-```
-
-anchor:multi-master[]
-
-=== Multi-Master Cluster
 
 The command below creates a cluster in a multi-master, multi-node, and multi-az configuration.
 Run it in the "bash" terminal tab at the bottom of the Cloud9 IDE.
