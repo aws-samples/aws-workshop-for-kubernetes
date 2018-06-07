@@ -142,6 +142,7 @@ The sections below provide information on other capabilities of Kubernetes clust
 You are welcome to read and refer to them should you need to use those capabilities.
 
 anchor:multi-master[]
+
 == Alternative: Create a Kubernetes Cluster with kops
 
 This section will walk you through how to install a Kubernetes cluster on AWS using kops.
