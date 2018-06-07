@@ -1,23 +1,29 @@
 # IDE-Build script
 #title           lab-ide-build.sh
-#description     This script will make a header for a bash script.
-#author          salvot@amazon.com
-#date            2018-01-19
-#version         0.1
+#description     This script will setup the Cloud9 IDE with the prerequisite packages and code for the workshop.
+#author          @buzzsurfr
+#contributors    @buzzsurfr @dalbhanj @cloudymind
+#date            2018-05-12
+#version         0.2
 #usage           curl -sSL https://s3.amazonaws.com/lab-ide-theomazonian/lab-ide-build.sh | bash -s stable
-#notes           Install Vim and Emacs to use this script.
 #==============================================================================
 
 # Install jq
 sudo yum -y install jq
 
+# Update awscli
+sudo -H pip install -U awscli
+
 # Install bash-completion
 sudo yum install bash-completion -y
 
 # Install kubectl
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+curl -o kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/kubectl
 chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-echo "source <(kubectl completion bash)" >> ~/.bashrc
+
+# Install Heptio Authenticator
+curl -o heptio-authenticator-aws https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws
+chmod +x ./heptio-authenticator-aws && sudo mv heptio-authenticator-aws /usr/local/bin/
 
 # Install kops
 curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
@@ -39,13 +45,37 @@ export AWS_MASTER_STACK=${AWS_MASTER_STACK%?}
 export AWS_MASTER_STACK=${AWS_MASTER_STACK#aws-cloud9-}
 export KOPS_STATE_STORE=s3://$(aws cloudformation describe-stack-resource --stack-name $AWS_MASTER_STACK --logical-resource-id "KopsStateStore" | jq -r '.StackResourceDetail.PhysicalResourceId')
 
+# EKS-specific variables from CloudFormation
+export EKS_VPC_ID=$(aws cloudformation describe-stacks --stack-name $AWS_MASTER_STACK | jq -r '.Stacks[0].Outputs[]|select(.OutputKey=="EksVpcId")|.OutputValue')
+export EKS_SUBNET_IDS=$(aws cloudformation describe-stacks --stack-name $AWS_MASTER_STACK | jq -r '.Stacks[0].Outputs[]|select(.OutputKey=="EksVpcSubnetIds")|.OutputValue')
+export EKS_SECURITY_GROUPS=$(aws cloudformation describe-stacks --stack-name $AWS_MASTER_STACK | jq -r '.Stacks[0].Outputs[]|select(.OutputKey=="EksVpcSecurityGroups")|.OutputValue')
+export EKS_SERVICE_ROLE=$(aws cloudformation describe-stacks --stack-name $AWS_MASTER_STACK | jq -r '.Stacks[0].Outputs[]|select(.OutputKey=="EksServiceRoleArn")|.OutputValue')
+
 # Persist lab variables
 echo "AWS_AVAILABILITY_ZONES=$AWS_AVAILABILITY_ZONES" >> ~/.bash_profile
 echo "KOPS_STATE_STORE=$KOPS_STATE_STORE" >> ~/.bash_profile
 echo "export AWS_AVAILABILITY_ZONES KOPS_STATE_STORE" >> ~/.bash_profile
 
+# Persist EKS variables
+echo "EKS_VPC_ID=$EKS_VPC_ID" >> ~/.bash_profile
+echo "EKS_SUBNET_IDS=$EKS_SUBNET_IDS" >> ~/.bash_profile
+echo "EKS_SECURITY_GROUPS=$EKS_SECURITY_GROUPS" >> ~/.bash_profile
+echo "EKS_SERVICE_ROLE=$EKS_SERVICE_ROLE" >> ~/.bash_profile
+
+# EKS-Optimized AMI
+if [ "$AWS_DEFAULT_REGION" == "us-east-1" ]; then
+  export EKS_WORKER_AMI=ami-dea4d5a1
+elif [ "$AWS_DEFAULT_REGION" == "us-west-2" ]; then
+  export EKS_WORKER_AMI=ami-73a6e20b
+fi
+echo "EKS_WORKER_AMI=$EKS_WORKER_AMI" >> ~/.bash_profile
+
 # Create SSH key
 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+
+# Create EC2 Keypair
+aws ec2 create-key-pair --key-name ${AWS_STACK_NAME} --query 'KeyMaterial' --output text > $HOME/.ssh/k8s-workshop.pem
+chmod 0400 $HOME/.ssh/k8s-workshop.pem
 
 if [ ! -d "aws-workshop-for-kubernetes/" ]; then
   # Download lab Repository

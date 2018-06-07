@@ -14,7 +14,10 @@ Kubernetes as a platform has a number of abstractions that map to API objects. T
 
 == Prerequisites
 
-This chapter uses a cluster with 3 master nodes and 5 worker nodes as described link:../102-your-first-cluster#multi-master[here].
+This chapter uses an EKS cluster with worker nodes as described link:../102-your-first-cluster[here].
+
+[NOTE]
+This lab and future labs can be completed using the EKS cluster or the multi-master kops cluster. Some of the outputs may vary slightly if using the kops cluster.
 
 All configuration files for this chapter are in the `01-path-basics/103-kubernetes-concepts/templates` directory.
 Please be sure to `cd` into that directory before running the commands below.
@@ -29,17 +32,12 @@ This command will show all the nodes available in your kubernetes cluster:
 
 It will show an output similar to:
 
-    NAME                                           STATUS    ROLES     AGE      VERSION
-    ip-172-20-105-158.us-east-2.compute.internal   Ready     node      2d       v1.7.4
-    ip-172-20-124-26.us-east-2.compute.internal    Ready     master    2d       v1.7.4
-    ip-172-20-127-251.us-east-2.compute.internal   Ready     node      2d       v1.7.4
-    ip-172-20-52-35.us-east-2.compute.internal     Ready     master    2d       v1.7.4
-    ip-172-20-63-150.us-east-2.compute.internal    Ready     node      2d       v1.7.4
-    ip-172-20-71-14.us-east-2.compute.internal     Ready     node      2d       v1.7.4
-    ip-172-20-87-91.us-east-2.compute.internal     Ready     node      2d       v1.7.4
-    ip-172-20-94-153.us-east-2.compute.internal    Ready     master    2d       v1.7.4
+    NAME                                            STATUS    ROLES     AGE       VERSION
+    ip-192-168-160-85.us-west-2.compute.internal    Ready     <none>    10m       v1.10.3
+    ip-192-168-229-150.us-west-2.compute.internal   Ready     <none>    10m       v1.10.3
+    ip-192-168-79-105.us-west-2.compute.internal    Ready     <none>    10m       v1.10.3
 
-If you do not see this output, or receive an error, please ensure that you've followed the steps link:../102-your-first-cluster#multi-master[here] and have a validated cluster.
+If you do not see this output, or receive an error, please ensure that you've followed the steps link:../102-your-first-cluster[here] and have a validated cluster.
 
 === Create your first Pod
 
@@ -63,95 +61,70 @@ Get the list of running pods:
 Get additional details for the pod by using the `<pod-name>` from the above output:
 
 ```
-$ kubectl describe pod/nginx-4217019353-pmkzb
-kubectl describe pod/nginx-4217019353-pmkzb
-Name:           nginx-4217019353-pmkzb
+$ kubectl describe pod nginx-65899c769f-nd8qk
+Name:           nginx-65899c769f-nd8qk
 Namespace:      default
-Node:           ip-172-20-87-91.us-east-2.compute.internal/172.20.87.91
-Start Time:     Fri, 01 Dec 2017 16:36:48 -0800
-Labels:         pod-template-hash=4217019353
+Node:           ip-192-168-229-150.us-west-2.compute.internal/192.168.229.150
+Start Time:     Wed, 06 Jun 2018 11:55:08 +0000
+Labels:         pod-template-hash=2145573259
                 run=nginx
-Annotations:    kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"nginx-4217019353","uid":"e161abe9-d6f8-11e7-af8f-06c4465216f2","...
-                kubernetes.io/limit-ranger=LimitRanger plugin set: cpu request for container nginx
+Annotations:    <none>
 Status:         Running
-IP:             100.96.7.19
-Created By:     ReplicaSet/nginx-4217019353
-Controlled By:  ReplicaSet/nginx-4217019353
+IP:             192.168.217.248
+Controlled By:  ReplicaSet/nginx-65899c769f
 Containers:
   nginx:
-    Container ID:   docker://2def6a6dc1594c337748abf6160ff81fab9fa6d734aca02b5f1afc4d395edc6b
+    Container ID:   docker://fae3055b8829a6395d60a4f78cc38e6d4d7439dfb9b13e3e2c7bea2c550bee68
     Image:          nginx
-    Image ID:       docker-pullable://nginx@sha256:b81f317384d7388708a498555c28a7cce778a8f291d90021208b3eba3fe74887
+    Image ID:       docker-pullable://nginx@sha256:6be552b9a3c4762ae34962ddcb0e1aed3dfd0513860a846777182030b1a1bd0c
     Port:           <none>
+    Host Port:      <none>
     State:          Running
-      Started:      Fri, 01 Dec 2017 16:36:52 -0800
+      Started:      Wed, 06 Jun 2018 11:55:14 +0000
     Ready:          True
     Restart Count:  0
-    Requests:
-      cpu:        100m
-    Environment:  <none>
+    Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-cqht0 (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-prvj5 (ro)
 Conditions:
   Type           Status
   Initialized    True
   Ready          True
   PodScheduled   True
 Volumes:
-  default-token-cqht0:
+  default-token-prvj5:
     Type:        Secret (a volume populated by a Secret)
-    SecretName:  default-token-cqht0
+    SecretName:  default-token-prvj5
     Optional:    false
-QoS Class:       Burstable
+QoS Class:       BestEffort
 Node-Selectors:  <none>
-Tolerations:     node.alpha.kubernetes.io/notReady:NoExecute for 300s
-                 node.alpha.kubernetes.io/unreachable:NoExecute for 300s
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
 Events:
-  Type    Reason                 Age   From                                                 Message
-  ----    ------                 ----  ----                                                 -------
-  Normal  Scheduled              46s   default-scheduler                                    Successfully assigned nginx-4217019353-pmkzb to ip-172-20-87-91.us-east-2.compute.internal
-  Normal  SuccessfulMountVolume  46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  MountVolume.SetUp succeeded for volume "default-token-cqht0"
-  Normal  Pulling                46s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  pulling image "nginx"
-  Normal  Pulled                 42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Successfully pulled image "nginx"
-  Normal  Created                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Created container
-  Normal  Started                42s   kubelet, ip-172-20-87-91.us-east-2.compute.internal  Started container
-
+  Type    Reason                 Age   From                                                    Message
+  ----    ------                 ----  ----                                                    -------
+  Normal  Scheduled              1m    default-scheduler                                       Successfully assigned nginx-65899c769f-nd8qk to ip-192-168-229-150.us-west-2.compute.internal
+  Normal  SuccessfulMountVolume  1m    kubelet, ip-192-168-229-150.us-west-2.compute.internal  MountVolume.SetUp succeeded for volume "default-token-prvj5"
+  Normal  Pulling                1m    kubelet, ip-192-168-229-150.us-west-2.compute.internal  pulling image "nginx"
+  Normal  Pulled                 1m    kubelet, ip-192-168-229-150.us-west-2.compute.internal  Successfully pulled image "nginx"
+  Normal  Created                1m    kubelet, ip-192-168-229-150.us-west-2.compute.internal  Created container
+  Normal  Started                1m    kubelet, ip-192-168-229-150.us-west-2.compute.internal  Started container
 ```
 
 By default, pods are created in a `default` namespace. In addition, a `kube-system` namespace is also reserved for Kubernetes system pods. A list of all the pods in `kube-system` namespace can be displayed as shown:
 
 ```
-$ kubectl get pods --namespace kube-system
-NAME                                                                  READY     STATUS    RESTARTS   AGE
-dns-controller-3497129722-4pxd6                                       1/1       Running   0          28d
-etcd-server-events-ip-172-20-124-26.us-east-2.compute.internal        1/1       Running   0          28d
-etcd-server-events-ip-172-20-52-35.us-east-2.compute.internal         1/1       Running   0          28d
-etcd-server-events-ip-172-20-94-153.us-east-2.compute.internal        1/1       Running   0          28d
-etcd-server-ip-172-20-124-26.us-east-2.compute.internal               1/1       Running   0          28d
-etcd-server-ip-172-20-52-35.us-east-2.compute.internal                1/1       Running   0          28d
-etcd-server-ip-172-20-94-153.us-east-2.compute.internal               1/1       Running   0          28d
-kube-apiserver-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
-kube-apiserver-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
-kube-apiserver-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
-kube-controller-manager-ip-172-20-124-26.us-east-2.compute.internal   1/1       Running   0          28d
-kube-controller-manager-ip-172-20-52-35.us-east-2.compute.internal    1/1       Running   0          28d
-kube-controller-manager-ip-172-20-94-153.us-east-2.compute.internal   1/1       Running   0          28d
-kube-dns-1311260920-jgl0m                                             3/3       Running   0          28d
-kube-dns-1311260920-tvpmp                                             3/3       Running   0          28d
-kube-dns-autoscaler-1818915203-5kxrb                                  1/1       Running   0          28d
-kube-proxy-ip-172-20-105-158.us-east-2.compute.internal               1/1       Running   0          28d
-kube-proxy-ip-172-20-124-26.us-east-2.compute.internal                1/1       Running   0          28d
-kube-proxy-ip-172-20-127-251.us-east-2.compute.internal               1/1       Running   0          28d
-kube-proxy-ip-172-20-52-35.us-east-2.compute.internal                 1/1       Running   0          28d
-kube-proxy-ip-172-20-63-150.us-east-2.compute.internal                1/1       Running   0          28d
-kube-proxy-ip-172-20-71-14.us-east-2.compute.internal                 1/1       Running   0          28d
-kube-proxy-ip-172-20-87-91.us-east-2.compute.internal                 1/1       Running   0          28d
-kube-proxy-ip-172-20-94-153.us-east-2.compute.internal                1/1       Running   0          28d
-kube-scheduler-ip-172-20-124-26.us-east-2.compute.internal            1/1       Running   0          28d
-kube-scheduler-ip-172-20-52-35.us-east-2.compute.internal             1/1       Running   0          28d
-kube-scheduler-ip-172-20-94-153.us-east-2.compute.internal            1/1       Running   0          28d
-tiller-deploy-1114875906-k2pj2                                        1/1       Running   0          28d
+$ kubectl get pods --namespace=kube-system
+NAME                       READY     STATUS    RESTARTS   AGE
+aws-node-76w4v             1/1       Running   0          16m
+aws-node-m55x9             1/1       Running   1          16m
+aws-node-wxd2z             1/1       Running   0          16m
+kube-dns-7cc87d595-d95l5   3/3       Running   0          1h
+kube-proxy-dq4jx           1/1       Running   0          16m
+kube-proxy-kq5f9           1/1       Running   0          16m
+kube-proxy-rgxn7           1/1       Running   0          16m
 ```
+
 Again, the exact output may vary but your results should look similar to these.
 
 === Get logs from the pod
@@ -174,7 +147,6 @@ This opens a bash shell and allows you to look around the filesystem of the cont
 Delete all the Kubernetes resources created so far:
 
     $ kubectl delete deployment/nginx
-
 
 In the next sections, we will go into more detail about Pods, Deployments, and other commonly used Kubernetes objects.
 
@@ -869,51 +841,61 @@ Get more details about the service:
 ```
 $ kubectl get service
 NAME           TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)        AGE
-echo-service   LoadBalancer   100.66.161.199   ad0b47976b7fe...   80:30125/TCP   40s
-kubernetes     ClusterIP      100.64.0.1       <none>             443/TCP        1h
+echo-service   LoadBalancer   10.100.114.136   aefc2ab9c6985...   80:30730/TCP   12m
+kubernetes     ClusterIP      10.100.0.1       <none>             443/TCP        1h
 $ kubectl describe service echo-service
 Name:                     echo-service
 Namespace:                default
 Labels:                   <none>
-Annotations:              kubernetes.io/change-cause=kubectl create --filename=templates/service.yaml --record=true
+Annotations:              kubernetes.io/change-cause=kubectl create --filename=service.yaml --record=true
 Selector:                 app=echo-pod
 Type:                     LoadBalancer
-IP:                       100.66.161.199
-LoadBalancer Ingress:     ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
+IP:                       10.100.114.136
+LoadBalancer Ingress:     aefc2ab9c698511e88f6106a0b8e1215-513633583.us-west-2.elb.amazonaws.com
 Port:                     http  80/TCP
 TargetPort:               8080/TCP
-NodePort:                 http  30125/TCP
-Endpoints:                100.96.3.8:8080,100.96.4.9:8080,100.96.5.9:8080
+NodePort:                 http  30730/TCP
+Endpoints:                192.168.165.191:8080,192.168.193.104:8080,192.168.97.237:8080
 Session Affinity:         None
 External Traffic Policy:  Cluster
 Events:
   Type    Reason                Age   From                Message
   ----    ------                ----  ----                -------
-  Normal  CreatingLoadBalancer  58s   service-controller  Creating load balancer
-  Normal  CreatedLoadBalancer   56s   service-controller  Created load balancer
+  Normal  EnsuringLoadBalancer  16s   service-controller  Ensuring load balancer
+  Normal  EnsuredLoadBalancer   14s   service-controller  Ensured load balancer
 ```
 
-The output shows `LoadBalancer Ingress` as the addres of an Elastic Load Balancer (ELB). It takes about 2-3 minutes for the ELB to be provisioned and be available. Wait for a couple of minutes, and then access the service:
+The output shows `LoadBalancer Ingress` as the address of an Elastic Load Balancer (ELB). It takes about 2-3 minutes for the ELB to be provisioned and be available. Wait for a couple of minutes, and then access the service:
 
 ```
-$ curl http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
-CLIENT VALUES:
-client_address=172.20.45.253
-command=GET
-real path=/
-query=nil
-request_version=1.1
-request_uri=http://ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com:8080/
+curl aefc2ab9c698511e88f6106a0b8e1215-513633583.us-west-2.elb.amazonaws.com
 
-SERVER VALUES:
-server_version=nginx: 1.10.0 - lua: 10001
 
-HEADERS RECEIVED:
-accept=*/*
-host=ad0b47976b7fe11e7a8870e55a29a6a9-1770422890.us-east-1.elb.amazonaws.com
-user-agent=curl/7.51.0
-BODY:
--no body in request-
+Hostname: echo-deployment-7bcf9557cc-bfdls
+
+Pod Information:
+        -no pod information available-
+
+Server values:
+        server_version=nginx: 1.13.3 - lua: 10008
+
+Request Information:
+        client_address=192.168.79.105
+        method=GET
+        real path=/
+        query=
+        request_version=1.1
+        request_scheme=http
+        request_uri=http://aefc2ab9c698511e88f6106a0b8e1215-513633583.us-west-2.elb.amazonaws.com:8080/
+
+Request Headers:
+        accept=*/*
+        host=aefc2ab9c698511e88f6106a0b8e1215-513633583.us-west-2.elb.amazonaws.com
+        user-agent=curl/7.53.1
+
+Request Body:
+        -no body in request-
+
 ```
 
 Note the `client_address` value shown in the output. This is the IP address of the pod serving the request. Multiple invocations of this command will show different values for this attribute.
@@ -972,7 +954,7 @@ Get basic details about the DaemonSet:
 
 	$ kubectl get daemonsets/prometheus-daemonset
 	NAME                   DESIRED   CURRENT   READY     UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
-	prometheus-daemonset   5         5         5         5            5           <none>          7s
+	prometheus-daemonset   3         3         3         3            3           <none>          7s
 
 Get more details about the DaemonSet:
 
@@ -984,12 +966,12 @@ Node-Selector:  <none>
 Labels:         name=prometheus-exporter
                 tier=monitoring
 Annotations:    kubernetes.io/change-cause=kubectl create --filename=templates/daemonset.yaml --record=true
-Desired Number of Nodes Scheduled: 5
-Current Number of Nodes Scheduled: 5
-Number of Nodes Scheduled with Up-to-date Pods: 5
-Number of Nodes Scheduled with Available Pods: 5
+Desired Number of Nodes Scheduled: 3
+Current Number of Nodes Scheduled: 3
+Number of Nodes Scheduled with Up-to-date Pods: 3
+Number of Nodes Scheduled with Available Pods: 3
 Number of Nodes Misscheduled: 0
-Pods Status:  5 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pods Status:  3 Running / 0 Waiting / 0 Succeeded / 0 Failed
 Pod Template:
   Labels:  name=prometheus-exporter
            tier=monitoring
@@ -1006,8 +988,6 @@ Events:
   Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-pzfl8
   Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-sjcgh
   Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-ctrg4
-  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-rxg79
-  Normal  SuccessfulCreate  28s   daemon-set  Created pod: prometheus-daemonset-cnbkh
 ```
 
 Get pods in the DaemonSet:
@@ -1015,10 +995,8 @@ Get pods in the DaemonSet:
 ```
 $ kubectl get pods -lname=prometheus-exporter
 NAME                         READY     STATUS    RESTARTS   AGE
-prometheus-daemonset-cnbkh   1/1       Running   0          57s
 prometheus-daemonset-ctrg4   1/1       Running   0          57s
 prometheus-daemonset-pzfl8   1/1       Running   0          57s
-prometheus-daemonset-rxg79   1/1       Running   0          57s
 prometheus-daemonset-sjcgh   1/1       Running   0          57s
 ```
 
@@ -1029,10 +1007,8 @@ Verify that the Prometheus pod was successfully deployed to the cluster nodes:
 	$ kubectl get pods -o wide
 	NAME                         READY     STATUS    RESTARTS   AGE       IP            NODE
 	prometheus-daemonset-sjcgh   1/1       Running   0          1m        100.96.7.10   ip-172-20-52-200.ec2.internal
-	prometheus-daemonset-cnbkh   1/1       Running   0          1m        100.96.3.10   ip-172-20-57-5.ec2.internal
 	prometheus-daemonset-ctrg4   1/1       Running   0          1m        100.96.6.10   ip-172-20-64-152.ec2.internal
 	prometheus-daemonset-pzfl8   1/1       Running   0          1m        100.96.5.10   ip-172-20-125-181.ec2.internal
-	prometheus-daemonset-rxg79   1/1       Running   0          1m        100.96.4.9    ip-172-20-107-81.ec2.internal
 
 Rename one of the node labels as follows:
 
@@ -1281,11 +1257,7 @@ This job prints the current timestamp and the message "`Hello World`" every minu
 
 Create the Cron Job as shown in the command:
 
-	$ kubectl create -f cronjob.yaml --validate=false
-
-`--validate=false` is required because kubectl CLI version is 1.8. Without this option, you'll get the error:
-
-	error: error validating "cronjob.yaml": error validating data: unknown object type schema.GroupVersionKind{Group:"batch", Version:"v2alpha1", Kind:"CronJob"}; if you choose to ignore these errors, turn validation off with --validate=false
+	$ kubectl create -f cronjob.yaml
 
 Watch the status of the job as shown:
 
