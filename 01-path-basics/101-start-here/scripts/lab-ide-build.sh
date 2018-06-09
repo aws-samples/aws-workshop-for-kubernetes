@@ -52,15 +52,15 @@ export EKS_SECURITY_GROUPS=$(aws cloudformation describe-stacks --stack-name $AW
 export EKS_SERVICE_ROLE=$(aws cloudformation describe-stacks --stack-name $AWS_MASTER_STACK | jq -r '.Stacks[0].Outputs[]|select(.OutputKey=="EksServiceRoleArn")|.OutputValue')
 
 # Persist lab variables
-echo "AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> ~/.bashrc
-echo "AWS_AVAILABILITY_ZONES=$AWS_AVAILABILITY_ZONES" >> ~/.bashrc
-echo "KOPS_STATE_STORE=$KOPS_STATE_STORE" >> ~/.bashrc
+echo "export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> ~/.bashrc
+echo "export AWS_AVAILABILITY_ZONES=$AWS_AVAILABILITY_ZONES" >> ~/.bashrc
+echo "export KOPS_STATE_STORE=$KOPS_STATE_STORE" >> ~/.bashrc
 
 # Persist EKS variables
-echo "EKS_VPC_ID=$EKS_VPC_ID" >> ~/.bashrc
-echo "EKS_SUBNET_IDS=$EKS_SUBNET_IDS" >> ~/.bashrc
-echo "EKS_SECURITY_GROUPS=$EKS_SECURITY_GROUPS" >> ~/.bashrc
-echo "EKS_SERVICE_ROLE=$EKS_SERVICE_ROLE" >> ~/.bashrc
+echo "export EKS_VPC_ID=$EKS_VPC_ID" >> ~/.bashrc
+echo "export EKS_SUBNET_IDS=$EKS_SUBNET_IDS" >> ~/.bashrc
+echo "export EKS_SECURITY_GROUPS=$EKS_SECURITY_GROUPS" >> ~/.bashrc
+echo "export EKS_SERVICE_ROLE=$EKS_SERVICE_ROLE" >> ~/.bashrc
 
 # EKS-Optimized AMI
 if [ "$AWS_DEFAULT_REGION" == "us-east-1" ]; then
@@ -68,7 +68,7 @@ if [ "$AWS_DEFAULT_REGION" == "us-east-1" ]; then
 elif [ "$AWS_DEFAULT_REGION" == "us-west-2" ]; then
   export EKS_WORKER_AMI=ami-73a6e20b
 fi
-echo "EKS_WORKER_AMI=$EKS_WORKER_AMI" >> ~/.bashrc
+echo "export EKS_WORKER_AMI=$EKS_WORKER_AMI" >> ~/.bashrc
 
 # Create SSH key
 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
