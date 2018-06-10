@@ -676,6 +676,12 @@ Check the logs of the Pod:
 
 This shows that the Java application has been able to read both the NAME and GREETING secrets from AWS Parameter Store.
 
+== Secrets using AWS Secrets Manager
+
+=== Update the IAM role
+=== Create secrets
+=== Consume secrets in a Pod
+
 == Secrets using Vault
 
 https://www.vaultproject.io/[Hashicorp Vault] is a tool for managing secrets. It secures, stores and tightly controls access to tokens, passwords, certificates, API keys and other secrets.
