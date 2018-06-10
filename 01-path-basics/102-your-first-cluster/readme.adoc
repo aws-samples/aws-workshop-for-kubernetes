@@ -12,6 +12,16 @@ Amazon EKS runs the Kubernetes management infrastructure for you across multiple
 
 If you have not set up the link:../101-start-here[Cloud9 Development Environment, window="_blank"] yet, please do so before continuing.
 
+== Setup AWS Region
+
+If you deployed your Cloud9 IDE in any region not supported by EKS, you will need to set the default region to a region supported by EKS. Otherwise use the region in which you deployed your Cloud9 IDE as default region.
+
+  $ aws configure
+    AWS Access Key ID [None]:
+    AWS Secret Access Key [None]: 
+    Default region name [None]: <aws_region>
+    Default output format [None]: json
+    
 == Create a Kubernetes Cluster with EKS
 
 EKS can be used to create a highly available cluster, with multiple master nodes spread across multiple availability zones.
