@@ -54,7 +54,7 @@ Once the cluster has moved to the `ACTIVE` state, download and run the `create-k
     chmod +x create-kubeconfig.sh && \
     . ./create-kubeconfig.sh
 
-This will create a configuration file at `$HOME/.kube/config-k8s-workshop` and update the necessary environment variable for default access.
+This will create a configuration file at `$HOME/.kube/config` and update the necessary environment variable for default access.
 
 === Create the worker nodes
 
