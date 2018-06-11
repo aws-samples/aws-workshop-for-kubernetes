@@ -684,6 +684,8 @@ AWS Secrets Manager enables you to easily rotate, manage, and retrieve database 
 
 === Update the IAM role for EKS or `kops` Kubernetes Cluster
 
+In this guide, we will create the secret in the US-West (Oregon) `us-west-2` region. AWS Secrets Manager is available in most AWS regions
+
 ==== EKS Kubernetes Cluster
 EC2 worker nodes use `NodeInstanceRole` created in Step 3 of the https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html[EKS Getting Started guide]. This role must be updated to allow the worked nodes to read the secrets from Secrets Manager.
 
@@ -699,7 +701,7 @@ In the IAM Console, click `roles` and type `NodeInstanceRole` and click it. In t
                     "secretsmanager:DescribeSecret"
                 ],
                 "Resource": [
-                    "arn:aws:secretsmanager:<region>:<account-id>:secret:<secret-name>"
+                    "arn:aws:secretsmanager:us-west-2:<account-id>:secret:<secret-name>"
                 ]
             }
         ]
@@ -723,7 +725,7 @@ and click it. In the `Permissions` tab, expand the inline policy for `nodes.exam
                     "secretsmanager:DescribeSecret"
                 ],
                 "Resource": [
-                    "arn:aws:secretsmanager:<region>:<account-id>:secret:<secret-name>"
+                    "arn:aws:secretsmanager:us-west-2:<account-id>:secret:<secret-name>"
                 ]
             }
         ]
@@ -767,8 +769,9 @@ Check the logs of the Pod:
 
 Clean up:
 
-  $ kubectl delete -f templates/pod-secretsmanager.yaml
-  $ aws secretsmanager delete-secret --secret-id testsecret --region us-west-2
+  - $ kubectl delete -f templates/pod-secretsmanager.yaml
+  - $ aws secretsmanager delete-secret --secret-id testsecret --region us-west-2
+  - Delete IAM role policy updates for AWS Secrets Manager
 
 == Secrets using Vault
 
