@@ -54,6 +54,7 @@ export EKS_SERVICE_ROLE=$(aws cloudformation describe-stacks --stack-name $AWS_M
 # Persist lab variables
 echo "AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> ~/.bashrc
 echo "AWS_AVAILABILITY_ZONES=$AWS_AVAILABILITY_ZONES" >> ~/.bashrc
+echo "AWS_MASTER_STACK=$AWS_MASTER_STACK" >> ~/.bashrc
 echo "KOPS_STATE_STORE=$KOPS_STATE_STORE" >> ~/.bashrc
 
 # Persist EKS variables
