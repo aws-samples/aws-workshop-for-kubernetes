@@ -678,9 +678,9 @@ This shows that the Java application has been able to read both the NAME and GRE
 
 == Secrets using AWS Secrets Manager
 
-This section will show how to create a secret using AWS Secrets Manager and access it in a Pod.
+This section will show how to create a secret using https://aws.amazon.com/secrets-manager/[AWS Secrets Manager] and access the secret in a Pod.
 
-AWS Secrets Manager enables you to easily rotate, manage, and retrieve database credentials, API keys, and other secrets throughout their lifecycle. The service integrates with KMS, which uses a https://aws.amazon.com/blogs/security/aws-key-management-service-now-offers-fips-140-2-validated-cryptographic-modules-enabling-easier-adoption-of-the-service-for-regulated-workloads/[FIPS 140-2 validated Hardware Security Module], to provide robust key management controls for protection of the secret. It also integrates with AWS IAM and AWS CloudTrail to provide fine-grained access, audit and alerting integration.
+AWS Secrets Manager enables you to easily rotate, manage, and retrieve database credentials, API keys, and other secrets throughout their lifecycle. The service integrates with KMS, which uses a https://aws.amazon.com/blogs/security/aws-key-management-service-now-offers-fips-140-2-validated-cryptographic-modules-enabling-easier-adoption-of-the-service-for-regulated-workloads/[FIPS 140-2 validated Hardware Security Module], to provide robust key management controls to secure the secret. AWS Secrets Manager also integrates with AWS IAM and AWS CloudTrail to provide fine-grained access, audit and alerting integration.
 
 === Update the IAM role for EKS or `kops` Kubernetes Cluster
 
