@@ -769,8 +769,8 @@ Check the logs of the Pod:
 
 Clean up:
 
-  - $ kubectl delete -f templates/pod-secretsmanager.yaml
-  - $ aws secretsmanager delete-secret --secret-id testsecret --region us-west-2
+  - `$ kubectl delete -f templates/pod-secretsmanager.yaml`
+  - `$ aws secretsmanager delete-secret --secret-id testsecret --region us-west-2`
   - Delete IAM role policy updates for AWS Secrets Manager
 
 == Secrets using Vault
