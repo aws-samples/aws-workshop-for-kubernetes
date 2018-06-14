@@ -20,6 +20,7 @@ sudo yum install bash-completion -y
 # Install kubectl
 curl -o kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/kubectl
 chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 # Install Heptio Authenticator
 curl -o heptio-authenticator-aws https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws
