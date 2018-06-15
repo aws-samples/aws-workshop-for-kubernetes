@@ -18,9 +18,9 @@ Heapster is limited to Kuberenetes container metrics, it is not general use. Hea
 
 == Prerequisites
 
-This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster].
+In order to effectively perform the monitoring exercises in this chapter, make sure you have an EKS cluster running based on link:../../01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[Create A Kubernetes Cluster Using EKS].
 
-All configuration files for this chapter are in the `cluster-monitoring` directory. Make sure you change to that directory before giving any commands in this chapter.
+All configuration files for this chapter are in the link:templates[201-cluster-monitoring/templates] directory.
 
 == Kubernetes Dashboard
 
