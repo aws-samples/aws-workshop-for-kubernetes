@@ -1,11 +1,14 @@
 'use strict';
 
+require('dotenv').config();
+
 var AWS = require('aws-sdk'),
-              endpoint = "https://secretsmanager.us-west-2.amazonaws.com",
-              region = "us-west-2",
-              secretName = "testsecret",
+              endpoint = process.env.ENDPOINT,
+              region = process.env.REGION,
+              secretName = process.env.SECRETNAME,
               secret = "",
               binarySecretData = "";
+
 
 // Constants
 var client = new AWS.SecretsManager({
@@ -36,11 +39,5 @@ client.getSecretValue({SecretId: secretName}, function(err, data) {
   }
 
   // Your code goes here.
-  console.log(`Secret retrieved from AWS SecretsManager: ${secretName} is ${secret}`);
+  console.log(`Secret retrieved from AWS SecretsManager: The Secret ${secretName} has SecretString ${secret}`);
 });
-
-
-
-
-
-

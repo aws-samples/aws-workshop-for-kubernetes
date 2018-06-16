@@ -678,13 +678,11 @@ This shows that the Java application has been able to read both the NAME and GRE
 
 == Secrets using AWS Secrets Manager
 
-This section will show how to create a secret using https://aws.amazon.com/secrets-manager/[AWS Secrets Manager] and access the secret in a Pod.
+In this section, we will create a secret using https://aws.amazon.com/secrets-manager/[AWS Secrets Manager] in the region of choice, and access the secret in a Node.js application deployed within Kubernetes pod. AWS Secrets Manager is available in https://docs.aws.amazon.com/general/latest/gr/rande.html#asm_region[most AWS regions].
 
 AWS Secrets Manager enables you to easily rotate, manage, and retrieve database credentials, API keys, and other secrets throughout their lifecycle. The service integrates with KMS, which uses a https://aws.amazon.com/blogs/security/aws-key-management-service-now-offers-fips-140-2-validated-cryptographic-modules-enabling-easier-adoption-of-the-service-for-regulated-workloads/[FIPS 140-2 validated Hardware Security Module], to provide robust key management controls to secure the secret. AWS Secrets Manager also integrates with AWS IAM and AWS CloudTrail to provide fine-grained access, audit and alerting integration.
 
 === Update the IAM role for EKS or `kops` Kubernetes Cluster
-
-In this guide, we will create the secret in the US-West (Oregon) `us-west-2` region. AWS Secrets Manager is available in most AWS regions
 
 ==== EKS Kubernetes Cluster
 EC2 worker nodes use `NodeInstanceRole` created in Step 3 of the https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html[EKS Getting Started guide]. This role must be updated to allow the worked nodes to read the secrets from Secrets Manager.
@@ -733,19 +731,23 @@ and click it. In the `Permissions` tab, expand the inline policy for `nodes.exam
 
 === Create secrets
 
-. Create a secret key-value pair using https://docs.aws.amazon.com/cli/latest/reference/secretsmanager/create-secret.html[AWS Secrets Manager CLI].
+. Create a secret key-value pair using https://docs.aws.amazon.com/cli/latest/reference/secretsmanager/create-secret.html[AWS Secrets Manager CLI]. Replace `<SECRETNAME>` and `<REGION>` with your preference.
 
-  aws secretsmanager create-secret --name testsecret --description "EKS/kops Demo Secret" --secret-string [{"testkey":"testvalue"}] --region us-west-2
+  aws secretsmanager create-secret --name <SECRETNAME> --description "EKS/kops Demo Secret" --secret-string [{"testkey1":"testvalue1"},{"testkey2":"testvalue2"}] --region <REGION>
 
-. Get the value of created secret using https://docs.aws.amazon.com/cli/latest/reference/secretsmanager/get-secret-value.html[GetSecretValue] API call
+. Get the value of created secret using https://docs.aws.amazon.com/cli/latest/reference/secretsmanager/get-secret-value.html[GetSecretValue] API call.
 
-  aws secretsmanager get-secret-value --secret-id testsecret --region us-west-2
+  aws secretsmanager get-secret-value --secret-id <SECRETNAME> --region <REGION>
+
+. For the selected `<REGION>`, AWS Secrets Manager `<ENDPOINT>` can be determined from https://docs.aws.amazon.com/general/latest/gr/rande.html#asm_region[AWS Documentation].
+
+. Note the `ENDPOINT`, `REGION` and `SECRETNAME` values. They will be passed as environment variables in a `.yaml` file described in the next section.
 
 === Consume secrets in a Pod
 
-The directory images/sec_mgr_app contains a Node.js application that reads secrets from AWS Secrets Manager from the US-West (Oregon) `us-west-2` region. This application is then packaged as a Pod and deployed in the cluster.
+The Github repository directory `images/sec_mgr_app` contains a Node.js sample application that reads a secret from AWS Secrets Manager from specified region. This application is then packaged as a Pod and deployed in the cluster.
 
-The Pod configuration is shown below:
+The Pod configuration is shown below. The `ENDPOINT`, `REGION` and `SECRETNAME` variables are passed as environment variables to the docker image. Change the values of these environment variables to match the values used during creation of secret in AWS Secrets Manager.
 
     apiVersion: v1
     kind: Pod
@@ -755,22 +757,29 @@ The Pod configuration is shown below:
       containers:
       - name: pod-secretsmanager
         image: paavanmistry/node-aws-sm-demo:latest
+        env:
+          - name: ENDPOINT
+            value: "https://secretsmanager.us-west-2.amazonaws.com"
+          - name: REGION
+            value: "us-west-2"
+          - name: SECRETNAME
+            value: "sm-demo-secret"
       restartPolicy: Never
 
 Create the Pod:
 
   $ kubectl apply -f templates/pod-secretsmanager.yaml
-  pod "pod-parameter-store" configured
+  pod "pod-secretsmanager" configured
 
 Check the logs of the Pod:
 
   $ kubectl logs pod-secretsmanager
-  Secret retrieved from AWS SecretsManager: testsecret is {testkey}:{testvalue}
+  Secret retrieved from AWS SecretsManager: The Secret <SECRETNAME> is [{testkey1}:{testvalue1},{testkey2:testvalue2}]
 
 Clean up:
 
   - `$ kubectl delete -f templates/pod-secretsmanager.yaml`
-  - `$ aws secretsmanager delete-secret --secret-id testsecret --region us-west-2`
+  - `$ aws secretsmanager delete-secret --secret-id $SECRETNAME --region $REGION`
   - Delete IAM role policy updates for AWS Secrets Manager
 
 == Secrets using Vault
