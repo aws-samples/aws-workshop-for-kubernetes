@@ -311,7 +311,7 @@ Watch the status of the Pod:
 
 `OOMKilled` shows that the container was terminated because it ran out of memory.
 
-In `pod-resources2.yaml`, change the value of `spec.containers[].resources.limits.memory` to `300Mi`. Delete the existing Pod, and create a new one:
+In `pod-resources2.yaml`, confirm that the value of `spec.containers[].resources.limits.memory` is `300Mi`. Delete the existing Pod, and create a new one:
 
 	$ kubectl delete -f pod-resources1.yaml
 	pod "wildfly-pod" deleted
@@ -1540,8 +1540,14 @@ It shows only three replicas are available.
 +
 . More details can be found:
 +
-	$ kubectl get deployment/nginx-deployment -o jsonpath={.status.conditions[].message}
-	Deployment does not have minimum availability.
+	$ kubectl describe deployment nginx-deployment
+        ...
+        Conditions:
+          Type             Status  Reason
+          ----             ------  ------
+          Progressing      True    NewReplicaSetAvailable
+          Available        False   MinimumReplicasUnavailable
+          ReplicaFailure   True    FailedCreate
 +
 The current reason is displayed in the output.
 
