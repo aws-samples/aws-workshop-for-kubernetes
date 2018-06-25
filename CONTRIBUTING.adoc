@@ -30,7 +30,7 @@ So that we are able to assist you as effectively as possible with the issue, ple
   * Expected behavior of the workshop and the actual behavior exhibited.
   * Any details of your application environment that may be relevant.
   * Commands and output used to reproduce the issue.
-* [Markdown][markdown] formatting as appropriate to make the report easier to read; for example use code blocks when pasting a code snippet and exception stacktraces.
+* link:https://guides.github.com/features/mastering-markdown/[Markdown] formatting as appropriate to make the report easier to read; for example use code blocks when pasting a code snippet and exception stacktraces.
 
 === Tracking your Bug Report
 You will automatically be notified of any changes to a bug report. Either a maintainer or a community member may comment on the bug report requiring further input. We encourage all contributors to stay active on their bug reports reports. This helps the community to focus on issues with more influence and activity.
