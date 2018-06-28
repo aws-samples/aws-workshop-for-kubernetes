@@ -66,7 +66,7 @@ To launch your worker nodes, run the following CloudFormation CLI command:
       --stack-name k8s-workshop-worker-nodes \
       --template-url https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/amazon-eks-nodegroup.yaml \
       --capabilities "CAPABILITY_IAM" \
-      --parameters "[{\"ParameterKey\": \"KeyName\", \"ParameterValue\": \"${AWS_MASTER_STACK}\"},
+      --parameters "[{\"ParameterKey\": \"KeyName\", \"ParameterValue\": \"${AWS_STACK_NAME}\"},
                      {\"ParameterKey\": \"NodeImageId\", \"ParameterValue\": \"${EKS_WORKER_AMI}\"},
                      {\"ParameterKey\": \"ClusterName\", \"ParameterValue\": \"k8s-workshop\"},
                      {\"ParameterKey\": \"NodeGroupName\", \"ParameterValue\": \"k8s-workshop-nodegroup\"},
@@ -74,7 +74,7 @@ To launch your worker nodes, run the following CloudFormation CLI command:
                      {\"ParameterKey\": \"VpcId\", \"ParameterValue\": \"${EKS_VPC_ID}\"},
                      {\"ParameterKey\": \"Subnets\", \"ParameterValue\": \"${EKS_SUBNET_IDS}\"}]"
 
-The `AWS_MASTER_STACK`, `EKS_WORKER_AMI`, `EKS_VPC_ID`, `EKS_SUBNET_IDS`, and `EKS_SECURITY_GROUPS` environment variables should have been set during the link:../101-start-here[Cloud9 Environment Setup].
+The `AWS_STACK_NAME`, `EKS_WORKER_AMI`, `EKS_VPC_ID`, `EKS_SUBNET_IDS`, and `EKS_SECURITY_GROUPS` environment variables should have been set during the link:../101-start-here[Cloud9 Environment Setup].
 
 Node provisioning usually takes less than 5 minutes. You can query the status of your cluster with the following command. When your cluster status is `CREATE_COMPLETE`, you can proceed.
 
