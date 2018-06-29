@@ -119,7 +119,7 @@ Ensure that you have deleted all services, etc from the `default` namespace befo
 
 === Using EKS
 
-==== Delete EKS worker nodeds
+==== Delete EKS worker nodes
 
 Go to CloudFormation console, right click template with name 'k8s-workshop-worker-nodes' and select 'Delete Stack'
 
