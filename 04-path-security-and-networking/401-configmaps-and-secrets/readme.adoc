@@ -676,6 +676,112 @@ Check the logs of the Pod:
 
 This shows that the Java application has been able to read both the NAME and GREETING secrets from AWS Parameter Store.
 
+== Secrets using AWS Secrets Manager
+
+In this section, we will create a secret using https://aws.amazon.com/secrets-manager/[AWS Secrets Manager] in the region of choice, and access the secret in a Node.js application deployed within Kubernetes pod. AWS Secrets Manager is available in https://docs.aws.amazon.com/general/latest/gr/rande.html#asm_region[most AWS regions].
+
+AWS Secrets Manager enables you to easily rotate, manage, and retrieve database credentials, API keys, and other secrets throughout their lifecycle. The service integrates with KMS, which uses a https://aws.amazon.com/blogs/security/aws-key-management-service-now-offers-fips-140-2-validated-cryptographic-modules-enabling-easier-adoption-of-the-service-for-regulated-workloads/[FIPS 140-2 validated Hardware Security Module], to provide robust key management controls to secure the secret. AWS Secrets Manager also integrates with AWS IAM and AWS CloudTrail to provide fine-grained access, audit and alerting integration.
+
+=== Update the IAM role for EKS or `kops` Kubernetes Cluster
+
+==== EKS Kubernetes Cluster
+EC2 worker nodes use `NodeInstanceRole` created in Step 3 of the https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html[EKS Getting Started guide]. This role must be updated to allow the worked nodes to read the secrets from Secrets Manager.
+
+In the IAM Console, click `roles` and type `NodeInstanceRole` and click it. In the Permissions tab, expand the inline policy and click `Edit policy`. Add the `secretsManager:GetSecretValue` permission to the policy so the policy looks similar to the one below.
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "secretsmanager:GetSecretValue",
+                    "secretsmanager:DescribeSecret"
+                ],
+                "Resource": [
+                    "arn:aws:secretsmanager:us-west-2:<account-id>:secret:<secret-name>"
+                ]
+            }
+        ]
+    }
+
+==== `kops` Kubernetes Cluster
+
+EC2 worker nodes use an instance profile to allow the EC2 node instances to access other AWS services. This role must be updated to allow the worker nodes to read the secrets from Secrets Manager.
+
+In the IAM Console click `roles` and type `nodes` into the search box. Find the `nodes.example.cluster.k8s.local` role
+and click it. In the `Permissions` tab, expand the inline policy for `nodes.example.cluster.k8s.local` and click
+`Edit policy`.
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "secretsmanager:GetSecretValue",
+                    "secretsmanager:DescribeSecret"
+                ],
+                "Resource": [
+                    "arn:aws:secretsmanager:us-west-2:<account-id>:secret:<secret-name>"
+                ]
+            }
+        ]
+    }
+
+=== Create secrets
+
+. Create a secret key-value pair using https://docs.aws.amazon.com/cli/latest/reference/secretsmanager/create-secret.html[AWS Secrets Manager CLI]. Replace `<SECRETNAME>` and `<REGION>` with your preference.
+
+  aws secretsmanager create-secret --name <SECRETNAME> --description "EKS/kops Demo Secret" --secret-string [{"testkey1":"testvalue1"},{"testkey2":"testvalue2"}] --region <REGION>
+
+. Get the value of created secret using https://docs.aws.amazon.com/cli/latest/reference/secretsmanager/get-secret-value.html[GetSecretValue] API call.
+
+  aws secretsmanager get-secret-value --secret-id <SECRETNAME> --region <REGION>
+
+. For the selected `<REGION>`, AWS Secrets Manager `<ENDPOINT>` can be determined from https://docs.aws.amazon.com/general/latest/gr/rande.html#asm_region[AWS Documentation].
+
+. Note the `ENDPOINT`, `REGION` and `SECRETNAME` values. They will be passed as environment variables in a `.yaml` file described in the next section.
+
+=== Consume secrets in a Pod
+
+The Github repository directory `images/sec_mgr_app` contains a Node.js sample application that reads a secret from AWS Secrets Manager from specified region. This application is then packaged as a Pod and deployed in the cluster.
+
+The Pod configuration is shown below. The `ENDPOINT`, `REGION` and `SECRETNAME` variables are passed as environment variables to the docker image. Change the values of these environment variables to match the values used during creation of secret in AWS Secrets Manager.
+
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: pod-secretsmanager
+    spec:
+      containers:
+      - name: pod-secretsmanager
+        image: paavanmistry/node-aws-sm-demo:latest
+        env:
+          - name: ENDPOINT
+            value: "https://secretsmanager.us-west-2.amazonaws.com"
+          - name: REGION
+            value: "us-west-2"
+          - name: SECRETNAME
+            value: "sm-demo-secret"
+      restartPolicy: Never
+
+Create the Pod:
+
+  $ kubectl apply -f templates/pod-secretsmanager.yaml
+  pod "pod-secretsmanager" configured
+
+Check the logs of the Pod:
+
+  $ kubectl logs pod-secretsmanager
+  Secret retrieved from AWS SecretsManager: The Secret <SECRETNAME> is [{testkey1}:{testvalue1},{testkey2:testvalue2}]
+
+Clean up:
+
+  - `$ kubectl delete -f templates/pod-secretsmanager.yaml`
+  - `$ aws secretsmanager delete-secret --secret-id $SECRETNAME --region $REGION`
+  - Delete IAM role policy updates for AWS Secrets Manager
+
 == Secrets using Vault
 
 https://www.vaultproject.io/[Hashicorp Vault] is a tool for managing secrets. It secures, stores and tightly controls access to tokens, passwords, certificates, API keys and other secrets.
