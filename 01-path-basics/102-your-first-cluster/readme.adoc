@@ -1,4 +1,4 @@
-= Create A Kubernetes Cluster Using EKS
+= Create A Kubernetes Cluster
 :toc:
 :icons:
 :linkattrs:
@@ -11,6 +11,30 @@ link:https://aws.amazon.com/eks/[Amazon Elastic Container Service for Kubernetes
 Amazon EKS runs the Kubernetes management infrastructure for you across multiple AWS availability zones to eliminate a single point of failure. Amazon EKS is certified Kubernetes conformant so you can use existing tooling and plugins from partners and the Kubernetes community. Applications running on any standard Kubernetes environment are fully compatible and can be easily migrated to Amazon EKS.
 
 If you have not set up the link:../101-start-here[Cloud9 Development Environment, window="_blank"] yet, please do so before continuing.
+
+== Permissions
+
+In order to complete the exercises in the workshop, you'll need the proper IAM permissions set.
+
+=== Cloud9 IDE
+When performing the exercises through the Cloud9 IDE (recommended), permissions are automatically created for when you link:https://github.com/aws-samples/aws-workshop-for-kubernetes/tree/master/01-path-basics/101-start-here#create-aws-cloud9-environment[deploy the Cloud9 environment and run the build script].
+
+The IAM role assumed by the Cloud9 IDE will have a name similar to **k8s-workshop-LabIdeRole-xxxx**, and contain the following managed policies:
+
+* AmazonEC2FullAccess
+* IAMFullAccess
+* AmazonS3FullAccess
+* AmazonVPCFullAccess
+* AWSCloudFormationReadOnlyAccess
+* AmazonRoute53FullAccess
+
+The EKS service role will have a name similar to **k8s-workshop2-EksServiceR-AWSServiceRoleForAmazonE-xxx**, and contain the following managed policies:
+
+* AmazonEKSClusterPolicy
+* AmazonEKSServicePolicy
+
+=== kops
+If you prefer to use kops to perform the exercises, link:https://github.com/kubernetes/kops/blob/master/docs/aws.md#setup-iam-user[a summary of permissions can be found here].
 
 == Create a Kubernetes Cluster with EKS
 
