@@ -258,7 +258,17 @@ Prometheus is now scraping metrics from the different scraping targets and we fo
   $ kubectl port-forward $(kubectl get po -l prometheus=prometheus -n monitoring -o jsonpath={.items[0].metadata.name}) 9090 -n monitoring
   Forwarding from 127.0.0.1:9090 -> 9090
 
-Now open the browser at http://localhost:9090/targets and all targets should be shown as `UP` (it might take a couple of minutes until data collectors are up and running for the first time). The browser displays the output as shown:
+Now open the browser at http://localhost:9090/targets.
+
+If you are running this in the Cloud9 IDE, you will need to run the following to be able to visualize your dashboard:
+
+  $ kubectl port-forward $(kubectl get po -l prometheus=prometheus -n monitoring -o jsonpath={.items[0].metadata.name}) 8080:9090 -n monitoring
+  Forwarding from 127.0.0.1:8080 -> 9090
+  Forwarding from [::1]:8080 -> 9090
+
+The dashboard will be available at https://<ENV_ID>.vfs.cloud9.<REGION_ID>.amazonaws.com/targets.
+
+All targets should be shown as `UP` (it might take a couple of minutes until data collectors are up and running for the first time). The browser displays the output as shown:
 
 image::monitoring-grafana-prometheus-dashboard-1.png[]
 image::monitoring-grafana-prometheus-dashboard-2.png[]
@@ -287,7 +297,17 @@ Lets forward the grafana dashboard to a local port:
   $ kubectl port-forward $(kubectl get pod -l app=grafana -o jsonpath={.items[0].metadata.name} -n monitoring) 3000 -n monitoring
   Forwarding from 127.0.0.1:3000 -> 3000
 
-Grafana dashboard is now accessible at http://localhost:3000/. The complete list of dashboards is available using the search button at the top:
+Grafana dashboard is now accessible at http://localhost:3000/.
+
+If you are running this in the Cloud9 IDE, you will need to run the following to be able to visualize your dashboard:
+
+  $ kubectl port-forward $(kubectl get pod -l app=grafana -o jsonpath={.items[0].metadata.name} -n monitoring) 8080:3000 -n monitoring
+  Forwarding from 127.0.0.1:8080 -> 3000
+  Forwarding from [::1]:8080 -> 3000
+
+The dashboard will be available at https://<ENV_ID>.vfs.cloud9.<REGION_ID>.amazonaws.com/.
+
+The complete list of dashboards is available using the search button at the top:
 
 image::monitoring-grafana-prometheus-dashboard-dashboard-home.png[]
 
@@ -315,6 +335,8 @@ Convenient link for other dashboards are listed below:
 * http://localhost:3000/dashboard/db/kubernetes-cluster-health?refresh=10s&orgId=1
 * http://localhost:3000/dashboard/db/kubernetes-resource-requests?orgId=1
 * http://localhost:3000/dashboard/db/pods?orgId=1
+
+(For Cloud9 users, just replace `http://localhost:3000/` by `https://<ENV_ID>.vfs.cloud9.<REGION_ID>.amazonaws.com/`
 
 === Cleanup
 
