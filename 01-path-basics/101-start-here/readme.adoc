@@ -195,7 +195,7 @@ Your AWS Cloud9 environment comes with many useful tools preinstalled, but there
 
 === Configure the AWS CLI
 
-Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user. Make sure you are logged in as a user with link:aws-permissions.adoc[these permissions.]
+Your AWS Cloud9 environment comes with the AWS CLI preinstalled and configured to automatically use the credentials of the currently logged in user. For a better understanding of the roles and policies that make up these credentials, link:../102-your-first-cluster#permissions[check out the permissions section.]
 
 [NOTE]
 *********************
