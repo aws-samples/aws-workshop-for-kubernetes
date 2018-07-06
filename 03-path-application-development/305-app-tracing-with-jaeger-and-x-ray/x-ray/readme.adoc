@@ -6,7 +6,7 @@ This chapter will explain how to use https://aws.amazon.com/xray/[AWS X-Ray] to 
 == Pre-requisites
 
 In order to perform exercises in this chapter, you’ll need to deploy configurations to a Kubernetes cluster. To create an EKS-based Kubernetes cluster, use the link:/01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[AWS CLI] (recommended). If you wish to create a Kubernetes cluster without EKS, you can instead use link:/01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[kops].
-Your will need AWS CLI and Docker installed on your desktop.
+You will need AWS CLI and Docker installed on your desktop.
 
 The AWS Region where you deployed Kubernetes must have the following services:
 
