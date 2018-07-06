@@ -8,7 +8,7 @@ This chapter shows an example of how different microservices within an applicati
 
 == Prerequisites
 
-This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../../01-path-basics/102-your-first-cluster#multi-master-cluster[multi-master cluster].
+In order to perform exercises in this chapter, you’ll need to deploy configurations to a Kubernetes cluster. To create an EKS-based Kubernetes cluster, use the link:../../01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[AWS CLI] (recommended). If you wish to create a Kubernetes cluster without EKS, you can instead use link:../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[kops].
 
 All configuration files for this chapter are in the `microservices` directory. Make sure you change to that directory before giving any commands in this chapter.
 
