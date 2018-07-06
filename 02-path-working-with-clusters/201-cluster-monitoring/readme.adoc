@@ -18,7 +18,7 @@ Heapster is limited to Kuberenetes container metrics, it is not general use. Hea
 
 == Prerequisites
 
-In order to perform exercises in this chapter, you'll need to deploy configurations to an EKS cluster.  To create an EKS cluster, use the link:../../01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[AWS CLI] (recommended), or alternatively, link:../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[kops].
+In order to perform exercises in this chapter, you’ll need to deploy configurations to a Kubernetes cluster. To create an EKS-based Kubernetes cluster, use the link:../../01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[AWS CLI] (recommended). If you wish to create a Kubernetes cluster without EKS, you can instead use link:../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[kops].
 
 All configuration files for this chapter are in the link:templates[201-cluster-monitoring/templates] directory.
 
