@@ -1,4 +1,4 @@
-*Issue #, if available:*
+*Issue #, if available (include [keywords](https://help.github.com/articles/closing-issues-using-keywords/) to close issue as applicable, e.g. "fixes <##>"):*
 
 *Description of changes:*
 
