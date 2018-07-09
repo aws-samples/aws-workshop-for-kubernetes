@@ -8,13 +8,13 @@
 
 This chapter will demonstrate how to monitor a Kubernetes cluster using the following:
 
-. Kubernetes Dashboard
-. Heapster, InfluxDB and Grafana
-. Prometheus, Node exporter and Grafana
+. Datadog
+. Full stack application in python with MongoDB, Redis, NGINX.
 
-http://prometheus.io/[Prometheus] is an open-source systems monitoring and alerting toolkit. Prometheus collects metrics from monitored targets by scraping metrics from HTTP endpoints on these targets.
+Datadog is a monitoring service for cloud-scale applications, providing monitoring of servers, databases, tools, and services, through a SaaS-based data analytics platform.
+It gives a unified view of an entire stack, allowing to seamlessly monitor metrics, application traces as well as logs.
 
-Heapster is limited to Kuberenetes container metrics, it is not general use. Heapster can be used as Prometheus scrape target.
+
 
 == Prerequisites
 
@@ -22,328 +22,228 @@ In order to perform exercises in this chapter, you'll need to deploy configurati
 
 All configuration files for this chapter are in the link:templates[201-cluster-monitoring/templates] directory.
 
-== Kubernetes Dashboard
+== Getting Started with Datadog
 
-https://github.com/kubernetes/dashboard[Kubernetes Dashboard] is a general purpose web-based UI for Kubernetes clusters.
+=== Collecting Data
 
-The Dashboard uses the https://kubernetes.io/docs/admin/authorization/rbac/[RBAC API], which has been promoted in
-Kubernetes v1.8 to GA rather than Beta, so you'll use a different version of
-the dashboard depending on the version of Kubernetes you are running. Check your Kubernetes version using the following command -
-check the value of the `Server Version`, which is v1.7.4 in this example:
+Monitoring starts by collecting data, so we can first start by taking a look at [the integration page](https://app.datadoghq.com/account/settings). On this page you can see the list of technologies Datadog integrates with.
+From cloud providers like AWS, Google Cloud or Azure to tools like chef, puppet or ansible including all the different technos from each layer of the application stack.
+Databases like Postegres, Mysql. Webservers like NGINX, HAProxy and so on and so forth.
 
-    kubectl version
+Today, we will be using:
+- Kubernetes
+- Docker
+- NGINX
+- MongoDB
+- Redis
+- Python
 
-    $ kubectl version
-    Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.0", GitCommit:"6e937839ac04a38cac63e6a7a306c5d035fe7b0a", GitTreeState:"clean", BuildDate:"2017-09-28T22:57:57Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"darwin/amd64"}
-    Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+There are multiple ways to collect data - The first one is via our https://github.com/DataDog/datadog-agent[agent].
+We will deploy the agent on all the nodes of our EKS cluster. It will run as a pod, along side our application.
 
-If you are using v1.7.x, deploy the Dashboard using the following command:
+Another option is with the Datadog API, and lastly, using our crawler based integration such as AWS, GCP...
 
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/6dc75162dce25b5a94aa500ebba923e8223e5cfd/src/deploy/recommended/kubernetes-dashboard.yaml
+=== Data sources
 
-If you are using v1.8 or above, deploy the Dashboard using the following command:
+Datadog is capable to collect metrics, application traces as well as logs.
+Throughout the UI, you will be able to go back and forth between the three of them.
+You can refer to the specific documentation of each:
 
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+- https://docs.datadoghq.com/developers/metrics/[Metrics]
+- https://docs.datadoghq.com/tracing/[Tracing]
+- https://docs.datadoghq.com/logs/[Logs]
 
-Dashboard can be seen using the following command:
+In this workshop we will be playing with all of them.
 
-    kubectl proxy --address 0.0.0.0 --accept-hosts '.*' --port 8080
+=== Visualizing Data
 
-Now, Dashboard is accessible via `Preview`, `Preview Running Application` as:
+Start by logging into your Datadog account at https://app.datadoghq.com.
+On the navigation bar, located on the left of your screen, you should be able to see different items, that we will be using later on.
+First of all, the Dashboard section:
 
-    https://ENVIRONMENT_ID.vfs.cloud9.REGION_ID.amazonaws.com/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+image::datadogdashboards.png[]
 
-Where `ENVIRONMENT_ID` is your Cloud9 IDE environment id (you should see it once click the built-in browser address bar) and `REGION_ID` is AWS region id (e.g. us-east-1).
+Dashboards are used to visualize and correlate metrics, traces or logs.
+As you enable an integration (i.e. configure your agents to report data from Postgres or configure the AWS integration) out of the box dashboards will be created for you.
+You can also create your custom dashboards, they are highly flexible.
 
-Starting with Kubernetes 1.7, Dashboard supports authentication. Read more about it at https://github.com/kubernetes/dashboard/wiki/Access-control#introduction. We'll use a bearer token for authentication.
+image::coffeehouse.png[]
 
-Check existing secrets in the `kube-system` namespace:
+=== Monitoring Data
 
-    kubectl -n kube-system get secret
+The last part is monitoring.
+On the [monitoring page](https://app.datadoghq.com/monitors#/create), you will be welcomed with a number of options depending on what you want to monitor.
 
-It shows the output as:
+In the following screenshot you can see that we are creating a monitor for logs. Specifying the source, the status and the count of logs to trigger the alert.
 
-  NAME                                     TYPE                                  DATA      AGE
-  attachdetach-controller-token-dhkcr      kubernetes.io/service-account-token   3         3h
-  certificate-controller-token-p131b       kubernetes.io/service-account-token   3         3h
-  daemon-set-controller-token-r4mmp        kubernetes.io/service-account-token   3         3h
-  default-token-7vh0x                      kubernetes.io/service-account-token   3         3h
-  deployment-controller-token-jlzkj        kubernetes.io/service-account-token   3         3h
-  disruption-controller-token-qrx2v        kubernetes.io/service-account-token   3         3h
-  dns-controller-token-v49b6               kubernetes.io/service-account-token   3         3h
-  endpoint-controller-token-hgkbm          kubernetes.io/service-account-token   3         3h
-  generic-garbage-collector-token-34fvc    kubernetes.io/service-account-token   3         3h
-  horizontal-pod-autoscaler-token-lhbkf    kubernetes.io/service-account-token   3         3h
-  job-controller-token-c2s8j               kubernetes.io/service-account-token   3         3h
-  kube-dns-autoscaler-token-s3svx          kubernetes.io/service-account-token   3         3h
-  kube-dns-token-92xzb                     kubernetes.io/service-account-token   3         3h
-  kube-proxy-token-0ww14                   kubernetes.io/service-account-token   3         3h
-  kubernetes-dashboard-certs               Opaque                                2         9m
-  kubernetes-dashboard-key-holder          Opaque                                2         9m
-  kubernetes-dashboard-token-vt0fd         kubernetes.io/service-account-token   3         10m
-  namespace-controller-token-423gh         kubernetes.io/service-account-token   3         3h
-  node-controller-token-r6lsr              kubernetes.io/service-account-token   3         3h
-  persistent-volume-binder-token-xv30g     kubernetes.io/service-account-token   3         3h
-  pod-garbage-collector-token-fwmv4        kubernetes.io/service-account-token   3         3h
-  replicaset-controller-token-0cg8r        kubernetes.io/service-account-token   3         3h
-  replication-controller-token-3fwxd       kubernetes.io/service-account-token   3         3h
-  resourcequota-controller-token-6rl9f     kubernetes.io/service-account-token   3         3h
-  route-controller-token-9brzb             kubernetes.io/service-account-token   3         3h
-  service-account-controller-token-bqlsk   kubernetes.io/service-account-token   3         3h
-  service-controller-token-1qlg6           kubernetes.io/service-account-token   3         3h
-  statefulset-controller-token-kmgzg       kubernetes.io/service-account-token   3         3h
-  ttl-controller-token-vbnhf               kubernetes.io/service-account-token   3         3h
+image::logmonitor.png[]
 
-We can login using the secret with type 'kubernetes.io/namespace-controller-token'. In our case, we'll use the token from secret `namespace-controller-token-423gh` to login. Use the following command to get the token for this secret:
 
-    kubectl -n kube-system describe secret namespace-controller-token-423gh
+== Workshop
 
-Note you'll need to replace `namespace-controller-token-423gh` with the namespace-controller-token from your output list.
+=== Monitoring
 
-It shows the output:
+The goal of this workshop is to set up a full stack application on EKS and see how each layer of the stack can be monitored with the agent.
+
+Start by taking a look at the link:../201-cluster-monitoring/templates/datadog/agent.yaml[manifest to run the agent].
+Insert a Datadog API Key that can be found in your https://app.datadoghq.com/account/settings#api[Datadog account] in the `value: <DD_API_KEY>` placeholder.
+
+Then from the current directory, just run:
+
+  $ kubectl apply -f templates/datadog/agent.yaml
+
+TODO add output
+
+As this manifest is a DaemonSet, this will deploy an agent on all your nodes. The agent will live inside a pod.
+
+=== The Database
+
+From the https://kubernetes.io/blog/2017/01/running-mongodb-on-kubernetes-with-statefulsets/[Kubernetes Blog] on deploying a MongoDB StatefulSet on Kubernetes:
+To set up the MongoDB replica set, you need three things: A StorageClass, a Headless Service, and a StatefulSet.
+We will start by creating a StorageClass to tell Kubernetes what kind of storage to use for the database nodes.
+In this case, we will rely on EBS GP2s to store our data.
+
+  $ kubectl apply -f templates/mongodb/storageclass.yaml
+
+TODO add output
+
+Once the storage is ready, we can spin up our MongoDB with 3 replicas.
+
+  $ kubectl apply -f templates/mongodb/mongo.yaml
+
+TODO add output
+
+Note that this will create a service which will operate as a headless loadbalancer in front of the DBs.
+This will also generate Persistent Volume Claims, these should appear as EBS volumes in your AWS account.
+
+Finally, for the sake of monitoring, we are going to create a user in the Primary, which will be used by the agent to collect data.
+
+You can run the following command:
+
+  $ kubectl exec -it mongo-1 -- sh -c 'mongo admin --host localhost --eval "db.createUser({ user: \"datadog\", pwd: \"tndPhL3wrMEDuj4wLEHmbxbV\", roles: [ {role: \"read\", db: \"admin\"}, {role: \"clusterMonitor\", db:\"admin\"},{role: \"read\", db: \"local\" } ] });"'
+
+=== The cache
+
+We will be leveraging Redis to cache data.
+TODO more details about Redis
+
+You can run
+
+ $ kubectl apply -f templates/redis/redis.yaml
+
+Which will create a redis pod and a headless service in front of it
+
+=== Deploy the application
+
+Now is time to deploy your application.
+
+ $ kubectl apply -f templates/webapp/webapp.yaml
+
+This will create a pod running the application as well as a service in front of it.
+
+This webapp is an interface to spin up scenarii, where different parts of the stack are stimulated and the impact of each expecrience can be visualized in the Datadog app.
+
+=== Exposing your app
+
+Now is time to see the result of your labor.
+
+Spin up the nginx manifest, this will create a webserver that will front the application as well as a service.
+The service, as opposed to the above services is configured to be a LoadBalancer. Therefore, it will spin up an ELB and will make a public DNS that will be exposed to the world.
+
+ $ kubectl apply -f templates/nginx/nginx.yaml
+
+This will also create a ConfigMap used to store the nginx config as an ETCD object instead of a physical file. The benefit is that the file does not have to be present on each node.
+
+Now, take a look at your LoadBalancer being configured:
+
+ $ kubectl describe svc nginx-deployment
 
 ```
-Name:         namespace-controller-token-423gh
-Namespace:    kube-system
-Labels:       <none>
-Annotations:  kubernetes.io/service-account.name=default
-              kubernetes.io/service-account.uid=3a3fea86-b3a1-11e7-9d90-06b1e747c654
-
-Type:  kubernetes.io/service-account-token
-
-Data
-====
-ca.crt:     1046 bytes
-namespace:  11 bytes
-token:      eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLTd2aDB4Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIzYTNmZWE4Ni1iM2ExLTExZTctOWQ5MC0wNmIxZTc0N2M2NTQiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06ZGVmYXVsdCJ9.GHW-7rJcxmvujkClrN6heOi_RYlRivzwb4ScZZgGyaCR9tu2V0Z8PE5UR6E_3Vi9iBCjuO6L6MLP641bKoHB635T0BZymJpSeMPQ7t1F02BsnXAbyDFfal9NUSV7HoPAhlgURZWQrnWojNlVIFLqhAPO-5T493SYT56OwNPBhApWwSBBGdeF8EvAHGtDFBW1EMRWRt25dSffeyaBBes5PoJ4SPq4BprSCLXPdt-StPIB-FyMx1M-zarfqkKf7EJKetL478uWRGyGNNhSfRC-1p6qrRpbgCdf3geCLzDtbDT2SBmLv1KRjwMbW3EF4jlmkM4ZWyacKIUljEnG0oltjA
+Name:                     nginx-deployment
+Namespace:                default
+Labels:                   <none>
+Annotations:              kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"nginx-deployment","namespace":"default"},"spec":{"ports":[{"name":"nginx","por...
+Selector:                 role=nginx
+Type:                     LoadBalancer
+IP:                       10.100.29.226
+LoadBalancer Ingress:     a973c485a832811e8b84c06bfcd83c35-831258848.us-west-2.elb.amazonaws.com
+Port:                     nginx  80/TCP
+TargetPort:               80/TCP
+NodePort:                 nginx  31675/TCP
+Endpoints:                192.168.159.101:80,192.168.197.28:80,192.168.70.107:80
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:
+  Type    Reason                Age   From                Message
+  ----    ------                ----  ----                -------
+  Normal  EnsuringLoadBalancer  22m   service-controller  Ensuring load balancer
+  Normal  EnsuredLoadBalancer   22m   service-controller  Ensured load balancer
 ```
 
-Copy the value of token from this output, select `Token` in the Dashboard login window, and paste the text. Click on `SIGN IN` to see the default Dashboard view:
+Going to the Load Balancer Ingress indicated should show the following page:
 
-image::kubernetes-dashboard-default.png[]
+image::webapp.png[]
 
-Click on `Nodes` to see a textual representation about the nodes running in the cluster:
 
-image::monitoring-nodes-before.png[]
+== Monitoring
 
-Install a Java application as explained in link:../../03-path-application-development/306-app-management-with-helm[Deploying applications using Kubernetes Helm charts].
+=== Metrics
 
-Click on `Pods`, again to see a textual representation about the pods running in the cluster:
+Open the host map, go to the container map
+You can open the container live view
 
-image::monitoring-pods-before.png[]
+Then, go the the redis dashboard and mongo db ?
 
-This will change after Heapster, InfluxDB and Grafana are installed.
+The agent is collecting the metrics from these via the Autodiscovery process.
+It works with Annotations in this case.
 
-== Heapster, InfluxDB and Grafana
 
-https://github.com/kubernetes/heapster[Heapster] is a metrics aggregator and processor. It is installed as a cluster-wide pod. It gathers monitoring and events data for all containers on each node by talking to the Kubelet. Kubelet itself fetches this data from https://github.com/google/cadvisor[cAdvisor]. This data is persisted in a time series database https://github.com/influxdata/influxdb[InfluxDB] for storage. The data is then visualized using a http://grafana.org/[Grafana] dashboard, or it can be viewed in Kubernetes Dashboard.
+=== Logs
 
-Heapster collects and interprets various signals like compute resource usage, lifecycle events, etc., and exports cluster metrics via REST endpoints.
+Let's stress the cache of our app and see the logs.
 
-Heapster, InfluxDB and Grafana are http://kubernetes.io/docs/admin/addons/[Kubernetes addons].
+Go on to the redis metric that surges, click to see the related logs.
+We can also see logs about mongo, redis, the app.
 
-=== Installation
+=== Traces
 
-Execute this command to install Heapster, InfluxDB and Grafana:
+Now, let's run the infinite demo.
+from the logs, let's look at the traces.
 
-  $ kubectl apply -f templates/heapster/
-  deployment "monitoring-grafana" created
-  service "monitoring-grafana" created
-  clusterrolebinding "heapster" created
-  serviceaccount "heapster" created
-  deployment "heapster" created
-  service "heapster" created
-  deployment "monitoring-influxdb" created
-  service "monitoring-influxdb" created
+At this point, you can stop the infinite demo.
 
-Heapster is now aggregating metrics from the cAdvisor instances running on each node. This data is stored in an InfluxDB instance running in the cluster. Grafana dashboard, accessible at https://ENVIRONMENT_ID.vfs.cloud9.REGION_ID.amazonaws.com/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1, now shows the information about the cluster.
+We recommend letting the agents up, as the next steps of the workshop will also have a monitoring section.
 
-NOTE: Grafana dashboard will not be available if Kubernetes proxy is not running. If proxy is not running, it can be started with the command `kubectl proxy --address 0.0.0.0 --accept-hosts '.*' --port 8080`.
+=== Setting up some monitors
 
-=== Grafana dashboard
+* Monitoring the Infrastructure
 
-There are some built-in dashboards for monitoring the cluster and workloads. They are available by clicking on the upper left corner of the screen.
+* Monitoring the DB
 
-image::monitoring-grafana-dashboards.png[]
+* Monitoring the cache
 
-The "`Cluster`" dashboard shows all worker nodes, and their CPU and memory metrics. Type in a node name to see its collected metrics during a chosen period of time.
+* Monitoring the Webserver
 
-The cluster dashboard looks like this:
+* Monitoring the app (with traces and logs)
 
-image::monitoring-grafana-dashboards-cluster.png[]
+== Going Further
 
-The "`Pods`"" dashboard allows you to see the resource utilization of every pod in the cluster. As with nodes, you can select the pod by typing its name in the top filter box.
+Create DCA ?
 
-image::monitoring-grafana-dashboards-pods.png[]
 
-After the deployment of Heapster, Kubernetes Dashboard now shows additional graphs such as CPU and Memory utilization for pods and nodes, and other workloads.
-
-The updated view of the cluster in Kubernetes Dashboard looks like this:
-
-image::monitoring-nodes-after.png[]
-
-The updated view of pods looks like this:
-
-image::monitoring-pods-after.png[]
-
+At this point,
 === Cleanup
 
 Remove all the installed components:
 
-    kubectl delete -f templates/heapster/
+    kubectl delete -f templates/datadog
+    kubectl delete -f templates/mongo
+    kubectl delete -f templates/redis
+    kubectl delete -f templates/nginx
+    kubectl delete -f templates/webapp
 
-== Prometheus, Node exporter and Grafana
-
-http://prometheus.io/[Prometheus] is an open-source systems monitoring and alerting toolkit. Prometheus collects metrics from monitored targets by scraping metrics from HTTP endpoints on these targets.
-
-Prometheus will be managed by the https://github.com/coreos/prometheus-operator/[Kubernetes Operator] - This operator uses https://kubernetes.io/docs/concepts/api-extension/custom-resources/[Custom Resources] to extend the Kubernetes API and add custom resources such as `Prometheus`, `ServiceMonitor` and `Alertmanager`.
-
-Prometheus is able to dynamically scrape new targets by adding a https://github.com/coreos/prometheus-operator/blob/master/Documentation/user-guides/running-exporters.md[ServiceMonitor] - we have included a couple of them to scrape `kube-controller-manager`, `kube-scheduler`, `kube-state-metrics`, `kubelet` and `node-exporter`.
-
-https://github.com/prometheus/node_exporter[Node exporter] is a Prometheus exporter for hardware and OS metrics exposed by *NIX kernels.
-https://github.com/kubernetes/kube-state-metrics[kube-state-metrics] is a simple service that listens to the Kubernetes API server and generates metrics about the state of the objects.
-
-=== Installation
-
-First we need to deploy the Prometheus Operator which will listen for the new Custom Resources:
-
-  $ kubectl apply -f templates/prometheus/prometheus-bundle.yaml
-  namespace "monitoring" created
-  clusterrolebinding "prometheus-operator" created
-  clusterrole "prometheus-operator" created
-  serviceaccount "prometheus-operator" created
-  deployment "prometheus-operator" created
-
-Next we need to wait until the Prometheus Operator has started:
-
-
-  $ kubectl rollout status deployment/prometheus-operator -n monitoring
-  ...
-  deployment "prometheus-operator" successfully rolled out
-
-As a final step we need to deploy the Prometheus Custom Resource, Service Monitors, Cluster Roles and Bindings (RBAC):
-
-  $ kubectl apply -f templates/prometheus/prometheus.yaml
-  serviceaccount "kube-state-metrics" created
-  clusterrole "kube-state-metrics" created
-  clusterrolebinding "kube-state-metrics" created
-  service "kube-scheduler-prometheus-discovery" created
-  service "kube-controller-manager-prometheus-discovery" created
-  daemonset "node-exporter" created
-  service "node-exporter" created
-  deployment "kube-state-metrics" created
-  service "kube-state-metrics" created
-  prometheus "prometheus" created
-  servicemonitor "prometheus-operator" created
-  servicemonitor "kube-apiserver" created
-  servicemonitor "kubelet" created
-  servicemonitor "kube-controller-manager" created
-  servicemonitor "kube-scheduler" created
-  servicemonitor "kube-state-metrics" created
-  servicemonitor "node-exporter" created
-  alertmanager "main" created
-  secret "alertmanager-main" created
-
-Lets wait for prometheus to come up:
-
-  $ kubectl get po -l prometheus=prometheus -n monitoring
-  NAME                      READY     STATUS    RESTARTS   AGE
-  prometheus-prometheus-0   2/2       Running   0          1m
-  prometheus-prometheus-1   2/2       Running   0          1m
-
-=== Prometheus Dashboard
-
-Prometheus is now scraping metrics from the different scraping targets and we forward the dashboard via:
-
-  $ kubectl port-forward $(kubectl get po -l prometheus=prometheus -n monitoring -o jsonpath={.items[0].metadata.name}) 9090 -n monitoring
-  Forwarding from 127.0.0.1:9090 -> 9090
-
-Now open the browser at http://localhost:9090/targets.
-
-If you are running this in the Cloud9 IDE, you will need to run the following to be able to visualize your dashboard:
-
-  $ kubectl port-forward $(kubectl get po -l prometheus=prometheus -n monitoring -o jsonpath={.items[0].metadata.name}) 8080:9090 -n monitoring
-  Forwarding from 127.0.0.1:8080 -> 9090
-  Forwarding from [::1]:8080 -> 9090
-
-The dashboard will be available at https://<ENV_ID>.vfs.cloud9.<REGION_ID>.amazonaws.com/targets.
-
-All targets should be shown as `UP` (it might take a couple of minutes until data collectors are up and running for the first time). The browser displays the output as shown:
-
-image::monitoring-grafana-prometheus-dashboard-1.png[]
-image::monitoring-grafana-prometheus-dashboard-2.png[]
-image::monitoring-grafana-prometheus-dashboard-3.png[]
-
-=== Grafana Installation
-
-To install grafana we need to run:
-
-  $ kubectl apply -f templates/prometheus/grafana-bundle.yaml
-  secret "grafana-credentials" created
-  service "grafana" created
-  configmap "grafana-dashboards-0" created
-  deployment "grafana" created
-
-Lets wait for grafana to come up:
-
-  $ kubectl rollout status deployment/grafana -n monitoring
-  ...
-  deployment "grafana" successfully rolled out
-
-=== Grafana Dashboard
-
-Lets forward the grafana dashboard to a local port:
-
-  $ kubectl port-forward $(kubectl get pod -l app=grafana -o jsonpath={.items[0].metadata.name} -n monitoring) 3000 -n monitoring
-  Forwarding from 127.0.0.1:3000 -> 3000
-
-Grafana dashboard is now accessible at http://localhost:3000/.
-
-If you are running this in the Cloud9 IDE, you will need to run the following to be able to visualize your dashboard:
-
-  $ kubectl port-forward $(kubectl get pod -l app=grafana -o jsonpath={.items[0].metadata.name} -n monitoring) 8080:3000 -n monitoring
-  Forwarding from 127.0.0.1:8080 -> 3000
-  Forwarding from [::1]:8080 -> 3000
-
-The dashboard will be available at https://<ENV_ID>.vfs.cloud9.<REGION_ID>.amazonaws.com/.
-
-The complete list of dashboards is available using the search button at the top:
-
-image::monitoring-grafana-prometheus-dashboard-dashboard-home.png[]
-
-You can access various metrics using these dashboards:
-
-. http://localhost:3000/dashboard/db/kubernetes-control-plane-status?orgId=1[Kubernetes Cluster Control Plane]
-+
-image::monitoring-grafana-prometheus-dashboard-control-plane-status.png[]
-+
-. http://localhost:3000/dashboard/db/kubernetes-cluster-status?orgId=1[Kubernetes Cluster Status]
-+
-image::monitoring-grafana-prometheus-dashboard-cluster-status.png[]
-+
-. http://localhost:3000/dashboard/db/kubernetes-capacity-planning?orgId=1[Kubernetes Cluster Capacity Planning]
-+
-image::monitoring-grafana-prometheus-dashboard-capacity-planning.png[]
-+
-. http://localhost:3000/dashboard/db/nodes?orgId=1[Nodes in the Kubernetes cluster]
-+
-image::monitoring-grafana-prometheus-dashboard-nodes.png[]
-
-Convenient link for other dashboards are listed below:
-
-* http://localhost:3000/dashboard/db/deployment&orgId=1
-* http://localhost:3000/dashboard/db/kubernetes-cluster-health?refresh=10s&orgId=1
-* http://localhost:3000/dashboard/db/kubernetes-resource-requests?orgId=1
-* http://localhost:3000/dashboard/db/pods?orgId=1
-
-(For Cloud9 users, just replace `http://localhost:3000/` by `https://<ENV_ID>.vfs.cloud9.<REGION_ID>.amazonaws.com/`
-
-=== Cleanup
-
-Remove all the installed components:
-
-    kubectl delete -f templates/prometheus/prometheus-bundle.yaml
-
+    kubectl get pvc
+    kubectl delete pvc-*
 
 You are now ready to continue on with the workshop!
 

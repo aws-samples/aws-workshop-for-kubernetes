@@ -1,0 +1,92 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: dd-agent
+spec:
+  template:
+    metadata:
+      labels:
+        app: dd-agent
+      name: dd-agent
+    spec:
+      containers:
+      - image: datadog/agent:latest
+        imagePullPolicy: Always
+        name: dd-agent
+        ports:
+          - containerPort: 8125
+            hostPort: 8125
+            name: dogstatsdport
+            protocol: UDP
+          - containerPort: 8126
+            name: traceport
+            protocol: TCP
+        env:
+          - name: DD_API_KEY
+            value: <DD_API_KEY>
+          - name: KUBERNETES
+            value: "yes"
+          - name: DD_APM_ENABLED
+            value: "true"
+          - name: DD_PROCESS_AGENT_ENABLED
+            value: "true"
+          - name: DD_LOGS_ENABLED
+            value: "true"
+          - name: DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL
+            value: "true"
+          - name: HOST_PROC
+            value: /host/proc
+          - name: HOST_SYS
+            value: /host/sys
+        volumeMounts:
+          - name: dockersocket
+            mountPath: /var/run/docker.sock
+          - name: procdir
+            mountPath: /host/proc
+            readOnly: true
+          - name: cgroups
+            mountPath: /host/sys/fs/cgroup
+            readOnly: true
+          - name: passwd
+            mountPath: /etc/passwd
+            readOnly: true
+          - name: pointerdir
+            mountPath: /opt/datadog-agent/run
+      volumes:
+        - hostPath:
+            path: /run/docker.sock
+          name: dockersocket
+        - hostPath:
+            path: /proc
+          name: procdir
+        - hostPath:
+            path: /sys/fs/cgroup
+          name: cgroups
+        - hostPath:
+            path: /etc/passwd
+          name: passwd
+        - hostPath:
+            path: /opt/datadog-agent/run
+          name: pointerdir
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dd-agent
+  labels:
+    run: dd-agent
+spec:
+  ports:
+  - name: dogstatsdport
+    port: 8125
+    targetPort: 8125
+    protocol: UDP
+  - name: traceport
+    port: 8126
+    targetPort: 8126
+    protocol: TCP
+    targetPort: 8126
+    protocol: TCP
+  selector:
+    app: dd-agent
+  type: ClusterIP

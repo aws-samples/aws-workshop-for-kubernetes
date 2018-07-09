@@ -1,0 +1,36 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: fan
+spec:
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        role: fan
+    spec:
+      containers:
+      - name: fan
+        image: charlyyfon/nodeapp:fetch
+        imagePullPolicy: Always
+        ports:
+          - name: fan
+            containerPort: 5000
+        env:
+          - name: API_KEY
+            value: DD_API_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fan
+  labels:
+    role: fan
+spec:
+  ports:
+  - port: 5000
+    targetPort: 5000
+    protocol: TCP
+  selector:
+    role: fan
+  type: ClusterIP
