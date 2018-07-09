@@ -9,7 +9,7 @@ This exercise will walk you through configuring Weave Net and applying a Network
 
 == Prerequisites
 
-This chapter uses a cluster with 3 master nodes and 5 worker nodes as described here: link:../../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[multi-master, multi-node gossip based cluster], except we ask kops to use Weave Net as shown below:
+In order to perform exercises in this chapter, you’ll need to deploy configurations to a 3 master, 5 worker kops-created cluster created with the following command-line:
 
   kops create cluster \
     --name example2.cluster.k8s.local \
@@ -19,7 +19,7 @@ This chapter uses a cluster with 3 master nodes and 5 worker nodes as described 
     --networking weave \
     --yes
 
-It uses `--networking weave` which tells the cluster to use Weave Net instead of the default networking provided by kubenet. Note, the name here is `example2.cluster.k8s.local` instead of the usual `example.cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
+This command-line implements the `--networking weave` option, which tells the cluster to use Weave Net instead of the default networking provided by kubenet. Note, the name here is `example2.cluster.k8s.local` instead of the usual `example.cluster.k8s.local` name. This is just to make sure, in case, the two clusters can coexist.
 
 To check the network configuration is using Weave Net, view the cluster configuration using the following command:
 
