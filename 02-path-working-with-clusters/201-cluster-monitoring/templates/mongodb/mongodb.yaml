@@ -30,7 +30,7 @@ spec:
         role: mongo
         environment: test
     spec:
-      serviceAccountName: dca
+      serviceAccountName: mongorbac
       terminationGracePeriodSeconds: 10
       containers:
         - name: mongo
@@ -63,3 +63,35 @@ spec:
       resources:
         requests:
           storage: 1Gi
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongorbac
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mongorbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mongorbac
+subjects:
+- kind: ServiceAccount
+  name: mongorbac
+  namespace: default
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: mongorbac
+  namespace: default
