@@ -53,6 +53,7 @@ export EKS_SECURITY_GROUPS=$(aws cloudformation describe-stacks --stack-name $AW
 export EKS_SERVICE_ROLE=$(aws cloudformation describe-stacks --stack-name $AWS_MASTER_STACK | jq -r '.Stacks[0].Outputs[]|select(.OutputKey=="EksServiceRoleArn")|.OutputValue')
 
 # Persist lab variables
+echo "AWS_STACK_NAME=$AWS_STACK_NAME" >> ~/.bashrc
 echo "AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" >> ~/.bashrc
 echo "AWS_AVAILABILITY_ZONES=$AWS_AVAILABILITY_ZONES" >> ~/.bashrc
 echo "AWS_STACK_NAME=$AWS_STACK_NAME" >> ~/.bashrc
