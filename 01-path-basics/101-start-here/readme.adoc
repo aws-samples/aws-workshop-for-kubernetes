@@ -86,7 +86,7 @@ If you deployed your Cloud9 IDE in any region not supported by EKS, you will nee
     export AWS_DEFAULT_REGION=us-east-1
     echo "AWS_DEFAULT_REGION=us-east-1" >> ~/.bash_profile
 
-At this point you can restart the Cloud9 IDE terminal session to ensure that the kubectl completion is enabled. Once a new terminal window is opened, type `kubectl get nodes`. You do not have to run the command. It is normal for this command to fail with an error message if you run it. You have not yet created the Kubernetes cluster. We are merely testing to make sure the `kubectl` tool is installed on the command line correctly and can autocomplete.
+At this point you can restart the Cloud9 IDE terminal session to ensure that the kubectl completion is enabled. Once a new terminal window is opened, type `kubectl ver` and press `Tab` to autocomplete and press `Enter`. This will ensure that the `kubectl` tool is installed on the command line correctly and can autocomplete.
 
 [NOTE]
 All shell commands _(starting with "$")_ throughout the rest of the workshop should be run in this tab. You may want to resize it upwards to make it larger.
