@@ -29,21 +29,9 @@ Please choose the region closest to you.  If you choose a region for Cloud9 that
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-vpc.template]
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-novpc.template]
 
-| *Ohio* (us-east-2)
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-novpc.template]
-
 | *Oregon* (us-west-2)
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-vpc.template]
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-novpc.template]
-
-| *Ireland* (eu-west-1)
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-novpc.template]
-
-| *Singapore* (ap-southeast-1)
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-novpc.template]
 
 |===
 
@@ -80,11 +68,6 @@ To install the script, run this command in the "bash" terminal tab of the Cloud9
     . ./lab-ide-build.sh
 
 image:cloud9-run-script.png[Running the script in Cloud9 Terminal]
-
-If you deployed your Cloud9 IDE in any region not supported by EKS, you will need to manually set the `AWS_DEFAULT_REGION` environment variable to a region supported by EKS:
-
-    export AWS_DEFAULT_REGION=us-east-1
-    echo "AWS_DEFAULT_REGION=us-east-1" >> ~/.bash_profile
 
 At this point you can restart the Cloud9 IDE terminal session to ensure that the kubectl completion is enabled. Once a new terminal window is opened, type `kubectl ver` and press `Tab` to autocomplete and press `Enter`. This will ensure that the `kubectl` tool is installed on the command line correctly and can autocomplete.
 
