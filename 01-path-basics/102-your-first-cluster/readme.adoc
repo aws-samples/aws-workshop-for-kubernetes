@@ -80,6 +80,12 @@ Once the cluster has moved to the `ACTIVE` state, download and run the `create-k
 
 This will create a configuration file at `$HOME/.kube/config` and update the necessary environment variable for default access.
 
+You can test your kubectl configuration using 'kubectl get service'
+
+    $ kubectl get service
+    NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+    kubernetes   ClusterIP   10.100.0.1   <none>        443/TCP   8m
+
 === Create the worker nodes
 
 Now that your EKS master nodes are created, you can launch and configure your worker nodes.
@@ -115,6 +121,20 @@ To enable worker nodes to join your cluster, download and run the `aws-auth-cm.s
 Watch the status of your nodes and wait for them to reach the `Ready` status.
 
     $ kubectl get nodes --watch
+    NAME                                            STATUS     ROLES     AGE       VERSION
+    ip-192-168-223-116.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-223-116.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-223-116.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-147-168.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-147-168.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-102-172.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-102-172.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-223-116.us-west-2.compute.internal   NotReady   <none>    10s       v1.10.3
+    ip-192-168-147-168.us-west-2.compute.internal   NotReady   <none>    10s       v1.10.3
+    ip-192-168-102-172.us-west-2.compute.internal   NotReady   <none>    10s       v1.10.3
+    ip-192-168-223-116.us-west-2.compute.internal   Ready     <none>    20s       v1.10.3
+    ip-192-168-147-168.us-west-2.compute.internal   Ready     <none>    20s       v1.10.3
+    ip-192-168-102-172.us-west-2.compute.internal   Ready     <none>    20s       v1.10.3
 
 == Kubernetes Cluster Context
 

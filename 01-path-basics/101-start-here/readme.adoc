@@ -20,7 +20,7 @@ Click on the "Deploy to AWS" button and follow the CloudFormation prompts to beg
 
 [NOTE]
 AWS Cloud9 is currently available in 5 regions, and EKS is currently available in 2 regions (us-east-1 and us-west-2).
-Please choose the region closest to you.  If you choose a region for Cloud9 that does not support EKS, you will need to change the `AWS_DEFAULT_REGION` environment variable later.
+Please choose the region closest to you.  If you choose a region for Cloud9 that does not support EKS, you need to create VPC resources and change environment variables. We have not tested this configuration yet
 
 |===
 
@@ -68,6 +68,7 @@ To install the script, run this command in the "bash" terminal tab of the Cloud9
     . ./lab-ide-build.sh
 
 image:cloud9-run-script.png[Running the script in Cloud9 Terminal]
+
 
 At this point you can restart the Cloud9 IDE terminal session to ensure that the kubectl completion is enabled. Once a new terminal window is opened, type `kubectl ver` and press `Tab` to autocomplete and press `Enter`. This will ensure that the `kubectl` tool is installed on the command line correctly and can autocomplete.
 
