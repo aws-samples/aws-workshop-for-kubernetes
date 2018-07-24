@@ -1209,17 +1209,13 @@ Deleting a job deletes all the pods as well. Delete the job as:
 
 === Prerequisites
 
-For Kubernetes cluster versions < 1.8, Cron Job can be created with API version `batch/v2alpha1`. You can check the cluster version using this command,
+For Kubernetes cluster versions < 1.8, Cron Job can be created with API version `batch/v2alpha1`. You need to explicitly enable API version `batch/v2alpha1` in Kubernetes cluster and perform a rolling-update.
 
-  $ kubectl version
-  Client Version: version.Info{Major:"1", Minor:"8", GitVersion:"v1.8.1", GitCommit:"f38e43b221d08850172a9a4ea785a86a3ffa3b3a", GitTreeState:"clean", BuildDate:"2017-10-12T00:45:05Z", GoVersion:"go1.9.1", Compiler:"gc", Platform:"darwin/amd64"}
-  Server Version: version.Info{Major:"1", Minor:"7", GitVersion:"v1.7.4", GitCommit:"793658f2d7ca7f064d2bdf606519f9fe1229c381", GitTreeState:"clean", BuildDate:"2017-08-17T08:30:51Z", GoVersion:"go1.8.3", Compiler:"gc", Platform:"linux/amd64"}
+If you use *Amazon EKS* for provisioning your Kubernetes cluster, your version should be >= v1.10 and you can proceed without any changes. You can check the cluster version using this command,
 
-Notice that the server version is at v1.7.4. In this case, you need to explicitly enable API version `batch/v2alpha1` in Kubernetes cluster and perform a rolling-update. These steps are explained in link:../cluster-install#turn-on-an-api-version-for-your-cluster[Turn on an API version for your cluster].
-
-NOTE: Once you switch API versions, you need to perform rolling-update of the cluster which generally takes 30 - 45 mins to complete for 3 master nodes and 5 worker nodes cluster.
-
-If you have cluster version >= 1.8, `batch/v2alpha1` API is deprecated for this version but you can switch to `batch/v1beta1` to create Cron Jobs
+    $ kubectl version
+    Client Version: version.Info{Major:"1", Minor:"10", GitVersion:"v1.10.3", GitCommit:"2bba0127d85d5a46ab4b778548be28623b32d0b0", GitTreeState:"clean", BuildDate:"2018-05-28T20:16:17Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"linux/amd64"}
+    Server Version: version.Info{Major:"1", Minor:"10", GitVersion:"v1.10.3", GitCommit:"2bba0127d85d5a46ab4b778548be28623b32d0b0", GitTreeState:"clean", BuildDate:"2018-05-28T20:13:43Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"linux/amd64"}
 
 === Create Cron Job
 
@@ -1578,7 +1574,7 @@ The error message indicates that a ResourceQuota is in effect, and that the Pod 
 
 Update the configuration file to:
 
-	$ cat pod-memory.yaml
+	$ cat pod-cpu-memory.yaml
 	apiVersion: v1
 	kind: Pod
 	metadata:
@@ -1597,7 +1593,7 @@ Update the configuration file to:
 
 There is an explicity memory resource defined here. Now, try to create the pod:
 
-	$ kubectl apply -f pod-memory.yaml
+	$ kubectl apply -f pod-cpu-memory.yaml
 	pod "nginx-pod" created
 
 The Pod is successfully created.
@@ -1605,7 +1601,7 @@ The Pod is successfully created.
 Get more details about the Pod:
 
 	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
-	map[requests:map[cpu:100m memory:100m]]
+	map[requests:map[cpu:1 memory:100m]
 
 Get more details about the ResourceQuota:
 
