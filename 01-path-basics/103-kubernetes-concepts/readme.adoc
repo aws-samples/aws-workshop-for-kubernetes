@@ -920,7 +920,7 @@ As new nodes are added to the cluster, pods are started on them. As nodes are re
 
 === Create a DaemonSet
 
-The folowing is an example DaemonSet that runs a Prometheus container. Let's begin with the template:
+The following is an example DaemonSet that runs a Prometheus container. Let's begin with the template:
 
 	$ cat daemonset.yaml
 	apiVersion: extensions/v1beta1
