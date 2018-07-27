@@ -35,7 +35,11 @@ a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation
 
 |===
 
-To open the Cloud9 IDE environment, click on the "Outputs" tab in CloudFormation Console and click on the "Cloud9IDE" URL.
+Accept the default stack name and Click *Next*. You can give Tags such as Key=Name, Value=k8s-workshop, and click *Next*. Make sure
+to check *I acknowledge that AWS CloudFormation might create IAM resources with custom names* and click *Create*.
+
+CloudFormation creates nested stacks and builds several resources that are required for this workshop. Wait until all the resources are created. Once the status for *k8s-workshop* changes to *CREATE_COMPLETE*,
+you can open Cloud9 IDE. To open the Cloud9 IDE environment, click on the "Outputs" tab in CloudFormation Console and click on the "Cloud9IDE" URL.
 
 image:cloudformation-output-tab.png[CloudFormation Output Tab]
 
