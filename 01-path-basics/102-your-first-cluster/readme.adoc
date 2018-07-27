@@ -70,7 +70,10 @@ If any of those environment variables are blank, please re-run the "Build Script
 
 If you receive an *UnsupportedAvailabilityZoneException* error during EKS cluster creation, your account is using an AZ that is currently resource constrained. This occurs mostly in N.Virginia region (us-east-1).
 
-    An error occurred (UnsupportedAvailabilityZoneException) when calling the CreateCluster operation: Cannot create cluster 'k8s-workshop' because us-east-1c, the targeted availability zone, does not currently have sufficient capacity to support the clust er. Retry and choose from these availability zones: us-east-1a, us-east-1b, us-east-1d
+```
+An error occurred (UnsupportedAvailabilityZoneException) when calling the CreateCluster operation: Cannot create cluster 'k8s-workshop' because us-east-1c,
+the targeted availability zone, does not currently have sufficient capacity to support the clust er. Retry and choose from these availability zones: us-east-1a, us-east-1b, us-east-1d
+``` 
 
 If you receive this error, you need to remove the constrained AZ (us-east-1c in my case) from *`EKS_SUBNET_IDS`* environment variable. Follow these steps to update your environment variable
 
