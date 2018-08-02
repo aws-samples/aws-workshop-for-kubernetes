@@ -68,6 +68,54 @@ echo $EKS_SECURITY_GROUPS
 ```
 If any of those environment variables are blank, please re-run the "Build Script" section of the link:../101-start-here[Cloud9 Environment Setup].
 
+If you receive an *UnsupportedAvailabilityZoneException* error during EKS cluster creation, your account is using an AZ that is currently resource constrained. This occurs mostly in N.Virginia region (us-east-1).
+
+```
+An error occurred (UnsupportedAvailabilityZoneException) when calling the CreateCluster operation: Cannot create cluster 'k8s-workshop' because us-east-1c,
+the targeted availability zone, does not currently have sufficient capacity to support the cluster. Retry and choose from these availability zones: us-east-1a, us-east-1b, us-east-1d
+```
+
+If you receive this error, you need to remove the constrained AZ (us-east-1c in this example) from *`EKS_SUBNET_IDS`* environment variable. Follow these steps to update your environment variable.
+
+Save the EKS recommended AZ's that is referred in your CLI output in an environment variable.
+Note: you only need two AZ's defined to create EKS cluster
+
+    $ export EKS_VALID_AZS=us-east-1a,us-east-1b
+
+Run the command below to determine subnet ID's
+
+    $ aws ec2 describe-subnets --filters "Name=vpc-id,Values=$EKS_VPC_ID" "Name=availabilityZone,Values=$EKS_VALID_AZS" --query 'Subnets[*].[SubnetId]' --output text
+    subnet-6e672524
+    subnet-18b10e44
+
+Save this output as `*EKS_SUBNET_IDS*` environment variable
+
+    $ export EKS_SUBNET_IDS=subnet-6e672524,subnet-18b10e44
+
+Re-run EKS create-cluster and you should now be able to create cluster. The output should look similar to this
+
+    {
+    "cluster": {
+        "status": "CREATING",
+        "name": "k8s-workshop",
+        "certificateAuthority": {},
+        "roleArn": "arn:aws:iam::123456789012:role/k8s-workshop-EksServiceRo-AWSServiceRoleForAmazonE-1PCSJFFFAF4BL",
+        "resourcesVpcConfig": {
+            "subnetIds": [
+                "subnet-6e672524",
+                "subnet-18b10e44"
+            ],
+            "vpcId": "vpc-a779b4dd",
+            "securityGroupIds": [
+                "sg-d093de9a"
+            ]
+        },
+        "version": "1.10",
+        "arn": "arn:aws:eks:us-east-1:123456789012:cluster/k8s-workshop",
+        "createdAt": 1532734869.147
+    }
+    }
+
 === Create the configuration file
 
 In order to access the cluster locally, use a configuration file (sometimes referred to as a `kubeconfig` file). This configuration file can be created automatically.
@@ -79,6 +127,12 @@ Once the cluster has moved to the `ACTIVE` state, download and run the `create-k
     . ./create-kubeconfig.sh
 
 This will create a configuration file at `$HOME/.kube/config` and update the necessary environment variable for default access.
+
+You can test your kubectl configuration using 'kubectl get service'
+
+    $ kubectl get service
+    NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+    kubernetes   ClusterIP   10.100.0.1   <none>        443/TCP   8m
 
 === Create the worker nodes
 
@@ -115,6 +169,20 @@ To enable worker nodes to join your cluster, download and run the `aws-auth-cm.s
 Watch the status of your nodes and wait for them to reach the `Ready` status.
 
     $ kubectl get nodes --watch
+    NAME                                            STATUS     ROLES     AGE       VERSION
+    ip-192-168-223-116.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-223-116.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-223-116.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-147-168.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-147-168.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-102-172.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-102-172.us-west-2.compute.internal   NotReady   <none>    0s        v1.10.3
+    ip-192-168-223-116.us-west-2.compute.internal   NotReady   <none>    10s       v1.10.3
+    ip-192-168-147-168.us-west-2.compute.internal   NotReady   <none>    10s       v1.10.3
+    ip-192-168-102-172.us-west-2.compute.internal   NotReady   <none>    10s       v1.10.3
+    ip-192-168-223-116.us-west-2.compute.internal   Ready     <none>    20s       v1.10.3
+    ip-192-168-147-168.us-west-2.compute.internal   Ready     <none>    20s       v1.10.3
+    ip-192-168-102-172.us-west-2.compute.internal   Ready     <none>    20s       v1.10.3
 
 == Kubernetes Cluster Context
 
