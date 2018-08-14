@@ -1099,12 +1099,6 @@ Now, watch the job status again:
 
 The output shows that the job was successfully executed.
 
-The completed pod is not shown in the `kubectl get pods` command. Instead it can be shown by passing an additional option as shown below:
-
-	$ kubectl get pods --show-all
-	NAME         READY     STATUS      RESTARTS   AGE
-	wait-lk49x   0/1       Completed   0          1m
-
 To delete the job, you can run this command
 
 	$ kubectl delete -f job.yaml
@@ -1184,18 +1178,7 @@ In another terminal window, watch the status of pods created:
 	wait-ngrgl   0/1       Completed   0         21s
 	wait-6l22s   0/1       Completed   0         21s
 
-After all the pods have completed, `kubectl get pods` will not show the list of completed pods. The command to show the list of pods is shown below:
-
-	$ kubectl get pods -a
-	NAME         READY     STATUS      RESTARTS   AGE
-	wait-6l22s   0/1       Completed   0          1m
-	wait-f7kgb   0/1       Completed   0          2m
-	wait-jbdp7   0/1       Completed   0          2m
-	wait-ngrgl   0/1       Completed   0          1m
-	wait-r5v8n   0/1       Completed   0          2m
-	wait-smp4t   0/1       Completed   0          2m
-
-Similarly, `kubectl get jobs` shows the status of the job after it has completed:
+`kubectl get jobs` shows the status of the job after it has completed:
 
 	$ kubectl get jobs
 	NAME      DESIRED   SUCCESSFUL   AGE
