@@ -223,10 +223,10 @@ CPU can be requested in _cpu units_. 1 cpu unit is equivalent 1 AWS vCPU. It can
 
 ===== Default memory and CPU
 
-By default, a container in a pod is allocated no memory request/limit and 100m CPU request and no limit. This can be verified using the previously started pod:
+By default, a container in a pod is not allocated any requests or limits. This can be verified using the previously started pod:
 
-	$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
-	map[requests:map[cpu:100m]]
+$ kubectl get pod/nginx-pod -o jsonpath={.spec.containers[].resources}
+map[]
 
 ===== Assign memory and CPU
 
