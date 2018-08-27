@@ -95,7 +95,7 @@ Retrieve an authentication token for the eks-admin service account using the fol
 
   $ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep eks-admin | awk '{print $1}')
 
-  Output:
+Output:
 
   Name:         eks-admin-token-9kxfc
   Namespace:    kube-system
