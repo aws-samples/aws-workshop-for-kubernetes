@@ -102,9 +102,7 @@ Retrieve an authentication token for the eks-admin service account using the fol
   Labels:       <none>
   Annotations:  kubernetes.io/service-account.name=eks-admin
                 kubernetes.io/service-account.uid=198c691f-a997-11e8-8074-0ab2efd9c23a
-
   Type:  kubernetes.io/service-account-token
-
   Data
   ====
   token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJla3MtYWRtaW4tdG9rZW4tOWt4ZmMiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZWtzLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMTk4YzY5MWYtYTk5Ny0xMWU4LTgwNzQtMGFiMmVmZDljMjNhIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmVrcy1hZG1pbiJ9.mKcJ0RFAG8GvZA71ZskAv_xs9pW5Cq64A1S1pVx7-GFZb_Dbhee_nYjLagY3MrbTjsEcTNV1xe_RUevmcQDikS6UMEXoIN-bOHu5Moj5rgNW2yhfHuXZOtRmRfESTBzqCQQi3MPC_LP6jTagPnbBDW15W_3AbTwZRa3Fhs4YCUoxUbcrTYUd6kfB47JbLDwXl-8ai1hxgTreDeFKkQKu7E5WAMv4GeL1TYVgiVrUC2872NzQ-RSLee1WP-x_r50zJA5b9qXQvlkf0zrDRh6xO_Z3YXOH5KfWQUYCUpJqySedZE4w9F6rkBUCf2QivqhvXTQF9btsHIyeqSJ3SR3qHA
