@@ -42,9 +42,9 @@ EKS can be used to create a highly available cluster, with multiple master nodes
 
 === Create the master nodes
 
-Store the name of your Kubernetes cluster in an environment variable 
+The default name of your Kubernetes cluster is k8s-workshop and stored in the environment variable EKS_CLUSTER_NAME. If you want to change the name of your cluster, you can overwrite the value using
 
-    $ export EKS_CLUSTER_NAME=k8s-workshop
+    $ export EKS_CLUSTER_NAME=<your_cluster_name>
 
 Please confirm the following environment variable is set correctly before executing the 'create cluster' command:
 

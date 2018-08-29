@@ -2,7 +2,7 @@
 #title           lab-ide-build.sh
 #description     This script will setup the Cloud9 IDE with the prerequisite packages and code for the workshop.
 #author          @buzzsurfr
-#contributors    @buzzsurfr @dalbhanj @cloudymind
+#contributors    @buzzsurfr @dalbhanj @cloudymind @smoell
 #date            2018-05-12
 #version         0.2
 #usage           curl -sSL https://s3.amazonaws.com/lab-ide-theomazonian/lab-ide-build.sh | bash -s stable
@@ -64,6 +64,7 @@ echo "EKS_VPC_ID=$EKS_VPC_ID" >> ~/.bashrc
 echo "EKS_SUBNET_IDS=$EKS_SUBNET_IDS" >> ~/.bashrc
 echo "EKS_SECURITY_GROUPS=$EKS_SECURITY_GROUPS" >> ~/.bashrc
 echo "EKS_SERVICE_ROLE=$EKS_SERVICE_ROLE" >> ~/.bashrc
+echo "EKS_CLUSTER_NAME=k8s-workshop" >> ~/.bashrc
 
 # EKS-Optimized AMI
 if [ "$AWS_DEFAULT_REGION" == "us-east-1" ]; then
