@@ -40,6 +40,7 @@ rules:
   - alertmanagers
   - prometheuses
   - servicemonitors
+  - prometheusrules
   verbs:
   - "*"
 - apiGroups:
@@ -55,16 +56,19 @@ rules:
 - apiGroups: [""]
   resources:
   - pods
-  verbs: ["list", "delete"]
+  verbs: ["list", "delete", "watch"]
 - apiGroups: [""]
   resources:
   - services
   - endpoints
-  verbs: ["get", "create", "update"]
+  verbs: ["get", "create", "update", "watch", "list"]
 - apiGroups: [""]
   resources:
   - nodes
   verbs: ["list", "watch"]
+- nonResourceURLs:
+  - /metrics
+  verbs: ["get"]
 - apiGroups: [""]
   resources:
   - namespaces
