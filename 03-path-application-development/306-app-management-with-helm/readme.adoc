@@ -10,7 +10,9 @@ https://github.com/kubernetes/helm[Helm] is a tool for managing https://github.c
 
 In order to perform exercises in this chapter, you’ll need to deploy configurations to a Kubernetes cluster. To create an EKS-based Kubernetes cluster, use the link:../../01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[AWS CLI] (recommended). If you wish to create a Kubernetes cluster without EKS, you can instead use link:../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[kops].
 
-All configuration files for this chapter are in the `helm` directory. Make sure you change to that directory before giving any commands in this chapter.
+All configuration files for this chapter are in the `helm` directory. Make sure you change to that directory before giving any commands in this chapter.  If you are working in Cloud9:
+
+    cd ~/environment/aws-workshop-for-kubernetes/03-path-application-development/306-app-management-with-helm/
 
 == Install Helm
 
@@ -25,6 +27,12 @@ This section shows how to install both the client and the server.
 Install on Mac OSX:
 
   brew install kubernetes-helm
+
+In Cloud9 or similar Linux environments:
+
+  curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh
+  chmod 700 get_helm.sh
+  ./get_helm.sh
 
 https://docs.helm.sh/using_helm/#installing-helm[Installing Helm] provides complete set of options to install the client.
 
@@ -56,6 +64,10 @@ Happy Helming!
 This will install `tiller` in the `kube-system` namespace. It can be installed into a specific cluster by using `--kube-context` option. It can be installed into an alternative namespace by using `--tiller-namespace` option.
 
 https://docs.helm.sh/using_helm/#installing-tiller[Installing Tiller] provides complete set of options to install the server.
+
+As of kubernetes 1.9, you also need to create a cluster role binding for Helm:
+
+    kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default
 
 == Install Helm chart
 
@@ -109,8 +121,10 @@ db:
         - containerPort: 8080
 ```
 
-Finally, install the chart:
+Finally, clean up any old deployments and install the chart:
 
+  kubectl delete svc webapp
+  kubectl delete deployment webapp
   helm install --name sample sample
 
 This shows output:
@@ -157,11 +171,13 @@ Start a proxy. Since the webapp service does not expose a public endpoint, proxy
 
   kubectl proxy --address 0.0.0.0 --accept-hosts '.*' --port 8080
 
-Access the application using:
+In order to access the application, run this command:
 
-  curl -k https://ENVIRONMENT_ID.vfs.cloud9.REGION_ID.amazonaws.com/api/v1/proxy/namespaces/default/services/webapp/resources/employees
+  curl -k http://localhost:8080/api/v1/proxy/namespaces/default/services/webapp/resources/employees
+   
+Alternatively, start Cloud9's browser preview using the `Preview -> Preview Running Application` menu item.  When the browser opens in a new tab in the IDE, click the `Pop out into new window` button.  This button will open a new browser window pointing to the Cloud9 environment.  In that tab, append `/api/v1/proxy/namespaces/default/services/webapp/resources/employees` to the URL.  
 
-This shows the output:
+Either of these methods shows the output:
 
 ```
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><collection><employee><id>1</id><name>Penny</name></employee><employee><id>2</id><name>Sheldon</name></employee><employee><id>3</id><name>Amy</name></employee><employee><id>4</id><name>Leonard</name></employee><employee><id>5</id><name>Bernadette</name></employee><employee><id>6</id><name>Raj</name></employee><employee><id>7</id><name>Howard</name></employee><employee><id>8</id><name>Priya</name></employee></collection>
