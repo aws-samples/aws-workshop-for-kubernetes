@@ -1,0 +1,69 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: nginx
+spec:
+  template: # create pods using pod definition in this template
+    metadata:
+      annotations:
+        ad.datadoghq.com/nginx.check_names: '["nginx"]'
+        ad.datadoghq.com/nginx.init_configs: '[{}]'
+        ad.datadoghq.com/nginx.instances: '[{"nginx_status_url": "http://%%host%%/nginx_status"}]'
+      labels:
+        role: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: charlyyfon/nodeapp:nginx
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: "config"
+          mountPath: "/etc/nginx/nginx.conf"
+          subPath: "nginx.conf"
+      volumes:
+        - name: "config"
+          configMap:
+            name: "nginxconfig"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-deployment
+spec:
+  ports:
+  - name: nginx
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    role: nginx
+  type: LoadBalancer
+---
+apiVersion: v1
+data:
+  nginx.conf: |+
+    worker_processes  5;
+    events {
+      worker_connections  4096;
+    }
+    http {
+        server {
+            location /nginx_status {
+              stub_status on;
+              access_log  /dev/stdout;
+              allow all;
+            }
+            location / {
+                proxy_pass http://fan:5000;
+                proxy_set_header Host  $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_redirect off;
+            }
+        }
+    }
+kind: ConfigMap
+metadata:
+  name: nginxconfig
+  namespace: default

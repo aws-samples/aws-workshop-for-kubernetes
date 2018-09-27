@@ -1,0 +1,114 @@
+= Kubernetes App Auto-scaling with Custom metrics
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../../resources/images
+
+https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/[Horizontal Pod Autoscaling] (HPA) is a Kubernetes feature to dynamically increase/decrease the number of pod replicas based on resource utilization metrics.
+
+The Horizontal Pod Autoscaling feature was introduced in Kubernetes v1.2. It allows users to autoscale off of basic metrics like CPU, but requires a resource called metrics-server to run along side your application. As of Kubernetes v1.6, it is possible to autoscale off of custom metrics. Custom metrics are user defined and are collected from within the cluster. As of Kubernetes v1.10, support for external metrics was introduced so users can autoscale off of any metric from outside the cluster that is collected for you by Datadog.
+
+The custom and external metric providers, as opposed to the metrics server, are resources that have to be implemented and registered by the user.
+
+== Prerequisites
+
+Running Kubernetes &gt;v1.10 in order to be able to register the External Metrics Provider resource against the API Server.
+Having the Aggregation layer enabled, refer to the Kubernetes aggregation layer configuration documentation to learn how to enable it.
+
+== Deploy an application
+
+In this step, we deploy a simple Go web application and constrain the CPU resources just for the purposes of this test.
+
+    $ kubectl run webapp --image=trevorrobertsjr/webapp --requests=cpu=50m --expose --port=8080
+    service "webapp" created
+    deployment "webapp" created
+
+It also publishes the service at port 8080.
+
+== Horizontal Pod Autoscaler configuration
+
+Now that our application is running, we create a Horizonal Pod Autoscaler for our webapp deployment.
+
+    $ kubectl autoscale deployment webapp --cpu-percent=10 --min=1 --max=10
+    deployment "webapp" autoscaled
+
+This command will mainain between 1 and 10 replicas of the pod. The autoscaler will increase or decrease the number of replicas to maintain average CPU utilization of 10% across all the pods.
+
+== Generate load
+
+The simplest method to do this would be to access the application in an infinite loop similar to the example in the Kubernetes Horizonal Pod Autoscaler documentation:
+
+First, deploy a busybox container, label it `load-generator` and attach to it's prompt:
+
+    $ kubectl run -i --tty load-generator --image=busybox /bin/sh
+
+At the `load-generator` command prompt, run a continuous request of the webapp
+
+    $ while true; do wget -q -O- http://webapp.default.svc.cluster.local:8080; done
+
+If for any reason you get disconnected from the load-generator container, you can re-attach to it with the following command.
+
+    $ kubectl attach $(kubectl get pod | grep load | awk '{print $1}') -c load-generator -i -t
+
+In a different terminal window, check the status of the Horizontal Pod Autoscaler.
+
+    $ kubectl get hpa -w
+
+You will see output similar to the following over successive queries of the hpa resource:
+
+    $ kubectl get hpa -w
+    NAME      REFERENCE           TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
+    webapp    Deployment/webapp   0% / 10%   1         10        1          6m
+    webapp    Deployment/webapp   62% / 10%   1         10        1         7m
+    webapp    Deployment/webapp   62% / 10%   1         10        4         7m
+    webapp    Deployment/webapp   112% / 10%   1         10        4         8m
+    webapp    Deployment/webapp   112% / 10%   1         10        4         8m
+    webapp    Deployment/webapp   53% / 10%   1         10        4         9m
+
+
+Notice that, eventually, the value in the `REPLICAS` column will increase as the load generator continues to run.
+
+== Stop load
+
+In the terminal window that is running the load generator, hit `Ctrl`+`C` to terminate the process. Again, run the `kubectl get hpa -w` command in your other terminal window, and you will see the number of replicas begin to decrease as the CPU load returns to 0%. It shows the output:
+
+NOTE: It takes a few minutes for the number of replicas to scale down.
+
+```
+$ kubectl get hpa -w
+NAME      REFERENCE           TARGETS     MINPODS   MAXPODS   REPLICAS   AGE
+webapp    Deployment/webapp   51% / 10%   1         10        4          10m
+webapp    Deployment/webapp   51% / 10%   1         10        4         10m
+webapp    Deployment/webapp   27% / 10%   1         10        4         11m
+webapp    Deployment/webapp   27% / 10%   1         10        8         11m
+webapp    Deployment/webapp   0% / 10%   1         10        8         12m
+webapp    Deployment/webapp   0% / 10%   1         10        8         12m
+webapp    Deployment/webapp   0% / 10%   1         10        8         13m
+webapp    Deployment/webapp   0% / 10%   1         10        8         13m
+webapp    Deployment/webapp   0% / 10%   1         10        8         14m
+webapp    Deployment/webapp   0% / 10%   1         10        8         14m
+webapp    Deployment/webapp   0% / 10%   1         10        8         15m
+webapp    Deployment/webapp   0% / 10%   1         10        8         15m
+webapp    Deployment/webapp   0% / 10%   1         10        8         16m
+webapp    Deployment/webapp   0% / 10%   1         10        1         16m
+webapp    Deployment/webapp   0% / 10%   1         10        1         17m
+```
+
+== Cleanup
+
+    $ kubectl delete hpa/webapp deploy/load-generator deploy/webapp
+
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../../05-path-next-steps/502-for-further-reading]
+|image:button-continue-developer.png[link=../../03-path-application-development/305-app-tracing-with-jaeger-and-x-ray]
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../developer-path.adoc[Go to Developer Index]
+|=====

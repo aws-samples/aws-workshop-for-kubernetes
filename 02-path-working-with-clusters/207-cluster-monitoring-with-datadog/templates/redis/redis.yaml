@@ -1,0 +1,35 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      annotations:
+        ad.datadoghq.com/redis.check_names: '["redisdb"]'
+        ad.datadoghq.com/redis.init_configs: '[{}]'
+        ad.datadoghq.com/redis.instances: '[{"host": "%%host%%","port":"6379"}]'
+      labels:
+        role: redis
+    spec:
+      containers:
+      - name: redis
+        image: charlyyfon/nodeapp:redis
+        imagePullPolicy: Always
+        ports:
+        - name: redis
+          containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    role: redis
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+    role: redis
