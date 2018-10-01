@@ -1,8 +1,9 @@
-apiVersion: extensions/v1beta1
-kind: DaemonSet
+apiVersion: apps/v1beta1
+kind: Deployment
 metadata:
   name: nginx
 spec:
+  replicas: 1
   template: # create pods using pod definition in this template
     metadata:
       annotations:

@@ -87,7 +87,7 @@ image::logmonitor.png[]
 
 The goal of this workshop is to set up a full stack application on AWS EKS and see how each layer of the stack can be monitored with the Datadog Agent.
 
-Start by taking a look at the link:../201-cluster-monitoring/templates/datadog/agent.yaml[manifest to run the Datadog Agent].
+Start by taking a look at the link:../207-cluster-monitoring-with-datadog/templates/datadog/agent.yaml[manifest to run the Datadog Agent].
 Insert a Datadog API Key that can be found in your https://app.datadoghq.com/account/settings#api[Datadog account] in the `value: <DD_API_KEY>` placeholder.
 
 Then from the current directory, just run:

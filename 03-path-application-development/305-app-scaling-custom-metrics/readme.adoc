@@ -24,9 +24,9 @@ Autoscaling over External Metrics does not require the Node Agent to be running,
 Nevertheless, for this walkthrough, we autoscale an NGINX Deployment based off of NGINX metrics, collected by a Node Agent.
 
 Before proceeding, please make sure you went through the section 207 of this workshop.
-This entails tat you have Node Agents running with the Autodiscovery process enabled and functional.
+This entails that you have Node Agents running with the Autodiscovery process enabled and functional.
 
-In order to autoscale in Kubernetes, you need to register a Custom Metrics Server - The Datadog Cluster Agent implements this feature.
+In order to autoscale in Kubernetes, you need to register a Custom/External Metrics Server - The Datadog Cluster Agent implements this feature.
 
 === Spinning up the Datadog Cluster Agent
 
@@ -40,7 +40,7 @@ clusterrolebinding.rbac.authorization.k8s.io "dca" created
 serviceaccount "dca" created
 ```
 
-Add your <API_KEY> and <APP_KEY> in the link:../305-app-scaling-custom-metrics/templates/cluster-agent/cluster-agent.yaml[Deployment manifest of the Datadog Cluster Agent].
+Add your <API_KEY> and <APP_KEY> in the link:../305-app-scaling-custom-metrics/templates/cluster-agent.yaml[Deployment manifest of the Datadog Cluster Agent].
 Then enable the HPA Processing by setting the `DD_EXTERNAL_METRICS_PROVIDER_ENABLED` variable to true.
 Finally, spin up the resources:
 
@@ -82,6 +82,29 @@ clusterrole.rbac.authorization.k8s.io "external-metrics-reader" created
 clusterrolebinding.rbac.authorization.k8s.io "external-metrics-reader" created
 ```
 
+You can confirm that the cluster agent is properly registered as an External Metrics Provider by running:
+
+```
+kubectl describe apiservice v1beta1.external.metrics.k8s.io
+[...]
+
+  Service:
+    Name:            datadog-custom-metrics-server
+    Namespace:       default
+  Version:           v1beta1
+  Version Priority:  100
+
+[...]
+
+Status:
+  Conditions:
+    Last Transition Time:  2018-09-28T16:19:34Z
+    Message:               all checks passed
+    Reason:                Passed
+    Status:                True
+    Type:                  Available
+```
+
 Once you have the Datadog Cluster Agent running and the service registered, create an HPA manifest.
 The Datadog Cluster Agent will subsequently parse the manifest and pull metrics from Datadog.
 
@@ -111,14 +134,21 @@ We will be relying on the nginx deployment used in the section 207 of this works
 Make sure that everything is still running:
 
 ```
-kubectl get deploy, po -lapp=nginx
+kubectl get deploy,po -lrole=nginx
+NAME                          DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/nginx   1         1         1            1           2h
+
+NAME                         READY     STATUS    RESTARTS   AGE
+pod/nginx-69cb46b4db-6bbml   1/1       Running   0          2h
 
 ```
 
-
 Then, apply the HPA manifest.
 
+```
 kubectl apply -f templates/cluster-agent/hpa-example/hpa-manifest.yaml
+horizontalpodautoscaler.autoscaling "nginxext" created
+```
 
 You should be seeing your nginx pod running with the corresponding service:
 
@@ -128,30 +158,38 @@ default nginx-6757dd8769-5xzp2 1/1 Running 0 3m
 ```
 Services:
 ```
-NAMESPACE NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE
-default nginx ClusterIP 192.168.251.36 none 8090/TCP 3m
+NAMESPACE NAME  TYPE      CLUSTER-IP     EXTERNAL-IP PORT(S)  AGE
+default   nginx ClusterIP 192.168.251.36 none        8090/TCP 3m
 ```
 Horizontal Pod Autoscalers:
 ```
-NAMESPACE NAME REFERENCE TARGETS MINPODS MAXPODS REPLICAS AGE
-default nginxext Deployment/nginx 0/9 (avg) 1 3 1 3m
+NAMESPACE NAME     REFERENCE        TARGETS    MINPODS MAXPODS REPLICAS AGE
+default   nginxext Deployment/nginx 0/50 (avg) 1       3       1        3m
 ```
 
 === Stressing your service
 
 At this point, the set up is ready to be stressed. As a result of the stress Kubernetes will autoscale the NGINX pods.
 
-TODO
+To do so, you can use the interface of the application spun up during the step 207.
+For instance, you can trigger a cache stress, which will also stress the NGINX service by simulating requests.
 
+image::caching-demo.png[]
 
 Looking into your application, you should be able to correlate the requests per second on your NGINX boxes with the autoscaling event and the creation of new replicas.
 
 image::autoscalingdash.png[]
 
+In the above screenshot, we triggered 2 simulations, one at 12.30 and another one at 12.45.
+You can see that as a result of the stress, an additional replica is spun up serving the requests.
+The average request per second falls at ~27 request.
+Finally, after a cooling down period, we downscale.
+
 == Cleanup
 
-    $ kubectl delete -f templates/
-
+```
+$ kubectl delete -f templates
+```
 
 You are now ready to continue on with the workshop!
 
