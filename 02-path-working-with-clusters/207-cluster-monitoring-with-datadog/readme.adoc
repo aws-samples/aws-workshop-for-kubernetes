@@ -19,7 +19,7 @@ It gives a unified view of an entire stack, allowing to seamlessly monitor metri
 
 == Prerequisites
 
-In order to perform the tasks in this chapter, you must deploy the configurations to an AWS EKS cluster. To create an AWS EKS cluster, use the link:../../01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[AWS CLI] (recommended), or alternatively, link:../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[kops].
+In order to perform the tasks in this chapter, you must deploy the configurations to an Amazon EKS cluster. To create an Amazon EKS cluster, use the link:../../01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[AWS CLI] (recommended), or alternatively, link:../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[kops].
 
 All configuration files for this chapter are in the link:templates[201-cluster-monitoring/templates] directory.
 
@@ -85,7 +85,7 @@ image::logmonitor.png[]
 
 === Monitoring
 
-The goal of this workshop is to set up a full stack application on AWS EKS and see how each layer of the stack can be monitored with the Datadog Agent.
+The goal of this workshop is to set up a full stack application on Amazon EKS and see how each layer of the stack can be monitored with the Datadog Agent.
 
 Start by taking a look at the link:../207-cluster-monitoring-with-datadog/templates/datadog/agent.yaml[manifest to run the Datadog Agent].
 Insert a Datadog API Key that can be found in your https://app.datadoghq.com/account/settings#api[Datadog account] in the `value: <DD_API_KEY>` placeholder.
@@ -216,7 +216,7 @@ image::webapp.png[]
 === Diving in the data
 
 Let's start monitoring our application by visualizing the data at a high level. The Datadog hostmap gives a birds-eye view of your infrastructure.
-Go on the https://app.datadoghq.com/infrastructure/map[hostmap] to see your AWS EKS cluster.
+Go on the https://app.datadoghq.com/infrastructure/map[hostmap] to see your Amazon EKS cluster.
 
 image::hostmap.png[]
 
