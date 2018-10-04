@@ -21,7 +21,7 @@ It gives a unified view of an entire stack, allowing to seamlessly monitor metri
 
 In order to perform the tasks in this chapter, you must deploy the configurations to an Amazon EKS cluster. To create an Amazon EKS cluster, use the link:../../01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[AWS CLI] (recommended), or alternatively, link:../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[kops].
 
-All configuration files for this chapter are in the link:templates[201-cluster-monitoring/templates] directory.
+All configuration files for this chapter are in the link:templates[207-cluster-monitoring/templates] directory.
 
 == Getting Started with Datadog
 
@@ -59,6 +59,7 @@ Refer to the specific documentation for each data type:
 === Visualizing Data
 
 Start by logging into your Datadog account at https://app.datadoghq.com.
+If you don't have an account yet, you can sign up https://app.datadoghq.com/signup[here].
 On the navigation bar, located on the left side of your screen, you should be able to see different items, that we will be using later on.
 First of all, the Dashboard section:
 
@@ -163,7 +164,7 @@ service "fan" created
 
 This creates a pod running the application as well as a service in front of it.
 
-This web app is an interface to spin up scenarios, where different parts of the stack are stimulated and the impact of each expecrience can be visualized in the Datadog app.
+This web app is an interface to spin up scenarios, where different parts of the stack can be stressed and the impact of each experience can be visualized in the Datadog app.
 
 === Exposing your app
 

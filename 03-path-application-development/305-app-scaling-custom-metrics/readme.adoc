@@ -14,7 +14,7 @@ The custom and external metric providers, as opposed to the metrics server, are 
 
 Running Kubernetes v1.10+ in order to be able to register the External Metrics Provider resource against the API Server.
 Having the Aggregation layer enabled, refer to the https://kubernetes.io/docs/tasks/access-kubernetes-api/configure-aggregation-layer/[Kubernetes aggregation layer] configuration documentation to learn how to enable it.
-Using EKS 2.0, this will be automatically enabled for you.
+Using https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html[EKS 2.0], this will be automatically enabled for you.
 
 This section of the workshop should be done a posteriori of 207-cluster-monitoring-with-datadog, so you can benefit from the applications in place to generate load and simulate the autoscaling.
 
@@ -40,7 +40,7 @@ clusterrolebinding.rbac.authorization.k8s.io "dca" created
 serviceaccount "dca" created
 ```
 
-Add your <API_KEY> and <APP_KEY> in the link:../305-app-scaling-custom-metrics/templates/cluster-agent.yaml[Deployment manifest of the Datadog Cluster Agent].
+Add your <API_KEY> and <APP_KEY> in the link:../305-app-scaling-custom-metrics/templates/cluster-agent/cluster-agent.yaml[Deployment manifest of the Datadog Cluster Agent].
 Then enable the HPA Processing by setting the `DD_EXTERNAL_METRICS_PROVIDER_ENABLED` variable to true.
 Finally, spin up the resources:
 
@@ -122,7 +122,7 @@ default datadog-agent-2qqd3 1/1 Running 0 14m
 default datadog-cluster-agent-7b7f6d5547-cmdtc 1/1 Running 0 16m
 ```
 
-Now is time to create a Horizontal Pod Autoscaler manifest. If you take a look at the link:../305-app-scaling-custom-metrics/templates/cluster-agent/hpa-manifest.yaml[hpa-manifest.yaml file], you should see:
+Now is time to create a Horizontal Pod Autoscaler manifest. If you take a look at the link:../305-app-scaling-custom-metrics/templates/hpa-example/hpa-manifest.yaml[hpa-manifest.yaml file], you should see:
 
 * The HPA is configured to autoscale the Deployment called nginx
 * The maximum number of replicas created is 5 and the minimum is 1
