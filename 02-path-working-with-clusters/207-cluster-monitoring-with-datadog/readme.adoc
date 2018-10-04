@@ -1,0 +1,402 @@
+= Kubernetes Cluster Monitoring
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../../resources/images
+
+image:kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",width=420]
+image:datadog-logo.png[alt="Datadog logo", align="right",width=180]
+
+== Introduction
+
+This chapter demonstrates how to monitor a Kubernetes cluster using the following:
+
+* Datadog
+* Full stack application in python with MongoDB, Redis, NGINX.
+
+https://www.datadoghq.com/[Datadog] is a monitoring service for cloud-scale applications, providing monitoring of servers, databases, tools, and services, through a SaaS-based data analytics platform.
+It gives a unified view of an entire stack, allowing to seamlessly monitor metrics, application traces as well as logs.
+
+== Prerequisites
+
+In order to perform the tasks in this chapter, you must deploy the configurations to an Amazon EKS cluster. To create an Amazon EKS cluster, use the link:../../01-path-basics/102-your-first-cluster#create-a-kubernetes-cluster-with-eks[AWS CLI] (recommended), or alternatively, link:../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[kops].
+
+All configuration files for this chapter are in the link:templates[207-cluster-monitoring/templates] directory.
+
+== Getting Started with Datadog
+
+=== Collecting Data
+
+Monitoring starts by collecting data, so let's take a look at the https://app.datadoghq.com/account/settings[integration page]. This page contains the list of technologies Datadog integrates with.
+From cloud providers like AWS, Google Cloud or Azure to tools like Chef, Puppet or Ansible including all the different technologies from each layer of the application stack,
+databases like Postegres, MySQL, webservers as NGINX, HAProxy, and so on and so forth.
+
+Today, we will be using:
+
+* https://kubernetes.io/[Kubernetes]
+* https://www.docker.com/[Docker]
+* https://www.nginx.com/[NGINX]
+* https://www.mongodb.com/[MongoDB]
+* https://redis.io/[Redis]
+* https://www.python.org/[Python]
+
+There are multiple ways to collect data:
+
+* Via the https://github.com/DataDog/datadog-agent[Datadog Agent], by deploying the Datadog Agent on all the nodes of our cluster. It runs as a pod, along side the applications.
+* By using Datadog's crawler based integrations such as AWS, GCP...
+* Through the https://docs.datadoghq.com/api/[Datadog API].
+
+=== Data Types
+
+Datadog is capable to ingest metrics, application traces as well as logs.
+The Datadog UI is designed to allow you to navigate easily from one type to another.
+Refer to the specific documentation for each data type:
+
+- https://docs.datadoghq.com/developers/metrics/[Metrics]
+- https://docs.datadoghq.com/tracing/[Tracing]
+- https://docs.datadoghq.com/logs/[Logs]
+
+=== Visualizing Data
+
+Start by logging into your Datadog account at https://app.datadoghq.com.
+If you don't have an account yet, you can sign up https://app.datadoghq.com/signup[here].
+On the navigation bar, located on the left side of your screen, you should be able to see different items, that we will be using later on.
+First of all, the Dashboard section:
+
+image::datadogdashboards.png[]
+
+Dashboards are used to visualize and correlate metrics, traces, or/and logs.
+As you enable an integration (i.e. configure your Datadog Agents to report data from Postgres or configure the AWS integration) out of the box dashboards are created for you.
+You can also create your custom dashboards, they are highly flexible.
+
+image::coffeehouse.png[]
+
+=== Monitoring Data
+
+The last part is monitoring.
+On the https://app.datadoghq.com/monitors#/create[monitoring page], you will be welcomed with a number of options depending on what you want to monitor.
+Refer to our https://docs.datadoghq.com/monitors/[official documentation] to see an exhaustive list of all the monitor types, configuration options as well as best practices.
+
+In the following screenshot you can see that we are creating a monitor for logs. Specifying the source, the status and the count of logs to trigger the alert.
+
+image::logmonitor.png[]
+
+
+== Workshop
+
+=== Monitoring
+
+The goal of this workshop is to set up a full stack application on Amazon EKS and see how each layer of the stack can be monitored with the Datadog Agent.
+
+Start by taking a look at the link:../207-cluster-monitoring-with-datadog/templates/datadog/agent.yaml[manifest to run the Datadog Agent].
+Insert a Datadog API Key that can be found in your https://app.datadoghq.com/account/settings#api[Datadog account] in the `value: <DD_API_KEY>` placeholder.
+
+Then from the current directory, just run:
+
+```
+$ kubectl apply -f templates/datadog/agent.yaml
+daemonset.extensions "dd-agent" created
+service "dd-agent" created
+```
+
+As this manifest is a DaemonSet, this deploys a Datadog Agent on all your nodes. Each Datadog Agent lives inside a pod.
+
+=== The Database
+
+Referring to the https://kubernetes.io/blog/2017/01/running-mongodb-on-kubernetes-with-statefulsets/[Kubernetes Blog] on deploying a MongoDB StatefulSet on Kubernetes:
+To set up the MongoDB replica set, you need three things: A StorageClass, a Headless Service, and a StatefulSet.
+We start by creating a StorageClass to tell Kubernetes what kind of storage to use for the database nodes.
+In this case, we rely on EBS GP2s to store our data.
+
+```
+$ kubectl apply -f templates/mongodb/storageclass.yaml
+storageclass.storage.k8s.io "fast" created
+```
+
+Once the storage is ready, we can spin up our MongoDB with 3 replicas.
+
+```
+$ kubectl apply -f templates/mongodb/mongodb.yaml
+service "mongo" created
+statefulset.apps "mongo" created
+```
+
+Note that this creates a service which operates as a headless loadbalancer in front of the DBs.
+This also generates Persistent Volume Claims, these should appear as EBS volumes in your AWS account.
+
+Finally, for the sake of monitoring, we are going to create a user in the Primary Database, which will be used by the Datadog Agent to collect data.
+
+Run the following command:
+
+  $ kubectl exec -it mongo-0 -- sh -c 'mongo admin --host localhost --eval "db.createUser({ user: \"datadog\", pwd: \"tndPhL3wrMEDuj4wLEHmbxbV\", roles: [ {role: \"read\", db: \"admin\"}, {role: \"clusterMonitor\", db:\"admin\"},{role: \"read\", db: \"local\" } ] });"'
+
+Double check that the persistent volumes were correctly instantiated:
+
+```
+$ kubectl get pvc
+NAME                               STATUS    VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+mongo-persistent-storage-mongo-0   Bound     pvc-ec5ccee5-8307-11e8-b84c-06bfcd83c358   1Gi        RWO            fast           3m
+mongo-persistent-storage-mongo-1   Bound     pvc-f3dd1eae-8307-11e8-b84c-06bfcd83c358   1Gi        RWO            fast           3m
+mongo-persistent-storage-mongo-2   Bound     pvc-fffcea2a-8307-11e8-b84c-06bfcd83c358   1Gi        RWO            fast           3m
+```
+
+=== The cache
+
+We are going to leverage Redis to cache data.
+
+Create your Redis cache:
+```
+$ kubectl apply -f templates/redis/redis.yaml
+deployment.apps "redis" created
+service "redis" created
+```
+This creates a redis pod and a headless service in front of it.
+
+=== Deploy the application
+
+Now is the time to deploy your application.
+
+```
+$ kubectl apply -f templates/webapp/webapp.yaml
+deployment.apps "fan" created
+service "fan" created
+```
+
+This creates a pod running the application as well as a service in front of it.
+
+This web app is an interface to spin up scenarios, where different parts of the stack can be stressed and the impact of each experience can be visualized in the Datadog app.
+
+=== Exposing your app
+
+Now is time to see the result of your labor.
+
+Apply the NGINX manifest, this creates a webserver in front of the application as well as a service.
+The service, as opposed to the above services is configured to be a LoadBalancer. Therefore, it spins up an AWS ELB and makes a public DNS that is exposed to the world.
+
+```
+$ kubectl apply -f templates/nginx/nginx.yaml
+daemonset.extensions "nginx" created
+service "nginx-deployment" created
+configmap "nginxconfig" created
+```
+This also creates a https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/[ConfigMap] used to store the nginx config as an ETCD object instead of a physical file. The benefit is that the file does not have to be present on each node.
+
+Now, take a look at your LoadBalancer being configured:
+
+```
+$ kubectl describe svc nginx-deployment
+Name:                     nginx-deployment
+Namespace:                default
+Labels:                   <none>
+Annotations:              kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"nginx-deployment","namespace":"default"},"spec":{"ports":[{"name":"nginx","por...
+Selector:                 role=nginx
+Type:                     LoadBalancer
+IP:                       10.100.29.226
+LoadBalancer Ingress:     a973c485a832811e8b84c06bfcd83c35-831258848.us-west-2.elb.amazonaws.com
+Port:                     nginx  80/TCP
+TargetPort:               80/TCP
+NodePort:                 nginx  31675/TCP
+Endpoints:                192.168.159.101:80,192.168.197.28:80,192.168.70.107:80
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:
+  Type    Reason                Age   From                Message
+  ----    ------                ----  ----                -------
+  Normal  EnsuringLoadBalancer  22m   service-controller  Ensuring load balancer
+  Normal  EnsuredLoadBalancer   22m   service-controller  Ensured load balancer
+```
+
+Open the Load Balancer Ingress DNS indicated in your favorite browser.
+You should see the following page (if not, give it a few minutes):
+
+image::webapp.png[]
+
+
+== Monitoring
+
+=== Diving in the data
+
+Let's start monitoring our application by visualizing the data at a high level. The Datadog hostmap gives a birds-eye view of your infrastructure.
+Go on the https://app.datadoghq.com/infrastructure/map[hostmap] to see your Amazon EKS cluster.
+
+image::hostmap.png[]
+
+As we are using Kubernetes, our infrastructure is containers driven - Therefore, the containers map will give us more details on the containers running on each host.
+
+You can easily switch back and forth with the toggle on the top left hand corner.
+
+image::container-map.png[]
+
+While having a cluster wide overview at the container level is great, it is even better to visualize the activity on a per container/pod basis.
+You can achieve this by going to the https://app.datadoghq.com/containers[Container Live view]
+
+image::container-view.png[]
+
+Go to the https://app.datadoghq.com/process[Processes page] to visualize the processes running on the monitored host.
+
+=== Metrics
+
+The Datadog Agent is collecting the metrics from containers via the https://docs.datadoghq.com/videos/autodiscovery/[Autodiscovery process].
+It works with Annotations in this case. You can see in the MongoDB, Redis or NGINX manifests this template (adapted to the integration):
+```
+    metadata:
+      annotations:
+        ad.datadoghq.com/redis.check_names: '["redisdb"]'
+        ad.datadoghq.com/redis.init_configs: '[{}]'
+        ad.datadoghq.com/redis.instances: '[{"host": "%%host%%","port":"6379"}]'
+```
+
+Each Datadog Agent analyzes all the pods running on their respective node, inluding the metadata of the pods.
+If a pod has the above metadata, the Datadog Agent will spin up the corresponding check and attempt to run it against the pod given the specified configuration in the metadata.
+
+Exec in one of the Datadog Agents and run the status command to see what are the checks being run:
+
+ $ kubectl get pods -l app=dd-agent
+
+Pick one of the pods and run
+
+ $ kubectl exec -ti <pod_name> agent status
+
+You should see the MongoDB check being run, as well as other checks (depending on the pods running on the node).
+
+=== From Metrics to Logs
+
+Let's stress the cache of our app and see the logs.
+
+Open your web app and click on the `Caching demo`, run it and go to your Datadog application.
+
+This demo will stress Redis by querying elements in the cache. It will subsequently submit logs and traces.
+
+Go to the https://app.datadoghq.com/screen/integration/15/redis---overview[Redis Dashboard] - It was made out of the box for you as a Datadog Agent autodiscovered the Redis pod.
+You will see a surge in the command per seconds, click on the metric and View Related Logs
+
+image::redis-dashboard.png[]
+
+This will take you to the https://app.datadoghq.com/logs[Log Explorer] page, carrying the context of the source (here Redis) and the time window.
+
+image::redis-logs.png[]
+
+Click on one of the logs to see its details.
+
+=== From Logs to Traces
+
+Now that we have identified the logs that were submitted at the moment of the surge in the number of commands per second, let's look at the relevant traces that our application submitted.
+
+Click on one of the Redis logs, and on `Service: Redis` click on See in APM:
+
+image::go-to-redis-traces.png[]
+
+From there  navigate to the traces that correspond to this service. Clicking on the `GET` resource we can see the total number of requests, errors as well as the latency.
+Now, click on a single trace and see the actual flame graph:
+
+image::redis-traces.png[]
+
+=== Setting up some monitors
+
+Before doing some further testing, let's create a few monitors. Go to the https://app.datadoghq.com/monitors#/create[Monitor section] of your Datadog Application.
+
+* Monitoring the Infrastructure
+
+Create a https://app.datadoghq.com/monitors#create/metric[metric monitor] for the memory used by pod - you can pick the metric and set the scope, We recommend using the following query:
+
+`avg:kubernetes.memory.usage{cluster:eks} by {pod_name}`
+
+Set a threshold at `160M`
+
+In the `Say what's happening` section, describe the issue and use template variables to give more context:
+```
+Memory over {{threshold}} for {{pod_name.name}}.
+```
+
+* Monitoring the DB
+
+Create a https://app.datadoghq.com/monitors#create/forecast[Forecast Monitor] for the number of objects in your Database.
+This will trigger if the number of objects stored is different from what the algorithm predicted.
+
+We recommend the following query:
+`avg:mongodb.stats.objects{cluster:eks} by {db}`
+
+Set the condition to 24 hours and click on Advanced Options, you can select the https://www.datadoghq.com/blog/forecasts-datadog/#accounting-for-seasonality[Seasonal algorithm], if you are expecting seasonality behaviors in the creation of objects.
+
+Specify the message of your choice and create the monitor.
+
+* Monitoring the cache
+
+Create an https://app.datadoghq.com/monitors#create/apm[APM monitor]. Select the demo environment and the service redis-cache.
+You can select the Anomaly alert, and specify the threshold. The message should be pre-filled.
+
+image::redis-apm-monitor.png[]
+
+* Monitoring the Webserver
+
+Create an https://app.datadoghq.com/monitors#create/integration[Integration Monitor] for NGINX.
+Specify the following query:
+`sum:nginx.net.request_per_s{cluster:eks} by {host}`
+
+Set the thresholds to your liking and write down the message you want to receive should this monitor trigger.
+A good example here would be:
+```
+Number of requests received on the NGINX webserver on host {{host.name}} is over {{threshold}}.
+Please ssh in  {{host.ip}} @youremail@gmail.com
+```
+
+* Monitoring the app (with traces or logs)
+
+Finally, you can set up a Log Monitor to monitor your Application.
+Create a https://app.datadoghq.com/monitors#create/log[Log Monitor], and specify the following query:
+
+`service:(fetchapp) @http.url_details.path:("/api/flushcache" )`
+
+We recommend setting a threshold at 450 requests.
+
+Then specify your message and save it!
+
+=== AB testing
+
+Now, let's run the infinite demo.
+
+image::infinite-demo.png[alt="Infinite Demo", align="center",width=200]
+
+Go on your web app and click on the infinite demo, this will generate traffic, logs and traces as well.
+
+image::full-trace.png[]
+
+As you let this run, feel free to go create dashboards and navigate throughout the Datadog application.
+Soon enough, a few of your monitors should trigger!
+Keep an eye on their health in the https://app.datadoghq.com/monitors/manage[Manage Monitors] page.
+
+If you specified an email you will receive a notification as well.
+
+Should you want to go further with the notifications, Datadog integrates with a lot of 3rd party tools, such as PagerDuty, Slack, Zendesk...
+Check the whole list here: https://docs.datadoghq.com/integrations/#cat-notification
+
+We recommend leaving the Datadog Agents up, as the next steps of the workshop will also have a monitoring section.
+
+=== Clean up
+
+If you want to remove all the installed components:
+
+    kubectl delete -f templates/datadog
+    kubectl delete -f templates/mongo
+    kubectl delete -f templates/redis
+    kubectl delete -f templates/nginx
+    kubectl delete -f templates/webapp
+
+    kubectl get pvc
+    kubectl delete pvc-*
+
+Make sure you remove the ELB and the EBSs created.
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../../02-path-working-with-clusters/202-service-mesh]
+|image:button-continue-operations.png[link=../../02-path-working-with-clusters/202-service-mesh]
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../operations-path.adoc[Go to Operations Index]
+|=====

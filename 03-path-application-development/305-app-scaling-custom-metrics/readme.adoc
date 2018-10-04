@@ -1,0 +1,206 @@
+= Kubernetes App Auto-scaling with Custom metrics
+:toc:
+:icons:
+:linkcss:
+:imagesdir: ../../resources/images
+
+https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/[Horizontal Pod Autoscaling] (HPA) is a Kubernetes feature to dynamically increase/decrease the number of pod replicas based on resource utilization metrics.
+
+The Horizontal Pod Autoscaling feature was introduced in Kubernetes v1.2. It allows users to autoscale off of basic metrics like CPU, but requires a resource called metrics-server to run along side your application. As of Kubernetes v1.6, it is possible to autoscale off of custom metrics. Custom metrics are user defined and are collected from within the cluster. As of Kubernetes v1.10, support for external metrics was introduced so users can autoscale off of any metric from outside the cluster that is collected for you by Datadog.
+
+The custom and external metric providers, as opposed to the metrics server, are resources that have to be implemented and registered by the user.
+
+== Prerequisites
+
+Running Kubernetes v1.10+ in order to be able to register the External Metrics Provider resource against the API Server.
+Having the Aggregation layer enabled, refer to the https://kubernetes.io/docs/tasks/access-kubernetes-api/configure-aggregation-layer/[Kubernetes aggregation layer] configuration documentation to learn how to enable it.
+Using https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html[EKS 2.0], this will be automatically enabled for you.
+
+This section of the workshop should be done a posteriori of 207-cluster-monitoring-with-datadog, so you can benefit from the applications in place to generate load and simulate the autoscaling.
+
+== Walkthrough
+
+Autoscaling over External Metrics does not require the Node Agent to be running, you only need the metrics to be available in your Datadog account.
+Nevertheless, for this walkthrough, we autoscale an NGINX Deployment based off of NGINX metrics, collected by a Node Agent.
+
+Before proceeding, please make sure you went through the section 207 of this workshop.
+This entails that you have Node Agents running with the Autodiscovery process enabled and functional.
+
+In order to autoscale in Kubernetes, you need to register a Custom/External Metrics Server - The Datadog Cluster Agent implements this feature.
+
+=== Spinning up the Datadog Cluster Agent
+
+Start by creating the appropriate RBAC rules. Allowing the cluster agent to watch and parse Horizontal Pod Autoscalers as well as cluster level metadata.
+
+```
+kubectl apply -f templates/cluster-agent/rbac/rbac-cluster-agent.yaml
+
+clusterrole.rbac.authorization.k8s.io "dca" created
+clusterrolebinding.rbac.authorization.k8s.io "dca" created
+serviceaccount "dca" created
+```
+
+Add your <API_KEY> and <APP_KEY> in the link:../305-app-scaling-custom-metrics/templates/cluster-agent/cluster-agent.yaml[Deployment manifest of the Datadog Cluster Agent].
+Then enable the HPA Processing by setting the `DD_EXTERNAL_METRICS_PROVIDER_ENABLED` variable to true.
+Finally, spin up the resources:
+
+```
+kubectl apply -f templates/cluster-agent/datadog-cluster-agent_service.yaml
+kubectl apply -f templates/cluster-agent/hpa-example/cluster-agent-hpa-svc.yaml
+kubectl apply -f templates/cluster-agent/cluster-agent.yaml
+```
+
+Note that the first service is used for the communication between the Node Agents and the Datadog Cluster Agent, but the second is used by Kubernetes to register the External Metrics Provider.
+
+At this point you should be having:
+
+Pods:
+```
+NAMESPACE NAME READY STATUS RESTARTS AGE
+default datadog-cluster-agent-7b7f6d5547-cmdtc 1/1 Running 0 28m
+```
+Services:
+```
+NAMESPACE NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE
+default datadog-custom-metrics-server ClusterIP 192.168.254.87 <none> 443/TCP 28m
+default datadog-cluster-agent ClusterIP 192.168.254.197 <none> 5005/TCP 28m
+```
+
+=== Register the External Metrics Provider
+
+Once the Datadog Cluster Agent is up and running, register it as an External Metrics Provider, via the service exposing the port 443.
+
+Apply the following RBAC rules:
+
+```
+kubectl apply -f templates/hpa-example/rbac-hpa.yaml
+
+clusterrolebinding.rbac.authorization.k8s.io "system:auth-delegator" created
+rolebinding.rbac.authorization.k8s.io "dca" created
+apiservice.apiregistration.k8s.io "v1beta1.external.metrics.k8s.io" created
+clusterrole.rbac.authorization.k8s.io "external-metrics-reader" created
+clusterrolebinding.rbac.authorization.k8s.io "external-metrics-reader" created
+```
+
+You can confirm that the cluster agent is properly registered as an External Metrics Provider by running:
+
+```
+kubectl describe apiservice v1beta1.external.metrics.k8s.io
+[...]
+
+  Service:
+    Name:            datadog-custom-metrics-server
+    Namespace:       default
+  Version:           v1beta1
+  Version Priority:  100
+
+[...]
+
+Status:
+  Conditions:
+    Last Transition Time:  2018-09-28T16:19:34Z
+    Message:               all checks passed
+    Reason:                Passed
+    Status:                True
+    Type:                  Available
+```
+
+Once you have the Datadog Cluster Agent running and the service registered, create an HPA manifest.
+The Datadog Cluster Agent will subsequently parse the manifest and pull metrics from Datadog.
+
+=== Running the HPA
+
+At this point, you should be seeing:
+
+Pods:
+```
+NAMESPACE NAME READY STATUS RESTARTS AGE
+default datadog-agent-4c5pp 1/1 Running 0 14m
+default datadog-agent-ww2da 1/1 Running 0 14m
+default datadog-agent-2qqd3 1/1 Running 0 14m
+[…]
+default datadog-cluster-agent-7b7f6d5547-cmdtc 1/1 Running 0 16m
+```
+
+Now is time to create a Horizontal Pod Autoscaler manifest. If you take a look at the link:../305-app-scaling-custom-metrics/templates/hpa-example/hpa-manifest.yaml[hpa-manifest.yaml file], you should see:
+
+* The HPA is configured to autoscale the Deployment called nginx
+* The maximum number of replicas created is 5 and the minimum is 1
+* The metric used is nginx.net.request_per_s and the scope is kube_container_name: nginx. Note that this metric format corresponds to the Datadog one.
+
+Every 30 seconds (this can be configured) Kubernetes queries the Datadog Cluster Agent to get the value of this metric and autoscales proportionally if necessary. For advanced use cases, it is possible to have several metrics in the same HPA, as you can see in the https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-multiple-metrics[Kubernetes horizontal pod autoscale documentation] the largest of the proposed value will be the one chosen.
+
+We will be relying on the nginx deployment used in the section 207 of this workshop.
+Make sure that everything is still running:
+
+```
+kubectl get deploy,po -lrole=nginx
+NAME                          DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/nginx   1         1         1            1           2h
+
+NAME                         READY     STATUS    RESTARTS   AGE
+pod/nginx-69cb46b4db-6bbml   1/1       Running   0          2h
+
+```
+
+Then, apply the HPA manifest.
+
+```
+kubectl apply -f templates/cluster-agent/hpa-example/hpa-manifest.yaml
+horizontalpodautoscaler.autoscaling "nginxext" created
+```
+
+You should be seeing your nginx pod running with the corresponding service:
+
+Pods:
+```
+default nginx-6757dd8769-5xzp2 1/1 Running 0 3m
+```
+Services:
+```
+NAMESPACE NAME  TYPE      CLUSTER-IP     EXTERNAL-IP PORT(S)  AGE
+default   nginx ClusterIP 192.168.251.36 none        8090/TCP 3m
+```
+Horizontal Pod Autoscalers:
+```
+NAMESPACE NAME     REFERENCE        TARGETS    MINPODS MAXPODS REPLICAS AGE
+default   nginxext Deployment/nginx 0/50 (avg) 1       3       1        3m
+```
+
+=== Stressing your service
+
+At this point, the set up is ready to be stressed. As a result of the stress Kubernetes will autoscale the NGINX pods.
+
+To do so, you can use the interface of the application spun up during the step 207.
+For instance, you can trigger a cache stress, which will also stress the NGINX service by simulating requests.
+
+image::caching-demo.png[]
+
+Looking into your application, you should be able to correlate the requests per second on your NGINX boxes with the autoscaling event and the creation of new replicas.
+
+image::autoscalingdash.png[]
+
+In the above screenshot, we triggered 2 simulations, one at 12.30 and another one at 12.45.
+You can see that as a result of the stress, an additional replica is spun up serving the requests.
+The average request per second falls at ~27 request.
+Finally, after a cooling down period, we downscale.
+
+== Cleanup
+
+```
+$ kubectl delete -f templates
+```
+
+You are now ready to continue on with the workshop!
+
+:frame: none
+:grid: none
+:valign: top
+
+[align="center", cols="2", grid="none", frame="none"]
+|=====
+|image:button-continue-standard.png[link=../../05-path-next-steps/502-for-further-reading]
+|image:button-continue-developer.png[link=../../03-path-application-development/305-app-tracing-with-jaeger-and-x-ray]
+|link:../../standard-path.adoc[Go to Standard Index]
+|link:../../developer-path.adoc[Go to Developer Index]
+|=====
