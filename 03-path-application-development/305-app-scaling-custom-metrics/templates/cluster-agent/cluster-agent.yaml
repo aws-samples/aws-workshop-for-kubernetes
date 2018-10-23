@@ -12,7 +12,7 @@ spec:
     spec:
       serviceAccountName: datadog-cluster-agent
       containers:
-      - image: datadog/cluster-agent:0.10.0
+      - image: datadog/cluster-agent:latest
         imagePullPolicy: Always
         name: datadog-cluster-agent
         env:
