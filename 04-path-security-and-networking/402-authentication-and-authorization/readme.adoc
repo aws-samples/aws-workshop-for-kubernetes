@@ -235,7 +235,7 @@ To govern what roles a pod can assume, you can use the `iam.amazonaws.com/allowe
     $ kubectl apply -f templates/namespace-role-annotation.yaml
     namespace "default" configured
 
-From now on, pods in the default namespace will only be able to optain the `MyPodRole`.
+From now on, pods in the default namespace will only be able to obtain the `MyPodRole`.
 
 == IAM container roles using Hashicorp Vault
 
