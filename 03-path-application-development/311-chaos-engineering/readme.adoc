@@ -75,7 +75,7 @@ The experiment begins with some header information that describes the experiment
 {
     "version": "1.0.0",
     "title": "Terminating the greeting service should not impact users",
-    "description": "How does the greeting service unavailbility impacts our users? Do they see an error or does the webapp gets slower?",
+    "description": "How does the greeting service unavailability impacts our users? Do they see an error or does the webapp gets slower?",
     "tags": [
         "kubernetes",
         "aws"

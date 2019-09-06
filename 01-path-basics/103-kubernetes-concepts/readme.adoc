@@ -515,7 +515,7 @@ A "`desired state`", such as 4 replicas of a pod, can be described in a Deployme
 
 === Create a Deployment
 
-The folowing example will create a Deployment with 3 replicas of NGINX base image. Let's begin with the template:
+The following example will create a Deployment with 3 replicas of NGINX base image. Let's begin with the template:
 
   $ cat deployment.yaml
 	apiVersion: apps/v1
@@ -918,7 +918,7 @@ The backend Deployment needs to be explicitly deleted as well:
 
 == Daemon Set
 
-Daemon Set ensure that a copy of the pod runs on a selected set of nodes. By default, all nodes in the cluster are selected. A selection critieria may be specified to select a limited number of nodes.
+Daemon Set ensure that a copy of the pod runs on a selected set of nodes. By default, all nodes in the cluster are selected. A selection criteria may be specified to select a limited number of nodes.
 
 As new nodes are added to the cluster, pods are started on them. As nodes are removed, pods are removed through garbage collection.
 

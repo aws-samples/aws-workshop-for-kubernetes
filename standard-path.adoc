@@ -45,7 +45,7 @@ Delete kubernetes cluster
 
 Wait until all resources are deleted by kops
 
-==== Delete Cloud9 Envionment
+==== Delete Cloud9 Environment
 
 Go to CloudFormation console, right click template with name 'k8s-workshop' and select 'Delete Stack'
 

@@ -67,7 +67,7 @@ Running multiple apiservers therefore increases failure tolerance but also reduc
 WARNING: Some customers started without a dedicated load-balancer but instead used dns round-robin to expose multiple apiservers to the users and worker nodes. This caused very frequent problems as worker nodes cache the ip of a master and therefore the loadbalancing is not working anymore. Additionally dns caching caused connection timeouts once masters were not available anymore due to maintenance, ip change, etc.
 
 == HA Clusters
-To increase cluster availability it is advised to spread Kuberntes cluster components over multiple availability zones in the same VPC.
+To increase cluster availability it is advised to spread Kubernetes cluster components over multiple availability zones in the same VPC.
 
 IMPORTANT: One important thing to note is the fact that EBS volumes are only available inside the same AZ. This has caused frequent problems with customers once a Pod was scheduled to a node in a different AZ as Kubernetes was not able to attach the volume anymore.
 One solution can be to enrich the nodes with metadata about region and AZ and use this information in the node selector - additionally one could then build ha systems per AZ and replicate data between AZs.

@@ -29,7 +29,7 @@ All configuration files for this chapter are in the link:templates[207-cluster-m
 
 Monitoring starts by collecting data, so let's take a look at the https://app.datadoghq.com/account/settings[integration page]. This page contains the list of technologies Datadog integrates with.
 From cloud providers like AWS, Google Cloud or Azure to tools like Chef, Puppet or Ansible including all the different technologies from each layer of the application stack,
-databases like Postegres, MySQL, webservers as NGINX, HAProxy, and so on and so forth.
+databases like Postgres, MySQL, webservers as NGINX, HAProxy, and so on and so forth.
 
 Today, we will be using:
 

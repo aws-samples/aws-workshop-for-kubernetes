@@ -99,7 +99,7 @@ All existing pods are killed before the new ones are created. The configuration 
       Normal  CreatingLoadBalancer  24s   service-controller  Creating load balancer
       Normal  CreatedLoadBalancer   23s   service-controller  Created load balancer
 
-. Acccess service:
+. Access service:
 
     $ curl http://af2dc1f99bda211e791f402037f18a54-1616925381.eu-central-1.elb.amazonaws.com
     Hello World!
@@ -170,7 +170,7 @@ The output shows that `v1` version of the image is being used.
     app-v1-recreate-2362379170-hkpt7   1/1       Running   0         4s
     app-v1-recreate-2362379170-jzh5d   1/1       Running   0         4s
 +
-The output shows that all pods are terminatd first and then the new ones are created.
+The output shows that all pods are terminated first and then the new ones are created.
 +
 . Get the history of deployments:
 
@@ -267,7 +267,7 @@ Once again, `--record` ensures that the command initiating this deployment is re
       Normal  CreatingLoadBalancer  1m    service-controller  Creating load balancer
       Normal  CreatedLoadBalancer   1m    service-controller  Created load balancer
 
-. Acccess service:
+. Access service:
 
     $ curl http://abe27b4c7bdaa11e791f402037f18a54-647142678.eu-central-1.elb.amazonaws.com
     Hello World!
@@ -391,7 +391,7 @@ At this time, only one means of Canary deployment is explained. Details on other
 
 === Deployment, Service and Labels
 
-Two Deployments with image for different versions are used togther. Both Deployments have same pod labels but differ in at least one label. The common pod labels are uesd as selector for the Service. Different pod labels are used to scale the number of replicas. One replica of the new version of Deployment is released alongside the old version. If no errors are detected for some time, then the number of replicas of the new version are scaled up and the number of replicas for the old version are scaled down. Eventually, the old version is deleted.
+Two Deployments with image for different versions are used together. Both Deployments have same pod labels but differ in at least one label. The common pod labels are used as selector for the Service. Different pod labels are used to scale the number of replicas. One replica of the new version of Deployment is released alongside the old version. If no errors are detected for some time, then the number of replicas of the new version are scaled up and the number of replicas for the old version are scaled down. Eventually, the old version is deleted.
 
 ==== Deployment and Service definition
 
@@ -495,7 +495,7 @@ Note that we are explicitly specifying the label `name=app` in the query to only
 
 ==== Scale Canary Deployment
 
-The number of pods to be included from `v1` version and `v2` version can now be indepently scaled using the two Deployments.
+The number of pods to be included from `v1` version and `v2` version can now be independently scaled using the two Deployments.
 
 . Increase the number of replicas for `v2` Deployment:
 

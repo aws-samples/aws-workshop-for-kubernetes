@@ -226,7 +226,7 @@ Open the Kibana dashboard from the link:
 
 image::logging-cloudwatch-kibana-default.png[]
 
-Begin using the capabilites to search and visuzalize your Kubernetes cluster metrics.
+Begin using the capabilities to search and visualize your Kubernetes cluster metrics.
 
 == Delete resources
 

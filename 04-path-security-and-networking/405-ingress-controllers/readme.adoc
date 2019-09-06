@@ -230,8 +230,8 @@ In short the major differences from CoreOS ALB Ingress Controller is:
 
 - it uses Cloudformation instead of API calls
 - does not have routes limitations from AWS
-- automatically finds the best matching ACM and IAM certifacte for your ingress
-- you are free to use an http router imlementation of your choice, which can implement more features like green-blue deployments
+- automatically finds the best matching ACM and IAM certificate for your ingress
+- you are free to use an http router implementation of your choice, which can implement more features like green-blue deployments
 
 For this tutorial I assume you have GNU sed installed, if not read
 commands with `sed` to modify the files according to the `sed` command
