@@ -3,6 +3,9 @@
 :linkattrs:
 :imagesdir: resources/images
 
+image:stop_sign01.png[align="left",width=420]
+This content is outdated and is no longer maintained. Please go to https://www.eksworkshop.com/ for newest EKS tutorials!
+
 image:kubernetes-aws-smile.png[alt="kubernetes and aws logos", align="left",width=420]
 
 This is a self-paced workshop designed for Development and Operations teams who would like to leverage Kubernetes on Amazon Web Services (AWS).
