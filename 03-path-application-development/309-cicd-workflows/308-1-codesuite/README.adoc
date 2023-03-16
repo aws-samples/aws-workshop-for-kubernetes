@@ -1,12 +1,12 @@
-= Codesuite - Continuous Deployment
+= Code Services - Continuous Deployment
 :toc:
 :icons:
 :linkcss:
 :imagesdir: ../../../resources/images
 
-= CodeSuite - Continuous Deployment Reference Architecture for Kubernetes
+= Code services - Continuous Deployment Reference Architecture for Kubernetes
 
-The CodeSuite Continuous Deployment reference architecture demonstrates how to achieve continuous
+The Code services Continuous Deployment reference architecture demonstrates how to achieve continuous
 deployment of an application to a Kubernetes cluster using AWS CodePipeline, AWS CodeCommit, AWS CodeBuild and AWS Lambda.
 
 Launching this AWS CloudFormation stack provisions a continuous deployment process that uses AWS CodePipeline
