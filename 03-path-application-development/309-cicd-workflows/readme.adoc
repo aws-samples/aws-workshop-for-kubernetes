@@ -8,7 +8,7 @@ There are many different tools for building CI/CD pipelines with the Kubernetes 
 
 Please explore the sections below for more information:
 
-* link:308-1-codesuite/[CodeSuite]
+* link:308-1-code-services/[code services]
 
 Once you've looked at the options above, you are ready to continue with the workshop!
 
