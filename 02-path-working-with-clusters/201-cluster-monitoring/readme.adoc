@@ -126,7 +126,7 @@ Click on `Nodes` to see a textual representation about the nodes running in the 
 
 image::monitoring-nodes-before.png[]
 
-Install a Java application as explained in link:../../03-path-application-development/306-app-management-with-helm[Deploying applications using Kubernetes Helm charts].
+Install a Java application as explained in link:../../03-path-application-development/307-app-management-with-helm[Deploying applications using Kubernetes Helm charts].
 
 Click on `Pods`, again to see a textual representation about the pods running in the cluster:
 
