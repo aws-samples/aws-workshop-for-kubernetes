@@ -1555,9 +1555,9 @@ Let's create a Pod with the following configuration file:
 You may have to remove a previously running Pod or Deployment before attempting to create this Pod.
 
 	$ kubectl apply -f pod.yaml
-	Error from server (Forbidden): error when creating "pod.yaml": pods "nginx-pod" is forbidden: failed quota: quota: must specify memory
+	Error from server (Forbidden): error when creating "pod.yaml": pods "nginx-pod" is forbidden: failed quota: quota: must specify cpu,memory
 
-The error message indicates that a ResourceQuota is in effect, and that the Pod must explicitly specify memory resources.
+The error message indicates that a ResourceQuota is in effect, and that the Pod must explicitly specify CPU and memory resources.
 
 Update the configuration file to:
 
@@ -1575,6 +1575,7 @@ Update the configuration file to:
 	    resources:
 	      requests:
 	        memory: "100m"
+	        cpu: "1"
 	    ports:
 	    - containerPort: 80
 
@@ -1598,15 +1599,13 @@ Get more details about the ResourceQuota:
 	Resource                Used  Hard
 	--------                ----  ----
 	configmaps              0     5
-	cpu                     400m  4
+	cpu                     1     4
 	memory                  100m  6G
 	pods                    4     12
 	replicationcontrollers  0     3
 	services                1     5
 
 Note, how CPU and memory resources have incremented values.
-
-https://github.com/kubernetes/kubernetes/issues/55433[kubernetes#55433] provide more details on how an explicit CPU resource is not needed to create a Pod with ResourceQuota.
 
 	$ kubectl delete quota/quota
 	$ kubectl delete quota/quota2
