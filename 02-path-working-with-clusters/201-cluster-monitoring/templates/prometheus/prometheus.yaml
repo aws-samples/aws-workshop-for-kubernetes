@@ -160,7 +160,7 @@ spec:
       serviceAccountName: kube-state-metrics
       containers:
       - name: kube-state-metrics
-        image: quay.io/coreos/kube-state-metrics:v1.0.1
+        image: quay.io/coreos/kube-state-metrics:v1.3.1
         ports:
         - name: metrics
           containerPort: 8080
@@ -171,7 +171,7 @@ spec:
           initialDelaySeconds: 5
           timeoutSeconds: 5
       - name: addon-resizer
-        image: k8s.gcr.io/addon-resizer:1.0
+        image: k8s.gcr.io/addon-resizer:1.7
         resources:
           limits:
             cpu: 100m
@@ -225,7 +225,7 @@ metadata:
 spec:
   replicas: 2
   version: v2.0.0-rc.1
-  serviceAccountName: prometheus-operator
+  serviceAccountName: prometheus
   serviceMonitorSelector:
     matchExpressions:
     - {key: k8s-app, operator: Exists}
@@ -245,6 +245,45 @@ spec:
     - namespace: monitoring
       name: alertmanager-main
       port: web
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: prometheus
+  namespace: monitoring
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: monitoring
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
