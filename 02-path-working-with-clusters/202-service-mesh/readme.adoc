@@ -249,48 +249,116 @@ https://istio.io/docs/setup/kubernetes/quick-start.html[Istio quick start]
 You should now be able to run the `istioctl` CLI
 
   $ istioctl version
-  Version: 0.2.10
-  GitRevision: f27f2803f59994367c1cca47467c362b1702d605
-  GitBranch: release-0.2
-  User: sebastienvas@ee792364cfc2
-  GolangVersion: go1.8
+  Version: 0.8.0
+  GitRevision: 6f9f420f0c7119ff4fa6a1966a6f6d89b1b4db84
+  User: root@48d5ddfd72da
+  Hub: docker.io/istio
+  GolangVersion: go1.10.1
+  BuildStatus: Clean
 
-Install Istio using `kubectl`. This will install Istio into its own namespace, `istio-system`. Change to the
+Install Istio using `kubectl`. This will install Istio and some other addons like Prometheus, Servicegraph etc into the namespace, `istio-system`. Change to the
 directory where you downloaded Istio in the step above.
 
-    kubectl apply -f install/kubernetes/istio.yaml
+    kubectl apply -f install/kubernetes/istio-demo.yaml
 
 Check the Istio has been installed. Note that Istio is installed into its own namespace.
 
 ```
 $ kubectl get all --namespace istio-system
-NAME                   DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deploy/istio-ca        1         1         1            1           1m
-deploy/istio-egress    1         1         1            1           1m
-deploy/istio-ingress   1         1         1            1           1m
-deploy/istio-mixer     1         1         1            1           2m
-deploy/istio-pilot     1         1         1            1           1m
+NAME                                            READY     STATUS      RESTARTS   AGE
+pod/grafana-cd99bf478-zns5k                     1/1       Running     0          2m
+pod/istio-citadel-ff5696f6f-bbn8k               1/1       Running     0          2m
+pod/istio-cleanup-old-ca-zrbm7                  0/1       Completed   0          2m
+pod/istio-egressgateway-58d98d898c-2cfjh        1/1       Running     0          2m
+pod/istio-ingressgateway-6bc7c7c4bc-z8cf9       1/1       Running     0          2m
+pod/istio-mixer-post-install-lmzql              0/1       Completed   0          2m
+pod/istio-pilot-6c5c6b586c-957dc                2/2       Running     0          2m
+pod/istio-policy-5c7fbb4b9f-t8d4n               2/2       Running     0          2m
+pod/istio-sidecar-injector-dbd67c88d-z9bqv      1/1       Running     0          2m
+pod/istio-statsd-prom-bridge-6dbb7dcc7f-lvfgh   1/1       Running     0          2m
+pod/istio-telemetry-54b5bf4847-t6zpv            2/2       Running     0          2m
+pod/istio-tracing-67dbb5b89f-52jfp              1/1       Running     0          2m
+pod/prometheus-586d95b8d9-pjszk                 1/1       Running     0          2m
+pod/servicegraph-6d86dfc6cb-w9zrk               1/1       Running     0          2m
 
-NAME                          DESIRED   CURRENT   READY     AGE
-rs/istio-ca-2651333813        1         1         1         1m
-rs/istio-egress-2836352731    1         1         1         1m
-rs/istio-ingress-2873642151   1         1         1         1m
-rs/istio-mixer-1999632368     1         1         1         2m
-rs/istio-pilot-1811250569     1         1         1         1m
+NAME                               TYPE           CLUSTER-IP       EXTERNAL-IP        PORT(S)                                                               AGE
+service/grafana                    ClusterIP      100.66.34.122    <none>             3000/TCP                                                              2m
+service/istio-citadel              ClusterIP      100.69.109.99    <none>             8060/TCP,9093/TCP                                                     2m
+service/istio-egressgateway        ClusterIP      100.70.71.184    <none>             80/TCP,443/TCP                                                        2m
+service/istio-ingressgateway       LoadBalancer   100.68.44.91     ad08ea0928e57...   80:31380/TCP,443:31390/TCP,31400:31400/TCP                            2m
+service/istio-pilot                ClusterIP      100.71.119.149   <none>             15003/TCP,15005/TCP,15007/TCP,15010/TCP,15011/TCP,8080/TCP,9093/TCP   2m
+service/istio-policy               ClusterIP      100.71.34.32     <none>             9091/TCP,15004/TCP,9093/TCP                                           2m
+service/istio-sidecar-injector     ClusterIP      100.69.149.195   <none>             443/TCP                                                               2m
+service/istio-statsd-prom-bridge   ClusterIP      100.68.198.67    <none>             9102/TCP,9125/UDP                                                     2m
+service/istio-telemetry            ClusterIP      100.66.86.88     <none>             9091/TCP,15004/TCP,9093/TCP,42422/TCP                                 2m
+service/prometheus                 ClusterIP      100.65.27.76     <none>             9090/TCP                                                              2m
+service/servicegraph               ClusterIP      100.65.125.31    <none>             8088/TCP                                                              2m
+service/tracing                    LoadBalancer   100.67.59.175    ad3bd538a8e57...   80:30566/TCP                                                          2m
+service/zipkin                     ClusterIP      100.70.110.1     <none>             9411/TCP                                                              2m
 
-NAME                   DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deploy/istio-ca        1         1         1            1           1m
-deploy/istio-egress    1         1         1            1           1m
-deploy/istio-ingress   1         1         1            1           1m
-deploy/istio-mixer     1         1         1            1           2m
-deploy/istio-pilot     1         1         1            1           1m
+NAME                                             DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/grafana                    1         1         1            1           2m
+deployment.extensions/istio-citadel              1         1         1            1           2m
+deployment.extensions/istio-egressgateway        1         1         1            1           2m
+deployment.extensions/istio-ingressgateway       1         1         1            1           2m
+deployment.extensions/istio-pilot                1         1         1            1           2m
+deployment.extensions/istio-policy               1         1         1            1           2m
+deployment.extensions/istio-sidecar-injector     1         1         1            1           2m
+deployment.extensions/istio-statsd-prom-bridge   1         1         1            1           2m
+deployment.extensions/istio-telemetry            1         1         1            1           2m
+deployment.extensions/istio-tracing              1         1         1            1           2m
+deployment.extensions/prometheus                 1         1         1            1           2m
+deployment.extensions/servicegraph               1         1         1            1           2m
 
-NAME                                READY     STATUS    RESTARTS   AGE
-po/istio-ca-2651333813-pcr1f        1/1       Running   0          1m
-po/istio-egress-2836352731-sfj7j    1/1       Running   0          1m
-po/istio-ingress-2873642151-vzfxr   1/1       Running   0          1m
-po/istio-mixer-1999632368-nz0mw     2/2       Running   0          2m
-po/istio-pilot-1811250569-mmfdg     1/1       Running   0          1m
+NAME                                                        DESIRED   CURRENT   READY     AGE
+replicaset.extensions/grafana-cd99bf478                     1         1         1         2m
+replicaset.extensions/istio-citadel-ff5696f6f               1         1         1         2m
+replicaset.extensions/istio-egressgateway-58d98d898c        1         1         1         2m
+replicaset.extensions/istio-ingressgateway-6bc7c7c4bc       1         1         1         2m
+replicaset.extensions/istio-pilot-6c5c6b586c                1         1         1         2m
+replicaset.extensions/istio-policy-5c7fbb4b9f               1         1         1         2m
+replicaset.extensions/istio-sidecar-injector-dbd67c88d      1         1         1         2m
+replicaset.extensions/istio-statsd-prom-bridge-6dbb7dcc7f   1         1         1         2m
+replicaset.extensions/istio-telemetry-54b5bf4847            1         1         1         2m
+replicaset.extensions/istio-tracing-67dbb5b89f              1         1         1         2m
+replicaset.extensions/prometheus-586d95b8d9                 1         1         1         2m
+replicaset.extensions/servicegraph-6d86dfc6cb               1         1         1         2m
+
+NAME                                       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/grafana                    1         1         1            1           2m
+deployment.apps/istio-citadel              1         1         1            1           2m
+deployment.apps/istio-egressgateway        1         1         1            1           2m
+deployment.apps/istio-ingressgateway       1         1         1            1           2m
+deployment.apps/istio-pilot                1         1         1            1           2m
+deployment.apps/istio-policy               1         1         1            1           2m
+deployment.apps/istio-sidecar-injector     1         1         1            1           2m
+deployment.apps/istio-statsd-prom-bridge   1         1         1            1           2m
+deployment.apps/istio-telemetry            1         1         1            1           2m
+deployment.apps/istio-tracing              1         1         1            1           2m
+deployment.apps/prometheus                 1         1         1            1           2m
+deployment.apps/servicegraph               1         1         1            1           2m
+
+NAME                                                  DESIRED   CURRENT   READY     AGE
+replicaset.apps/grafana-cd99bf478                     1         1         1         2m
+replicaset.apps/istio-citadel-ff5696f6f               1         1         1         2m
+replicaset.apps/istio-egressgateway-58d98d898c        1         1         1         2m
+replicaset.apps/istio-ingressgateway-6bc7c7c4bc       1         1         1         2m
+replicaset.apps/istio-pilot-6c5c6b586c                1         1         1         2m
+replicaset.apps/istio-policy-5c7fbb4b9f               1         1         1         2m
+replicaset.apps/istio-sidecar-injector-dbd67c88d      1         1         1         2m
+replicaset.apps/istio-statsd-prom-bridge-6dbb7dcc7f   1         1         1         2m
+replicaset.apps/istio-telemetry-54b5bf4847            1         1         1         2m
+replicaset.apps/istio-tracing-67dbb5b89f              1         1         1         2m
+replicaset.apps/prometheus-586d95b8d9                 1         1         1         2m
+replicaset.apps/servicegraph-6d86dfc6cb               1         1         1         2m
+
+NAME                                                       REFERENCE                         TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istio-egressgateway    Deployment/istio-egressgateway    <unknown>/80%   1         1         1          2m
+horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingressgateway   <unknown>/80%   1         1         1          2m
+
+NAME                                 DESIRED   SUCCESSFUL   AGE
+job.batch/istio-cleanup-old-ca       1         1            2m
+job.batch/istio-mixer-post-install   1         1            2m
 ```
 
 === Deploying the sample application
@@ -304,46 +372,65 @@ This will deploy the BookInfo application, which consists of 4 microservices, ea
 which collaborate to show book product information, book details and book reviews. Each microservice is deployed in its own pod, with the Envoy proxy injected into the pod; Envoy will now take over all network communications between
 the pods.
 
+Now create ingress gateway for the application.
+
+    istioctl create -f samples/bookinfo/routing/bookinfo-gateway.yaml
+
 Let's check that all components were installed
 
 ```
 $ kubectl get all
-NAME                    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deploy/details-v1       1         1         1            1           3h
-deploy/productpage-v1   1         1         1            1           3h
-deploy/ratings-v1       1         1         1            1           3h
-deploy/reviews-v1       1         1         1            1           3h
-deploy/reviews-v2       1         1         1            1           3h
-deploy/reviews-v3       1         1         1            1           3h
+NAME                                  READY     STATUS    RESTARTS   AGE
+pod/details-v1-67d5db65f5-fvsww       2/2       Running   0          4m
+pod/productpage-v1-7fc7c946d7-jzctx   2/2       Running   0          4m
+pod/ratings-v1-64c556bfb7-hphlz       2/2       Running   0          4m
+pod/reviews-v1-86699769ff-q4zkb       2/2       Running   0          4m
+pod/reviews-v2-785b9fcc67-2qzgt       2/2       Running   0          4m
+pod/reviews-v3-5fbf9f97f9-9bb62       2/2       Running   0          4m
 
-NAME                           DESIRED   CURRENT   READY     AGE
-rs/details-v1-39705650         1         1         1         3h
-rs/productpage-v1-1382449686   1         1         1         3h
-rs/ratings-v1-3906799406       1         1         1         3h
-rs/reviews-v1-2953083044       1         1         1         3h
-rs/reviews-v2-348355652        1         1         1         3h
-rs/reviews-v3-4088116596       1         1         1         3h
+NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/details       ClusterIP   100.71.192.71   <none>        9080/TCP   4m
+service/kubernetes    ClusterIP   100.64.0.1      <none>        443/TCP    21m
+service/productpage   ClusterIP   100.70.7.13     <none>        9080/TCP   4m
+service/ratings       ClusterIP   100.71.44.214   <none>        9080/TCP   4m
+service/reviews       ClusterIP   100.65.3.243    <none>        9080/TCP   4m
 
-NAME                    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deploy/details-v1       1         1         1            1           3h
-deploy/productpage-v1   1         1         1            1           3h
-deploy/ratings-v1       1         1         1            1           3h
-deploy/reviews-v1       1         1         1            1           3h
-deploy/reviews-v2       1         1         1            1           3h
-deploy/reviews-v3       1         1         1            1           3h
+NAME                                   DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/details-v1       1         1         1            1           4m
+deployment.extensions/productpage-v1   1         1         1            1           4m
+deployment.extensions/ratings-v1       1         1         1            1           4m
+deployment.extensions/reviews-v1       1         1         1            1           4m
+deployment.extensions/reviews-v2       1         1         1            1           4m
+deployment.extensions/reviews-v3       1         1         1            1           4m
 
-NAME                                 READY     STATUS    RESTARTS   AGE
-po/details-v1-39705650-vc2x0         2/2       Running   0          3h
-po/productpage-v1-1382449686-b7frw   2/2       Running   0          3h
-po/ratings-v1-3906799406-11pcn       2/2       Running   0          3h
-po/reviews-v1-2953083044-sktvt       2/2       Running   0          3h
-po/reviews-v2-348355652-xbbbv        2/2       Running   0          3h
-po/reviews-v3-4088116596-pkkjk       2/2       Running   0          3h
+NAME                                              DESIRED   CURRENT   READY     AGE
+replicaset.extensions/details-v1-67d5db65f5       1         1         1         4m
+replicaset.extensions/productpage-v1-7fc7c946d7   1         1         1         4m
+replicaset.extensions/ratings-v1-64c556bfb7       1         1         1         4m
+replicaset.extensions/reviews-v1-86699769ff       1         1         1         4m
+replicaset.extensions/reviews-v2-785b9fcc67       1         1         1         4m
+replicaset.extensions/reviews-v3-5fbf9f97f9       1         1         1         4m
+
+NAME                             DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/details-v1       1         1         1            1           4m
+deployment.apps/productpage-v1   1         1         1            1           4m
+deployment.apps/ratings-v1       1         1         1            1           4m
+deployment.apps/reviews-v1       1         1         1            1           4m
+deployment.apps/reviews-v2       1         1         1            1           4m
+deployment.apps/reviews-v3       1         1         1            1           4m
+
+NAME                                        DESIRED   CURRENT   READY     AGE
+replicaset.apps/details-v1-67d5db65f5       1         1         1         4m
+replicaset.apps/productpage-v1-7fc7c946d7   1         1         1         4m
+replicaset.apps/ratings-v1-64c556bfb7       1         1         1         4m
+replicaset.apps/reviews-v1-86699769ff       1         1         1         4m
+replicaset.apps/reviews-v2-785b9fcc67       1         1         1         4m
+replicaset.apps/reviews-v3-5fbf9f97f9       1         1         1         4m
 ```
 
 If all components were installed successfully, you should be able to see the product page. This may take a minute or two, first for the Ingress to be created, and secondly for the Ingress to hook up with the services it exposes. Just keep refreshing the browser until the booking product page appears.
 
-  ISTIO_INGRESS=$(kubectl get ingress gateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+  ISTIO_INGRESS=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
   open http://$ISTIO_INGRESS/productpage
 
 It looks like as shown:
@@ -359,12 +446,12 @@ We'll then query the bookinfo product page a few times and count the number of t
 containing stars for a review; this will indicate we are being routed to v3 of the reviews page.
 
     $ kubectl create -f samples/bookinfo/kube/route-rule-all-v1.yaml
-    routerule "productpage-default" created
-    routerule "reviews-default" created
-    routerule "ratings-default" created
-    routerule "details-default" created
+    routerule.config.istio.io "productpage-default" created
+    routerule.config.istio.io "reviews-default" created
+    routerule.config.istio.io "ratings-default" created
+    routerule.config.istio.io "details-default" created
     $ kubectl replace -f samples/bookinfo/kube/route-rule-reviews-50-v3.yaml
-    routerule "reviews-default" replaced
+    routerule.config.istio.io "reviews-default" replaced
 
 The Envoy proxy does not round robin the routing to different versions of the microservice, so if you access
 the product page twice you are unlikely to see one request use v1 of reviews, and a second request use v3. However, over a hundred requests 50% of them should be routed to v3 of the reviews page. We can test this using
@@ -374,7 +461,7 @@ those which have stars in the response. For the eagle eyed amongst you, the divd
 productpage html contains two reviewers, and we simply want to count the number of `curls` that returned
 "`full stars`" in the review page. Out of 100 curls we expect 50 of them to contain "`full stars`".
 
-    ISTIO_INGRESS=$(kubectl get ingress gateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+    ISTIO_INGRESS=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
     for((i=1;i<=100;i+=1));do curl  -s http://$ISTIO_INGRESS/productpage >> mfile; done;
     a=$(grep 'full stars' mfile | wc -l) && echo Number of calls to v3 of reviews service "$(($a / 2))"
 
@@ -395,12 +482,7 @@ Istio is deployed as a sidecar proxy into each of your pods; this means it can s
 between your microservices and generate a graphical representation of your mesh traffic. We'll use the bookinfo
 application you deployed in the previous step to demonstrate this.
 
-First, install Prometheus, which will obtain the metrics we need from Istio
-
-    $ kubectl apply -f install/kubernetes/addons/prometheus.yaml
-    configmap "prometheus" created
-    service "prometheus" created
-    deployment "prometheus" created
+Prometheus will obtain the metrics we need from Istio
 
 Check that Prometheus is running:
 
@@ -408,12 +490,8 @@ Check that Prometheus is running:
   NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
   prometheus   ClusterIP   100.69.199.148   <none>        9090/TCP   47s
 
-Now install the Servicegraph addon; Servicegraph queries Prometheus, which obtains details of the mesh traffic flows
+Servicegraph queries Prometheus, which obtains details of the mesh traffic flows
 from Istio
-
-    $ kubectl apply -f install/kubernetes/addons/servicegraph.yaml
-    deployment "servicegraph" created
-    service "servicegraph" created
 
 Check that the Servicegraph was deployed:
 
@@ -423,13 +501,13 @@ Check that the Servicegraph was deployed:
 
 Generate some traffic to the bookinfo application:
 
-  ISTIO_INGRESS=$(kubectl get ingress gateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
+  ISTIO_INGRESS=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath="{.status.loadBalancer.ingress[0].*}")
   open http://$ISTIO_INGRESS/productpage
 
 View the Servicegraph UI - we'll use port forwarding to access this
 
-    kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8088:8088 &
-    open http://localhost:8088/dotviz
+    kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=servicegraph -o jsonpath='{.items[0].metadata.name}') 8080:8088 &
+    open https://<ENV_ID>.vfs.cloud9.<REGION_ID>.amazonaws.com/dotviz
 
 You should see a distributed trace that looks something like this. It may take a few seconds for Servicegraph to become available, so refresh the browser if you do not receive a response.
 
@@ -443,11 +521,11 @@ Istio with mutual TLS enabled.
 
 If you have run the examples above, uninstall Istio:
 
-    kubectl delete -f install/kubernetes/istio.yaml
+    kubectl delete -f install/kubernetes/istio-demo.yaml
 
 and reinstall it with the Auth module enabled
 
-    kubectl apply -f install/kubernetes/istio-auth.yaml
+    kubectl apply -f install/kubernetes/istio-demo-auth.yaml
 
 all traffic between microservices will now be encrypted.
 
@@ -455,10 +533,8 @@ all traffic between microservices will now be encrypted.
 
 Remove the installed components
 
-  kubectl delete -f install/kubernetes/addons/servicegraph.yaml
-  kubectl delete -f install/kubernetes/addons/prometheus.yaml
-  kubectl delete -f install/kubernetes/istio-auth.yaml
-  kubectl delete -f install/kubernetes/istio.yaml
+  kubectl delete -f install/kubernetes/istio-demo-auth.yaml
+  kubectl delete -f install/kubernetes/istio-demo.yaml
   ./samples/bookinfo/kube/cleanup.sh
 
 Accept the `default` namespace in the cleanup script above.
