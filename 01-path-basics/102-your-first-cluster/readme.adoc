@@ -42,10 +42,18 @@ EKS can be used to create a highly available cluster, with multiple master nodes
 
 === Create the master nodes
 
+The default name of your Kubernetes cluster is k8s-workshop and stored in the environment variable EKS_CLUSTER_NAME. If you want to change the name of your cluster, you can overwrite the value using
+
+    $ export EKS_CLUSTER_NAME=<your_cluster_name>
+
+Please confirm the following environment variable is set correctly before executing the 'create cluster' command:
+
+    $ echo $EKS_CLUSTER_NAME
+
 Create a Kubernetes cluster using the following command. Run it in the "bash" terminal tab at the bottom of the Cloud9 IDE. This will create a cluster with master nodes:
 
     $ aws eks create-cluster \
-      --name k8s-workshop \
+      --name $EKS_CLUSTER_NAME \
       --role-arn $EKS_SERVICE_ROLE \
       --resources-vpc-config subnetIds=${EKS_SUBNET_IDS},securityGroupIds=${EKS_SECURITY_GROUPS} \
       --kubernetes-version 1.10
@@ -54,7 +62,7 @@ The `EKS_SERVICE_ROLE`, `EKS_SUBNET_IDS`, and `EKS_SECURITY_GROUPS` environment 
 
 Cluster provisioning usually takes less than 10 minutes. You can query the status of your cluster with the following command. When your cluster status is `ACTIVE`, you can proceed.
 
-    $ aws eks describe-cluster --name k8s-workshop --query cluster.status --output text
+    $ aws eks describe-cluster --name $EKS_CLUSTER_NAME --query cluster.status --output text
 
 Note: If your 'create cluster' fails with an error like:
 ```
@@ -141,13 +149,13 @@ Now that your EKS master nodes are created, you can launch and configure your wo
 To launch your worker nodes, run the following CloudFormation CLI command:
 
     $ aws cloudformation create-stack \
-      --stack-name k8s-workshop-worker-nodes \
+      --stack-name ${EKS_CLUSTER_NAME}-worker-nodes \
       --template-url https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/amazon-eks-nodegroup.yaml \
       --capabilities "CAPABILITY_IAM" \
       --parameters "[{\"ParameterKey\": \"KeyName\", \"ParameterValue\": \"${AWS_STACK_NAME}\"},
                      {\"ParameterKey\": \"NodeImageId\", \"ParameterValue\": \"${EKS_WORKER_AMI}\"},
-                     {\"ParameterKey\": \"ClusterName\", \"ParameterValue\": \"k8s-workshop\"},
-                     {\"ParameterKey\": \"NodeGroupName\", \"ParameterValue\": \"k8s-workshop-nodegroup\"},
+                     {\"ParameterKey\": \"ClusterName\", \"ParameterValue\": \"${EKS_CLUSTER_NAME}\"},
+                     {\"ParameterKey\": \"NodeGroupName\", \"ParameterValue\": \"${EKS_CLUSTER_NAME}-nodegroup\"},
                      {\"ParameterKey\": \"ClusterControlPlaneSecurityGroup\", \"ParameterValue\": \"${EKS_SECURITY_GROUPS}\"},
                      {\"ParameterKey\": \"VpcId\", \"ParameterValue\": \"${EKS_VPC_ID}\"},
                      {\"ParameterKey\": \"Subnets\", \"ParameterValue\": \"${EKS_SUBNET_IDS}\"}]"
@@ -156,7 +164,7 @@ The `AWS_STACK_NAME`, `EKS_WORKER_AMI`, `EKS_VPC_ID`, `EKS_SUBNET_IDS`, and `EKS
 
 Node provisioning usually takes less than 5 minutes. You can query the status of your cluster with the following command. When your cluster status is `CREATE_COMPLETE`, you can proceed.
 
-    $ aws cloudformation describe-stacks --stack-name k8s-workshop-worker-nodes --query 'Stacks[0].StackStatus' --output text
+    $ aws cloudformation describe-stacks --stack-name ${EKS_CLUSTER_NAME}-worker-nodes --query 'Stacks[0].StackStatus' --output text
 
 === Enable worker nodes to join cluster
 
