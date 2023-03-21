@@ -685,7 +685,7 @@ AWS Secrets Manager enables you to easily rotate, manage, and retrieve database 
 === Update the IAM role for EKS or `kops` Kubernetes Cluster
 
 ==== EKS Kubernetes Cluster
-EC2 worker nodes use `NodeInstanceRole` created in Step 3 of the https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html[EKS Getting Started guide]. This role must be updated to allow the worked nodes to read the secrets from Secrets Manager.
+EC2 worker nodes use `NodeInstanceRole` created in Step 3 of the https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html[EKS Getting Started guide]. This role must be updated to allow the worker nodes to read the secrets from Secrets Manager.
 
 In the IAM Console, click `roles` and type `NodeInstanceRole` and click it. In the Permissions tab, expand the inline policy and click `Edit policy`. Add the `secretsManager:GetSecretValue` permission to the policy so the policy looks similar to the one below.
 
