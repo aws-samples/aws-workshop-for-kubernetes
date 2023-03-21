@@ -255,7 +255,7 @@ Lets wait for prometheus to come up:
 
 Prometheus is now scraping metrics from the different scraping targets and we forward the dashboard via:
 
-  $ kubectl port-forward $(kubectl get po -l prometheus=prometheus -n monitoring -o jsonpath={.items[0].metadata.name}) 9090 -n monitoring
+  $ kubectl port-forward $(kubectl get po -l prometheus=prometheus -n monitoring -o jsonpath='{.items[0].metadata.name}') 9090 -n monitoring
   Forwarding from 127.0.0.1:9090 -> 9090
 
 Now open the browser at http://localhost:9090/targets and all targets should be shown as `UP` (it might take a couple of minutes until data collectors are up and running for the first time). The browser displays the output as shown:
@@ -284,7 +284,7 @@ Lets wait for grafana to come up:
 
 Lets forward the grafana dashboard to a local port:
 
-  $ kubectl port-forward $(kubectl get pod -l app=grafana -o jsonpath={.items[0].metadata.name} -n monitoring) 3000 -n monitoring
+  $ kubectl port-forward $(kubectl get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}' -n monitoring) 3000 -n monitoring
   Forwarding from 127.0.0.1:3000 -> 3000
 
 Grafana dashboard is now accessible at http://localhost:3000/. The complete list of dashboards is available using the search button at the top:
