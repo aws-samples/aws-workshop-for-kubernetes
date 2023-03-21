@@ -343,6 +343,6 @@ You are now ready to continue on with the workshop!
 
 [align="center", cols="1", grid="none", frame="none"]
 |=====
-|image:button-continue-operations.png[link=../../02-path-working-with-clusters/205-cluster-autoscaling]
+|image:button-continue-operations.png[link=../../02-path-working-with-clusters/206-cloudformation-and-terraform]
 |link:../../operations-path.adoc[Go to Operations Index]
 |=====
