@@ -18,6 +18,6 @@ Once you've looked at the options above, you are ready to continue with the work
 
 [align="center", cols="1", grid="none", frame="none"]
 |=====
-|image:button-continue-developer.png[link=../../03-path-application-development/309-deploying-a-chart-repository]
+|image:button-continue-developer.png[link=../../03-path-application-development/310-deploying-a-chart-repository]
 |link:../../developer-path.adoc[Go to Developer Index]
 |=====

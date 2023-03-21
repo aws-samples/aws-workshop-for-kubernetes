@@ -111,7 +111,7 @@ You are now ready to continue on with the workshop!
 [align="center", cols="2", grid="none", frame="none"]
 |=====
 |image:button-continue-standard.png[link=../../05-path-next-steps/502-for-further-reading]
-|image:button-continue-developer.png[link=../../03-path-application-development/305-app-tracing-with-jaeger-and-x-ray]
+|image:button-continue-developer.png[link=../../03-path-application-development/306-app-tracing-with-jaeger-and-x-ray]
 |link:../../standard-path.adoc[Go to Standard Index]
 |link:../../developer-path.adoc[Go to Developer Index]
 |=====

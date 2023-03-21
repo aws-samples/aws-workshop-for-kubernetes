@@ -424,6 +424,6 @@ You are now ready to continue on with the workshop!
 
 [align="center", cols="1", grid="none", frame="none"]
 |=====
-|image:button-continue-developer.png[link=../../03-path-application-development/310-chaos-engineering]
+|image:button-continue-developer.png[link=../../03-path-application-development/311-chaos-engineering]
 |link:../../developer-path.adoc[Go to Developer Index]
 |=====

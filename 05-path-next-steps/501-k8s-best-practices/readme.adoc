@@ -120,8 +120,8 @@ You are now ready to continue on with the workshop!
 
 [align="center", cols="2", grid="none", frame="none"]
 |=====
-|image:button-continue-developer.png[link=../../05-path-next-steps/501-k8s-best-practices/]
-|image:button-continue-operations.png[link=../../05-path-next-steps/501-k8s-best-practices/]
+|image:button-continue-developer.png[link=../../05-path-next-steps/502-for-further-reading/]
+|image:button-continue-operations.png[link=../../05-path-next-steps/502-for-further-reading/]
 |link:../../developer-path.adoc[Go to Developer Index]
 |link:../../operations-path.adoc[Go to Operations Index]
 |=====
