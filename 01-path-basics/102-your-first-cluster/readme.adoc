@@ -50,6 +50,12 @@ Create a Kubernetes cluster using the following command. Run it in the "bash" te
       --resources-vpc-config subnetIds=${EKS_SUBNET_IDS},securityGroupIds=${EKS_SECURITY_GROUPS} \
       --kubernetes-version 1.10
 
+Note: If you receive the error message:
+```
+You must specify a region. You can also configure your region by running "aws configure".
+```
+Run `aws configure` and specify the region you are working in.  You do not have to enter a value for the other prompts.
+
 The `EKS_SERVICE_ROLE`, `EKS_SUBNET_IDS`, and `EKS_SECURITY_GROUPS` environment variables should have been set during the link:../101-start-here[Cloud9 Environment Setup].
 
 Cluster provisioning usually takes less than 10 minutes. You can query the status of your cluster with the following command. When your cluster status is `ACTIVE`, you can proceed.
