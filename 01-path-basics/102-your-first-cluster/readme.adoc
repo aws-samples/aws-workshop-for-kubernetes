@@ -122,7 +122,7 @@ In order to access the cluster locally, use a configuration file (sometimes refe
 
 Once the cluster has moved to the `ACTIVE` state, download and run the `create-kubeconfig.sh` script.
 
-    aws s3 cp s3://aws-kubernetes-artifacts/v0.5/create-kubeconfig.sh . && \
+    aws s3 cp s3://DOC-EXAMPLE-BUCKET/v0.5/create-kubeconfig.sh . && \
     chmod +x create-kubeconfig.sh && \
     . ./create-kubeconfig.sh
 
@@ -162,7 +162,7 @@ Node provisioning usually takes less than 5 minutes. You can query the status of
 
 To enable worker nodes to join your cluster, download and run the `aws-auth-cm.sh` script.
 
-    aws s3 cp s3://aws-kubernetes-artifacts/v0.5/aws-auth-cm.sh . && \
+    aws s3 cp s3://DOC-EXAMPLE-BUCKET/v0.5/aws-auth-cm.sh . && \
     chmod +x aws-auth-cm.sh && \
     . ./aws-auth-cm.sh
 

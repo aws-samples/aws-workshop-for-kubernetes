@@ -26,12 +26,12 @@ Please choose the region closest to you.  If you choose a region for Cloud9 that
 
 |Region | Launch template with a new VPC | Launch template with an existing VPC
 | *N. Virginia* (us-east-1)
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-novpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/DOC-EXAMPLE-BUCKET/v0.5/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/DOC-EXAMPLE-BUCKET/v0.5/lab-ide-novpc.template]
 
 | *Oregon* (us-west-2)
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/lab-ide-novpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/DOC-EXAMPLE-BUCKET/v0.5/lab-ide-vpc.template]
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/DOC-EXAMPLE-BUCKET/v0.5/lab-ide-novpc.template]
 
 |===
 
@@ -67,7 +67,7 @@ Once your Cloud9 is ready, download the build script and install in your IDE. Th
 
 To install the script, run this command in the "bash" terminal tab of the Cloud9 IDE:
 
-    aws s3 cp s3://aws-kubernetes-artifacts/v0.5/lab-ide-build.sh . && \
+    aws s3 cp s3://DOC-EXAMPLE-BUCKET/v0.5/lab-ide-build.sh . && \
     chmod +x lab-ide-build.sh && \
     . ./lab-ide-build.sh
 

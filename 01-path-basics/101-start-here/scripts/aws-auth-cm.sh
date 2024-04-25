@@ -5,7 +5,7 @@
 #contributors    @buzzsurfr @dalbhanj @cloudymind
 #date            2018-06-05
 #version         0.1
-#usage           curl -sSL https://s3.amazonaws.com/aws-kubernetes-artifacts/v0.5/aws-auth-cm.sh | bash -s stable
+#usage           curl -sSL https://s3.amazonaws.com/DOC-EXAMPLE-BUCKET/v0.5/aws-auth-cm.sh | bash -s stable
 #==============================================================================
 
 curl -O https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/aws-auth-cm.yaml
