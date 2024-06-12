@@ -17,9 +17,9 @@ In September 2017, Jaeger became a member of the link:https://www.cncf.io/[CNCF]
 
 == Pre-requisites
 
-A 3 master nodes and 5 worker nodes cluster as explained at link:../cluster-install#multi-master-multi-node-multi-az-gossip-based-cluster[] is used for this chapter.
+A 3 master nodes and 5 worker nodes cluster as explained at link:../../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[Create a Kubernetes Cluster with kops] is used for this chapter.
 
-We will use the Istio service mesh sample application, so follow these steps to link:../../service-mesh#install-istio[install istio] and link:../../service-mesh#deploying-the-sample-application[deploy the sample application].
+We will use the Istio service mesh sample application, so follow these steps to link:../../../02-path-working-with-clusters/202-service-mesh#install-istio[install istio] and link:../../../02-path-working-with-clusters/202-service-mesh#deploying-the-sample-application[deploy the sample application].
 Check that you can see the BookInfo product page in your browser, as seen below.
 
 image::bookinfo.png[]

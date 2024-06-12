@@ -19,6 +19,6 @@ Once you've explored link:x-ray[X-Ray] and link:jaeger[Jaeger], you are ready to
 
 [align="center", cols="1", grid="none", frame="none"]
 |=====
-|image:button-continue-developer.png[link=../../03-path-application-development/306-app-management-with-helm]
+|image:button-continue-developer.png[link=../../03-path-application-development/307-app-management-with-helm]
 |link:../../developer-path.adoc[Go to Developer Index]
 |=====

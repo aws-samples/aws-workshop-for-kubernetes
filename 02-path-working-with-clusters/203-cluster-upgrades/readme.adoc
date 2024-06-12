@@ -14,7 +14,9 @@ with 1.6.10 version and perform an automatic rolling upgrade to 1.7.2 using kops
 
 === Create cluster
 
-Review steps to create link:../prereqs.adoc[prereqs] and make sure `KOPS_STATE_STORE` and `AWS_AVAILABILITY_ZONES` environment variables are set. More details about creating a cluster are at link:../cluster-install[Create Kubernetes cluster using kops].
+Review steps to create link:../../01-path-basics/101-start-here#install-kops[prereqs] and make sure `KOPS_STATE_STORE` and `AWS_AVAILABILITY_ZONES` environment variables are set.
+More details about creating a cluster are at link:../../01-path-basics/102-your-first-cluster#alternative-create-a-kubernetes-cluster-with-kops[Create Kubernetes cluster using kops].
+
 
 In this chapter, we'll create a Kubernetes 1.6.10 version cluster as shown:
 
