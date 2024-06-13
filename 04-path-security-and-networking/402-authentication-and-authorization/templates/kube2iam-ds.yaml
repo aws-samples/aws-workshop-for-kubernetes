@@ -19,6 +19,8 @@ spec:
           name: kube2iam
           args:
             - "--auto-discover-base-arn"
+           # Set the host network interface to 'eni+' in the case of using 
+           # amazon-vpc-cni-k8s (see https://github.com/jtblin/kube2iam#iptables)
             - "--host-interface=cbr0"
             - "--host-ip=$(HOST_IP)"
             - "--iptables=true"
