@@ -391,7 +391,7 @@ At this time, only one means of Canary deployment is explained. Details on other
 
 === Deployment, Service and Labels
 
-Two Deployments with image for different versions are used togther. Both Deployments have same pod labels but differ in at least one label. The common pod labels are uesd as selector for the Service. Different pod labels are used to scale the number of replicas. One replica of the new version of Deployment is released alongside the old version. If no errors are detected for some time, then the number of replicas of the new version are scaled up and the number of replicas for the old version are scaled down. Eventually, the old version is deleted.
+Two Deployments with image for different versions are used togther. Both Deployments have same pod labels but differ in at least one label. The common pod labels are used as selector for the Service. Different pod labels are used to scale the number of replicas. One replica of the new version of Deployment is released alongside the old version. If no errors are detected for some time, then the number of replicas of the new version are scaled up and the number of replicas for the old version are scaled down. Eventually, the old version is deleted.
 
 ==== Deployment and Service definition
 
